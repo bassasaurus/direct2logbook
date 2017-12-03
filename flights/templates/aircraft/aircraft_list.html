@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load render_table from django_tables2 %}
+{% block content %}
+
+<a class="btn btn-outline-primary btn-sm" href="{% url 'aircraft_create' %}">Add</a>
+<hr>
+<div class="row">
+  {% for aircraft in object_list %}
+  <div class="col-lg-3 col-md-3 col-sm-3">
+    <div class="card-deck">
+      <div style="margin-bottom:10px;" class="card">
+        <div class="card-header">
+          <h5>{{ aircraft.aircraft_type }}</h5>
+        </div>
+          <div class="card-body">
+            <img class="img-thumbnail" src="{% static '/img/aircraft-placeholder.png'%}"></img>
+          </div>
+          <div class="card-footer">
+            <a href ="{% url 'aircraft_detail' aircraft.pk %}" class="btn btn-outline-primary btn-sm">View</a>
+            <a href ="{% url 'aircraft_update' aircraft.pk %}" class="btn btn-outline-primary btn-sm">Edit</a>
+          </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div><!-- row -->
+
+
+{% endblock %}

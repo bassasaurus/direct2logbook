@@ -1,0 +1,96 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>{{ title }}</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.css' %}" rel="stylesheet">
+    <!-- Custom styles for this template -->
+    <link href="{% static 'css/modern-business.css' %}" rel="stylesheet">
+    <!-- App adjustments -->
+    <link href="{% static 'css/custom.css' %}" rel="stylesheet">
+    <!-- Jquery -->
+    <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+    <!-- Bootstrap Datepicker -->
+    <link href="{% static 'bootstrap-datepicker/css/bootstrap-datepicker.css' %}" rel="stylesheet">
+    <script src="{% static 'bootstrap-datepicker/js/bootstrap-datepicker.js' %}"></script>
+    <!-- google icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+  </head>
+
+  <body>
+    {% if user.is_authenticated %}
+      {% include 'navbar.html' %}
+      <!-- Page Content -->
+      <div style="margin-top: 40px; height: 100%; overflow: scroll;" class="container">
+        <div class="">
+          <h3>{{page_title}}</h3>
+          <hr>
+        </div>
+        <div>
+          <ol class="breadcrumb">
+            <li class="breadcrumb-item">
+              <a href="{% url 'home' %}">Home</a>
+            </li>
+            {% if parent_name %}
+              <li class="breadcrumb-item">
+                <a href="{{parent_link}}">{{parent_name}}</a>
+                </li>
+            {% endif %}
+            {% if child_name %}
+              <li class="breadcrumb-item">
+                <a href="{{child_link}}">{{child_name}}</a>
+                </li>
+            {% endif %}
+            {% if page_title == "Home" %}
+            {% else %}
+              <li class="breadcrumb-item">
+                {{page_title}}
+              </li>
+            {% endif %}
+         </ol>
+       </div>
+      <hr>
+        {% block content %}
+        {% endblock %}
+    </div><!-- /.container -->
+
+      <div style="height:120px; width:auto;"></div>
+      {% include 'footer.html' %}
+
+    {% else %}
+      {% include 'navbar_landing.html' %}
+      {% include 'header.html' %}
+      <div class="container">
+        <h1 class="my-4">Welcome to Direct2Logbook!</h1>
+        <hr>
+        <!-- marketing.html -->
+        {% include 'portfolio.html' %}
+        {% include 'features.html' %}
+        {% include 'call_to_action.html' %}
+      </div><!-- /.container -->
+      {% include 'footer.html' %}
+    {% endif %}
+
+    <!-- Bootstrap core JavaScript -->
+    <script src="{% static 'vendor/popper/popper.min.js' %}"></script>
+    <script src="{% static 'vendor/bootstrap/js/bootstrap.min.js' %}"></script>
+    <!-- tableHeadFixer -->
+    <script src="{% static 'js/tableHeadFixer.js' %}"></script>
+
+  </body>
+
+<script>
+$('a[href="' + this.location.pathname + '"]').parents('li,ul').addClass('active');
+</script>
+
+</html>

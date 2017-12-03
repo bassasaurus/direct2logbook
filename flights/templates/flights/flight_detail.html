@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="row">
+  <div class="col-lg-12 col-md-12 col-sm-12 col-12">
+  <h3>{{ flight.date }} | {{ flight.aircraft_type }} | {{ flight.registration }} | {{ flight.route }}</h3>
+  <hr>
+</div>
+</div>
+
+<div class="row">
+  <div class="col col-lg-3 col-md-3 col-sm-3 col-3">
+    <a href ="{% url 'flight_update' flight.pk %}" class="btn btn-outline-secondary btn-sm">Edit</a>
+    <a href ="{% url 'flight_delete' flight.pk %}" class="btn btn-danger btn-sm">Delete</a>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-3 col-md-6 col-sm-12 col-12">
+    <hr>
+    <p>Aircraft {{ flight.aircraft_type }}</p>
+    <p>Registration {{ flight.registration }}</p>
+    <hr>
+    <p>Duration {{ flight.duration }}</p>
+    <hr>
+    {% if flight.pilot_in_command %}
+      <p>PIC</p>
+      <hr>
+      {% else %}
+    {% endif %}
+
+    {% if flight.second_in_command %}
+      <p>SIC</p>
+      <hr>
+      {% else %}
+    {% endif %}
+
+    {% if flight.instructor %}
+      <p>Instructor</p>
+      <hr>
+      {% else %}
+    {% endif %}
+
+    {% if flight.dual %}
+      <p>Dual</p>
+      <hr>
+      {% else %}
+    {% endif %}
+
+    {% if flight.solo %}
+      <p>Solo</p>
+      <hr>
+      {% else %}
+    {% endif %}
+
+    {% if flight.simulator %}
+      <p>Sim</p>
+      {% else %}
+    {% endif %}
+
+    {% if flight.cross_country %}
+      <p>Cross Country</p>
+      <hr>
+      {% else %}
+    {% endif %}
+
+    {% if flight.night %}
+      <p>Night {{ flight.night }}</p>
+      <hr>
+      {% else %}
+    {% endif %}
+
+    {% if flight.instrument %}
+      <p>Instrument {{ flight.instrument }}</p>
+        {% else %}
+    {% endif %}
+
+    <p>Legs {{ flight.legs }}</p>
+    <hr>
+
+    <p>Day Landings {{ flight.landings_day }}</p>
+
+    {% if flight.night %}
+      <p>Night Landings {{ flight.landings_night }}</p>
+      {% else %}
+    {% endif %}
+
+    <hr>
+    <p>Approaches {{ flight.approaches }}</p>
+    <hr>
+    {% if flight.remarks %}
+      <p>Remarks {{ flight.remarks }}</p>
+      {% else %}
+    {% endif %}
+  </div>
+
+  <div class="col-lg-9 col-md-12 col-sm-12 col-12">
+    <div id="mapid" class="img-responsive image-shadow custom-popup">
+      {% include 'leaflet.html' %}
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}

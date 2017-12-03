@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<a class="btn btn-outline-primary btn-sm" href="{% url 'flight_create' %}">New Flight</button></a>
+<div style="height:15px;"></div>
+
+{% include "pagination.html"%}
+
+{% include 'flights/logbook.html' %}
+
+{% include 'tablefixer.html' %}
+
+{% endblock %}

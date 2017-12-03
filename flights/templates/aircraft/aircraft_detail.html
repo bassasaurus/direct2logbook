@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load flights_filters %}
+{% block content%}
+
+<div class="row">
+  <div class="col-lg-3 col-md-3 col-sm-3 col-3">
+    <a href ="{% url 'aircraft_update' aircraft.pk %}" class="btn btn-outline-secondary btn-sm">Update</a>
+    <a href ="{% url 'aircraft_delete' aircraft.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
+
+      <hr>
+      {% if aircraft.turbine %}
+        <p>Turbine</p>
+        {% else %}
+      {% endif %}
+      {% if aircraft.piston %}
+        <p>Piston</p>
+        {% else %}
+      {% endif %}
+      <hr>
+      {% if aircraft.requires_type %}
+        <p>Requires Type Rating</p>
+        {% else %}
+      {% endif %}
+      {% if aircraft.simple %}
+        <p>Simple</p>
+        {% else %}
+      {% endif %}
+      {% if aircraft.tailwheel %}
+        <p>Tailwheel</p>
+        {% else %}
+      {% endif %}
+      {% if aircraft.compleks %}
+        <p>Complex</p>
+        {% else %}
+      {% endif %}
+      {% if aircraft.high_performance %}
+        <p>High performance</p>
+        {% else %}
+      {% endif %}
+        {% if aircraft.super %}
+          <p>Super</p>
+          {% else %}
+        {% endif %}
+        {% if aircraft.heavy %}
+          <p>Heavy</p>
+          {% else %}
+        {% endif %}
+        {% if aircraft.large %}
+          <p>Large</p>
+          {% else %}
+        {% endif %}
+        {% if aircraft.medium %}
+          <p>Medium</p>
+          {% else %}
+        {% endif %}
+        {% if aircraft.small %}
+          <p>Small</p>
+          {% else %}
+        {% endif %}
+    <hr>
+    <p>Category - {{ aircraft.aircraft_category }}</p>
+    <p>Class - {{ aircraft.aircraft_class }}</p>
+  </div>
+
+  <div class="col-lg-3 col-md-9 col-sm-9 col-9">
+    <h3>Tailnumbers</h3>
+    <hr>
+    {% for tailnumber in tailnumbers %}
+      <a class="btn btn-outline-secondary btn-sm" href ="{% url 'tailnumber_detail' tailnumber.pk %}">{{ tailnumber.registration }}</a>
+    {% endfor %}
+  </div>
+
+  <div class="col-lg-6 col-md-12 col-sm-12 col-12">
+    {% if aircraft.image %}
+      <div><img class="image-shadow img-rounded img-fluid" src="{{ aircraft.image.url }}"></img></div>
+    {% else %}
+      <img class="image-shadow img-rounded img-fluid" src="{% static '/img/aircraft-placeholder.png' %}"></img>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

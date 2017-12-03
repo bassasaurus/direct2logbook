@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% if not date_list %}
+  <div class="page-header">
+    <h3>No flights yet<h3>
+  </div>
+  <div class="row">
+    <div class="col col-lg-12 col-md-12 col-sm-12"></div>
+    <div class="image-shadow"id="mapid"></div>
+  </div>
+  {% else %}
+
+    <div class="row">
+      <div class="col-lg-12 col-md-12 col-sm-12">
+        {% for date in date_list %}
+            <a href="/flights/by_date/{{ date|date:'Y' }}" class="btn btn-outline-secondary">{{ date|date:"Y" }}</a>
+        {% endfor %}
+      </div>
+    </div>
+    <div style="height: 20px; width: 100%;"></div>
+
+    <div id="mapid" class="col col-lg-12 col-md-12 col-sm-12 image-shadow custom-popup">
+      {% include 'leaflet.html' %}
+    </div>
+
+
+  {% endif %}
+
+
+{% endblock %}

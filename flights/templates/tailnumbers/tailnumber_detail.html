@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+
+{% block content%}
+
+<div class="row">
+  <div class="col-lg-2 col-md-2 col-md-2">
+      <a href ="{% url 'tailnumber_update' tailnumber.pk %}" class="btn btn-outline-secondary btn-sm">Update</a>
+      <a href ="{% url 'tailnumber_delete' tailnumber.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
+    <hr>
+    <h4>{{ tailnumber.aircraft }}</h4>
+    {% if tailnumber.is_121 %}
+        <p>121</p>
+      {% else %}
+    {% endif %}
+    {% if tailnumber.is_135 %}
+        <p>135</p>
+      {% else %}
+    {% endif %}
+    {% if tailnumber.is_91 %}
+        <p>91</p>
+      {% else %}
+    {% endif %}
+  </div>
+
+  <div class="col-lg-5 col-md-10 col-sm-10 col-10">
+    <h3>Flights</h3>
+    <hr>
+    {% for flight in flights %}
+      <a href ="{% url 'flight_detail' flight.pk %}" class="btn btn-outline-secondary btn-sm">{{ flight.date }} {{ flight.route }} {{ flight.aircraft_type}}</a>
+    {% endfor %}
+  </div>
+
+  <div style="margin-top: 10px;" id="mapid" class="col col-lg-5 col-md-12 col-sm-12 col-12 image-shadow custom-popup">
+      {% include 'leaflet.html' %}
+  </div>
+</div>
+
+
+{% endblock %}

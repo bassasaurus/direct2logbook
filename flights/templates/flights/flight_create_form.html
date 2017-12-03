@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+<p>* Required </p>
+<div class="input-group">
+  {% crispy form %}
+</div>
+
+{% include 'datepicker.html' %}
+
+{{ form.media }}
+{% endblock %}

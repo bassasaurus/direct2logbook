@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load columns %}
+{% block content %}
+<div>
+  <a class="btn btn-secondary btn-sm" href="{% url 'tailnumber_create' %}">Add</a>
+  <hr>
+</div>
+<div class="row">
+  {% for col in object_list|columns:6 %}
+  <div style="padding:0px, border:0px" class="col-lg-2 col-md-3 col-sm-4">
+    {% for tailnumber in col %}
+    <li class=list-unstyled>
+      <a class="btn btn-outline-secondary btn-sm" href ="{% url 'tailnumber_detail' tailnumber.pk %}">{{ tailnumber.registration }} | {{ tailnumber.aircraft }}</a>
+    </li>
+    {% endfor %}
+  </div><!-- /col-md-3-->
+  {% endfor %}
+</div>
+</div>
+
+{% include 'pagination.html' %}
+
+{% endblock %}
