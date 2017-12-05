@@ -16,17 +16,17 @@
   </head>
   <body>
     {% if user.is_authenticated %}
-      {% include 'navbar.html' %}
-        <div style="margin-top: 200px;">
+      {% include 'blocks/navbar.html' %}
+        <div style="margin-top: 100px;">
           {% block content %}
           {% endblock %}
         </div>
-      {% include 'footer.html' %}
+      {% include 'blocks/footer.html' %}
     {% else %}
-      {% include 'navbar.html' %}
-      {% include 'header_hero.html' %}
-      {% include 'features.html' %}
-      {% include 'footer.html' %}
+      {% include 'blocks/navbar.html' %}
+      {% include 'blocks/header_hero.html' %}
+      {% include 'blocks/features.html' %}
+      {% include 'blocks/footer.html' %}
     {% endif %}
 
     <!-- include jQuery and Popper.js (both required for Bootstrap 4) and the theme JS file -->
