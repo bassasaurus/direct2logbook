@@ -53,6 +53,7 @@ INSTALLED_APPS = [
 
     #native
     'flights',
+
     #installed
     'rest_framework',
     'rest_framework_docs',
@@ -132,7 +133,6 @@ INTERNAL_IPS = '127.0.0.1:8000'
 
 WSGI_APPLICATION = 'logbook.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
@@ -161,6 +161,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
 #required by allauth
 SITE_ID = 2
 
@@ -181,10 +182,15 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'collect_static')
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'flights/static')
+]
 
-MEDIA_ROOT = os.path.join(BASE_DIR, '/')
 MEDIA_URL = 'media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, '/')
+
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
