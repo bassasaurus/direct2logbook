@@ -1,15 +1,21 @@
-<div style="overflow:scroll; margin-bottom:10px;" class="">
-  {% if is_paginated %}
-    <ul class="pagination">
-      {% for i in paginator.page_range %}
-        {% if page_obj.number == i %}
-        <li class="page-item active">
-          <a class="page-link" href="#">{{ i }} <span class="sr-only">(current)</span></a>
-        </li>
-        {% else %}
-          <li><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+
+<div class="row">
+  <div class="col">
+
+      <div style="overflow:scroll; margin-bottom:10px;" class="">
+        {% if is_paginated %}
+          <ul class="pagination">
+            {% for i in paginator.page_range %}
+              {% if page_obj.number == i %}
+              <li class="page-item active">
+                <a class="page-link" href="#">{{ i }} <span class="sr-only">(current)</span></a>
+              </li>
+              {% else %}
+                <li><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+              {% endif %}
+            {% endfor %}
+          </ul>
         {% endif %}
-      {% endfor %}
-    </ul>
-  {% endif %}
+      </div>
+  </div>
 </div>

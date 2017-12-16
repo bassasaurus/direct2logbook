@@ -12,14 +12,23 @@
     <link rel="stylesheet" type="text/css" href="{% static 'flights/scss/bootstrap/bootstrap.css' %}" />
     <!-- Theme CSS file -->
     <link rel="stylesheet" type="text/css" href="{% static 'flights/dist/theme.min.css' %}" />
+    <!-- custom css -->
+    <link rel="stylesheet" type="text/css" href="{% static 'flights/custom.css' %}" />
+    <!-- jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+
+    <!-- google icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 
   </head>
   <body>
     {% if user.is_authenticated %}
       {% include 'blocks/navbar.html' %}
         <div style="margin-top: 100px;">
-          {% block content %}
-          {% endblock %}
+          <div class="container">
+            {% block content %}
+            {% endblock %}
+            </div>
         </div>
       {% include 'blocks/footer.html' %}
     {% else %}
@@ -33,5 +42,9 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
     <script src="{% static 'flights/dist/theme.min.js' %}"></script>
+    <script src="{% static 'flights/tableHeadFixer.js' %}"></script>
+    <!-- Bootstrap Datepicker -->
+    <link href="{% static 'flights/bootstrap-datepicker/css/bootstrap-datepicker.css' %}" rel="stylesheet">
+    <script src="{% static 'flights/bootstrap-datepicker/js/bootstrap-datepicker.js' %}"></script>
   </body>
 </html>
