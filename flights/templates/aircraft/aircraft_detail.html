@@ -5,8 +5,10 @@
 
 <div class="row">
   <div class="col-lg-3 col-md-3 col-sm-3 col-3">
-    <a href ="{% url 'aircraft_update' aircraft.pk %}" class="btn btn-outline-secondary btn-sm">Update</a>
-    <a href ="{% url 'aircraft_delete' aircraft.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
+    <div class="btn-group">
+      <a href ="{% url 'aircraft_update' aircraft.pk %}" class="btn btn-outline-secondary btn-sm">Update</a>
+      <a href ="{% url 'aircraft_delete' aircraft.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
+    </div>
 
       <hr>
       {% if aircraft.turbine %}

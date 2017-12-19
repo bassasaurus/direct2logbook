@@ -17,8 +17,10 @@
             <img class="img-thumbnail" src="{% static '/img/aircraft-placeholder.png'%}"></img>
           </div>
           <div class="card-footer">
-            <a href ="{% url 'aircraft_detail' aircraft.pk %}" class="btn btn-outline-primary btn-sm">View</a>
-            <a href ="{% url 'aircraft_update' aircraft.pk %}" class="btn btn-outline-primary btn-sm">Edit</a>
+            <div class="btn-group">
+              <a href ="{% url 'aircraft_detail' aircraft.pk %}" class="btn btn-outline-primary btn-sm">View</a>
+              <a href ="{% url 'aircraft_update' aircraft.pk %}" class="btn btn-outline-secondary btn-sm">Edit</a>
+            </div>
           </div>
       </div>
     </div>

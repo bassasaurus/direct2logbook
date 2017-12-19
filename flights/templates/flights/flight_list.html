@@ -1,8 +1,11 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<a class="btn btn-outline-primary btn-sm" href="{% url 'flight_create' %}">New Flight</button></a>
-<div style="height:15px;"></div>
+<div style="margin-bottom: 15px;" class="row">
+  <a class="btn btn-outline-primary btn-sm" href="{% url 'flight_create' %}">New Flight</button></a>
+</div>
+
+
 
 {% include "pagination.html"%}
 
