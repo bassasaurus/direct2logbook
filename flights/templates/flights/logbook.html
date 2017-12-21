@@ -30,10 +30,10 @@
           {% for flight in object_list %}
             <tr class="custom-table">
                 <td style="background-color:#fff;">
-                  <div class="btn-group">
+
                     <a href ="{% url 'flight_detail' flight.pk %}" class="btn btn-sm btn-outline-primary ">View</a>
-                    <a href ="{% url 'flight_update' flight.pk %}" class="btn btn-sm btn-outline-secondary ">Edit</a>
-                  </div>
+
+                  
                 </td>
                 <td>{{flight.date|date:"m/d/Y"}}</td>
                 <td>{{flight.aircraft_type}}</td>

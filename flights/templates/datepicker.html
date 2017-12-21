@@ -1,11 +1,17 @@
-<script>
-  $(document).ready(function() {
-      $('.datepicker').datepicker({
-        format: 'yyyy-mm-dd',
-        clearBtn: true,
-        autoclose: true,
-        todayHighlight: true,
-        daysOfWeekHighlighted: [0, 6]
-      });
+
+
+<script type="text/javascript">
+
+  $( "#id_date" ).datepicker({
+    dateFormat: "yy-mm-dd",
   });
+
+  $.datepicker.setDefaults({
+    showOn: "both",
+    buttonImageOnly: true,
+    buttonImage: "calendar.gif",
+    buttonText: "Calendar",
+
+  });
+
 </script>

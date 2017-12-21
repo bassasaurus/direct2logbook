@@ -186,7 +186,7 @@ class Flight(models.Model):
     date = models.DateField(db_index=True)
     aircraft_type = models.ForeignKey('Aircraft', default=None, null=True, blank=True, on_delete=models.SET_NULL)
     registration = models.ForeignKey('TailNumber', default=None, null=True, blank=True, on_delete=models.SET_NULL)
-    route = models.CharField(max_length=50, validators=[route_validator])
+    route = models.CharField(max_length=50, )
     legs = models.PositiveIntegerField(null=True)
     duration = models.FloatField(null=True, validators=[positive_validator])
     landings_day = models.PositiveIntegerField(null=True, blank=True, verbose_name="Day Ldg")
@@ -215,7 +215,6 @@ class Flight(models.Model):
         route = re.split('\W+', self.route) #separate individual code
 
         for code in route: #XXXX, XXXX, XXXX
-            print(code)
             if code == '':
                 pass
             else:
