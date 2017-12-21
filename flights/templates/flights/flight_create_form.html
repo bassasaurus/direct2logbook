@@ -3,12 +3,13 @@
 
 {% block content %}
 
-<script tyoe="text/javascript">
+<script type="text/javascript">
 
 function upperCase(a){
   setTimeout(function(){
-      a.value = a.value.toUpperCase();
+      a.value = a.value.replace(/\s+/g, '-').toUpperCase();
   }, 1);
+  
 }
 
 </script>
@@ -24,11 +25,5 @@ function upperCase(a){
 </div>
 
 {% include 'datepicker.html' %}
-
-<!-- <style>
-  #id_route:valid { text-transform: uppercase; }
-</style> -->
-
-
 
 {% endblock %}
