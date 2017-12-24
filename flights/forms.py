@@ -47,7 +47,7 @@ class FlightForm(forms.ModelForm):
                 AppendedText('date', '<i class="material-icons">date_range</i>', placeholder="Date*", autocomplete='off'),
                 Div(HTML('<a href data-toggle="modal" data-target="#new_aircraft_modal"> New Aircraft</a>'), 'aircraft_type'),
                 # Div(HTML('<a target="new" href="{% url "aircraft_create" %}">New Aircraft</a>'), 'aircraft_type'),
-                Div(HTML('<a target="new" href="{% url "tailnumber_create" %}">New Tailnumber</a>'), 'registration'),
+                Div(HTML('<a href data-toggle="modal" data-target="#new_tailnumber_modal"> New Tailnumber</a>'), 'registration'),
                 AppendedText('route', '<i class="material-icons">timeline</i>', onkeydown="upperCase(this)", placeholder="xxx-xxxx*", autocomplete='off'),
                 AppendedText('legs', '', placeholder="Legs*"),
                 AppendedText('duration', '<i class="material-icons">watch_later</i>', placeholder="Duration*"),

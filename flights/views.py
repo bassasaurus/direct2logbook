@@ -224,12 +224,23 @@ class FlightList(LoginRequiredMixin, UserObjectsMixin, ListView):
 
 class FlightCreate(LoginRequiredMixin, CreateView):
     model = Flight
-    form_class = FlightForm
+    form1 = FlightForm
+    form2 = AircraftForm
+    form3 = TailNumberForm
+    fields = []
     template_name = 'flights/flight_create_form.html'
     success_url = '/logbook/'
 
     def get_context_data(self, **kwargs):
         context = super(FlightCreate, self).get_context_data(**kwargs)
+
+        if FlightForm not in context:
+            context['flight_form'] = self.form1()
+        if AircraftForm not in context:
+            context['aircraft_form'] = self.form2()
+        if TailNumberForm not in context:
+            context['tailnumber_form'] = self.form3()
+
         context['title'] = "D-> | New Flight"
         context['page_title'] = "New Flight"
         context['parent_link'] = reverse('flight_list')

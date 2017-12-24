@@ -1,19 +1,18 @@
-
 {% load crispy_forms_tags %}
 
-<div class="modal fade" id="new_aircraft_modal">
+<div class="modal fade" id="new_tailnumber_modal">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">New Aircraft</h5>
+        <h5 class="modal-title">New Tailnumber</h5>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">×</span>
         </button>
       </div>
       <div class="modal-body">
         <p>* Required </p>
-        <form action="{% url 'aircraft_create' %}" class="" method="post">
-            {% crispy aircraft_form %}
+        <form action="{% url 'tailnumber_create' %}" class="" method="post">
+            {% crispy tailnumber_form %}
         </form>
       </div>
     </div>

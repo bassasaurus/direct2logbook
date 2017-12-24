@@ -15,11 +15,11 @@ function upperCase(a){
 </script>
 
 <form action="{% url 'flight_create' %}" class="" method="post">
-    {% crispy form %}
+    {% crispy flight_form %}
 </form>
 
 {% include 'aircraft/aircraft_create_form_modal.html' %}
-
+{% include 'tailnumbers/tailnumber_create_modal.html' %}
 {% include 'datepicker.html' %}
 
 {% endblock %}
