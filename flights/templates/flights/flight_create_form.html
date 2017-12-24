@@ -9,20 +9,16 @@ function upperCase(a){
   setTimeout(function(){
       a.value = a.value.replace(/\s+/g, '-').toUpperCase();
   }, 1);
-  
+
 }
 
 </script>
 
-<p>* Required </p>
-<div class="row">
-  <div class="col-lg-12 col-md-12 col-sm-12">
-    <div class="form">
-      {% crispy form %}
-      {{ form.media }}
-    </div>
-  </div>
-</div>
+<form action="{% url 'flight_create' %}" class="" method="post">
+    {% crispy form %}
+</form>
+
+{% include 'aircraft/aircraft_create_form_modal.html' %}
 
 {% include 'datepicker.html' %}
 

@@ -45,7 +45,8 @@ class FlightForm(forms.ModelForm):
              Fieldset(
                 Field(), #required for autocomplete fields to render
                 AppendedText('date', '<i class="material-icons">date_range</i>', placeholder="Date*", autocomplete='off'),
-                Div(HTML('<a target="new" href="{% url "aircraft_create" %}">New Aircraft</a>'), 'aircraft_type'),
+                Div(HTML('<a href data-toggle="modal" data-target="#new_aircraft_modal"> New Aircraft</a>'), 'aircraft_type'),
+                # Div(HTML('<a target="new" href="{% url "aircraft_create" %}">New Aircraft</a>'), 'aircraft_type'),
                 Div(HTML('<a target="new" href="{% url "tailnumber_create" %}">New Tailnumber</a>'), 'registration'),
                 AppendedText('route', '<i class="material-icons">timeline</i>', onkeydown="upperCase(this)", placeholder="xxx-xxxx*", autocomplete='off'),
                 AppendedText('legs', '', placeholder="Legs*"),
@@ -68,7 +69,7 @@ class FlightForm(forms.ModelForm):
                 PrependedText('remarks', '', placeholder="Remarks"),
                 ),
             )
-
+        self.helper.form_tag = False
     #django class-----
     class Meta:
         model = Flight
@@ -134,6 +135,8 @@ class AircraftForm(forms.ModelForm):
             Div('image')
             ),
             )
+        self.helper.form_tag = False
+
 
     class Meta:
         model = Aircraft
