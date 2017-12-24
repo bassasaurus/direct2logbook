@@ -12,6 +12,26 @@ DateInput = partial(forms.DateInput, {'class': 'datepicker'})
 
 
 class FlightForm(forms.ModelForm):
+
+    #django class-----
+    class Meta:
+        model = Flight
+        fields = flight_fields()
+        widgets = {
+            'date': forms.SelectDateWidget(),
+            'aircraft_type': autocomplete.ModelSelect2(url='aircraft-autocomplete', attrs={'data-placeholder': 'Aircraft*'}),
+            'registration': autocomplete.ModelSelect2(url='tailnumber-autocomplete', attrs={'data-placeholder': 'Tailnumber*'}),
+            'cross_country': forms.CheckboxInput(),
+            'second_in_command': forms.CheckboxInput(),
+            'pilot_in_command': forms.CheckboxInput(),
+            'instructor': forms.CheckboxInput(),
+            'dual': forms.CheckboxInput(),
+            'simulator': forms.CheckboxInput(),
+            'solo': forms.CheckboxInput(),
+        }
+
+    date = forms.DateField(widget=DateInput())
+
     #crispy_forms-----
     def __init__(self, *args, **kwargs):
         super(FlightForm, self).__init__(*args, **kwargs)
@@ -45,10 +65,10 @@ class FlightForm(forms.ModelForm):
              Fieldset(
                 Field(), #required for autocomplete fields to render
                 AppendedText('date', '<i class="material-icons">date_range</i>', placeholder="Date*", autocomplete='off'),
-                Div(HTML('<a href data-toggle="modal" data-target="#new_aircraft_modal"> New Aircraft</a>'), 'aircraft_type'),
+                HTML('<a href data-toggle="modal" data-target="#new_aircraft_modal"> New Aircraft</a>'), 'aircraft_type',
                 # Div(HTML('<a target="new" href="{% url "aircraft_create" %}">New Aircraft</a>'), 'aircraft_type'),
-                Div(HTML('<a href data-toggle="modal" data-target="#new_tailnumber_modal"> New Tailnumber</a>'), 'registration'),
-                AppendedText('route', '<i class="material-icons">timeline</i>', onkeydown="upperCase(this)", placeholder="xxx-xxxx*", autocomplete='off'),
+                HTML('<a href data-toggle="modal" data-target="#new_tailnumber_modal"> New Tailnumber</a>'), 'registration',
+                AppendedText('route', '<i class="material-icons">timeline</i>', onkeydown="upperCase(this)", placeholder="XXX-XXXX*", autocomplete='off'),
                 AppendedText('legs', '', placeholder="Legs*"),
                 AppendedText('duration', '<i class="material-icons">watch_later</i>', placeholder="Duration*"),
                 HTML('<hr>'),
@@ -70,32 +90,33 @@ class FlightForm(forms.ModelForm):
                 ),
             )
         self.helper.form_tag = False
-    #django class-----
-    class Meta:
-        model = Flight
-        fields = flight_fields()
-        widgets = {
-            'date': forms.SelectDateWidget(),
-            'aircraft_type': autocomplete.ModelSelect2(url='aircraft-autocomplete', attrs={'data-placeholder': 'Aircraft*'}),
-            'registration': autocomplete.ModelSelect2(url='tailnumber-autocomplete', attrs={'data-placeholder': 'Tailnumber*'}),
-            'cross_country': forms.CheckboxInput(),
-            'second_in_command': forms.CheckboxInput(),
-            'pilot_in_command': forms.CheckboxInput(),
-            'instructor': forms.CheckboxInput(),
-            'dual': forms.CheckboxInput(),
-            'simulator': forms.CheckboxInput(),
-            'solo': forms.CheckboxInput(),
-        }
 
-    date = forms.DateField(widget=DateInput())
 
-class UserCreateForm(forms.ModelForm):
-
-    class Meta:
-        model = User
-        fields = ['first_name', 'last_name', 'email', 'password']
 
 class AircraftForm(forms.ModelForm):
+
+    class Meta:
+        model = Aircraft
+        fields = aircraft_fields()
+        widgets = {
+            'turbine': forms.CheckboxInput(),
+            'piston': forms.CheckboxInput(),
+            'requires_type': forms.CheckboxInput(),
+            'superr': forms.CheckboxInput(),
+            'heavy': forms.CheckboxInput(),
+            'large': forms.CheckboxInput(),
+            'medium': forms.CheckboxInput(),
+            'small': forms.CheckboxInput(),
+            'tailwheel': forms.CheckboxInput(),
+            'simple': forms.CheckboxInput(),
+            'compleks': forms.CheckboxInput(),
+            'high_performance': forms.CheckboxInput(),
+            }
+
+        labels = {
+            'aircraft_category': 'Category*',
+            'aircraft_class': 'Class*',
+            }
 
     def __init__(self, *args, **kwargs):
         super(AircraftForm, self).__init__(*args, **kwargs)
@@ -138,30 +159,13 @@ class AircraftForm(forms.ModelForm):
         self.helper.form_tag = False
 
 
-    class Meta:
-        model = Aircraft
-        fields = aircraft_fields()
-        widgets = {
-            'turbine': forms.CheckboxInput(),
-            'piston': forms.CheckboxInput(),
-            'requires_type': forms.CheckboxInput(),
-            'superr': forms.CheckboxInput(),
-            'heavy': forms.CheckboxInput(),
-            'large': forms.CheckboxInput(),
-            'medium': forms.CheckboxInput(),
-            'small': forms.CheckboxInput(),
-            'tailwheel': forms.CheckboxInput(),
-            'simple': forms.CheckboxInput(),
-            'compleks': forms.CheckboxInput(),
-            'high_performance': forms.CheckboxInput(),
-            }
 
-        labels = {
-            'aircraft_category': 'Category*',
-            'aircraft_class': 'Class*',
-            }
 
 class ApproachForm(forms.ModelForm):
+
+    class Meta:
+        model = Approach
+        fields = approach_fields()
 
     def __init__(self, *args, **kwargs):
         super(ApproachForm, self).__init__(*args, **kwargs)
@@ -177,12 +181,26 @@ class ApproachForm(forms.ModelForm):
             AppendedText('approach_type', '', placeholder = "Approach type*"),
         )
 
-    class Meta:
-        model = Approach
-        fields = approach_fields()
+
 
 
 class TailNumberForm(forms.ModelForm):
+
+    class Meta:
+        model = TailNumber
+        fields = tailnumber_fields()
+        widgets = {
+            'aircraft_type': autocomplete.ModelSelect2(url='aircraft-autocomplete', attrs={'data-placeholder': 'Aircraft*'}),
+            'is_121': forms.CheckboxInput(),
+            'is_135': forms.CheckboxInput(),
+            'is_91': forms.CheckboxInput(),
+        }
+        labels = {
+            'is_121': '121',
+            'is_135': '135',
+            'is_91': '91',
+        }
+
 
     def __init__(self, *args, **kwargs):
         super(TailNumberForm, self).__init__(*args, **kwargs)
@@ -196,21 +214,14 @@ class TailNumberForm(forms.ModelForm):
         self.helper.form_show_labels = True
         self.fields['registration'].label = False
         self.fields['aircraft'].label = False
-        self.helper.layout = Layout(
-            AppendedText('registration', '', placeholder = "Registration*"),
-        )
 
-    class Meta:
-        model = TailNumber
-        fields = tailnumber_fields()
-        widgets = {
-            'aircraft': autocomplete.ModelSelect2(url='aircraft-autocomplete',attrs={'data-placeholder': 'Aircraft*'}),
-            'is_121': forms.CheckboxInput(),
-            'is_135': forms.CheckboxInput(),
-            'is_91': forms.CheckboxInput(),
-        }
-        labels = {
-            'is_121': '121',
-            'is_135': '135',
-            'is_91': '91',
-        }
+        self.helper.layout = Layout(
+             Fieldset(
+                Field(), #required for autocomplete fields to render
+                AppendedText('registration', '', placeholder = "Registration*",  autocomplete='off'),
+                AppendedText('aircraft', '', placeholder = "Aircraft*"),
+                ('is_121'),
+                ('is_135'),
+                ('is_91'),
+                )
+            )
