@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'debug_toolbar',
     'picklefield',
+    'widget_tweaks',
 
     #allauth
     'allauth',

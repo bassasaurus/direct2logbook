@@ -2,10 +2,21 @@
 {% load crispy_forms_tags %}
 {% block content %}
 
+<script type="text/javascript">
+
+function upperCase(a){
+  setTimeout(function(){
+      a.value = a.value.replace(/\s+/g, '-').toUpperCase();
+  }, 1);
+
+}
+
+</script>
+
 <p>* Required </p>
-<div class="input-group">
-  {% crispy form %}
-</div>
+<form action="{% url 'flight_create' %}" class="" method="get">
+    {% crispy form %}
+</form>
 
 {% include 'datepicker.html' %}
 

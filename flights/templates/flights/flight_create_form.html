@@ -1,26 +1,116 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags %}
+{% load widget_tweaks %}
 
 {% block content %}
 
-<script type="text/javascript">
-
-function upperCase(a){
-  setTimeout(function(){
-      a.value = a.value.replace(/\s+/g, '-').toUpperCase();
-  }, 1);
-
-}
-
-</script>
 
 <form action="{% url 'flight_create' %}" class="" method="post">
-    {% crispy flight_form %}
+  {% csrf_token %}
+  <div class="form-group">
+    <h5>New Flight</h5>
+  </div>
+  <hr>
+  <div class="form-group">
+    {{ flight_form.date |attr:"placeholder:Date *"|add_class:"form-control"}}
+  </div>
+  <div class="form-group">
+    <div class="row">
+      <div class="col-6">{{ flight_form.aircraft_type |add_class:"form-control"}}</div>
+      <div class="col-lg-2 col-md-4 col-sm-6"><button class="btn btn-outline-secondary btn-sm" href="#aircraft_form_modal" data-toggle="modal" data-target="#aircraft_form_modal"> New Aircraft</button></div>
+    </div>
+  </div>
+  <div class="form-group">
+    <div class="row">
+      <div class="col-6">{{ flight_form.registration |add_class:"form-control"}}</div>
+      <div class="col-lg-2 col-md-4 col-sm-6"><button class="btn btn-outline-secondary btn-sm" href="#tailnumber_form_modal" data-toggle="modal" data-target="#tailnumber_form_modal"> New Tailnumber</button></div>
+    </div>
+  </div>
+  <div class="form-group">
+    {{ flight_form.route |attr:"placeholder:Route *" |add_class:"form-control"}}
+  </div>
+  <div class="form-group">
+    {{ flight_form.legs |attr:"placeholder:Legs *" |add_class:"form-control"}}
+  </div>
+  <div class="form-group">
+    {{ flight_form.duration |attr:"placeholder:Duration *" |add_class:"form-control"}}
+  </div>
+  <div class="form-group">
+    {{ flight_form.pilot_in_command |add_class:"form-control exclcb"}} PIC
+    {{ flight_form.second_in_command |add_class:"form-control exclcb"}} SIC
+    {{ flight_form.solo |add_class:"form-control solo"}} Solo
+  </div>
+  <div class="form-group">
+    {{ flight_form.dual |add_class:"form-control dual"}} Dual
+  </div>
+  <div class="form-group">
+    {{ flight_form.cross_country |add_class:"form-control"}} XC
+  </div>
+  <div class="form-group">
+    {{ flight_form.landings_day |attr:"placeholder:Ldg Day" |add_class:"form-control"}}
+  </div>
+  <div class="form-group">
+    {{ flight_form.landings_night |attr:"placeholder:Ldg Night" |add_class:"form-control"}}
+  </div>
+  <div class="form-group">
+    {{ flight_form.night |attr:"placeholder:Night" |add_class:"form-control"}}
+  </div>
+  <div class="form-group">
+    {{ flight_form.instrument |attr:"placeholder:IFR" |add_class:"form-control"}}
+  </div>
+  <div class="form-group">
+    <p>{{ flight_form.simulated_instrument |attr:"placeholder:Simulated IFR" |add_class:"form-control"}}</p>
+  </div>
+  <div class="form-group">
+    {{ flight_form.approaches |add_class:"form-control"}} Approaches
+  </div>
+  <div class="form-group">
+    {{ flight_form.instructor |add_class:"form-control"}} CFI
+  </div>
+  <div class="form-group">
+    {{ flight_form.simulator |add_class:"form-control"}} Simulator
+  </div>
+  <div class="form-group">
+    {{ flight_form.remarks |attr:"placeholder:Remarks" |add_class:"form-control"}}
+  <hr>
+  <button class="btn btn-primary btn-sm" type="submit">Submit</button>
+
 </form>
 
 {% include 'aircraft/aircraft_create_form_modal.html' %}
-{% include 'tailnumbers/tailnumber_create_modal.html' %}
+{% include 'tailnumbers/tailnumber_create_form_modal.html' %}
 
 {% include 'datepicker.html' %}
 
+<script>
+// exclusive checkbox selection
+$(".exclcb").change(function() {
+    var checked = $(this).is(':checked');
+    $(".exclcb").prop('checked',false);
+    if(checked) {
+        $(this).prop('checked',true);
+    }
+});
+$(".solo").change(function() {
+    var checked = $(this).is(':checked');
+    $(".exclcb").prop('checked',false);
+    if(checked) {
+        $(this).prop('checked',true);
+    }
+});
+$(".dual").change(function() {
+    var checked = $(this).is(':checked');
+    $(".solo").prop('checked',false);
+    if(checked) {
+        $(this).prop('checked',true);
+    }
+});
+$(".solo").change(function() {
+    var checked = $(this).is(':checked');
+    $(".dual").prop('checked',false);
+    if(checked) {
+        $(this).prop('checked',true);
+    }
+});
+</script>
+{{ flight_form.media }}
 {% endblock %}

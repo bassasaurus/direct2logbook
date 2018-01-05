@@ -10,4 +10,4 @@ class FlightsConfig(AppConfig):
         import flights.signal_airplane_sea
         import flights.signal_rotorcraft
         import flights.signal_extra
-        
+        import flights.save_route_data

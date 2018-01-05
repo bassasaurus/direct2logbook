@@ -3,7 +3,7 @@
 {% load render_table from django_tables2 %}
 {% block content %}
 
-<a class="btn btn-outline-primary btn-sm" href="{% url 'aircraft_create' %}">Add</a>
+<a href class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#new_aircraft_modal"> New Aircraft</a>
 <hr>
 <div class="row">
   {% for aircraft in object_list %}
@@ -19,7 +19,7 @@
           <div class="card-footer">
             <div class="btn-group">
               <a href ="{% url 'aircraft_detail' aircraft.pk %}" class="btn btn-outline-primary btn-sm">View</a>
-              
+
             </div>
           </div>
       </div>
@@ -28,5 +28,6 @@
   {% endfor %}
 </div><!-- row -->
 
+{% include 'aircraft/aircraft_create_form_modal.html' %}
 
 {% endblock %}

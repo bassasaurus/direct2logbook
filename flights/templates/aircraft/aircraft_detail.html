@@ -5,6 +5,8 @@
 
 <div class="row">
   <div class="col-lg-3 col-md-3 col-sm-3 col-3">
+    <h3>{{ aircraft.aircraft_type }}</h3>
+    <hr>
     <div class="btn-group">
       <a href ="{% url 'aircraft_update' aircraft.pk %}" class="btn btn-outline-secondary btn-sm">Update</a>
       <a href ="{% url 'aircraft_delete' aircraft.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
@@ -67,6 +69,7 @@
 
   <div class="col-lg-3 col-md-9 col-sm-9 col-9">
     <h3>Tailnumbers</h3>
+    <a href class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#new_tailnumber_modal"> New Tailnumber</a>
     <hr>
     {% for tailnumber in tailnumbers %}
       <a class="btn btn-outline-secondary btn-sm" href ="{% url 'tailnumber_detail' tailnumber.pk %}">{{ tailnumber.registration }}</a>
@@ -81,5 +84,7 @@
     {% endif %}
   </div>
 </div>
+
+{% include 'tailnumbers/tailnumber_create_form_modal.html' %}
 
 {% endblock %}

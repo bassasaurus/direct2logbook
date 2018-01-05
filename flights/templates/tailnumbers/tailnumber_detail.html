@@ -4,28 +4,31 @@
 
 <div class="row">
   <div class="col-lg-2 col-md-2 col-md-2">
+    <h3>{{ tailnumber.registration }}</h3>
+    <hr>
     <div class="btn-group">
       <a href ="{% url 'tailnumber_update' tailnumber.pk %}" class="btn btn-outline-secondary btn-sm">Update</a>
       <a href ="{% url 'tailnumber_delete' tailnumber.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
     </div>
     <hr>
     <h4>{{ tailnumber.aircraft }}</h4>
+    <hr>
     {% if tailnumber.is_121 %}
-        <p>121</p>
+        <h5>121</h5>
       {% else %}
     {% endif %}
     {% if tailnumber.is_135 %}
-        <p>135</p>
+        <h5>135</h5>
       {% else %}
     {% endif %}
     {% if tailnumber.is_91 %}
-        <p>91</p>
+        <h5>91</h5>
       {% else %}
     {% endif %}
   </div>
 
   <div class="col-lg-5 col-md-10 col-sm-10 col-10">
-    <h3>Flights</h3>
+    <h3>Routes</h3>
     <hr>
     {% for flight in flights %}
       <a href ="{% url 'flight_detail' flight.pk %}" class="btn btn-outline-secondary btn-sm">{{ flight.date }} {{ flight.route }} {{ flight.aircraft_type}}</a>

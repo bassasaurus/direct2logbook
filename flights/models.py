@@ -209,25 +209,6 @@ class Flight(models.Model):
         ordering = ["-date"]
         index_together = ['route', 'date', 'duration']
 
-    def save(self, *args, **kwargs):
-
-        route_data = []
-        route = re.split('\W+', self.route) #separate individual code
-
-        for code in route: #XXXX, XXXX, XXXX
-            if code == '':
-                pass
-            else:
-                iata_kwargs = {'iata' : code}
-                icao_kwargs = {'icao' : code}
-                map_object = (MapData.objects.filter(**iata_kwargs) | MapData.objects.filter(**icao_kwargs)).first()
-
-            route_data.append(map_object)
-
-        self.route_data = route_data
-        super(Flight, self).save(*args, **kwargs)
-
-
     def get_absolute_url(self):
         return reverse('flight_detail', kwargs={'pk': self.pk})
 
