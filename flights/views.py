@@ -225,10 +225,9 @@ class FlightList(LoginRequiredMixin, UserObjectsMixin, ListView):
 
 class FlightCreate(LoginRequiredMixin, CreateView):
     model = Flight
-    flight_form = FlightForm
+    form_class = FlightForm
     aircraft_form = AircraftForm
     tailnumber_form = TailNumberForm
-    fields = []
     template_name = 'flights/flight_create_form.html'
     success_url = '/logbook/'
 
@@ -236,7 +235,7 @@ class FlightCreate(LoginRequiredMixin, CreateView):
         context = super(FlightCreate, self).get_context_data(**kwargs)
 
         if FlightForm not in context:
-            context['flight_form'] = self.flight_form()
+            context['flight_form'] = self.form_class()
         if AircraftForm not in context:
             context['aircraft_form'] = self.aircraft_form()
         if TailNumberForm not in context:
@@ -251,6 +250,7 @@ class FlightCreate(LoginRequiredMixin, CreateView):
 class FlightUpdate(LoginRequiredMixin, UpdateView):
     model = Flight
     form_class = FlightForm
+
     template_name = 'flights/flight_update_form.html'
     success_url = '/logbook/'
 
@@ -325,7 +325,7 @@ class AircraftUpdate(LoginRequiredMixin, UpdateView):
     model = Aircraft
     form_class = AircraftForm
     template_name = 'aircraft/aircraft_update_form.html'
-    success_url = '/home/'
+    success_url = '/aircraft/'
 
     def get_context_data(self, **kwargs):
         context = super(AircraftUpdate, self).get_context_data(**kwargs)
