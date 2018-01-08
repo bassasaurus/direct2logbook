@@ -15,7 +15,7 @@
   </div>
 </div>
 <div class="form-group">
-  {{ flight_form.route |attr:"placeholder:Route *" |add_class:"form-control"}}
+  {{ flight_form.route |attr:"id:route" |attr:"placeholder:Route *" |add_class:"form-control"}}
 </div>
 <div class="form-group">
   {{ flight_form.legs |attr:"placeholder:Legs *" |add_class:"form-control"}}
@@ -26,25 +26,25 @@
 <div class="form-inline">
   <div class="form-group">
     <div class="m-4">
-      {{ form.pilot_in_command |attr:"id:pic" |add_class:"form-control exclcb"}} PIC
+      {{ flight_form.pilot_in_command |attr:"id:pic" |add_class:"form-control exclcb"}} PIC
     </div>
     <div class="m-4">
-      {{ form.second_in_command |attr:"id:sic" |add_class:"form-control exlcb"}} SIC
+      {{ flight_form.second_in_command |attr:"id:sic" |add_class:"form-control exlcb"}} SIC
     </div>
     <div class="m-4">
-      {{ form.solo |attr:"id:solo" |add_class:"form-control solo"}} Solo
+      {{ flight_form.solo |attr:"id:solo" |add_class:"form-control solo"}} Solo
     </div>
     <div class="m-4">
-      {{ form.dual |attr:"id:dual" |add_class:"form-control dual"}} Dual
+      {{ flight_form.dual |attr:"id:dual" |add_class:"form-control dual"}} Dual
     </div>
     <div class="m-4">
-      {{ form.instructor |attr:"id:cfi" |add_class:"form-control"}} CFI
+      {{ flight_form.instructor |attr:"id:cfi" |add_class:"form-control"}} CFI
     </div>
     <div class="m-4">
-      {{ form.simulator |add_class:"form-control"}} Simulator
+      {{ flight_form.simulator |add_class:"form-control"}} Simulator
     </div>
     <div class="m-4">
-      {{ form.cross_country |add_class:"form-control"}} XC
+      {{ flight_form.cross_country |add_class:"form-control"}} XC
     </div>
   </div>
 </div>

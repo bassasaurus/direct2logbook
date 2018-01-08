@@ -9,7 +9,6 @@
     <p>Required *</p>
   </div>
   <hr>
-
   <div class="form-group">
     {{ form.date |attr:"placeholder:Date *" |add_class:"form-control"}}
   </div>
@@ -24,7 +23,7 @@
     </div>
   </div>
   <div class="form-group">
-    {{ form.route |attr:"placeholder:Route *" |add_class:"form-control"}}
+    {{ form.route |attr:"id:route" |attr:"placeholder:Route *" |add_class:"form-control"}}
   </div>
   <div class="form-group">
     {{ form.legs |attr:"placeholder:Legs *" |add_class:"form-control"}}
@@ -32,7 +31,6 @@
   <div class="form-group">
     {{ form.duration |attr:"placeholder:Duration *" |add_class:"form-control"}}
   </div>
-
   <div class="form-inline">
     <div class="form-group">
       <div class="m-4">
@@ -85,6 +83,7 @@
 
 {% include 'flights/datepicker.html' %}
 {% include 'flights/checkbox_logic.html' %}
+{% include 'flights/route_format.html' %}
 
 {{ form.media }}
 {% endblock %}

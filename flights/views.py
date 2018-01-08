@@ -321,6 +321,12 @@ class AircraftCreate(LoginRequiredMixin, CreateView):
         context['parent_name'] = 'Aircraft'
         return context
 
+# class AircraftCreateModal(LoginRequiredMixin, CreateView):
+#     model = Aircraft
+#     form_class = AircraftForm
+#     template_name = "aircraft/aircraft_create_form_modal.html"
+#     success_url = ""
+
 class AircraftUpdate(LoginRequiredMixin, UpdateView):
     model = Aircraft
     form_class = AircraftForm

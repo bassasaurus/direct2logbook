@@ -1,26 +1,28 @@
 import re
-from flights.models import MapData
+from flights.models import MapData, Flight
 from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 @receiver(post_save, sender=Flight)
-def save_route_data((sender, instance, **kwargs):):
+def save_route_data(sender, instance, **kwargs):
 
     route_data = []
     route = re.split('\W+', instance.route) #separate individual code
 
-    print(route)
-
     for code in route: #XXXX, XXXX, XXXX
-        print(code)
+        code = code.upper()
         if code == '':
             pass
         else:
+            print("code to match ", code)
             iata_kwargs = {'iata' : code}
             icao_kwargs = {'icao' : code}
             map_object = (MapData.objects.filter(**iata_kwargs) | MapData.objects.filter(**icao_kwargs)).first()
-
         route_data.append(map_object)
 
-    instance.route_data = route_data
-    instance.save()
-    print(instance.pk, " saved")
+    print(route_data, " compiled")
+
+    #gets object through a queryset to avoid infinite loop casued by save() method
+    Flight.objects.filter(pk=instance.pk).update(route_data=route_data)
+
+    print(instance.pk, " updated")
