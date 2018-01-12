@@ -1,11 +1,17 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags %}
 {% block content %}
 
-<p>* Required </p>
-<div class="input-group">
-  {% crispy form %}
-</div>
+<form action="{% url 'tailnumber_create' %}" class="" method="post">
+  {% csrf_token %}
+  <div class="form-group">
+    <h4>New Aircraft</h4>
+    <p>Required *</p>
+  </div>
+  <hr>
+  {% include 'tailnumbers/tailnumber_form.html' %}
+  <hr>
+  <button class="btn btn-primary btn-sm" type="submit">Submit</button>
+</form>
 
 {{ form.media }}
 {% endblock %}

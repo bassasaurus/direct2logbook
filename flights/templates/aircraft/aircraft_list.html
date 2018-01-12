@@ -3,7 +3,9 @@
 {% load render_table from django_tables2 %}
 {% block content %}
 
-<a href class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#new_aircraft_modal"> New Aircraft</a>
+<!-- <a href class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#new_aircraft_modal"> New Aircraft</a> -->
+<a href="{% url 'aircraft_create' %}" class="btn btn-sm btn-outline-primary"> New Aircraft</a>
+
 <hr>
 <div class="row">
   {% for aircraft in object_list %}

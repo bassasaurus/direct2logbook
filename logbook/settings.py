@@ -59,7 +59,6 @@ INSTALLED_APPS = [
     'rest_framework_docs',
     'api',
     'django_extensions',
-    'crispy_forms',
     'django_tables2',
     'corsheaders',
     'debug_toolbar',

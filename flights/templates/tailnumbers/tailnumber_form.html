@@ -1,0 +1,20 @@
+{% load widget_tweaks %}
+<div class="form-group">
+  {{ form.registration |attr:"placeholder:Registration *" |add_class:"form-control"}}
+</div>
+<div class="form-group">
+  {{ form.aircraft |add_class:"form-control"}} Aircraft
+</div>
+<div class="form-inline">
+  <div class="form-group row">
+    <div class="m-4">
+      {{ form.is_121 |add_class:"form-control"}} 121
+    </div>
+    <div class="m-4">
+      {{ form.is_135 |add_class:"form-control"}} 135
+    </div>
+    <div class="m-4">
+      {{ form.is_91 |add_class:"form-control"}} 91
+    </div>
+  </div>
+</div>

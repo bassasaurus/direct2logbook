@@ -14,7 +14,7 @@ def iconbool(value):
 
     """
     if bool(value):
-        result = '<i class="material-icons-done"></i>'
+        result = '<i class="material-icons">done</i>'
     else:
         result = '-'
     return mark_safe(result)

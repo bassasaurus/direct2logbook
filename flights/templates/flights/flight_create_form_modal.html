@@ -1,6 +1,3 @@
-
-{% load crispy_forms_tags %}
-
 <div class="modal fade" id="new_flight_modal">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
@@ -13,7 +10,7 @@
       <div class="modal-body">
         <p>* Required </p>
         <form action="{% url 'flight_create' %}" class="" method="post">
-            {% crispy flight_form %}
+            {% include 'flights/flight_form.html' %}
         </form>
       </div>
     </div>

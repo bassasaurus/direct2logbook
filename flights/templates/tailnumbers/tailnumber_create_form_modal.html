@@ -1,6 +1,6 @@
-{% load crispy_forms_tags %}
+{% load widget_tweaks %}
 
-<div class="modal fade" id="tailnumber_form_modal">
+<div class="modal fade" id="new_tailnumber_modal">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">
@@ -12,7 +12,10 @@
       <div class="modal-body">
         <p>* Required </p>
         <form action="{% url 'tailnumber_create' %}" class="" method="post">
-            {% crispy tailnumber_form %}
+            {% csrf_token %}
+            {% include 'tailnumbers/tailnumber_form.html' %}
+            <hr>
+            <button class="btn btn-primary btn-sm" type="submit">Submit</button>
         </form>
       </div>
     </div>

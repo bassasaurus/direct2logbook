@@ -170,6 +170,7 @@ class Aircraft(models.Model):
     large = models.NullBooleanField(verbose_name = 'Large 41k-300k lbs')
     medium = models.NullBooleanField(verbose_name = 'Meduim 12.5-41k lbs')
     small = models.NullBooleanField(verbose_name = 'Small <12.5k lbs')
+    light_sport = models.NullBooleanField(verbose_name = 'LSA <1320 lbs')
     # file will be uploaded to MEDIA_ROOT/aircraft
     image = models.FileField(upload_to='aircraft/', default=None, null=True, blank=True)
 

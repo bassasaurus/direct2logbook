@@ -1,0 +1,56 @@
+{% load widget_tweaks %}
+<div class="form-group">
+  {{ form.aircraft_type |attr:"autocomplete:off" |attr:"placeholder:Aircraft Type *"|add_class:"form-control" }}
+</div>
+<div class="form-inline">
+  <div class="form-group row">
+    <div class="m-4">
+      {{ form.turbine |add_class:"form-control"}} Turbine
+    </div>
+    <div class="m-4">
+      {{ form.piston |add_class:"form-control"}} Piston
+    </div>
+    <div class="m-4">
+      {{ form.requires_type |add_class:"form-control"}} Requires Type Rating
+    </div>
+    <div class="m-4">
+      {{ form.Tailwheel |add_class:"form-control"}} Tailwheel
+    </div>
+    <div class="m-4">
+      {{ form.simple |add_class:"form-control"}} Simple
+    </div>
+    <div class="m-4">
+      {{ form.compleks |add_class:"form-control"}} Complex
+    </div>
+    <div class="m-4">
+      {{ form.high_performance |add_class:"form-control"}} High Perfomance
+    </div>
+    <div class="m-4">
+      {{ form.superr |add_class:"form-control"}} Super
+    </div>
+    <div class="m-4">
+      {{ form.heavy |add_class:"form-control"}} Heavy
+    </div>
+    <div class="m-4">
+      {{ form.large |add_class:"form-control"}} Large
+    </div>
+    <div class="m-4">
+      {{ form.medium |add_class:"form-control"}} Medium
+    </div>
+    <div class="m-4">
+      {{ form.small |add_class:"form-control"}} Small
+    </div>
+    <div class="m-4">
+      {{ form.light_sport |add_class:"form-control"}} LSA
+    </div>
+  </div>
+</div>
+<div class="form-group">
+  {{ form.aircraft_category |add_class:"form-control"}} Category
+</div>
+<div class="form-group">
+  {{ form.aircraft_class |add_class:"form-control"}} Class
+</div>
+<div class="form-group">
+  {{ form.image |add_class:"form-control"}}
+</div>

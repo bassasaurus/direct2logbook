@@ -91,8 +91,6 @@ class HomeView(LoginRequiredMixin, TemplateView):
         context['page_title'] = "Home"
         return context
 
-
-
 class StatsView(LoginRequiredMixin, TemplateView):
 
     def get(self, request):
@@ -226,8 +224,8 @@ class FlightList(LoginRequiredMixin, UserObjectsMixin, ListView):
 class FlightCreate(LoginRequiredMixin, CreateView):
     model = Flight
     form_class = FlightForm
-    aircraft_form = AircraftForm
-    tailnumber_form = TailNumberForm
+    # aircraft_form = AircraftForm
+    # tailnumber_form = TailNumberForm
     template_name = 'flights/flight_create_form.html'
     success_url = '/logbook/'
 
@@ -236,10 +234,10 @@ class FlightCreate(LoginRequiredMixin, CreateView):
 
         if FlightForm not in context:
             context['flight_form'] = self.form_class()
-        if AircraftForm not in context:
-            context['aircraft_form'] = self.aircraft_form()
-        if TailNumberForm not in context:
-            context['tailnumber_form'] = self.tailnumber_form()
+        # if AircraftForm not in context:
+        #     context['aircraft_form'] = self.aircraft_form()
+        # if TailNumberForm not in context:
+        #     context['tailnumber_form'] = self.tailnumber_form()
 
         context['title'] = "D-> | New Flight"
         context['page_title'] = "New Flight"
@@ -343,7 +341,7 @@ class AircraftUpdate(LoginRequiredMixin, UpdateView):
 
 class AircraftDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
     model = Aircraft
-    tailnumber_form = TailNumberForm
+    form = TailNumberForm
     template_name = 'aircraft/aircraft_detail.html'
 
     def get_context_data(self, **kwargs):
@@ -351,7 +349,7 @@ class AircraftDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
         context['tailnumbers'] = TailNumber.objects.all().filter(aircraft = self.object )
 
         if TailNumberForm not in context:
-            context['tailnumber_form'] = self.tailnumber_form()
+            context['form'] = self.form()
 
         context['title'] = "D-> | " + str(self.object)
         context['page_title'] = str(self.object)
@@ -489,7 +487,7 @@ class TailNumberDetail(LoginRequiredMixin, DetailView):
 class TailNumberDelete(LoginRequiredMixin, DeleteView):
     model = TailNumber
     template_name = 'tailnumbers/tailnumber_delete.html'
-    success_url = '/home/'
+    success_url = '/aircraft/'
 
     def get_context_data(self, **kwargs):
         context = super(TailNumberDelete, self).get_context_data(**kwargs)
