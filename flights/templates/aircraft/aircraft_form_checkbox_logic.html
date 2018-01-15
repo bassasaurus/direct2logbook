@@ -1,0 +1,71 @@
+<script type="text/javascript">
+// exclusive checkbox selection
+$("#turbine").change(function() {
+    var checked = $(this).is(':checked');
+    $("#piston").prop('checked',false);
+    if(checked) {
+        $(this).prop('checked',true);
+    }
+});
+$("#piston").change(function() {
+    var checked = $(this).is(':checked');
+    $("#turbine").prop('checked',false);
+    if(checked) {
+        $(this).prop('checked',true);
+    }
+});
+$("#type").change(function() {
+    var checked = $(this).is(':checked');
+    $("#complex").prop('checked',true);
+    if(checked) {
+        $(this).prop('checked',true);
+    }
+    $("#high_perf").prop('checked',true);
+    if(checked) {
+        $(this).prop('checked',true);
+    }
+});
+
+$("#complex").change(function() {
+    var checked = $(this).is(':checked');
+    $("#simple").prop('checked',false);
+    if(checked) {
+        $(this).prop('checked',true);
+    }
+});
+$("#simple").change(function() {
+    var checked = $(this).is(':checked');
+    $("#complex").prop('checked',false);
+    if(checked) {
+        $(this).prop('checked',true);
+    }
+});
+$("#dual").change(function() {
+    var checked = $(this).is(':checked');
+    $("#cfi").prop('checked',false);
+    if(checked) {
+        $(this).prop('checked',true);
+    }
+});
+$("#solo").change(function() {
+    var checked = $(this).is(':checked');
+    $("#cfi").prop('checked',false);
+    if(checked) {
+        $(this).prop('checked',true);
+    }
+});
+$("#cfi").change(function() {
+    var checked = $(this).is(':checked');
+    $("#solo").prop('checked',false);
+    if(checked) {
+        $(this).prop('checked',true);
+    }
+});
+$("#sic").change(function() {
+    var checked = $(this).is(':checked');
+    $("#solo").prop('checked',false);
+    if(checked) {
+        $(this).prop('checked',true);
+    }
+});
+</script>

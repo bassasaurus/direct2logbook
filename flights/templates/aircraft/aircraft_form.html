@@ -7,25 +7,25 @@
 <div class="form-check-inline">
   <div class="form-group row">
     <div class="m-4">
-      {{ form.turbine |add_class:"form-control"}} Turbine
+      {{ form.turbine |attr:"id:turbine" |add_class:"form-control"}} Turbine
     </div>
     <div class="m-4">
-      {{ form.piston |add_class:"form-control"}} Piston
+      {{ form.piston |attr:"id:piston" |add_class:"form-control"}} Piston
     </div>
     <div class="m-4">
-      {{ form.requires_type |add_class:"form-control"}} Requires Type Rating
+      {{ form.requires_type |attr:"id:type" |add_class:"form-control"}} Requires Type Rating
     </div>
     <div class="m-4">
       {{ form.tailwheel |add_class:"form-control"}} Tailwheel
     </div>
     <div class="m-4">
-      {{ form.simple |add_class:"form-control"}} Simple
+      {{ form.simple |attr:"id:simple" |add_class:"form-control"}} Simple
     </div>
     <div class="m-4">
-      {{ form.compleks |add_class:"form-control"}} Complex
+      {{ form.compleks |attr:"id:complex" |add_class:"form-control"}} Complex
     </div>
     <div class="m-4">
-      {{ form.high_performance |add_class:"form-control"}} High Perfomance
+      {{ form.high_performance |attr:"id:high_perf" |add_class:"form-control"}} High Perfomance
     </div>
     <div class="m-4">
       {{ form.superr |add_class:"form-control"}} Super
@@ -62,3 +62,5 @@
   {{ form.image |add_class:"form-control"}}
   </div>
 </div>
+
+{% include 'aircraft/aircraft_form_checkbox_logic.html' %}
