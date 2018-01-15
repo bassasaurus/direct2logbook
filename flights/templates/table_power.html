@@ -1,0 +1,12 @@
+<table class="table custom-table table table-hover table-sm">
+  <thead class="thead-default">
+    <tr>
+      <th scope="row">Role</th><th>Turbine</th><th>Piston</th>
+    </tr>
+  </thead>
+  {% for power in powers %}
+  <tr>
+    <td>{{ power.role }}</td><td>{{ power.turbine }}</td><td>{{ power.piston }}</td>
+  </tr>
+  {% endfor %}
+</table>

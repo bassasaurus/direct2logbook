@@ -1,0 +1,12 @@
+<table class="table custom-table table table-hover table-sm">
+  <thead class="thead-default">
+    <tr>
+      <th scope="row">Reg</th><th>PIC</th><th>SIC</th>
+    </tr>
+  </thead>
+  {% for reg in regs %}
+  <tr>
+    <td>{{ reg.reg_type }}</td><td>{{ reg.pilot_in_command }}</td><td>{{ reg.second_in_command }}</td>
+  </tr>
+  {% endfor %}
+</table>

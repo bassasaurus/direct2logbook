@@ -18,9 +18,6 @@ from dal import autocomplete
 
 from django.core.paginator import Paginator
 
-from .tables import *
-from django_tables2 import RequestConfig
-
 from flights.get_map_data import get_map_data
 from flights.errors import *
 
@@ -87,44 +84,15 @@ class HomeView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
+        context['totals'] = Total.objects.exclude(total_time__lte=.1)
+        context['stats'] = Stat.objects.exclude(total_time__lte=.1)
+        context['regs'] = Regs.objects.all()
+        context['weights'] = Weight.objects.exclude(total__lte=.1)
+        context['powers'] = Power.objects.all()
+        context['endorsements'] = Endorsement.objects.exclude(total__lte=.1)
         context['title'] = 'D-> | Home'
         context['page_title'] = "Home"
         return context
-
-class StatsView(LoginRequiredMixin, TemplateView):
-
-    def get(self, request):
-
-        user = self.request.user
-
-        total_table = TotalTable(Total.objects.filter(user=user).exclude(total_time__lte='0.1')) #filters empty cat/class queries
-        RequestConfig(request, paginate=False).configure(total_table)
-
-        power_table = PowerTable(Power.objects.filter(user=user))
-        RequestConfig(request, paginate=False).configure(power_table)
-
-        regs_table = RegsTable(Regs.objects.filter(user=user))
-        RequestConfig(request, paginate=False).configure(regs_table)
-
-        endorsement_table = EndrsementTable(Endorsement.objects.filter(user=user).exclude(total__lte='0.1'))
-        RequestConfig(request, paginate=False).configure(endorsement_table)
-
-        weight_table = WeightTable(Weight.objects.filter(user=user).exclude(total__lte='0.1'))
-        RequestConfig(request, paginate=False).configure(weight_table)
-
-        stat_table = StatTable(Stat.objects.filter(user=user))
-        RequestConfig(request, paginate=False).configure(stat_table)
-
-        return render(request, 'stats.html', {
-            'total_table': total_table,
-            'power_table': power_table,
-            'regs_table': regs_table,
-            'endorsement_table': endorsement_table,
-            'weight_table': weight_table,
-            'stat_table' : stat_table,
-            'title': "D-> | Stats",
-            'page_title': 'Stats',
-            })
 
 class FlightErrorView(LoginRequiredMixin, TemplateView):
 

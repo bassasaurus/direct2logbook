@@ -1,0 +1,12 @@
+<table class="table custom-table table table-hover table-sm">
+  <thead class="thead-default">
+    <tr>
+      <th scope="row">Endorsement</th><th>Total</th>
+    </tr>
+  </thead>
+  {% for endorsement in endorsements %}
+  <tr>
+    <td>{{ endorsement.endorsement }}</td><td>{{ endorsement.total }}</td>
+  </tr>
+  {% endfor %}
+</table>

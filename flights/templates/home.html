@@ -1,7 +1,73 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<a class="btn btn-outline-secondary btn-sm" href="{% url 'flight_errors' %}">Logbook Errors</a>
-<a class="btn btn-outline-secondary btn-sm" href="{% url 'aircraft_errors' %}">Aircraft Errors</a>
+<div class="row">
+  <div class="col">
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'flight_errors' %}">Logbook Errors</a>
+    <a class="btn btn-outline-secondary btn-sm" href="{% url 'aircraft_errors' %}">Aircraft Errors</a>
+  </div>
+</div>
 
+<div  class="row">
+  <div class="col">
+    <div id="accordion">
+      <div class="card">
+        <div class="card-header" style="background-color: #f7f7f7" id="headingOne">
+          <h5 class="mb-0">
+            <a data-toggle="collapse" data-parent="#accordion" href="#total">
+              Totals
+            </a>
+          </h5>
+        </div>
+
+        <div id="total" class="collapse show" role="tabpanel">
+          <div class="">
+            {% include 'table_totals.html' %}
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header" id="headingTwo">
+          <h5 class="mb-0">
+            <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#stats">
+              Aircraft Stats
+            </a>
+          </h5>
+        </div>
+        <div id="stats" class="collapse">
+          <div class="">
+            {% include 'table_stats.html' %}
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header" id="headingThree">
+          <h5 class="mb-0">
+            <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#misc">
+              Misc Totals
+            </a>
+          </h5>
+        </div>
+        <div id="misc" class="collapse">
+            <div class="row" style="">
+              <div class="col-3" style="padding-left: 0px;">
+                {% include 'table_operation.html' %}
+              </div>
+              <div class="col-3" style="padding-left: 0px;">
+                {% include 'table_weights.html' %}
+              </div>
+              <div class="col-3" style="padding-left: 0px;">
+                {% include 'table_power.html' %}
+              </div>
+              <div class="col-3" style="padding-left: 0px;">
+                {% include 'table_endorsements.html' %}
+              </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% include 'tablefixer.html' %}
 {% endblock %}

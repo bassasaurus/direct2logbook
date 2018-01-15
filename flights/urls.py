@@ -12,7 +12,6 @@ urlpatterns = [
     url(r'^geojson/routes$', geoJSON_routes_view, name='geojson_routes'),
 
     url(r'^home/$', HomeView.as_view(), name='home'),
-    url(r'^stats/$', StatsView.as_view(), name='stats'),
 
     url(r'^logbook/errors/$', FlightErrorView.as_view(), name='flight_errors'),
     url(r'^aircraft/errors/$', AircraftErrorView.as_view(), name='aircraft_errors'),

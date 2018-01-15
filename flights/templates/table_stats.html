@@ -1,0 +1,22 @@
+<table id="stat" class="table custom-table table table-hover table-sm">
+  <thead class="thead-default">
+    <tr>
+      <th scope="row">Aircraft Type</th><th>Time</th><th>PIC</th><th>SIC</th><th>XC</th><th>CFI</th>
+      <th>Dual</th><th>Solo</th><th>Inst</th><th>Night</th><th>Sim Inst</th>
+      <th>Sim</th><th>Day Ldg</th><th>Night Ldg</th><th>Last Flown</th>
+      <th>30</th><th>60</th><th>90</th><th>6mo</th><th>12mo</th><th>24mo</th><th>YDT</th>
+    </tr>
+  </thead>
+  {% for stat in stats %}
+  <tr>
+    <td>{{ stat.aircraft_type }}</td><td>{{ stat.total_time }}</td><td>{{ stat.pilot_in_command }}</td>
+    <td>{{ stat.second_in_command }}</td><td>{{ stat.cross_country }}</td>
+    <td>{{ stat.instructor }}</td><td>{{ stat.dual }}</td><td>{{ stat.solo }}</td>
+    <td>{{ stat.instrument }}</td><td>{{ stat.night }}</td><td>{{ stat.simulated_instrument }}</td>
+    <td>{{ stat.simulator }}</td><td>{{ stat.landings_day }}</td><td>{{ stat.landings_night }}</td>
+    <td>{{ stat.last_flown }}</td><td>{{ stat.last_30 }}</td>
+    <td>{{ stat.last_60 }}</td><td>{{ stat.last_90 }}</td><td>{{ stat.last_180 }}</td>
+    <td>{{ stat.last_yr }}</td><td>{{ stat.last_2yr }}</td><td>{{ stat.ytd }}</td>
+  </tr>
+  {% endfor %}
+</table>

@@ -38,6 +38,7 @@ def aircraft_fields():
 			'simple',
 			'compleks',
 			'high_performance',
+			'light_sport',
 			'aircraft_category',
 			'aircraft_class',
 			'image',
