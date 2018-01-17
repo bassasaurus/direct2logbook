@@ -2,7 +2,7 @@
 {% load widget_tweaks %}
 {% block content %}
 
-<form action="logbook/update/" class="" method="">
+<form action="{% url 'flight_update' flight.pk %}" class="" method="post">
   {% csrf_token %}
   <div class="form-group">
     <h4>Update Flight {{ flight.pk }}</h4>
@@ -86,12 +86,19 @@
   </div>
   <div class="form-group">
     <div class="input-group-sm">
-    <p>{{ form.simulated_instrument |attr:"placeholder:Simulated IFR" |add_class:"form-control"}}</p>
+    {{ form.simulated_instrument |attr:"placeholder:Simulated IFR" |add_class:"form-control"}}
     </div>
   </div>
   <div class="form-group">
     <div class="input-group-sm">
     {{ form.approaches |add_class:"form-control"}} Approaches
+    </div>
+  </div>
+  <div class="form-inline">
+    <div class="row">
+      <div class="m-4">
+        {{ form.holding |add_class:"form-control" }} Holding
+      </div>
     </div>
   </div>
   <div class="form-group">

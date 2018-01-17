@@ -11,6 +11,7 @@ def flight_fields():
 			'night',
 			'instrument',
 			'approaches',
+			'holding',
 			'cross_country',
 			'second_in_command',
 			'pilot_in_command',

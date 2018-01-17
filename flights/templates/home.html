@@ -2,25 +2,21 @@
 {% block content %}
 
 <div class="row">
-  <div class="col">
+  <div class="col-3">
     <a class="btn btn-outline-secondary btn-sm" href="{% url 'flight_errors' %}">Logbook Errors</a>
     <a class="btn btn-outline-secondary btn-sm" href="{% url 'aircraft_errors' %}">Aircraft Errors</a>
   </div>
-</div>
-
-<div class="row">
-  <div class="col-4">
-    <div>
-      {% if vfr_day > 3 or vfr_night >= 3 %}
-      <p class="text-success">Current</p>
-      {{ vfr_day }} VFR day {{ vfr_night }} VFR Night
-    </div>
+  <div class="p-0 m-0 bg-light col-4">
+    {% if vfr_day >= 3 and vfr_night < 3 %}
+      <p class="bg-success text-white">Day VFR Only</p>
+      <p class="bg-danger text-white">Night VFR</p>
+    {% elif vfr_night >= 3 %}
+      <p class="bg-success text-white">VFR Current</p>
+      <p>{{ vfr_day }} day landings past 90 days</p>
+      <p>{{ vfr_night }} night landings past 90 days to full stop</p>
     {% else %}
-    <div>
-      <p class="text-danger">VFR not Current</p>
-      {{ vfr_day }} day landings {{ vfr_night }} night landings
-      {% endif %}
-    </div>
+      <p class="bg-danger text-white">NOT VFR Current</p>
+    {% endif %}
   </div>
 </div>
 

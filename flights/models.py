@@ -195,6 +195,7 @@ class Flight(models.Model):
     night = models.FloatField(null=True, blank=True, validators=[positive_validator])
     instrument = models.FloatField(null=True, blank=True, verbose_name="Inst", validators=[positive_validator])
     approaches = models.ForeignKey('Approach', default=None, null=True, blank=True, verbose_name="Appr", on_delete=models.SET_NULL)
+    holding = models.NullBooleanField(null=True, blank=True, verbose_name="Holding")
     cross_country = models.NullBooleanField(null=True, blank=True, verbose_name="XCountry")
     second_in_command = models.NullBooleanField(null=True, blank=True, verbose_name="SIC")
     pilot_in_command = models.NullBooleanField(null=True, blank=True, verbose_name="PIC")

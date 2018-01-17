@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<form action="/aircraft/update" class="" method="post">
+<form action="{% url 'aircraft_update' aircraft.pk %}" class="" method="post">
   {% csrf_token %}
   <div class="form-group">
     <h4>Update {{ aircraft.aircraft_type }}</h4>

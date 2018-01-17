@@ -19,6 +19,7 @@ class FlightForm(forms.ModelForm):
             'dual': forms.CheckboxInput(),
             'simulator': forms.CheckboxInput(),
             'solo': forms.CheckboxInput(),
+            'holding': forms.CheckboxInput(),
         }
 
 class AircraftForm(forms.ModelForm):

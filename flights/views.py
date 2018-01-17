@@ -91,17 +91,17 @@ class HomeView(LoginRequiredMixin, TemplateView):
         today = datetime.date.today()
         last_90 = today - datetime.timedelta(days=90)
         vfr_day = Flight.objects.filter(date__lte=today,date__gte=last_90).aggregate(Sum('landings_day'))
-        if vfr_day.get('landings_day') is None:
+        if not vfr_day.get('landings_day__sum'):
             vfr_day = 0
         else:
-            vfr_day = round(last_90.get('landings_day'), 1)
+            vfr_day = round(vfr_day.get('landings_day__sum'), 1)
 
         last_90 = today - datetime.timedelta(days=90)
         vfr_night = Flight.objects.filter(date__lte=today,date__gte=last_90).aggregate(Sum('landings_night'))
-        if vfr_night.get('landings_night') is None:
+        if not vfr_night.get('landings_night__sum'):
             vfr_night = 0
         else:
-            vfr_night = round(last_90.get('landings_night'), 1)
+            vfr_night = round(vfr_night.get('landings_night__sum'), 1)
 
         context['vfr_night'] = vfr_night
         context['vfr_day'] = vfr_day
