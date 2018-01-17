@@ -10,7 +10,9 @@
   </div>
   <hr>
   <div class="form-group">
-    {{ form.date |attr:"placeholder:Date *" |add_class:"form-control"}}
+    <div class="input-group-sm">
+    {{ form.date |attr:"autocomplete=off" |attr:"placeholder:Date *" |add_class:"form-control"}}
+    </div>
   </div>
   <div class="form-group">
     <div class="row">
@@ -23,13 +25,19 @@
     </div>
   </div>
   <div class="form-group">
-    {{ form.route |attr:"id:route" |attr:"placeholder:Route *" |add_class:"form-control"}}
+    <div class="input-group-sm">
+    {{ form.route |attr:"autocomplete=off" |attr:"id:route" |attr:"placeholder:Route *" |add_class:"form-control"}}
+    </div>
   </div>
   <div class="form-group">
+    <div class="input-group-sm">
     {{ form.legs |attr:"placeholder:Legs *" |add_class:"form-control"}}
+    </div>
   </div>
   <div class="form-group">
+    <div class="input-group-sm">
     {{ form.duration |attr:"placeholder:Duration *" |add_class:"form-control"}}
+    </div>
   </div>
   <div class="form-inline">
     <div class="form-group">
@@ -57,25 +65,39 @@
     </div>
   </div>
   <div class="form-group">
+    <div class="input-group-sm">
     {{ form.landings_day |attr:"placeholder:Ldg Day" |add_class:"form-control"}}
+    </div>
   </div>
   <div class="form-group">
+    <div class="input-group-sm">
     {{ form.landings_night |attr:"placeholder:Ldg Night" |add_class:"form-control"}}
+    </div>
   </div>
   <div class="form-group">
+    <div class="input-group-sm">
     {{ form.night |attr:"placeholder:Night" |add_class:"form-control"}}
+    </div>
   </div>
   <div class="form-group">
+    <div class="input-group-sm">
     {{ form.instrument |attr:"placeholder:IFR" |add_class:"form-control"}}
+    </div>
   </div>
   <div class="form-group">
+    <div class="input-group-sm">
     <p>{{ form.simulated_instrument |attr:"placeholder:Simulated IFR" |add_class:"form-control"}}</p>
+    </div>
   </div>
   <div class="form-group">
+    <div class="input-group-sm">
     {{ form.approaches |add_class:"form-control"}} Approaches
+    </div>
   </div>
   <div class="form-group">
+    <div class="input-group-sm">
     {{ form.remarks |attr:"placeholder:Remarks" |add_class:"form-control"}}
+    </div>
   </div>
   <hr>
   <button class="btn btn-primary btn-sm" type="submit">Update</button>

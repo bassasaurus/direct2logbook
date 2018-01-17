@@ -1,8 +1,8 @@
 <script type="text/javascript">
-  function upperCase(){
-    var a = document.getElementById('#route');
-    setTimeout(function(){
-        a.value = a.value.replace(/\s+/g, '-').toUpperCase();
-    }, 1);
-  }
+
+    var routeInput = document.getElementById('route')
+    routeInput.addEventListener('keyup', function () {
+    routeInput.value = routeInput.value.replace(/\s+/g, '-').toUpperCase();
+    });
+
 </script>

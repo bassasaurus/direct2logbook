@@ -59,7 +59,6 @@ INSTALLED_APPS = [
     'rest_framework_docs',
     'api',
     'django_extensions',
-    'django_tables2',
     'corsheaders',
     'debug_toolbar',
     'picklefield',

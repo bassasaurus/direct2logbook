@@ -1,5 +1,6 @@
 from flights.models import *
 from django.contrib.auth.models import User, Group
+import datetime
 
 from flights.forms import *
 from django.db.models import Sum
@@ -82,8 +83,28 @@ class SplashScreen(TemplateView):
 class HomeView(LoginRequiredMixin, TemplateView):
     template_name='home.html'
 
+
+
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
+
+        today = datetime.date.today()
+        last_90 = today - datetime.timedelta(days=90)
+        vfr_day = Flight.objects.filter(date__lte=today,date__gte=last_90).aggregate(Sum('landings_day'))
+        if vfr_day.get('landings_day') is None:
+            vfr_day = 0
+        else:
+            vfr_day = round(last_90.get('landings_day'), 1)
+
+        last_90 = today - datetime.timedelta(days=90)
+        vfr_night = Flight.objects.filter(date__lte=today,date__gte=last_90).aggregate(Sum('landings_night'))
+        if vfr_night.get('landings_night') is None:
+            vfr_night = 0
+        else:
+            vfr_night = round(last_90.get('landings_night'), 1)
+
+        context['vfr_night'] = vfr_night
+        context['vfr_day'] = vfr_day
         context['totals'] = Total.objects.exclude(total_time__lte=.1)
         context['stats'] = Stat.objects.exclude(total_time__lte=.1)
         context['regs'] = Regs.objects.all()

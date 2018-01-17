@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
+
 {% block content %}
 
 <form action="{% url 'flight_create' %}" class="" method="post">
@@ -19,4 +20,5 @@
 {% include 'flights/route_format.html' %}
 
 {{ flight_form.media }}
+
 {% endblock %}

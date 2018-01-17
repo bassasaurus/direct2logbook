@@ -9,6 +9,22 @@
 </div>
 
 <div class="row">
+  <div class="col-4">
+    <div>
+      {% if vfr_day > 3 or vfr_night >= 3 %}
+      <p class="text-success">Current</p>
+      {{ vfr_day }} VFR day {{ vfr_night }} VFR Night
+    </div>
+    {% else %}
+    <div>
+      <p class="text-danger">VFR not Current</p>
+      {{ vfr_day }} day landings {{ vfr_night }} night landings
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<div class="row">
   <div class="col">
     <a class="btn btn-outline-primary btn-sm" href="{% url 'flight_create' %}">New Flight</a>
   </div>
@@ -17,7 +33,7 @@
 <div  class="row">
   <div class="col">
     <div id="accordion">
-      <div class="card">
+      <div style="background-color:#f7f7f7;" class="card">
         <div class="card-header" style="background-color: #f7f7f7" id="headingOne">
           <h5 class="mb-0">
             <a data-toggle="collapse" data-parent="#accordion" href="#total">
@@ -32,7 +48,7 @@
           </div>
         </div>
       </div>
-      <div class="card">
+      <div style="background-color:#f7f7f7;" class="card">
         <div class="card-header" id="headingTwo">
           <h5 class="mb-0">
             <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#stats">
@@ -46,7 +62,7 @@
           </div>
         </div>
       </div>
-      <div class="card">
+      <div style="background-color:#f7f7f7;" class="card">
         <div class="card-header" id="headingThree">
           <h5 class="mb-0">
             <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#misc">
