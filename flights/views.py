@@ -1,9 +1,9 @@
 from flights.models import *
 from django.contrib.auth.models import User, Group
-import datetime
+
 
 from flights.forms import *
-from django.db.models import Sum
+from django.db.models import Sum, Q
 
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DetailView, DeleteView
 from django.views.generic.dates import YearArchiveView, MonthArchiveView, ArchiveIndexView, DayArchiveView
@@ -20,6 +20,7 @@ from dal import autocomplete
 from django.core.paginator import Paginator
 
 from flights.get_map_data import get_map_data
+import flights.currency as currency
 from flights.errors import *
 
 class UserObjectsMixin():
@@ -80,31 +81,32 @@ class TailNumberAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetVie
 class SplashScreen(TemplateView):
     template_name = 'index.html'
 
-class HomeView(LoginRequiredMixin, TemplateView):
+class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
     template_name='home.html'
-
-
 
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
 
-        today = datetime.date.today()
-        last_90 = today - datetime.timedelta(days=90)
-        vfr_day = Flight.objects.filter(date__lte=today,date__gte=last_90).aggregate(Sum('landings_day'))
-        if not vfr_day.get('landings_day__sum'):
-            vfr_day = 0
-        else:
-            vfr_day = round(vfr_day.get('landings_day__sum'), 1)
+        context['asel_total'] = Total.objects.get(total="ASEL")
+        context['amel_total'] = Total.objects.get(total="AMEL")
+        context['ases_total'] = Total.objects.get(total="ASES")
+        context['ames_total'] = Total.objects.get(total="AMES")
+        context['helo_total'] = Total.objects.get(total="HELO")
+        context['gyro_total'] = Total.objects.get(total="GYRO")
 
-        last_90 = today - datetime.timedelta(days=90)
-        vfr_night = Flight.objects.filter(date__lte=today,date__gte=last_90).aggregate(Sum('landings_night'))
-        if not vfr_night.get('landings_night__sum'):
-            vfr_night = 0
-        else:
-            vfr_night = round(vfr_night.get('landings_night__sum'), 1)
+        context['amel_vfr_night'] = currency.amel_vfr_night()
+        context['amel_vfr_day'] = currency.amel_vfr_day()
+        context['asel_vfr_night'] = currency.asel_vfr_night()
+        context['asel_vfr_day'] = currency.asel_vfr_day()
+        context['ases_vfr_day'] = currency.ases_vfr_day()
+        context['ases_vfr_night'] = currency.ases_vfr_night()
+        context['ames_vfr_day'] = currency.ames_vfr_day()
+        context['ames_vfr_night'] = currency.ames_vfr_night()
+        context['helo_vfr_day'] = currency.asel_vfr_day()
+        context['helo_vfr_night'] = currency.helo_vfr_night()
+        context['gyro_vfr_day'] = currency.gyro_vfr_day()
+        context['gyro_vfr_night'] = currency.gyro_vfr_night()
 
-        context['vfr_night'] = vfr_night
-        context['vfr_day'] = vfr_day
         context['totals'] = Total.objects.exclude(total_time__lte=.1)
         context['stats'] = Stat.objects.exclude(total_time__lte=.1)
         context['regs'] = Regs.objects.all()
@@ -115,7 +117,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
         context['page_title'] = "Home"
         return context
 
-class FlightErrorView(LoginRequiredMixin, TemplateView):
+class FlightErrorView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
 
     def get(self, request):
         user = self.request.user
@@ -131,7 +133,7 @@ class FlightErrorView(LoginRequiredMixin, TemplateView):
             'page_title': "Logbook Errors"
             })
 
-class AircraftErrorView(LoginRequiredMixin, TemplateView):
+class AircraftErrorView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
 
     def get(self, request):
         user = self.request.user
@@ -210,7 +212,7 @@ class FlightList(LoginRequiredMixin, UserObjectsMixin, ListView):
         context['page_title'] = "Logbook"
         return context
 
-class FlightCreate(LoginRequiredMixin, CreateView):
+class FlightCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
     model = Flight
     form_class = FlightForm
     # aircraft_form = AircraftForm
@@ -234,7 +236,7 @@ class FlightCreate(LoginRequiredMixin, CreateView):
         context['parent_name'] = 'Logbook'
         return context
 
-class FlightUpdate(LoginRequiredMixin, UpdateView):
+class FlightUpdate(LoginRequiredMixin, UserObjectsMixin, UpdateView):
     model = Flight
     form_class = FlightForm
 
@@ -249,7 +251,7 @@ class FlightUpdate(LoginRequiredMixin, UpdateView):
         context['parent_name'] = 'Logbook'
         return context
 
-class FlightDetail(LoginRequiredMixin, DetailView):
+class FlightDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
     model = Flight
     template_name = 'flights/flight_detail.html'
 
@@ -263,7 +265,7 @@ class FlightDetail(LoginRequiredMixin, DetailView):
         context['parent_name'] = 'Logbook'
         return context
 
-class FlightDelete(LoginRequiredMixin, DeleteView):
+class FlightDelete(LoginRequiredMixin, UserObjectsMixin, DeleteView):
     model = Flight
     template_name = 'flights/flight_delete.html'
     success_url = '/logbook/'
@@ -294,7 +296,7 @@ class AircraftList(LoginRequiredMixin, UserObjectsMixin, ListView):
         context['page_title'] = "Aircraft"
         return context
 
-class AircraftCreate(LoginRequiredMixin, CreateView):
+class AircraftCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
     model = Aircraft
     form_class = AircraftForm
     template_name = "aircraft/aircraft_create_form.html"
@@ -314,7 +316,7 @@ class AircraftCreate(LoginRequiredMixin, CreateView):
 #     template_name = "aircraft/aircraft_create_form_modal.html"
 #     success_url = ""
 
-class AircraftUpdate(LoginRequiredMixin, UpdateView):
+class AircraftUpdate(LoginRequiredMixin, UserObjectsMixin, UpdateView):
     model = Aircraft
     form_class = AircraftForm
     template_name = 'aircraft/aircraft_update_form.html'
@@ -346,7 +348,7 @@ class AircraftDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
         context['parent_name'] = 'Aircraft'
         return context
 
-class AircraftDelete(LoginRequiredMixin, DeleteView):
+class AircraftDelete(LoginRequiredMixin, UserObjectsMixin, DeleteView):
     model = Aircraft
     template_name = 'aircraft/aircraft_delete.html'
     success_url = '/aircraft/'
@@ -427,7 +429,7 @@ class TailNumberList(LoginRequiredMixin, UserObjectsMixin, ListView):
         context['parent_name'] = 'Aircraft'
         return context
 
-class TailNumberCreate(LoginRequiredMixin, CreateView):
+class TailNumberCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
     model = TailNumber
     form_class = TailNumberForm
     template_name = "tailnumbers/tailnumber_create_form.html"
@@ -441,7 +443,7 @@ class TailNumberCreate(LoginRequiredMixin, CreateView):
         context['parent_name'] = 'Aircraft'
         return context
 
-class TailNumberUpdate(LoginRequiredMixin, UpdateView):
+class TailNumberUpdate(LoginRequiredMixin, UserObjectsMixin, UpdateView):
     model = TailNumber
     form_class = TailNumberForm
     template_name = 'tailnumbers/tailnumber_update_form.html'
@@ -455,7 +457,7 @@ class TailNumberUpdate(LoginRequiredMixin, UpdateView):
         context['parent_name'] = 'Aircraft'
         return context
 
-class TailNumberDetail(LoginRequiredMixin, DetailView):
+class TailNumberDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
     model = TailNumber
     template_name = 'tailnumbers/tailnumber_detail.html'
 
@@ -473,7 +475,7 @@ class TailNumberDetail(LoginRequiredMixin, DetailView):
         context['flights'] = flights
         return context
 
-class TailNumberDelete(LoginRequiredMixin, DeleteView):
+class TailNumberDelete(LoginRequiredMixin, UserObjectsMixin, DeleteView):
     model = TailNumber
     template_name = 'tailnumbers/tailnumber_delete.html'
     success_url = '/aircraft/'

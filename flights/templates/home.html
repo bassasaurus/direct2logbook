@@ -6,21 +6,89 @@
     <a class="btn btn-outline-secondary btn-sm" href="{% url 'flight_errors' %}">Logbook Errors</a>
     <a class="btn btn-outline-secondary btn-sm" href="{% url 'aircraft_errors' %}">Aircraft Errors</a>
   </div>
-  <div class="p-0 m-0 bg-light col-4">
-    {% if vfr_day >= 3 and vfr_night < 3 %}
-      <p class="bg-success text-white">Day VFR Only</p>
-      <p class="bg-danger text-white">Night VFR</p>
-    {% elif vfr_night >= 3 %}
-      <p class="bg-success text-white">VFR Current</p>
-      <p>{{ vfr_day }} day landings past 90 days</p>
-      <p>{{ vfr_night }} night landings past 90 days to full stop</p>
-    {% else %}
-      <p class="bg-danger text-white">NOT VFR Current</p>
-    {% endif %}
-  </div>
 </div>
 
 <div class="row">
+  <div class="col-3">
+    <div>
+      <table class="table table-bordered table-sm">
+        <thead class="thead-default">
+          <th scope="row">Currency</th><th>Day</th><th>Night</th>
+        </thead>
+            {% if asel_total.total_time < .1 %}
+            {% else %}
+            <tr>
+              <td>ASEL</td>{% if asel_vfr_day >= 3 %}<td class="bg-success"><p class="text-white">VFR</p></td>
+                           {% elif asel_vfr_day < 3 %}<td class="bg-danger"><p class="text-white">VFR</p></td>
+                           {% endif %}
+                           {% if asel_vfr_night >= 3 %}<td class="bg-success"><p class="text-white">VFR</p></td>
+                           {% elif asel_vfr_night < 3 %}<td class="bg-danger"><p class="text-white">VFR</p></td>
+                           {% endif %}
+            </tr>
+            {% endif %}
+
+            {% if amel_total.total_time < .1 %}
+            {% else %}
+            <tr>
+              <td>AMEL</td>{% if amel_vfr_day >= 3 %}<td class="bg-success"><p class="text-white">VFR</p></td>
+                           {% elif amel_vfr_day < 3 %}<td class="bg-danger"><p class="text-white">VFR</p></td>
+                           {% endif %}
+                           {% if amel_vfr_night >= 3 %}<td class="bg-success"><p class="text-white">VFR</p></td>
+                           {% elif amel_vfr_night < 3 %}<td class="bg-danger"><p class="text-white">VFR</p></td>
+                           {% endif %}
+            </tr>
+            {% endif %}
+
+            {% if ases_total.total_time < .1 %}
+            {% else %}
+            <tr>
+              <td>ASES</td>{% if ases_vfr_day >= 3 %}<td class="bg-success"><p class="text-white">VFR</p></td>
+                           {% elif ases_vfr_day < 3 %}<td class="bg-danger"><p class="text-white">VFR</p></td>
+                           {% endif %}
+                           {% if ases_vfr_night >= 3 %}<td class="bg-success"><p class="text-white">VFR</p></td>
+                           {% elif ases_vfr_night < 3 %}<td class="bg-danger"><p class="text-white">VFR</p></td>
+                           {% endif %}
+            </tr>
+            {% endif %}
+
+            {% if ames_total.total_time < .1 %}
+            {% else %}
+            <tr>
+              <td>AMES</td>{% if ames_vfr_day >= 3 %}<td class="bg-success"><p class="text-white">VFR</p></td>
+                           {% elif ames_vfr_day < 3 %}<td class="bg-danger"><p class="text-white">VFR</p></td>
+                           {% endif %}
+                           {% if ames_vfr_night >= 3 %}<td class="bg-success"><p class="text-white">VFR</p></td>
+                           {% elif ames_vfr_night < 3 %}<td class="bg-danger"><p class="text-white">VFR</p></td>
+                           {% endif %}
+            </tr>
+            {% endif %}
+
+            {% if helo_total.total_time < .1 %}
+            {% else %}
+            <tr>
+              <td>HELO</td>{% if helo_vfr_day >= 3 %}<td class="bg-success"><p class="text-white">VFR</p></td>
+                           {% elif helo_vfr_day < 3 %}<td class="bg-danger"><p class="text-white">VFR</p></td>
+                           {% endif %}
+                           {% if helo_vfr_night >= 3 %}<td class="bg-success"><p class="text-white">VFR</p></td>
+                           {% elif helo_vfr_night < 3 %}<td class="bg-danger"><p class="text-white">VFR</p></td>
+                           {% endif %}
+            </tr>
+            {% endif %}
+
+            {% if gyro_total.total_time < .1 %}
+            {% else %}
+            <tr>
+              <td>GYRO</td>{% if gyro_vfr_day >= 3 %}<td class="bg-success"><p class="text-white">VFR</p></td>
+                           {% elif gyro_vfr_day < 3 %}<td class="bg-danger"><p class="text-white">VFR</p></td>
+                           {% endif %}
+                           {% if gyro_vfr_night >= 3 %}<td class="bg-success"><p class="text-white">VFR</p></td>
+                           {% elif gyro_vfr_night < 3 %}<td class="bg-danger"><p class="text-white">VFR</p></td>
+                           {% endif %}
+            </tr>
+            {% endif %}
+      </table>
+    </div>
+  </div>
   <div class="col">
     <a class="btn btn-outline-primary btn-sm" href="{% url 'flight_create' %}">New Flight</a>
   </div>
