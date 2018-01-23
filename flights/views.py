@@ -87,6 +87,8 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(HomeView, self).get_context_data(**kwargs)
 
+        context['last_ten'] = Flight.objects.all().order_by('-id')[:10]
+
         context['asel_total'] = Total.objects.get(total="ASEL")
         context['amel_total'] = Total.objects.get(total="AMEL")
         context['ases_total'] = Total.objects.get(total="ASES")

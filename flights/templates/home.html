@@ -19,20 +19,28 @@
   <div style="padding-top:10px;" class="col-3 bg-light">
     <div style"padding:auto;">
     <p>{{ user.first_name }} {{ user.last_name }}</p>
+    <hr>
+    <div style"padding:auto;">
+      <a class="btn btn-outline-primary btn-sm" href="{% url 'flight_create' %}">New Flight</a>
+    </div>
+    <hr>
+    <p>Recent Flights</p>
+    {% for flight in last_ten %}
+      <a href ="{% url 'flight_detail' flight.pk %}" class="btn btn-sm btn-outline-secondary ">{{ flight.date }} {{ flight.route }}</a>
+    {% endfor %}
   </div>
-  <div style"padding:auto;">
-    <a class="btn btn-outline-primary btn-sm" href="{% url 'flight_create' %}">New Flight</a>
-  </div>
+
   </div>
   <div class="col-9">
     <div class="row">
       <div class="col">
-        <a class="btn btn-outline-secondary btn-sm" href="{% url 'flight_errors' %}">Logbook Errors</a>
-        <a class="btn btn-outline-secondary btn-sm" href="{% url 'aircraft_errors' %}">Aircraft Errors</a>
+        <a class="btn btn-outline-secondary btn-sm" href="#">IACRA Format</a>
+        <a class="btn btn-outline-secondary btn-sm" href="#">Medical Format</a>
+        <a class="btn btn-outline-secondary btn-sm" href="#">Print PDF</a>
       </div>
     </div>
 
-    <div class="row">
+    <div style="margin-top: 15px;" class="row">
       <div class="col-5">
         <div>
           <table class="table table-bordered table-sm">
