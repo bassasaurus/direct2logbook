@@ -5,7 +5,7 @@ import datetime
 
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
-def total_updater(sender, **kwargs):
+def total_update(sender, **kwargs):
     today = datetime.date.today()
     total = Total.objects.get(total='All')
 
@@ -140,8 +140,8 @@ def total_updater(sender, **kwargs):
     ydt = datetime.date(today.year, 1, 1)
     ydt = Flight.objects.filter(date__lte=today,date__gte=ydt).aggregate(Sum('duration'))
     if ydt.get('duration__sum') is None:
-        total.ydt = 0
+        total.ytd = 0
     else:
-        total.ydt = round(ydt.get('duration__sum'), 1)
+        total.ytd = round(ydt.get('duration__sum'), 1)
 
     total.save()

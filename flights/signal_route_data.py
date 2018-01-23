@@ -14,15 +14,15 @@ def save_route_data(sender, instance, **kwargs):
         if code == '':
             pass
         else:
-            print("code to match ", code)
+            # print("code to match ", code)
             iata_kwargs = {'iata' : code}
             icao_kwargs = {'icao' : code}
             map_object = (MapData.objects.filter(**iata_kwargs) | MapData.objects.filter(**icao_kwargs)).first()
         route_data.append(map_object)
 
-    print(route_data, " compiled")
+    # print(route_data, " compiled")
 
     #gets object through a queryset to avoid infinite loop casued by save() method
     Flight.objects.filter(pk=instance.pk).update(route_data=route_data)
 
-    print(instance.pk, " updated")
+    # print(instance.pk, " updated")

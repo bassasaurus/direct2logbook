@@ -34,10 +34,13 @@
   <body>
     {% if user.is_authenticated %}
       {% include 'blocks/navbar.html' %}
-        <div style="margin-top: 150px;">
+        <div style="margin-top: 100px;">
           <div class="container">
-            {% block content %}
-            {% endblock %}
+            {% include 'breadcrumb.html' %}
+            <div style="margin-top: 50px">
+              {% block content %}
+              {% endblock %}
+            </div>
             </div>
         </div>
       {% include 'blocks/footer.html' %}

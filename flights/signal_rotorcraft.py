@@ -7,7 +7,7 @@ import datetime
 @receiver(post_delete, sender=Aircraft)
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
-def ames_updater(sender, **kwargs):
+def ames_update(sender, **kwargs):
     today = datetime.date.today()
     helo = Total.objects.get(total='HELO')
     cat_class_query = Q(aircraft_type__aircraft_class__aircraft_class__icontains = 'helicopter') & Q(aircraft_type__aircraft_category__aircraft_category__icontains = 'rotorcraft')

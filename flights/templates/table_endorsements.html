@@ -1,3 +1,4 @@
+
 <table class="table custom-table table table-hover table-sm">
   <thead class="thead-default">
     <tr>
@@ -6,7 +7,7 @@
   </thead>
   {% for endorsement in endorsements %}
   <tr>
-    <td>{{ endorsement.endorsement }}</td><td>{{ endorsement.total }}</td>
+    <td>{{ endorsement.endorsement }}</td><td class="number">{{ endorsement.total }}</td>
   </tr>
   {% endfor %}
 </table>

@@ -1,3 +1,7 @@
+
+
+</style>
+
 <table class="table custom-table table table-hover table-sm">
   <thead class="thead-default">
     <tr>
@@ -6,7 +10,7 @@
   </thead>
   {% for weight in weights %}
   <tr>
-    <td>{{ weight.weight }}</td><td>{{ weight.total }}</td>
+    <td>{{ weight.weight }}</td><td class="number">{{ weight.total }}</td>
   </tr>
   {% endfor %}
 </table>

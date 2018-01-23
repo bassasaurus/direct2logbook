@@ -7,7 +7,7 @@ import datetime
 @receiver(post_delete, sender=Aircraft)
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
-def amel_updater(sender, **kwargs):
+def amel_update(sender, **kwargs):
     today = datetime.date.today()
     amel = Total.objects.get(total='AMEL')
     cat_class_query = Q(aircraft_type__aircraft_class__aircraft_class__icontains = 'multi engine land') & Q(aircraft_type__aircraft_category__aircraft_category__icontains = 'airplane')
@@ -153,7 +153,7 @@ def amel_updater(sender, **kwargs):
 @receiver(post_delete, sender=Aircraft)
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
-def asel_updater(sender, **kwargs):
+def asel_update(sender, **kwargs):
     today = datetime.date.today()
     asel = Total.objects.get(total='ASEL')
     cat_class_query = Q(aircraft_type__aircraft_class__aircraft_class__icontains = 'single engine land') & Q(aircraft_type__aircraft_category__aircraft_category__icontains = 'airplane')

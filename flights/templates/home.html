@@ -1,159 +1,181 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<div class="row">
-  <div class="col-3">
-    <a class="btn btn-outline-secondary btn-sm" href="{% url 'flight_errors' %}">Logbook Errors</a>
-    <a class="btn btn-outline-secondary btn-sm" href="{% url 'aircraft_errors' %}">Aircraft Errors</a>
-  </div>
-</div>
+<style>
+
+  th{
+    text-align:left;
+  }
+  td{
+    text-align:left;
+  }
+  .number{
+    text-align:right;
+  }
+
+</style>
 
 <div class="row">
-  <div class="col-3">
-    <div>
-      <table class="table table-bordered table-sm">
-        <thead class="thead-default">
-          <th scope="row">Currency</th><th>Day</th><th>Night</th>
-        </thead>
-            {% if asel_total.total_time < .1 %}
-            {% else %}
-            <tr>
-              <td>ASEL</td>{% if asel_vfr_day >= 3 %}<td class="bg-success"><p class="text-white">VFR</p></td>
-                           {% elif asel_vfr_day < 3 %}<td class="bg-danger"><p class="text-white">VFR</p></td>
-                           {% endif %}
-                           {% if asel_vfr_night >= 3 %}<td class="bg-success"><p class="text-white">VFR</p></td>
-                           {% elif asel_vfr_night < 3 %}<td class="bg-danger"><p class="text-white">VFR</p></td>
-                           {% endif %}
-            </tr>
-            {% endif %}
-
-            {% if amel_total.total_time < .1 %}
-            {% else %}
-            <tr>
-              <td>AMEL</td>{% if amel_vfr_day >= 3 %}<td class="bg-success"><p class="text-white">VFR</p></td>
-                           {% elif amel_vfr_day < 3 %}<td class="bg-danger"><p class="text-white">VFR</p></td>
-                           {% endif %}
-                           {% if amel_vfr_night >= 3 %}<td class="bg-success"><p class="text-white">VFR</p></td>
-                           {% elif amel_vfr_night < 3 %}<td class="bg-danger"><p class="text-white">VFR</p></td>
-                           {% endif %}
-            </tr>
-            {% endif %}
-
-            {% if ases_total.total_time < .1 %}
-            {% else %}
-            <tr>
-              <td>ASES</td>{% if ases_vfr_day >= 3 %}<td class="bg-success"><p class="text-white">VFR</p></td>
-                           {% elif ases_vfr_day < 3 %}<td class="bg-danger"><p class="text-white">VFR</p></td>
-                           {% endif %}
-                           {% if ases_vfr_night >= 3 %}<td class="bg-success"><p class="text-white">VFR</p></td>
-                           {% elif ases_vfr_night < 3 %}<td class="bg-danger"><p class="text-white">VFR</p></td>
-                           {% endif %}
-            </tr>
-            {% endif %}
-
-            {% if ames_total.total_time < .1 %}
-            {% else %}
-            <tr>
-              <td>AMES</td>{% if ames_vfr_day >= 3 %}<td class="bg-success"><p class="text-white">VFR</p></td>
-                           {% elif ames_vfr_day < 3 %}<td class="bg-danger"><p class="text-white">VFR</p></td>
-                           {% endif %}
-                           {% if ames_vfr_night >= 3 %}<td class="bg-success"><p class="text-white">VFR</p></td>
-                           {% elif ames_vfr_night < 3 %}<td class="bg-danger"><p class="text-white">VFR</p></td>
-                           {% endif %}
-            </tr>
-            {% endif %}
-
-            {% if helo_total.total_time < .1 %}
-            {% else %}
-            <tr>
-              <td>HELO</td>{% if helo_vfr_day >= 3 %}<td class="bg-success"><p class="text-white">VFR</p></td>
-                           {% elif helo_vfr_day < 3 %}<td class="bg-danger"><p class="text-white">VFR</p></td>
-                           {% endif %}
-                           {% if helo_vfr_night >= 3 %}<td class="bg-success"><p class="text-white">VFR</p></td>
-                           {% elif helo_vfr_night < 3 %}<td class="bg-danger"><p class="text-white">VFR</p></td>
-                           {% endif %}
-            </tr>
-            {% endif %}
-
-            {% if gyro_total.total_time < .1 %}
-            {% else %}
-            <tr>
-              <td>GYRO</td>{% if gyro_vfr_day >= 3 %}<td class="bg-success"><p class="text-white">VFR</p></td>
-                           {% elif gyro_vfr_day < 3 %}<td class="bg-danger"><p class="text-white">VFR</p></td>
-                           {% endif %}
-                           {% if gyro_vfr_night >= 3 %}<td class="bg-success"><p class="text-white">VFR</p></td>
-                           {% elif gyro_vfr_night < 3 %}<td class="bg-danger"><p class="text-white">VFR</p></td>
-                           {% endif %}
-            </tr>
-            {% endif %}
-      </table>
-    </div>
+  <div style="padding-top:10px;" class="col-3 bg-light">
+    <div style"padding:auto;">
+    <p>{{ user.first_name }} {{ user.last_name }}</p>
   </div>
-  <div class="col">
+  <div style"padding:auto;">
     <a class="btn btn-outline-primary btn-sm" href="{% url 'flight_create' %}">New Flight</a>
   </div>
-</div>
+  </div>
+  <div class="col-9">
+    <div class="row">
+      <div class="col">
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'flight_errors' %}">Logbook Errors</a>
+        <a class="btn btn-outline-secondary btn-sm" href="{% url 'aircraft_errors' %}">Aircraft Errors</a>
+      </div>
+    </div>
 
-<div  class="row">
-  <div class="col">
-    <div id="accordion">
-      <div style="background-color:#f7f7f7;" class="card">
-        <div class="card-header" style="background-color: #f7f7f7" id="headingOne">
-          <h5 class="mb-0">
-            <a data-toggle="collapse" data-parent="#accordion" href="#total">
-              Totals
-            </a>
-          </h5>
-        </div>
+    <div class="row">
+      <div class="col-5">
+        <div>
+          <table class="table table-bordered table-sm">
+            <thead class="thead-default">
+              <th class="" style="width:120px;">VFR Currency</th><th style="width:75px;">Day</th><th style="width:75px;">Night</th>
+            </thead>
+                {% if asel_total.total_time < .1 %}
+                {% else %}
+                <tr>
+                  <td>ASEL</td>{% if asel_vfr_day >= 3 %}<td class="bg-success"></td>
+                               {% elif asel_vfr_day < 3 %}<td class="bg-danger"></td>
+                               {% endif %}
+                               {% if asel_vfr_night >= 3 %}<td class="bg-success"></td>
+                               {% elif asel_vfr_night < 3 %}<td class="bg-danger"></td>
+                               {% endif %}
+                </tr>
+                {% endif %}
 
-        <div id="total" class="collapse show" role="tabpanel">
-          <div class="">
-            {% include 'table_totals.html' %}
-          </div>
+                {% if amel_total.total_time < .1 %}
+                {% else %}
+                <tr>
+                  <td>AMEL</td>{% if amel_vfr_day >= 3 %}<td class="bg-success"></td>
+                               {% elif amel_vfr_day < 3 %}<td class="bg-danger"></td>
+                               {% endif %}
+                               {% if amel_vfr_night >= 3 %}<td class="bg-success"></td>
+                               {% elif amel_vfr_night < 3 %}<td class="bg-danger"></td>
+                               {% endif %}
+                </tr>
+                {% endif %}
+
+                {% if ases_total.total_time < .1 %}
+                {% else %}
+                <tr>
+                  <td>ASES</td>{% if ases_vfr_day >= 3 %}<td class="bg-success"></td>
+                               {% elif ases_vfr_day < 3 %}<td class="bg-danger"></td>
+                               {% endif %}
+                               {% if ases_vfr_night >= 3 %}<td class="bg-success"></td>
+                               {% elif ases_vfr_night < 3 %}<td class="bg-danger"></td>
+                               {% endif %}
+                </tr>
+                {% endif %}
+
+                {% if ames_total.total_time < .1 %}
+                {% else %}
+                <tr>
+                  <td>AMES</td>{% if ames_vfr_day >= 3 %}<td class="bg-success"></td>
+                               {% elif ames_vfr_day < 3 %}<td class="bg-danger"></td>
+                               {% endif %}
+                               {% if ames_vfr_night >= 3 %}<td class="bg-success"></td>
+                               {% elif ames_vfr_night < 3 %}<td class="bg-danger"></td>
+                               {% endif %}
+                </tr>
+                {% endif %}
+
+                {% if helo_total.total_time < .1 %}
+                {% else %}
+                <tr>
+                  <td>HELO</td>{% if helo_vfr_day >= 3 %}<td class="bg-success"></td>
+                               {% elif helo_vfr_day < 3 %}<td class="bg-danger"></td>
+                               {% endif %}
+                               {% if helo_vfr_night >= 3 %}<td class="bg-success"></td>
+                               {% elif helo_vfr_night < 3 %}<td class="bg-danger"></td>
+                               {% endif %}
+                </tr>
+                {% endif %}
+
+                {% if gyro_total.total_time < .1 %}
+                {% else %}
+                <tr>
+                  <td>GYRO</td>{% if gyro_vfr_day >= 3 %}<td class="bg-success"></td>
+                               {% elif gyro_vfr_day < 3 %}<td class="bg-danger"></td>
+                               {% endif %}
+                               {% if gyro_vfr_night >= 3 %}<td class="bg-success"></td>
+                               {% elif gyro_vfr_night < 3 %}<td class="bg-danger"></td>
+                               {% endif %}
+                </tr>
+                {% endif %}
+          </table>
         </div>
       </div>
-      <div style="background-color:#f7f7f7;" class="card">
-        <div class="card-header" id="headingTwo">
-          <h5 class="mb-0">
-            <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#stats">
-              Aircraft Stats
-            </a>
-          </h5>
-        </div>
-        <div id="stats" class="collapse">
-          <div class="">
-            {% include 'table_stats.html' %}
-          </div>
-        </div>
+      <div class="col-7">
+        more stuff
       </div>
-      <div style="background-color:#f7f7f7;" class="card">
-        <div class="card-header" id="headingThree">
-          <h5 class="mb-0">
-            <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#misc">
-              Misc Totals
-            </a>
-          </h5>
-        </div>
-        <div id="misc" class="collapse">
-            <div class="row" style="">
-              <div class="col-3" style="padding-left: 0px;">
-                {% include 'table_operation.html' %}
-              </div>
-              <div class="col-3" style="padding-left: 0px;">
-                {% include 'table_weights.html' %}
-              </div>
-              <div class="col-3" style="padding-left: 0px;">
-                {% include 'table_power.html' %}
-              </div>
-              <div class="col-3" style="padding-left: 0px;">
-                {% include 'table_endorsements.html' %}
-              </div>
+    </div>
+
+    <div  class="row">
+      <div class="col">
+        <div id="accordion">
+
+          <div style="" class="card">
+            <div class="card-header" style="" id="headingOne">
+                <a class="" data-toggle="collapse" data-parent="#accordion" href="#total">
+                  <h5>Totals</h5>
+                </a>
             </div>
+            <div id="total" class="collapse show">
+                {% include 'table_totals.html' %}
+            </div>
+          </div>
+
+          <div style="" class="card">
+            <div class="card-header" id="headingTwo">
+                <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#stats">
+                  <h5>Aircraft Stats</h5>
+                </a>
+            </div>
+            <div id="stats" class="collapse">
+                {% include 'table_stats.html' %}
+            </div>
+          </div>
+
+          <div style="" class="card">
+            <div class="card-header" id="headingThree">
+                <a class="collapsed" data-toggle="collapse" data-parent="#accordion" href="#misc">
+                  <h5>Misc Totals</h5>
+                </a>
+            </div>
+
+            <div id="misc" class="collapse">
+                <div class="row">
+                  <div class="col" style="">
+                    {% include 'table_operation.html' %}
+                  </div>
+                  <div class="col" style="">
+                    {% include 'table_weights.html' %}
+                  </div>
+                  <div class="col" style="">
+                    {% include 'table_power.html' %}
+                  </div>
+                  <div class="col" style="">
+                    {% include 'table_endorsements.html' %}
+                  </div>
+                </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+
+
 
 {% include 'tablefixer.html' %}
 {% endblock %}

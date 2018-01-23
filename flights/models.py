@@ -59,7 +59,7 @@ class Stat(models.Model):
     last_180 = models.FloatField(null=True, blank=True, verbose_name='6mo')
     last_yr = models.FloatField(null=True, blank=True, verbose_name='12mo')
     last_2yr = models.FloatField(null=True, blank=True, verbose_name='24')
-    ydt = models.FloatField(null=True, blank=True, verbose_name='YDT')
+    ytd = models.FloatField(null=True, blank=True, verbose_name='YDT')
 
 
     class Meta:
@@ -93,7 +93,7 @@ class Total(models.Model):
     last_180 = models.FloatField(null=True, blank=True, verbose_name='6mo')
     last_yr = models.FloatField(null=True, blank=True, verbose_name='12mo')
     last_2yr = models.FloatField(null=True, blank=True, verbose_name='24')
-    ydt = models.FloatField(null=True, blank=True, verbose_name='YDT')
+    ytd = models.FloatField(null=True, blank=True, verbose_name='YDT')
 
     class Meta:
         ordering = ['-total_time']

@@ -6,7 +6,7 @@ from django.db.models import Sum, Q
 @receiver(post_delete, sender=Flight)
 @receiver(post_save, sender=Aircraft)
 @receiver(post_delete, sender=Aircraft)
-def weight_updater(sender, **kwargs):
+def weight_update(sender, **kwargs):
     superr = Weight.objects.get(weight="Super")
     heavy = Weight.objects.get(weight="Heavy")
     large = Weight.objects.get(weight="Large")
@@ -63,7 +63,7 @@ def weight_updater(sender, **kwargs):
 @receiver(post_delete, sender=TailNumber)
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
-def regs_updater(sender, **kwargs):
+def regs_update(sender, **kwargs):
     airline = Regs.objects.get(reg_type='121')
     charter = Regs.objects.get(reg_type='135')
     private = Regs.objects.get(reg_type='91')
@@ -126,7 +126,7 @@ def regs_updater(sender, **kwargs):
 @receiver(post_delete, sender=Flight)
 @receiver(post_save, sender=Aircraft)
 @receiver(post_delete, sender=Aircraft)
-def power_updater(sender, **kwargs):
+def power_update(sender, **kwargs):
     pic = Power.objects.get(role='PIC')
     sic = Power.objects.get(role='SIC')
     total = Power.objects.get(role='Total')
@@ -177,7 +177,7 @@ def power_updater(sender, **kwargs):
 @receiver(post_delete, sender=Flight)
 @receiver(post_save, sender=Aircraft)
 @receiver(post_delete, sender=Aircraft)
-def endorsement_updater(sender, **kwargs):
+def endorsement_update(sender, **kwargs):
     simple = Endorsement.objects.get(endorsement="Simple")
     compleks = Endorsement.objects.get(endorsement="Complex")
     high_performance = Endorsement.objects.get(endorsement='High Performance')

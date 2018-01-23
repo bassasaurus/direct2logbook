@@ -41,9 +41,9 @@
       }
   });
 
-  $('div .weights').click(function () {
+  $('.weights').click(function () {
      checkedState = $(this).attr('checked');
-      $(this).parent('div').children('.checkbox:checked').each(function () {
+      $(this).parent('#weights').children('.checkbox:checked').each(function () {
           $(this).attr('checked', false);
       });
       $(this).attr('checked', checkedState);

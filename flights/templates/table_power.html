@@ -1,3 +1,5 @@
+
+
 <table class="table custom-table table table-hover table-sm">
   <thead class="thead-default">
     <tr>
@@ -6,7 +8,7 @@
   </thead>
   {% for power in powers %}
   <tr>
-    <td>{{ power.role }}</td><td>{{ power.turbine }}</td><td>{{ power.piston }}</td>
+    <td>{{ power.role }}</td><td class="number">{{ power.turbine }}</td><td class="number">{{ power.piston }}</td>
   </tr>
   {% endfor %}
 </table>

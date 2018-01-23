@@ -7,7 +7,7 @@ import datetime
 @receiver(post_delete, sender=Aircraft)
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
-def ames_updater(sender, **kwargs):
+def ames_update(sender, **kwargs):
     today = datetime.date.today()
     ames = Total.objects.get(total='AMES')
     cat_class_query = Q(aircraft_type__aircraft_class__aircraft_class__icontains = 'multi engine sea') & Q(aircraft_type__aircraft_category__aircraft_category__icontains = 'airplane')
@@ -153,7 +153,7 @@ def ames_updater(sender, **kwargs):
 @receiver(post_delete, sender=Aircraft)
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
-def asel_updater(sender, **kwargs):
+def asel_update(sender, **kwargs):
     today = datetime.date.today()
     ases = Total.objects.get(total='ASES')
     cat_class_query = Q(aircraft_type__aircraft_class__aircraft_class__icontains = 'single engine sea') & Q(aircraft_type__aircraft_category__aircraft_category__icontains = 'airplane')

@@ -189,12 +189,12 @@ def last_2yr(aircraft_type):
         last_2yr = round(last_2yr.get('duration__sum'), 1)
     return last_2yr
 
-def ydt(aircraft_type):
+def ytd(aircraft_type):
     today = datetime.date.today()
-    ydt = datetime.date(today.year, 1, 1)
-    ydt = Flight.objects.filter(aircraft_type=aircraft_type).filter(date__lte=today,date__gte=ydt).aggregate(Sum('duration'))
-    if ydt.get('duration__sum') is None:
-        ydt = 0
+    ytd = datetime.date(today.year, 1, 1)
+    ytd = Flight.objects.filter(aircraft_type=aircraft_type).filter(date__lte=today,date__gte=ytd).aggregate(Sum('duration'))
+    if ytd.get('duration__sum') is None:
+        ytd = 0
     else:
-        ydt = round(ydt.get('duration__sum'), 1)
-    return ydt
+        ytd = round(ytd.get('duration__sum'), 1)
+    return ytd

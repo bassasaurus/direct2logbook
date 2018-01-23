@@ -12,7 +12,7 @@
       <li class="nav-item">
         <a class="nav-link" href="{% url 'flight_list' %}">Logbook</a>
       </li>
-  
+
       <li class="nav-item">
         <a class="nav-link" href="{% url 'flight_by_date' %}">Maps</a>
       </li>
@@ -40,10 +40,10 @@
 
       <li class="nav-item">
         {% if user.is_authenticated %}
-        <a class="nav-link nav-link--rounded" href="/accounts/logout">
+        <a class="nav-link nav-link--rounded" href="{% url 'account_logout' %}">
           Logout
         {% else %}
-        <a class="nav-link nav-link--rounded" href="/accounts/login">
+        <a class="nav-link nav-link--rounded" href="{% url 'account_login' %}">
           Login
         {% endif %}
         </a>

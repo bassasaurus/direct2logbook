@@ -161,6 +161,8 @@ class FlightArchive(LoginRequiredMixin, UserObjectsMixin, ArchiveIndexView):
         context = super(FlightArchive, self).get_context_data(**kwargs)
         get_map_data(self.object_list)
         context['title'] = "D-> | Map"
+        context['parent_name'] = 'Home'
+        context['parent_link'] = reverse('home')
         context['page_title'] = 'Map'
         return context
 
@@ -175,6 +177,8 @@ class FlightArchiveYear(LoginRequiredMixin, UserObjectsMixin, YearArchiveView):
         context = super(FlightArchiveYear, self).get_context_data(**kwargs)
         get_map_data(self.object_list)
         context['title'] = "D-> | Flights by Year"
+        context['parent_name'] = 'Map'
+        context['parent_link'] = reverse('flight_by_date')
         context['page_title'] = "Flights by Year"
         return context
 
@@ -189,6 +193,8 @@ class FlightArchiveMonth(LoginRequiredMixin, UserObjectsMixin, MonthArchiveView)
         context = super(FlightArchiveMonth, self).get_context_data(**kwargs)
         get_map_data(self.object_list)
         context['title'] = "D-> | Flights by Month"
+        context['parent_name'] = 'Map'
+        context['parent_link'] = reverse('flight_by_date')
         context['page_title'] = "Flights by Month"
         return context
 
@@ -209,6 +215,8 @@ class FlightList(LoginRequiredMixin, UserObjectsMixin, ListView):
         context = super(FlightList, self).get_context_data(**kwargs)
 
         context['title'] = "D-> | Logbook"
+        context['parent_name'] = 'Home'
+        context['parent_link'] = reverse('home')
         context['page_title'] = "Logbook"
         return context
 
@@ -293,6 +301,8 @@ class AircraftList(LoginRequiredMixin, UserObjectsMixin, ListView):
             context['aircraft_form'] = self.aircraft_form()
 
         context['title'] = "D-> | Aircraft"
+        context['parent_name'] = 'Home'
+        context['parent_link'] = reverse('home')
         context['page_title'] = "Aircraft"
         return context
 
