@@ -1,5 +1,10 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block content %}
+
+<!-- leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="crossorigin=""/>
+<script src="https://unpkg.com/leaflet@^1.0.0/dist/leaflet-src.js"></script>
 
 <div class="row">
   <div class="col col-xl-3 col-lg-2 col-md-2 col-sm-2">
@@ -24,5 +29,10 @@
       {% include 'leaflet.html' %}
   </div>
 </div>
+
+
+<!-- leaflet-geodesic -->
+<script src="{% static 'flights/leaflet-geodesic.js' %}"></script>
+
 
 {% endblock %}
