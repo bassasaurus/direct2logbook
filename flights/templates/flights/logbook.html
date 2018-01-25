@@ -8,7 +8,7 @@
             <th>Date</th>
             <th>Type</th>
             <th>Reg</th>
-            <th>Route</th>
+            <th class="text-center">Route</th>
             <th>Duration</th>
             <th>PIC</th>
             <th>SIC</th>
@@ -36,16 +36,16 @@
                 <td>{{flight.aircraft_type}}</td>
                 <td>{{flight.registration}}</td>
                 <td>{{flight.route}}</td>
-                <td>{{flight.duration}}</td>
+                <td class="number">{{flight.duration}}</td>
                 <td>{{flight.pilot_in_command|iconbool}}</td>
                 <td>{{flight.second_in_command|iconbool}}</td>
                 <td>{{flight.cross_country|iconbool}}</td>
-                <td>{{flight.night|default:"-"}}</td>
-                <td>{{flight.instrument|default:"-"}}</td>
+                <td class="number">{{flight.night|default:"-"}}</td>
+                <td class="number">{{flight.instrument|default:"-"}}</td>
                 <td>{{flight.approaches|default:"-"}}</td>
-                <td>{{flight.landings_day|default:"-"}}</td>
-                <td>{{flight.landings_night|default:"-"}}</td>
-                <td>{{simulated_instrument|iconbool}}</td>
+                <td class="number">{{flight.landings_day|default:"-"}}</td>
+                <td class="number">{{flight.landings_night|default:"-"}}</td>
+                <td class="number">{{simulated_instrument|iconbool}}</td>
                 <td>{{flight.instructor|iconbool}}</td>
                 <td>{{flight.dual|iconbool}}</td>
                 <td>{{flight.solo|iconbool}}</td>

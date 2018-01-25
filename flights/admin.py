@@ -31,6 +31,10 @@ class StatAdmin(admin.ModelAdmin):
     list_display = ('user', 'aircraft_type', 'total_time')
     empty_value_display = ''
 
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ('comapny', )
+    empty_value_display = ''
+
 admin.site.register(Flight, FlightAdmin)
 admin.site.register(Aircraft, AircraftAdmin)
 admin.site.register(Approach)
@@ -44,3 +48,4 @@ admin.site.register(Regs)
 admin.site.register(Endorsement)
 admin.site.register(Weight)
 admin.site.register(MapData, MapDataAdmin)
+admin.site.register(Profile)

@@ -34,7 +34,7 @@
   {{ flight_form.duration |attr:"placeholder:Duration *" |add_class:"form-control"}}
   </div>
 </div>
-<div class="form-inline">
+<div class="form-group form-inline">
   <div class="row">
     <div class="m-4">
       {{ flight_form.pilot_in_command |attr:"id:pic" |add_class:"form-control exclcb"}} PIC
@@ -85,10 +85,11 @@
   </div>
 </div>
 <div class="form-group">
+  <label>Approaches</label>
   <div class="input-group-sm">
-    {{ flight_form.approaches |add_class:"form-control"}} Approaches
+    {{ flight_form.approaches |add_class:"form-control"}}
   </div>
-  <div class="form-inline">
+  <div class="form-group form-inline">
     <div class="row">
       <div class="m-4">
         {{ flight_form.holding |add_class:"form-control" }} Holding
@@ -98,6 +99,7 @@
 </div>
 <div class="form-group">
   <div class="input-group-sm">
-  {{ flight_form.remarks |attr:"placeholder:Remarks" |add_class:"form-control"}}
+    {{ flight_form.remarks |attr:"placeholder:Remarks" |add_class:"form-control"}}
+    <label class="text-muted">500 char limit</label>
   </div>
 </div>

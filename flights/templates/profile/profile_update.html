@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+<form action="{% url 'profile_update' profile.pk %}" method="post">
+  {% csrf_token %}
+  <div class="form-group">
+    <label>Company Name</label>
+      <input placeholder="Company Name" class="form-control" type="text"{{ form.company }}</>
+  </div>
+</form>
+
+{% endblock %}

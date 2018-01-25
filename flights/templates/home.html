@@ -9,16 +9,13 @@
   td{
     text-align:left;
   }
-  .number{
-    text-align:right;
-  }
 
 </style>
 
 <div class="row">
   <div style="padding-top:10px;" class="col-3 bg-light">
     <div style"padding:auto;">
-    <p>{{ user.first_name }} {{ user.last_name }}</p>
+    <p><a href="{% url 'profile' %}"> {{ user.first_name }} {{ user.last_name }}</a></p>
     <hr>
     <div style"padding:auto;">
       <a class="btn btn-outline-primary btn-sm" href="{% url 'flight_create' %}">New Flight</a>
@@ -36,7 +33,7 @@
       <div class="col">
         <a class="btn btn-outline-secondary btn-sm" href="#">IACRA Format</a>
         <a class="btn btn-outline-secondary btn-sm" href="#">Medical Format</a>
-        <a class="btn btn-outline-secondary btn-sm" href="#">Print PDF</a>
+        <a class="btn btn-outline-secondary btn-sm" href="#">Print Logbook</a>
       </div>
     </div>
 

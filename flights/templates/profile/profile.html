@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<p><a href="{% url 'profile_update' user.profile.pk %}">Update</a></p>
+
+<p>Name: {{ user.first_name }} {{ user.last_name }}</p>
+
+<p>Company Name: {{ user.profile.company }}</p>
+
+{% endblock %}

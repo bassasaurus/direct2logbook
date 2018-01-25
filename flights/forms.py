@@ -3,9 +3,14 @@ from flights.models import *
 from flights.fields import *
 from dal import autocomplete
 
+class ProfileForm(forms.ModelForm):
+
+    class Meta:
+        model = Profile
+        fields = ('company', )
+
 class FlightForm(forms.ModelForm):
 
-    #django class-----
     class Meta:
         model = Flight
         fields = flight_fields()

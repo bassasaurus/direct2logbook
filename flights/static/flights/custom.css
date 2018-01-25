@@ -39,3 +39,7 @@
 .img-thumbnail{
   border: 0px;
 }
+
+.number{
+  text-align:right;
+}

@@ -11,3 +11,4 @@ class FlightsConfig(AppConfig):
         import flights.signal_rotorcraft
         import flights.signal_extra
         import flights.signal_route_data
+        import flights.signal_profile

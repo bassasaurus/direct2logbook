@@ -19,6 +19,15 @@ positive_validator = MinValueValidator(0.0, "Must be a positive number > 0.1")
 route_match = r'((?:[A-Z]{3,4}\-?)+)'
 route_validator = RegexValidator(route_match, "Must be UPPERCASE in a combination of ATA-ICAO")
 
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    company = models.CharField(max_length=50, default='')
+
+    def __str__(self):
+        title = str(self.user)
+        return title
+
+
 #FAA data from http://www.faa.gov/airports/airport_safety/airportdata_5010/menu/nfdcfacilitiesexport.cfm?Region=&District=&State=&County=&City=&Use=PU&Certification=
 class MapData(models.Model):
     name = models.CharField(max_length=50, default='')
@@ -202,7 +211,7 @@ class Flight(models.Model):
     simulated_instrument = models.FloatField(null=True, blank=True, verbose_name="Sim Inst", validators=[positive_validator])
     instructor = models.NullBooleanField(null=True, blank=True, verbose_name="CFI")
     dual = models.NullBooleanField(null=True, blank=True)
-    remarks = models.CharField(max_length=20, null=True, blank=True)
+    remarks = models.CharField(max_length=500, null=True, blank=True)
     simulator = models.NullBooleanField(null=True, blank=True, verbose_name="Sim")
     solo = models.NullBooleanField(null=True, blank=True)
     route_data = PickledObjectField(null=True, blank=True)

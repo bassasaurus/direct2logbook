@@ -12,6 +12,8 @@ urlpatterns = [
     url(r'^geojson/routes$', geoJSON_routes_view, name='geojson_routes'),
 
     url(r'^home/$', HomeView.as_view(), name='home'),
+    url(r'^profile/$', ProfileView.as_view(), name='profile'),
+    url(r'^profile/update/(?P<pk>\d+)/$', ProfileUpdateView.as_view(), name='profile_update'),
 
     url(r'^logbook/errors/$', FlightErrorView.as_view(), name='flight_errors'),
     url(r'^aircraft/errors/$', AircraftErrorView.as_view(), name='aircraft_errors'),

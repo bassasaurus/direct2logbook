@@ -1,7 +1,6 @@
 from flights.models import *
 from django.contrib.auth.models import User, Group
 
-
 from flights.forms import *
 from django.db.models import Sum, Q
 
@@ -81,13 +80,41 @@ class TailNumberAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetVie
 class SplashScreen(TemplateView):
     template_name = 'index.html'
 
+class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
+    model = Profile
+    template_name='profile/profile.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ProfileView, self).get_context_data(**kwargs)
+        context['title'] = "D-> | Profile"
+        context['parent_name'] = 'Home'
+        context['parent_link'] = reverse('home')
+        context['page_title'] = 'Profile'
+        return context
+
+class ProfileUpdateView(LoginRequiredMixin, UserObjectsMixin, UpdateView):
+    model = Profile
+    form_class = ProfileForm
+
+    template_name = 'profile/profile_update.html'
+    success_url = '/profile/'
+
+    def get_context_data(self, **kwargs):
+        context = super(ProfileUpdateView, self).get_context_data(**kwargs)
+        context['title'] = "D-> | Update Profile"
+        context['parent_name'] = 'Home'
+        context['parent_link'] = reverse('home')
+        context['page_title'] = 'Update Profile'
+        return context
+
 class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
     template_name='home.html'
 
     def get_context_data(self, **kwargs):
+        user = self.request.user
         context = super(HomeView, self).get_context_data(**kwargs)
 
-        context['last_ten'] = Flight.objects.all().order_by('-id')[:10]
+        context['last_ten'] = Flight.objects.filter(user=user).order_by('-id')[:5]
 
         context['asel_total'] = Total.objects.get(total="ASEL")
         context['amel_total'] = Total.objects.get(total="AMEL")
