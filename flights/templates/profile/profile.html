@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<p><a href="{% url 'profile_update' user.profile.pk %}">Update</a></p>
+<a class="btn-shadow btn-primary" href="{% url 'profile_update' user.profile.pk %}">Update</a></p>
 
 <p>Name: {{ user.first_name }} {{ user.last_name }}</p>
 
