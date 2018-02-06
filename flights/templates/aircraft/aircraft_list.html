@@ -3,29 +3,28 @@
 {% block content %}
 
 <!-- <a href class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#new_aircraft_modal"> New Aircraft</a> -->
-<a href="{% url 'aircraft_create' %}" class="btn btn-sm btn-outline-primary"> New Aircraft</a>
+<div class="row">
+  <a href="{% url 'aircraft_create' %}" class="btn btn-shadow btn-primary btn-sm"> New Aircraft</a>
+</div>
 
-<hr>
+  <hr>
+
 <div class="row">
   {% for aircraft in object_list %}
   <div class="col-lg-3 col-md-3 col-sm-3">
-    <div class="card-deck">
-      <div style="margin-bottom:10px;" class="card">
-        <div class="card-header">
-          <h5>{{ aircraft.aircraft_type }}</h5>
-        </div>
-          <div class="card-body">
-            <img class="img-thumbnail" src="{% static '/img/aircraft-placeholder.png'%}"></img>
-          </div>
-          <div class="card-footer">
-            <div class="btn-group">
-              <a href ="{% url 'aircraft_detail' aircraft.pk %}" class="btn btn-outline-primary btn-sm">View</a>
-
-            </div>
-          </div>
+    <div style="margin-top: 10px;" class="card">
+      {% if aircraft.image %}
+        <img class="card-img-top img-fluid" src={{ aircraft.image }}>
+        {% else %}
+      {% endif %}
+      <div class="card-body">
+        <h4 class="card-title">{{ aircraft.aircraft_type }}</h4>
+        <p class="card-text"></p>
+        <a href ="{% url 'aircraft_detail' aircraft.pk %}" class="btn btn-outline-primary btn-sm">View</a>
       </div>
     </div>
   </div>
+
   {% endfor %}
 </div><!-- row -->
 

@@ -27,7 +27,6 @@ class Profile(models.Model):
         title = str(self.user)
         return title
 
-
 #FAA data from http://www.faa.gov/airports/airport_safety/airportdata_5010/menu/nfdcfacilitiesexport.cfm?Region=&District=&State=&County=&City=&Use=PU&Certification=
 class MapData(models.Model):
     name = models.CharField(max_length=50, default='')
@@ -182,6 +181,8 @@ class Aircraft(models.Model):
     light_sport = models.NullBooleanField(verbose_name = 'LSA <1320 lbs')
     # file will be uploaded to MEDIA_ROOT/aircraft
     image = models.FileField(upload_to='aircraft/', default=None, null=True, blank=True)
+    config_error = models.CharField(max_length=100, null=True, blank=True)
+    power_error = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
         ordering = ["aircraft_type"]
@@ -215,6 +216,8 @@ class Flight(models.Model):
     simulator = models.NullBooleanField(null=True, blank=True, verbose_name="Sim")
     solo = models.NullBooleanField(null=True, blank=True)
     route_data = PickledObjectField(null=True, blank=True)
+    map_error = models.CharField(max_length=400, null=True, blank=True)
+    duplicate_error = models.CharField(max_length=400, null=True, blank=True)
 
     class Meta:
         ordering = ["-date"]
@@ -230,6 +233,7 @@ class TailNumber(models.Model):
     is_121 = models.NullBooleanField(null=True, blank=True)
     is_135 = models.NullBooleanField(null=True, blank=True)
     is_91 = models.NullBooleanField(null=True, blank=True)
+    error = models.CharField(max_length=400, null=True, blank=True)
 
     class Meta:
         ordering =['aircraft', 'registration', ]

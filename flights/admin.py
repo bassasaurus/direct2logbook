@@ -6,15 +6,15 @@ class FlightAdmin(admin.ModelAdmin):
     list_display = ('user', 'date', 'aircraft_type', 'registration', 'route', 'duration',
     'landings_day', 'landings_night', 'night', 'instrument', 'approaches',
     'cross_country', 'second_in_command', 'pilot_in_command', 'simulated_instrument',
-    'instructor', 'dual', 'simulator', 'solo', 'remarks', 'route_data')
+    'instructor', 'dual', 'simulator', 'solo', 'remarks', 'route_data', 'map_error', 'duplicate_error')
     empty_value_display = ''
 
 class AircraftAdmin(admin.ModelAdmin):
     list_display = ('user', 'aircraft_type', 'turbine', 'piston', 'requires_type',
-    'tailwheel', 'compleks', 'high_performance', 'aircraft_category', 'aircraft_class')
+    'tailwheel', 'compleks', 'high_performance', 'aircraft_category', 'aircraft_class', 'power_error', 'config_error')
 
 class TailnumberAdmin(admin.ModelAdmin):
-    list_display = ('user', 'registration', 'aircraft', 'is_121', 'is_135', 'is_91')
+    list_display = ('user', 'registration', 'aircraft', 'is_121', 'is_135', 'is_91', 'error')
     search_fields = ('registration',)
     empty_value_display = ''
 

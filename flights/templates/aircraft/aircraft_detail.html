@@ -4,72 +4,83 @@
 {% block content%}
 
 <div class="row">
-  <div class="col-lg-3 col-md-3 col-sm-3 col-3">
+  <div class="col-3">
     <h3>{{ aircraft.aircraft_type }}</h3>
     <hr>
     <div class="btn-group">
-      <a href ="{% url 'aircraft_update' aircraft.pk %}" class="btn btn-outline-secondary btn-sm">Update</a>
-      <a href ="{% url 'aircraft_delete' aircraft.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
+      <a href ="{% url 'aircraft_update' aircraft.pk %}" class="btn btn-shadow btn-secondary btn-sm">Update</a>
+      <a href ="{% url 'aircraft_delete' aircraft.pk %}" class="btn btn-shadow btn-danger btn-sm">Delete</a>
     </div>
 
       <hr>
       {% if aircraft.turbine %}
         <p>Turbine</p>
+        <hr>
         {% else %}
       {% endif %}
       {% if aircraft.piston %}
         <p>Piston</p>
+        <hr>
         {% else %}
       {% endif %}
-      <hr>
       {% if aircraft.requires_type %}
         <p>Requires Type Rating</p>
+        <hr>
         {% else %}
       {% endif %}
       {% if aircraft.simple %}
         <p>Simple</p>
+        <hr>
         {% else %}
       {% endif %}
       {% if aircraft.tailwheel %}
         <p>Tailwheel</p>
+        <hr>
         {% else %}
       {% endif %}
       {% if aircraft.compleks %}
         <p>Complex</p>
+        <hr>
         {% else %}
       {% endif %}
       {% if aircraft.high_performance %}
         <p>High performance</p>
+        <hr>
         {% else %}
       {% endif %}
-        {% if aircraft.super %}
-          <p>Super</p>
-          {% else %}
-        {% endif %}
-        {% if aircraft.heavy %}
-          <p>Heavy</p>
-          {% else %}
-        {% endif %}
-        {% if aircraft.large %}
-          <p>Large</p>
-          {% else %}
-        {% endif %}
-        {% if aircraft.medium %}
-          <p>Medium</p>
-          {% else %}
-        {% endif %}
-        {% if aircraft.small %}
-          <p>Small</p>
-          {% else %}
-        {% endif %}
-    <hr>
+      {% if aircraft.super %}
+        <p>Super</p>
+        <hr>
+        {% else %}
+      {% endif %}
+      {% if aircraft.heavy %}
+        <p>Heavy</p>
+        <hr>
+        {% else %}
+      {% endif %}
+      {% if aircraft.large %}
+        <p>Large</p>
+        <hr>
+        {% else %}
+      {% endif %}
+      {% if aircraft.medium %}
+        <p>Medium</p>
+        <hr>
+        {% else %}
+      {% endif %}
+      {% if aircraft.small %}
+        <p>Small</p>
+        <hr>
+        {% else %}
+      {% endif %}
+
     <p>Category - {{ aircraft.aircraft_category }}</p>
     <p>Class - {{ aircraft.aircraft_class }}</p>
   </div>
 
-  <div class="col-lg-3 col-md-9 col-sm-9 col-9">
+  <div class="col-5">
     <h3>Tailnumbers</h3>
-    <a href class="btn btn-sm btn-outline-primary" data-toggle="modal" data-target="#new_tailnumber_modal"> New Tailnumber</a>
+    <a href class="btn btn-shadow btn-sm btn-primary" data-toggle="modal" data-target="#new_tailnumber_modal"> New Tailnumber</a>
     <hr>
     {% for tailnumber in tailnumbers %}
       <a class="btn btn-outline-secondary btn-sm" href ="{% url 'tailnumber_detail' tailnumber.pk %}">{{ tailnumber.registration }}</a>
@@ -86,5 +97,39 @@
 </div>
 
 {% include 'tailnumbers/tailnumber_create_form_modal.html' %}
+
+{% if aircraft.power_error or aircraft.config_error %}
+
+  <div class="modal fade" id="errors">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Please correct the following errors</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          {% if aircraft.power_error %}
+            <p class"text-danger">{{ aircraft.power_error }}</p>
+            <hr>
+          {% endif %}
+          {% if aircraft.config_error %}
+            <p class"text-danger">{{ aircraft.config_error }}<p>
+          <hr>
+          {% endif %}
+          <a href ="{% url 'aircraft_update' aircraft.pk %}" class="btn btn-shadow btn-secondary btn-sm">Update</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+{% endif %}
+
+<script>
+  $(function() {
+   $("#errors").modal();
+  });
+</script>
 
 {% endblock %}

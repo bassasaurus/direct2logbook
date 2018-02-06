@@ -3,7 +3,7 @@
 {% block content %}
 
 <a class="btn-shadow btn-primary" href="{% url 'profile_update' user.profile.pk %}">Update</a></p>
-
+<hr>
 <p>Name: {{ user.first_name }} {{ user.last_name }}</p>
 
 <p>Company Name: {{ user.profile.company }}</p>

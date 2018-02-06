@@ -41,11 +41,11 @@
       }
   });
 
-  $('div .checkbox').click(function () {
+  $('div .weight').click(function () {
       var checkedState =   $(this).prop("checked")
       $(this)
             .parent('div')
-            .children('.checkbox:checked')
+            .children('.weight:checked')
             .prop("checked", false);
 
       $(this).prop("checked", checkedState);

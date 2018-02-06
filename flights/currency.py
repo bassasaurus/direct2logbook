@@ -10,7 +10,8 @@ helo_query = Q(aircraft_type__aircraft_class__aircraft_class__icontains = 'helic
 gyro_query = Q(aircraft_type__aircraft_class__aircraft_class__icontains = 'gyroplane') & Q(aircraft_type__aircraft_category__aircraft_category__icontains = 'rotorcraft')
 
 # amel currency
-def amel_vfr_day():
+def amel_vfr_day(user):
+    user_kwarg = {'user' : user}
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
     amel_vfr_day = Flight.objects.filter(amel_query).filter(date__lte=today,date__gte=last_90).aggregate(Sum('landings_day'))
@@ -20,7 +21,8 @@ def amel_vfr_day():
         amel_vfr_day = round(amel_vfr_day.get('landings_day__sum'), 1)
     return amel_vfr_day
 
-def amel_vfr_night():
+def amel_vfr_night(user):
+    user_kwarg = {'user' : user}
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
     amel_vfr_night = Flight.objects.filter(amel_query).filter(date__lte=today,date__gte=last_90).aggregate(Sum('landings_night'))
@@ -31,7 +33,8 @@ def amel_vfr_night():
     return amel_vfr_night
 
 # asel currency
-def asel_vfr_day():
+def asel_vfr_day(user):
+    user_kwarg = {'user' : user}
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
     asel_vfr_day = Flight.objects.filter(asel_query).filter(date__lte=today,date__gte=last_90).aggregate(Sum('landings_day'))
@@ -41,7 +44,8 @@ def asel_vfr_day():
         asel_vfr_day = round(asel_vfr_day.get('landings_day__sum'), 1)
     return asel_vfr_day
 
-def asel_vfr_night():
+def asel_vfr_night(user):
+    user_kwarg = {'user' : user}
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
     asel_vfr_night = Flight.objects.filter(asel_query).filter(date__lte=today,date__gte=last_90).aggregate(Sum('landings_night'))
@@ -52,7 +56,8 @@ def asel_vfr_night():
     return asel_vfr_night
 
 # ases currency
-def ases_vfr_day():
+def ases_vfr_day(user):
+    user_kwarg = {'user' : user}
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
     ases_vfr_day = Flight.objects.filter(ases_query).filter(date__lte=today,date__gte=last_90).aggregate(Sum('landings_day'))
@@ -62,7 +67,8 @@ def ases_vfr_day():
         ases_vfr_day = round(ases_vfr_day.get('landings_day__sum'), 1)
     return ases_vfr_day
 
-def ases_vfr_night():
+def ases_vfr_night(user):
+    user_kwarg = {'user' : user}
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
     ases_vfr_night = Flight.objects.filter(ases_query).filter(date__lte=today,date__gte=last_90).aggregate(Sum('landings_night'))
@@ -73,7 +79,8 @@ def ases_vfr_night():
     return ases_vfr_night
 
 # ames currency
-def ames_vfr_day():
+def ames_vfr_day(user):
+    user_kwarg = {'user' : user}
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
     ames_vfr_day = Flight.objects.filter(ames_query).filter(date__lte=today,date__gte=last_90).aggregate(Sum('landings_day'))
@@ -83,7 +90,8 @@ def ames_vfr_day():
         ames_vfr_day = round(ames_vfr_day.get('landings_day__sum'), 1)
     return ames_vfr_day
 
-def ames_vfr_night():
+def ames_vfr_night(user):
+    user_kwarg = {'user' : user}
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
     ames_vfr_night = Flight.objects.filter(ames_query).filter(date__lte=today,date__gte=last_90).aggregate(Sum('landings_night'))
@@ -94,7 +102,8 @@ def ames_vfr_night():
     return ames_vfr_night
 
 # helo currency
-def helo_vfr_day():
+def helo_vfr_day(user):
+    user_kwarg = {'user' : user}
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
     helo_vfr_day = Flight.objects.filter(helo_query).filter(date__lte=today,date__gte=last_90).aggregate(Sum('landings_day'))
@@ -104,7 +113,8 @@ def helo_vfr_day():
         helo_vfr_day = round(helo_vfr_day.get('landings_day__sum'), 1)
     return helo_vfr_day
 
-def helo_vfr_night():
+def helo_vfr_night(user):
+    user_kwarg = {'user' : user}
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
     helo_vfr_night = Flight.objects.filter(helo_query).filter(date__lte=today,date__gte=last_90).aggregate(Sum('landings_night'))
@@ -115,7 +125,8 @@ def helo_vfr_night():
     return helo_vfr_night
 
 # gyro currency
-def gyro_vfr_day():
+def gyro_vfr_day(user):
+    user_kwarg = {'user' : user}
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
     gyro_vfr_day = Flight.objects.filter(gyro_query).filter(date__lte=today,date__gte=last_90).aggregate(Sum('landings_day'))
@@ -125,7 +136,8 @@ def gyro_vfr_day():
         gyro_vfr_day = round(gyro_vfr_day.get('landings_day__sum'), 1)
     return gyro_vfr_day
 
-def gyro_vfr_night():
+def gyro_vfr_night(user):
+    user_kwarg = {'user' : user}
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
     gyro_vfr_night = Flight.objects.filter(gyro_query).filter(date__lte=today,date__gte=last_90).aggregate(Sum('landings_night'))

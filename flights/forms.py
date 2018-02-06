@@ -1,5 +1,6 @@
 from django import forms
 from flights.models import *
+from django.contrib.auth.models import User
 from flights.fields import *
 from dal import autocomplete
 
@@ -7,7 +8,13 @@ class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        fields = ('company', )
+        fields = ('company',)
+
+class UserForm(forms.ModelForm):
+
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'email', )
 
 class FlightForm(forms.ModelForm):
 

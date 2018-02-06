@@ -92,18 +92,25 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         context['page_title'] = 'Profile'
         return context
 
+
 class ProfileUpdateView(LoginRequiredMixin, UserObjectsMixin, UpdateView):
     model = Profile
-    form_class = ProfileForm
+    fields = ()
 
     template_name = 'profile/profile_update.html'
     success_url = '/profile/'
 
     def get_context_data(self, **kwargs):
         context = super(ProfileUpdateView, self).get_context_data(**kwargs)
+
+        profile_form = ProfileForm()
+        user_form = UserForm()
+
+        context['profile_form'] = profile_form
+        context['user_form'] = user_form
         context['title'] = "D-> | Update Profile"
-        context['parent_name'] = 'Home'
-        context['parent_link'] = reverse('home')
+        context['parent_name'] = 'Profile'
+        context['parent_link'] = reverse('profile')
         context['page_title'] = 'Update Profile'
         return context
 
@@ -116,31 +123,55 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
 
         context['last_ten'] = Flight.objects.filter(user=user).order_by('-id')[:5]
 
-        context['asel_total'] = Total.objects.get(total="ASEL")
-        context['amel_total'] = Total.objects.get(total="AMEL")
-        context['ases_total'] = Total.objects.get(total="ASES")
-        context['ames_total'] = Total.objects.get(total="AMES")
-        context['helo_total'] = Total.objects.get(total="HELO")
-        context['gyro_total'] = Total.objects.get(total="GYRO")
+        if not Total.objects.filter(user=user):
+            context['asel_total'] = 0
+        else:
+            context['asel_total'] = Total.objects.filter(user=user).get(total="ASEL")
 
-        context['amel_vfr_night'] = currency.amel_vfr_night()
-        context['amel_vfr_day'] = currency.amel_vfr_day()
-        context['asel_vfr_night'] = currency.asel_vfr_night()
-        context['asel_vfr_day'] = currency.asel_vfr_day()
-        context['ases_vfr_day'] = currency.ases_vfr_day()
-        context['ases_vfr_night'] = currency.ases_vfr_night()
-        context['ames_vfr_day'] = currency.ames_vfr_day()
-        context['ames_vfr_night'] = currency.ames_vfr_night()
-        context['helo_vfr_day'] = currency.asel_vfr_day()
-        context['helo_vfr_night'] = currency.helo_vfr_night()
-        context['gyro_vfr_day'] = currency.gyro_vfr_day()
-        context['gyro_vfr_night'] = currency.gyro_vfr_night()
+        if not Total.objects.filter(user=user):
+            context['amel_total'] = 0
+        else:
+            context['amel_total'] = Total.objects.filter(user=user).get(total="AMEL")
+            amel = Total.objects.filter(user=user).get(total="AMEL")
 
-        context['totals'] = Total.objects.exclude(total_time__lte=.1)
-        context['stats'] = Stat.objects.exclude(total_time__lte=.1)
-        context['regs'] = Regs.objects.all()
-        context['weights'] = Weight.objects.exclude(total__lte=.1)
-        context['powers'] = Power.objects.all()
+        if not Total.objects.filter(user=user):
+            context['ases_total'] = 0
+        else:
+            context['ases_total'] = Total.objects.filter(user=user).get(total="ASES")
+
+        if not Total.objects.filter(user=user):
+            context['ames_total'] = 0
+        else:
+            context['ames_total'] = Total.objects.filter(user=user).get(total="AMES")
+
+        if not Total.objects.filter(user=user):
+            context['helo_total'] = 0
+        else:
+            context['helo_total'] = Total.objects.filter(user=user).get(total="HELO")
+
+        if not Total.objects.filter(user=user):
+            context['gyro_total'] = 0
+        else:
+            context['gyro_total'] = Total.objects.filter(user=user).get(total="GYRO")
+
+        context['amel_vfr_night'] = currency.amel_vfr_night(user)
+        context['amel_vfr_day'] = currency.amel_vfr_day(user)
+        context['asel_vfr_night'] = currency.asel_vfr_night(user)
+        context['asel_vfr_day'] = currency.asel_vfr_day(user)
+        context['ases_vfr_day'] = currency.ases_vfr_day(user)
+        context['ases_vfr_night'] = currency.ases_vfr_night(user)
+        context['ames_vfr_day'] = currency.ames_vfr_day(user)
+        context['ames_vfr_night'] = currency.ames_vfr_night(user)
+        context['helo_vfr_day'] = currency.asel_vfr_day(user)
+        context['helo_vfr_night'] = currency.helo_vfr_night(user)
+        context['gyro_vfr_day'] = currency.gyro_vfr_day(user)
+        context['gyro_vfr_night'] = currency.gyro_vfr_night(user)
+
+        context['totals'] = Total.objects.filter(user=user).exclude(total_time__lte=.1)
+        context['stats'] = Stat.objects.filter(user=user).exclude(total_time__lte=.1)
+        context['regs'] = Regs.objects.filter(user=user).all()
+        context['weights'] = Weight.objects.filter(user=user).exclude(total__lte=.1)
+        context['powers'] = Power.objects.filter(user=user).all()
         context['endorsements'] = Endorsement.objects.exclude(total__lte=.1)
         context['title'] = 'D-> | Home'
         context['page_title'] = "Home"

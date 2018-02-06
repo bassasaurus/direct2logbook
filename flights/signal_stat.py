@@ -2,6 +2,7 @@ from flights.models import *
 from flights import querys
 from django.db.models.signals import pre_save, pre_delete, post_save, post_delete
 from django.db.models import Sum, Q
+from django.dispatch import receiver
 import datetime
 
 @receiver(pre_delete, sender=Aircraft)

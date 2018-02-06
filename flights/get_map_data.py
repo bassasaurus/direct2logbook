@@ -11,20 +11,24 @@ def get_map_data(queryset):
 
         for map_obj in flight.route_data:
 
-            feature = {"type":"Feature","properties":{"icao": "","iata": "", "name": "", "city": "", "state": "", "country": "", "elevation": ""},"geometry":{"type":"Point","coordinates":['','']}}
+            if not map_obj:
+                pass
 
-            feature["properties"]["icao"] = map_obj.icao
-            feature["properties"]["iata"] = map_obj.iata
-            feature["properties"]["name"] = map_obj.name
-            feature["properties"]["city"] = map_obj.city
-            feature["properties"]["state"] = map_obj.state
-            feature["properties"]["country"] = map_obj.country
-            feature["properties"]["elevation"] = map_obj.elevation
-            feature["geometry"]["coordinates"] = [map_obj.longitude, map_obj.latitude]
+            else:
+                feature = {"type":"Feature","properties":{"icao": "","iata": "", "name": "", "city": "", "state": "", "country": "", "elevation": ""},"geometry":{"type":"Point","coordinates":['','']}}
 
-            features.append(feature)
+                feature["properties"]["icao"] = map_obj.icao
+                feature["properties"]["iata"] = map_obj.iata
+                feature["properties"]["name"] = map_obj.name
+                feature["properties"]["city"] = map_obj.city
+                feature["properties"]["state"] = map_obj.state
+                feature["properties"]["country"] = map_obj.country
+                feature["properties"]["elevation"] = map_obj.elevation
+                feature["geometry"]["coordinates"] = [map_obj.longitude, map_obj.latitude]
 
-            line_json.append([map_obj.latitude, map_obj.longitude]) #assemble polyline
+                features.append(feature)
+
+                line_json.append([map_obj.latitude, map_obj.longitude]) #assemble polyline
 
     feature_collection = {"type":"FeatureCollection","features": features }
 

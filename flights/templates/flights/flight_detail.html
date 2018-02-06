@@ -8,6 +8,7 @@
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-12">
   <h3>{{ flight.date }} | {{ flight.aircraft_type }} | {{ flight.registration }} | {{ flight.route }}</h3>
+
   <hr>
 </div>
 </div>
@@ -15,8 +16,8 @@
 <div class="row">
   <div class="col col-lg-3 col-md-3 col-sm-3 col-3">
     <div class="btn-group">
-      <a href ="{% url 'flight_update' flight.pk %}" class="btn btn-sm btn-outline-secondary">Update</a>
-      <a href ="{% url 'flight_delete' flight.pk %}" class="btn btn-sm btn-outline-danger ">Delete</a>
+      <a href ="{% url 'flight_update' flight.pk %}" class="btn btn-sm btn-shadow btn-secondary">Update</a>
+      <a href ="{% url 'flight_delete' flight.pk %}" class="btn btn-sm btn-shadow btn-danger ">Delete</a>
     </div>
   </div>
 </div>
@@ -110,5 +111,40 @@
 <!-- leaflet-geodesic -->
 <script src="{% static 'flights/leaflet-geodesic.js' %}"></script>
 
+{% if flight.map_error or flight.duplicate_error %}
+
+  <div class="modal fade" id="errors">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Please correct the folowing errors.</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          {% if flight.map_error %}
+            <p class="text-danger">{{ flight.map_error }}</p>
+            <p class="text-muted">Please double check your route entries</p>
+            <hr>
+          {% endif %}
+          {% if flight.duplicate_error %}
+            <p class="text-danger">{{ flight.duplicate_error }}<p>
+            <p class="text-muted">Try using ICAO instead of FAA identifiers</p>
+            <hr>
+          {% endif %}
+          <a href ="{% url 'flight_update' flight.pk %}" class="btn btn-sm btn-shadow btn-secondary">Update</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+{% endif %}
+
+<script>
+  $(function() {
+   $("#errors").modal();
+  });
+</script>
 
 {% endblock %}
