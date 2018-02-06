@@ -20,7 +20,7 @@ from django.core.paginator import Paginator
 
 from flights.get_map_data import get_map_data
 import flights.currency as currency
-from flights.errors import *
+
 
 class UserObjectsMixin():
 
@@ -177,39 +177,6 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         context['page_title'] = "Home"
         return context
 
-class FlightErrorView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
-
-    def get(self, request):
-        user = self.request.user
-
-        return render(request, 'flights/flight_errors.html', {
-            'map_duplicate_error':  map_duplicate_error(Flight.objects.filter(user=user).values_list('route', flat=True)),
-            'map_identifier_error': map_identifier_error(Flight.objects.filter(user=user).values_list('route', flat=True)),
-            'flight_aircraft_error':flight_aircraft_error(Flight.objects.filter(user=user)),
-            'flight_tailnumber_error':flight_tailnumber_error(Flight.objects.filter(user=user)),
-            'flight_role_error':flight_role_error(Flight.objects.filter(user=user)),
-            'flight_cross_country_error':flight_cross_country_error(Flight.objects.filter(user=user)),
-            'title': "D-> | Logbook Errors",
-            'page_title': "Logbook Errors"
-            })
-
-class AircraftErrorView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
-
-    def get(self, request):
-        user = self.request.user
-
-        return render(request, 'aircraft/aircraft_errors.html', {
-            'tailnumber_reg_error': tailnumber_reg_error(TailNumber.objects.filter(user=user)),
-            'tailnumber_aircraft_error':tailnumber_aircraft_error(TailNumber.objects.filter(user=user)),
-            'aircraft_power_error':aircraft_power_error(Aircraft.objects.filter(user=user)),
-            'aircraft_weight_error':aircraft_weight_error(Aircraft.objects.filter(user=user)),
-            'aircraft_endorsement_error':aircraft_endorsement_error(Aircraft.objects.filter(user=user)),
-            'aircraft_category_error':aircraft_category_error(Aircraft.objects.filter(user=user)),
-            'aircraft_class_error':aircraft_class_error(Aircraft.objects.filter(user=user)),
-            'title': "D-> | Aircraft Errors",
-            'page_title': "Aircraft Errors"
-            })
-
 class FlightArchive(LoginRequiredMixin, UserObjectsMixin, ArchiveIndexView):
     model = Flight
     date_field = 'date'
@@ -356,9 +323,6 @@ class AircraftList(LoginRequiredMixin, UserObjectsMixin, ListView):
     def get_context_data(self, **kwargs):
         user = self.request.user
         context = super(AircraftList, self).get_context_data(**kwargs)
-
-        if AircraftForm not in context:
-            context['aircraft_form'] = self.aircraft_form()
 
         context['title'] = "D-> | Aircraft"
         context['parent_name'] = 'Home'

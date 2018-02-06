@@ -7,7 +7,7 @@ class FlightAdmin(admin.ModelAdmin):
     'landings_day', 'landings_night', 'night', 'instrument', 'approaches',
     'cross_country', 'second_in_command', 'pilot_in_command', 'simulated_instrument',
     'instructor', 'dual', 'simulator', 'solo', 'remarks', 'route_data', 'map_error',
-     'duplicate_error', 'aircraft_error', 'tailnumber_error', 'crew_error')
+     'duplicate_error', 'aircraft_type_error', 'registration_error', 'crew_error')
     empty_value_display = ''
 
 class AircraftAdmin(admin.ModelAdmin):

@@ -221,8 +221,8 @@ class Flight(models.Model):
     route_data = PickledObjectField(null=True, blank=True)
     map_error = models.CharField(max_length=100, null=True, blank=True)
     duplicate_error = models.CharField(max_length=100, null=True, blank=True)
-    aircraft_error = models.CharField(max_length=100, null=True, blank=True)
-    tailnumber_error = models.CharField(max_length=100, null=True, blank=True)
+    aircraft_type_error = models.CharField(max_length=100, null=True, blank=True)
+    registration_error = models.CharField(max_length=100, null=True, blank=True)
     crew_error = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:

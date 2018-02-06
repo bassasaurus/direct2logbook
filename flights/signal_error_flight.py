@@ -19,12 +19,11 @@ def map_error(sender, instance, **kwargs):
     for code in route:
         if code not in icao and code not in iata:
             errors = errors + code + ', '
+            message = errors + " Not in database"
+            Flight.objects.filter(pk=instance.pk).update(map_error=message)
         else:
-            pass
+            Flight.objects.filter(pk=instance.pk).update(map_error='')
 
-    message = errors + " Not in database"
-
-    Flight.objects.filter(pk=instance.pk).update(map_error=message)
 
 @receiver(post_save, sender=Flight)
 def duplicate_error(sender, instance, **kwargs):
@@ -40,27 +39,26 @@ def duplicate_error(sender, instance, **kwargs):
 
     for code in route:
         if iata.count(code) > 1:
+            print(code, iata.count(code))
             errors = errors + code +', '
+            message = errors + " Duplicate in database"
+            Flight.objects.filter(pk=instance.pk).update(duplicate_error=message)
         else:
-            pass
+            Flight.objects.filter(pk=instance.pk).update(duplicate_error='')
 
-    message = errors + " Duplicate in database"
 
-    Flight.objects.filter(pk=instance.pk).update(duplicate_error=message)
-
-#-------------------
 @receiver(post_save, sender=Flight)
 def flight_misc_error(sender, instance, **kwargs):
 
     if not instance.aircraft_type:
-        aircraft_error = "Please select an aircraft type"
-        Flight.objects.filter(pk=instance.pk).update(aircraft_error=aircraft_error)
+        aircraft_type_error = "Please select an aircraft type"
+        Flight.objects.filter(pk=instance.pk).update(aircraft_type_error=aircraft_type_error)
     else:
-        Flight.objects.filter(pk=instance.pk).update(aircraft_error='')
+        Flight.objects.filter(pk=instance.pk).update(aircraft_type_error='')
 
     if not instance.registration:
-        tailnumber_error = "Please select a tailnumber"
-        Flight.objects.filter(pk=instance.pk).update(tailnumber_error=tailnumber_error)
+        registration_error = "Please select a tailnumber"
+        Flight.objects.filter(pk=instance.pk).update(registration_error=registration_error)
     else:
         Flight.objects.filter(pk=instance.pk).update(tailnumber_error='')
 
