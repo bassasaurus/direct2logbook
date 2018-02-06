@@ -118,6 +118,18 @@
             <p class"text-danger">{{ aircraft.config_error }}<p>
           <hr>
           {% endif %}
+          {% if aircraft.weight_error %}
+            <p class"text-danger">{{ aircraft.weight_error }}<p>
+          <hr>
+          {% endif %}
+          {% if aircraft.weight_error %}
+            <p class"text-danger">{{ aircraft.category_error }}<p>
+          <hr>
+          {% endif %}
+          {% if aircraft.weight_error %}
+            <p class"text-danger">{{ aircraft.class_error }}<p>
+          <hr>
+          {% endif %}
           <a href ="{% url 'aircraft_update' aircraft.pk %}" class="btn btn-shadow btn-secondary btn-sm">Update</a>
         </div>
       </div>

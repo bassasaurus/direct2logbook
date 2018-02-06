@@ -47,3 +47,26 @@ def duplicate_error(sender, instance, **kwargs):
     message = errors + " Duplicate in database"
 
     Flight.objects.filter(pk=instance.pk).update(duplicate_error=message)
+
+#-------------------
+@receiver(post_save, sender=Flight)
+def flight_misc_error(sender, instance, **kwargs):
+
+    if not instance.aircraft_type:
+        aircraft_error = "Please select an aircraft type"
+        Flight.objects.filter(pk=instance.pk).update(aircraft_error=aircraft_error)
+    else:
+        Flight.objects.filter(pk=instance.pk).update(aircraft_error='')
+
+    if not instance.registration:
+        tailnumber_error = "Please select a tailnumber"
+        Flight.objects.filter(pk=instance.pk).update(tailnumber_error=tailnumber_error)
+    else:
+        Flight.objects.filter(pk=instance.pk).update(tailnumber_error='')
+
+    data = (instance.pilot_in_command, instance.second_in_command, instance.dual, instance.instructor)
+    if not any(data):
+        crew_error = "Please select a crew position"
+        Flight.objects.filter(pk=instance.pk).update(crew_error=crew_error)
+    else:
+        Flight.objects.filter(pk=instance.pk).update(crew_error='')

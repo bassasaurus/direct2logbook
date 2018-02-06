@@ -183,6 +183,9 @@ class Aircraft(models.Model):
     image = models.FileField(upload_to='aircraft/', default=None, null=True, blank=True)
     config_error = models.CharField(max_length=100, null=True, blank=True)
     power_error = models.CharField(max_length=100, null=True, blank=True)
+    weight_error = models.CharField(max_length=100, null=True, blank=True)
+    category_error = models.CharField(max_length=100, null=True, blank=True)
+    class_error = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
         ordering = ["aircraft_type"]
@@ -216,8 +219,11 @@ class Flight(models.Model):
     simulator = models.NullBooleanField(null=True, blank=True, verbose_name="Sim")
     solo = models.NullBooleanField(null=True, blank=True)
     route_data = PickledObjectField(null=True, blank=True)
-    map_error = models.CharField(max_length=400, null=True, blank=True)
-    duplicate_error = models.CharField(max_length=400, null=True, blank=True)
+    map_error = models.CharField(max_length=100, null=True, blank=True)
+    duplicate_error = models.CharField(max_length=100, null=True, blank=True)
+    aircraft_error = models.CharField(max_length=100, null=True, blank=True)
+    tailnumber_error = models.CharField(max_length=100, null=True, blank=True)
+    crew_error = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
         ordering = ["-date"]

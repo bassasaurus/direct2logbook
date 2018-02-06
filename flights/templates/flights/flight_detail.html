@@ -125,12 +125,24 @@
         <div class="modal-body">
           {% if flight.map_error %}
             <p class="text-danger">{{ flight.map_error }}</p>
-            <p class="text-muted">Please double check your route entries</p>
+            <small class="text-muted">Please double check your route entries</small>
             <hr>
           {% endif %}
           {% if flight.duplicate_error %}
             <p class="text-danger">{{ flight.duplicate_error }}<p>
-            <p class="text-muted">Try using ICAO instead of FAA identifiers</p>
+            <small class="text-muted">Try using ICAO instead of FAA identifiers</small>
+            <hr>
+          {% endif %}
+          {% if flight.aircraft_error %}
+            <p class="text-danger">{{ flight.aircraft_error }}<p>
+            <hr>
+          {% endif %}
+          {% if flight.tailnumber_error %}
+            <p class="text-danger">{{ flight.tailnumber_error }}<p>
+            <hr>
+          {% endif %}
+          {% if flight.crew_error %}
+            <p class="text-danger">{{ flight.crew_error }}<p>
             <hr>
           {% endif %}
           <a href ="{% url 'flight_update' flight.pk %}" class="btn btn-sm btn-shadow btn-secondary">Update</a>
