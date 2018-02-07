@@ -6,6 +6,9 @@
   border-radius: 5px;
 }
 
+@media all and (max-width: 500px;)
+{#floated_div{display:none;}}
+
 #mapid { height: 500px; width:100%; }
 
 .custom-popup .leaflet-popup-content-wrapper {

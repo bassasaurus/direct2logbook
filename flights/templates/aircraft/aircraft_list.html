@@ -18,9 +18,15 @@
         {% else %}
       {% endif %}
       <div class="card-body">
+        {% if aircraft.config_error or aircraft.power_error or aircraft.weight_error or aircraft.category_error or aircraft.class_error %}
+        <h4 class="card-title text-danger">{{ aircraft.aircraft_type }}</h4>
+        <p class="card-text"></p>
+        <a href ="{% url 'aircraft_detail' aircraft.pk %}" class="btn btn-outline-danger btn-sm">View</a>
+        {% else %}
         <h4 class="card-title">{{ aircraft.aircraft_type }}</h4>
         <p class="card-text"></p>
         <a href ="{% url 'aircraft_detail' aircraft.pk %}" class="btn btn-outline-primary btn-sm">View</a>
+        {% endif %}
       </div>
     </div>
   </div>

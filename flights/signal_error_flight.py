@@ -60,7 +60,7 @@ def flight_misc_error(sender, instance, **kwargs):
         registration_error = "Please select a tailnumber"
         Flight.objects.filter(pk=instance.pk).update(registration_error=registration_error)
     else:
-        Flight.objects.filter(pk=instance.pk).update(tailnumber_error='')
+        Flight.objects.filter(pk=instance.pk).update(registration_error='')
 
     data = (instance.pilot_in_command, instance.second_in_command, instance.dual, instance.instructor)
     if not any(data):

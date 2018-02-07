@@ -15,12 +15,13 @@ from django.views.decorators.cache import cache_page
 from django.core.cache import cache
 
 from dal import autocomplete
-
+import datetime
 from django.core.paginator import Paginator
 
 from flights.get_map_data import get_map_data
 import flights.currency as currency
 
+zulu_time = datetime.datetime.now().strftime('%Y %b %d %H:%M') + " UTC"
 
 class UserObjectsMixin():
 
@@ -86,6 +87,7 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
+        context['zulu_time'] = zulu_time
         context['title'] = "D-> | Profile"
         context['parent_name'] = 'Home'
         context['parent_link'] = reverse('home')
@@ -105,7 +107,7 @@ class ProfileUpdateView(LoginRequiredMixin, UserObjectsMixin, UpdateView):
 
         profile_form = ProfileForm()
         user_form = UserForm()
-
+        context['zulu_time'] = zulu_time
         context['profile_form'] = profile_form
         context['user_form'] = user_form
         context['title'] = "D-> | Update Profile"
@@ -154,6 +156,8 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         else:
             context['gyro_total'] = Total.objects.filter(user=user).get(total="GYRO")
 
+        context['zulu_time'] = zulu_time
+
         context['amel_vfr_night'] = currency.amel_vfr_night(user)
         context['amel_vfr_day'] = currency.amel_vfr_day(user)
         context['asel_vfr_night'] = currency.asel_vfr_night(user)
@@ -187,6 +191,7 @@ class FlightArchive(LoginRequiredMixin, UserObjectsMixin, ArchiveIndexView):
     def get_context_data(self, **kwargs):
         context = super(FlightArchive, self).get_context_data(**kwargs)
         get_map_data(self.object_list)
+        context['zulu_time'] = zulu_time
         context['title'] = "D-> | Map"
         context['parent_name'] = 'Home'
         context['parent_link'] = reverse('home')
@@ -203,7 +208,9 @@ class FlightArchiveYear(LoginRequiredMixin, UserObjectsMixin, YearArchiveView):
     def get_context_data(self, **kwargs):
         context = super(FlightArchiveYear, self).get_context_data(**kwargs)
         get_map_data(self.object_list)
+        context['zulu_time'] = zulu_time
         context['title'] = "D-> | Flights by Year"
+        context['home_link'] = reverse('home')
         context['parent_name'] = 'Map'
         context['parent_link'] = reverse('flight_by_date')
         context['page_title'] = "Flights by Year"
@@ -219,7 +226,9 @@ class FlightArchiveMonth(LoginRequiredMixin, UserObjectsMixin, MonthArchiveView)
     def get_context_data(self, **kwargs):
         context = super(FlightArchiveMonth, self).get_context_data(**kwargs)
         get_map_data(self.object_list)
+        context['zulu_time'] = zulu_time
         context['title'] = "D-> | Flights by Month"
+        context['home_link'] = reverse('home')
         context['parent_name'] = 'Map'
         context['parent_link'] = reverse('flight_by_date')
         context['page_title'] = "Flights by Month"
@@ -241,8 +250,10 @@ class FlightList(LoginRequiredMixin, UserObjectsMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(FlightList, self).get_context_data(**kwargs)
 
+        context['zulu_time'] = zulu_time
         context['title'] = "D-> | Logbook"
         context['parent_name'] = 'Home'
+        context['home_link'] = reverse('home')
         context['parent_link'] = reverse('home')
         context['page_title'] = "Logbook"
         return context
@@ -258,15 +269,15 @@ class FlightCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super(FlightCreate, self).get_context_data(**kwargs)
 
-        if FlightForm not in context:
-            context['flight_form'] = self.form_class()
-        # if AircraftForm not in context:
-        #     context['aircraft_form'] = self.aircraft_form()
-        # if TailNumberForm not in context:
-        #     context['tailnumber_form'] = self.tailnumber_form()
+        context['flight_form'] = self.form_class()
+
+        # context['tailnumber_form'] = self.tailnumber_form()
+
+        context['zulu_time'] = zulu_time
 
         context['title'] = "D-> | New Flight"
         context['page_title'] = "New Flight"
+        context['home_link'] = reverse('home')
         context['parent_link'] = reverse('flight_list')
         context['parent_name'] = 'Logbook'
         return context
@@ -280,8 +291,10 @@ class FlightUpdate(LoginRequiredMixin, UserObjectsMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(FlightUpdate, self).get_context_data(**kwargs)
+        context['zulu_time'] = zulu_time
         context['title'] = "D-> | Update Flight"
         context['page_title'] = "Update Flight"
+        context['home_link'] = reverse('home')
         context['parent_link'] = reverse('flight_list')
         context['parent_name'] = 'Logbook'
         return context
@@ -294,8 +307,10 @@ class FlightDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
         context = super(FlightDetail, self).get_context_data(**kwargs)
         queryset = Flight.objects.filter(pk=self.object.pk)
         get_map_data(queryset)
+        context['zulu_time'] = zulu_time
         context['title'] = "D-> | Flight Detail"
         context['page_title'] = "Detail"
+        context['home_link'] = reverse('home')
         context['parent_link'] = reverse('flight_list')
         context['parent_name'] = 'Logbook'
         return context
@@ -307,8 +322,10 @@ class FlightDelete(LoginRequiredMixin, UserObjectsMixin, DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super(FlightDelete, self).get_context_data(**kwargs)
+        context['zulu_time'] = zulu_time
         context['title'] = "D-> | Delete Flight"
         context['page_title'] = "Delete"
+        context['home_link'] = reverse('home')
         context['parent_link'] = reverse('flight_list')
         context['parent_name'] = 'Logbook'
         return context
@@ -323,7 +340,7 @@ class AircraftList(LoginRequiredMixin, UserObjectsMixin, ListView):
     def get_context_data(self, **kwargs):
         user = self.request.user
         context = super(AircraftList, self).get_context_data(**kwargs)
-
+        context['zulu_time'] = zulu_time
         context['title'] = "D-> | Aircraft"
         context['parent_name'] = 'Home'
         context['parent_link'] = reverse('home')
@@ -338,17 +355,14 @@ class AircraftCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(AircraftCreate, self).get_context_data(**kwargs)
+        context['zulu_time'] = zulu_time
         context['title'] = "D-> | New Aircraft"
+
+        context['home_link'] = reverse('home')
         context['page_title'] = "New Aircraft"
         context['parent_link'] = reverse('aircraft_list')
         context['parent_name'] = 'Aircraft'
         return context
-
-# class AircraftCreateModal(LoginRequiredMixin, CreateView):
-#     model = Aircraft
-#     form_class = AircraftForm
-#     template_name = "aircraft/aircraft_create_form_modal.html"
-#     success_url = ""
 
 class AircraftUpdate(LoginRequiredMixin, UserObjectsMixin, UpdateView):
     model = Aircraft
@@ -358,8 +372,10 @@ class AircraftUpdate(LoginRequiredMixin, UserObjectsMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(AircraftUpdate, self).get_context_data(**kwargs)
+        context['zulu_time'] = zulu_time
         context['title'] = "D-> | Update " + str(self.object)
         context['page_title'] = "Update " + str(self.object)
+        context['home_link'] = reverse('home')
         context['parent_link'] = reverse('aircraft_list')
         context['parent_name'] = 'Aircraft'
         return context
@@ -376,8 +392,10 @@ class AircraftDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
         if TailNumberForm not in context:
             context['form'] = self.form()
 
+        context['zulu_time'] = zulu_time
         context['title'] = "D-> | " + str(self.object)
         context['page_title'] = str(self.object)
+        context['home_link'] = reverse('home')
         context['parent_link'] = reverse('aircraft_list')
         context['parent_name'] = 'Aircraft'
         return context
@@ -389,8 +407,10 @@ class AircraftDelete(LoginRequiredMixin, UserObjectsMixin, DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super(AircraftDelete, self).get_context_data(**kwargs)
+        context['zulu_time'] = zulu_time
         context['title'] = "D-> | " + str(self.object)
         context['page_title'] = "Delete " + str(self.object)
+        context['home_link'] = reverse('home')
         context['parent_link'] = reverse('aircraft_list')
         context['parent_name'] = 'Aircraft'
         return context
@@ -457,8 +477,10 @@ class TailNumberList(LoginRequiredMixin, UserObjectsMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super(TailNumberList, self).get_context_data(**kwargs)
+        context['zulu_time'] = zulu_time
         context['title'] = "D-> | Tailnumbers"
         context['page_title'] = "Tailnumbers"
+        context['home_link'] = reverse('home')
         context['parent_link'] = reverse('aircraft_list')
         context['parent_name'] = 'Aircraft'
         return context
@@ -471,8 +493,10 @@ class TailNumberCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
 
     def get_context_data(self, **kwargs):
         context = super(TailNumberCreate, self).get_context_data(**kwargs)
+        context['zulu_time'] = zulu_time
         context['title'] = "D-> | New TailNumber"
         context['page_title'] = "New Tailnumber"
+        context['home_link'] = reverse('home')
         context['parent_link'] = reverse('aircraft_list')
         context['parent_name'] = 'Aircraft'
         return context
@@ -485,8 +509,10 @@ class TailNumberUpdate(LoginRequiredMixin, UserObjectsMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(TailNumberUpdate, self).get_context_data(**kwargs)
+        context['zulu_time'] = zulu_time
         context['title'] = "D-> | Update " + str(self.object)
         context['page_title'] = "Update " + str(self.object)
+        context['home_link'] = reverse('home')
         context['parent_link'] = reverse('aircraft_list')
         context['parent_name'] = 'Aircraft'
         return context
@@ -500,8 +526,10 @@ class TailNumberDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
         flights = Flight.objects.all().filter(registration = self.object)
         get_map_data(flights)
         context = super(TailNumberDetail, self).get_context_data(**kwargs)
+        context['zulu_time'] = zulu_time
         context['title'] = "D-> | " + str(self.object)
         context['page_title'] = str(self.object)
+        context['home_link'] = reverse('home')
         context['parent_link'] = reverse('aircraft_list')
         context['parent_name'] = 'Aircraft'
         context['child_name'] = tailnumber.aircraft
@@ -516,8 +544,10 @@ class TailNumberDelete(LoginRequiredMixin, UserObjectsMixin, DeleteView):
 
     def get_context_data(self, **kwargs):
         context = super(TailNumberDelete, self).get_context_data(**kwargs)
+        context['zulu_time'] = zulu_time
         context['title'] = "D-> | Delete " + str(self.object)
         context['page_title'] = "Delete " + str(self.object)
+        context['home_link'] = reverse('home')
         context['parent_link'] = reverse('aircraft_list')
         context['parent_name'] = 'Aircraft'
         return context

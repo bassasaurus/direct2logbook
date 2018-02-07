@@ -15,10 +15,16 @@
 <div class="form-group">
   <div class="input-group-sm">
   {{ flight_form.registration |add_class:"form-control"}}
+  <div class=""><a href="{% url 'tailnumber_create' %}" target="new"> New Tailnumber</a></div>
+
   </div>
 </div>
-    <!-- <div class="col-lg-2 col-md-4 col-sm-6"><button class="btn btn-outline-secondary btn-sm" href="{% url 'tailnumber_create' %}" target="new"> New Tailnumber</button></div> -->
-    <!-- <div class="col-xl-2 col-lg-4 col-md-6 col-sm-6"><button class="btn btn-outline-secondary btn-sm" href="#tailnumber_form_modal" data-toggle="modal" data-target="#tailnumber_form_modal"> New Tailnumber</button></div> -->
+<!-- <div class="form-group">
+  <div class="input-group-sm"> -->
+    <!-- <div class=""><a href="{% url 'tailnumber_create' %}" target="new"> New Tailnumber</a></div> -->
+    <!-- <a href="#new_tailnumber_modal" data-toggle="modal" data-target="#new_tailnumber_modal">New Tailnumber</a> -->
+  <!-- </div>
+</div> -->
 <div class="form-group">
   <div class="input-group-sm">
     {{ flight_form.route |attr:"id:route" |attr:"autocomplete:off" |attr:"placeholder:Route *" |add_class:"form-control"}}

@@ -28,9 +28,14 @@
         <tbody>
 
           {% for flight in object_list %}
-            <tr class="custom-table">
+            <tr class="custom-table
+                {% if flight.map_error or flight.duplicate_error or flight.aircraft_type_error or flight.registration_error or flight.crew_error or flight.duration < .1 %}text-danger{% endif %}">
                 <td style="background-color:#fff;">
+                  {% if flight.map_error or flight.duplicate_error or flight.aircraft_type_error or flight.registration_error or flight.crew_error or flight.duration < .1 %}
+                    <a href ="{% url 'flight_detail' flight.pk %}" class="btn btn-sm btn-outline-danger">View</a>
+                    {% else %}
                     <a href ="{% url 'flight_detail' flight.pk %}" class="btn btn-sm btn-outline-primary">View</a>
+                    {% endif %}
                 </td>
                 <td>{{flight.date|date:"m/d/Y"}}</td>
                 <td>{{flight.aircraft_type}}</td>

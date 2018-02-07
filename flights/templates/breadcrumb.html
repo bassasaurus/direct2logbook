@@ -1,7 +1,15 @@
 <div class="row breadcrumb">
-  {% if parent_link %}
-  <a href="{{ parent_link }}">{{ parent_name }}/</a> {{ page_title }}
-  {% else %}
-  {{ page_title }}
-  {% endif %}
+  <div class="col">
+    {% if home_link %}
+      <a href="{{ home_link }}">Home /</a>
+    {% endif %}
+    {% if parent_link %}
+      <a href="{{ parent_link }}">{{ parent_name }} /</a> {{ page_title }}
+    {% else %}
+      {{ page_title }}
+    {% endif %}
+  </div>
+  <div class="col">
+    <div class="float-right">{{ zulu_time }}</div>
+  </div>
 </div>
