@@ -38,8 +38,6 @@ def geoJSON_airports_view(request):
     if request.method == 'GET':
 
         data = cache.get('airports')
-
-        # return HttpResponse(data, content_type='text/html')
         return JsonResponse(data, content_type='application/json', safe=False)
 
 def geoJSON_routes_view(request):
@@ -242,6 +240,21 @@ class FlightArchiveMonth(LoginRequiredMixin, UserObjectsMixin, MonthArchiveView)
 
 #-------------------Flight CRUD-------------------------
 
+class RemarksList(LoginRequiredMixin, UserObjectsMixin, ListView):
+    model = Flight
+    template_name = "flights/remarks.html"
+    paginate_by = 40
+
+    def get_context_data(self, **kwargs):
+        context = super(RemarksList, self).get_context_data(**kwargs)
+        context['zulu_time'] = zulu_time
+        context['title'] = "D-> | Remarks"
+        context['page_title'] = "Remarks"
+        context['home_link'] = reverse('home')
+        context['parent_link'] = reverse('flight_list')
+        context['parent_name'] = 'Logbook'
+        return context
+
 class FlightList(LoginRequiredMixin, UserObjectsMixin, ListView):
     model = Flight
     template_name = "flight_list.html"
@@ -253,7 +266,6 @@ class FlightList(LoginRequiredMixin, UserObjectsMixin, ListView):
         context['zulu_time'] = zulu_time
         context['title'] = "D-> | Logbook"
         context['parent_name'] = 'Home'
-        context['home_link'] = reverse('home')
         context['parent_link'] = reverse('home')
         context['page_title'] = "Logbook"
         return context
@@ -262,7 +274,7 @@ class FlightCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
     model = Flight
     form_class = FlightForm
     # aircraft_form = AircraftForm
-    # tailnumber_form = TailNumberForm
+    form = TailNumberForm
     template_name = 'flights/flight_create_form.html'
     success_url = '/logbook/'
 
@@ -271,7 +283,7 @@ class FlightCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
 
         context['flight_form'] = self.form_class()
 
-        # context['tailnumber_form'] = self.tailnumber_form()
+        context['form'] = self.form()
 
         context['zulu_time'] = zulu_time
 
@@ -389,8 +401,8 @@ class AircraftDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
         context = super(AircraftDetail, self).get_context_data(**kwargs)
         context['tailnumbers'] = TailNumber.objects.all().filter(aircraft = self.object )
 
-        if TailNumberForm not in context:
-            context['form'] = self.form()
+
+        context['form'] = self.form()
 
         context['zulu_time'] = zulu_time
         context['title'] = "D-> | " + str(self.object)

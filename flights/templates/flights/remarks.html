@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+<div class="row">
+  <div class="col">
+    <h3>Remarks</h3>
+  <hr>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col">
+  {% for flight in object_list %}
+    {% if flight.remarks %}
+      <a href ="{% url 'flight_detail' flight.pk %}" class="btn btn-sm btn-outline-secondary ">{{ flight.date }} {{ flight.route }} | {{ flight.remarks }}</a>
+    {% endif %}
+  {% endfor %}
+  </div>
+</div>
+
+
+
+{% endblock %}

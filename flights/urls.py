@@ -28,6 +28,8 @@ urlpatterns = [
     url(r'^logbook/update/(?P<pk>\d+)/$', FlightUpdate.as_view(), name='flight_update'),
     url(r'^logbook/detail/(?P<pk>\d+)/$', FlightDetail.as_view(), name='flight_detail'),
     url(r'^logbook/delete/(?P<pk>\d+)/$', FlightDelete.as_view(), name='flight_delete'),
+    url(r'^logbook/remarks$', RemarksList.as_view(), name='remarks'),
+
 
     url(r'^aircraft/$', AircraftList.as_view(), name='aircraft_list'),
     url(r'^aircraft/create', AircraftCreate.as_view(), name='aircraft_create'),

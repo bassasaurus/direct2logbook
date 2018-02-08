@@ -20,9 +20,10 @@ def map_error(sender, instance, **kwargs):
         if code not in icao and code not in iata:
             errors = errors + code + ', '
             message = errors + " Not in database"
-            Flight.objects.filter(pk=instance.pk).update(map_error=message)
         else:
-            Flight.objects.filter(pk=instance.pk).update(map_error='')
+            mesage = ''
+
+    Flight.objects.filter(pk=instance.pk).update(map_error=message)
 
 
 @receiver(post_save, sender=Flight)
@@ -33,7 +34,6 @@ def duplicate_error(sender, instance, **kwargs):
     #search against tuple
     iata = MapData.objects.values_list('iata', flat=True)
     iata = list(iata)
-    # items_set = set(chain(icao, iata))
 
     route = re.split('\W+', instance.route )
 
@@ -42,9 +42,10 @@ def duplicate_error(sender, instance, **kwargs):
             print(code, iata.count(code))
             errors = errors + code +', '
             message = errors + " Duplicate in database"
-            Flight.objects.filter(pk=instance.pk).update(duplicate_error=message)
         else:
-            Flight.objects.filter(pk=instance.pk).update(duplicate_error='')
+            message = ''
+
+    Flight.objects.filter(pk=instance.pk).update(duplicate_error=message)
 
 
 @receiver(post_save, sender=Flight)
