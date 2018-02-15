@@ -3,8 +3,8 @@
 {% block content %}
 
 <!-- leaflet -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="crossorigin=""/>
-<script src="https://unpkg.com/leaflet@^1.0.0/dist/leaflet-src.js"></script>
+<!-- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="crossorigin=""/>
+<script src="https://unpkg.com/leaflet@^1.0.0/dist/leaflet-src.js"></script> -->
 
 {% if not date_list %}
   <div class="page-header">
@@ -19,22 +19,17 @@
     <div class="row">
       <div class="col-lg-12 col-md-12 col-sm-12">
         {% for date in date_list %}
-            <a href="/flights/by_date/{{ date|date:'Y' }}" class="btn btn-outline-secondary">{{ date|date:"Y" }}</a>
+            <a style="margin-top: 5px;" href="/flights/by_date/{{ date|date:'Y' }}" class="btn btn-outline-secondary">{{ date|date:"Y" }}</a>
         {% endfor %}
       </div>
     </div>
     <div style="height: 20px; width: 100%;"></div>
 
-    <div id="mapid" class="col col-lg-12 col-md-12 col-sm-12 image-shadow custom-popup">
+    <!-- <div id="mapid" class="col col-lg-12 col-md-12 col-sm-12 image-shadow custom-popup">
+      <script src="{% static 'flights/leaflet-geodesic.js' %}"></script>
       {% include "leaflet.html" %}
-    </div>
+    </div> -->
   {% endif %}
 
-    <!-- leaflet -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@^1.0.0/dist/leaflet-src.js"></script>
-    <!-- leaflet-geodesic -->
-    <script src="{% static 'flights/leaflet-geodesic.js' %}"></script>
-    <!-- google icons -->
 
 {% endblock %}

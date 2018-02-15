@@ -76,9 +76,6 @@ class TailNumberAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetVie
 
         return qs
 
-class SplashScreen(TemplateView):
-    template_name = 'index.html'
-
 class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
     model = Profile
     template_name='profile/profile.html'

@@ -1,14 +1,18 @@
 {% extends 'base.html' %}
 
 {% block content%}
+{% load static %}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="crossorigin=""/>
+<script src="https://unpkg.com/leaflet@^1.0.0/dist/leaflet-src.js"></script>
 
 <div class="row">
-  <div class="col-lg-2 col-md-2 col-md-2">
+  <div class="col-4">
     <h3>{{ tailnumber.registration }}</h3>
     <hr>
     <div class="btn-group">
-      <a href ="{% url 'tailnumber_update' tailnumber.pk %}" class="btn btn-outline-secondary btn-sm">Update</a>
-      <a href ="{% url 'tailnumber_delete' tailnumber.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
+      <a href ="{% url 'tailnumber_update' tailnumber.pk %}" class="btn btn-shadow btn-secondary btn-sm">Update</a>
+      <a href ="{% url 'tailnumber_delete' tailnumber.pk %}" class="btn btn-shadow btn-danger btn-sm">Delete</a>
     </div>
     <hr>
     <h4>{{ tailnumber.aircraft }}</h4>
@@ -25,18 +29,22 @@
         <h5>91</h5>
       {% else %}
     {% endif %}
-  </div>
-
-  <div class="col-lg-5 col-md-10 col-sm-10 col-10">
-    <h3>Routes</h3>
     <hr>
+
+
+    <h3>Routes</h3>
+    
     {% for flight in flights %}
       <a href ="{% url 'flight_detail' flight.pk %}" class="btn btn-outline-secondary btn-sm">{{ flight.date }} {{ flight.route }} {{ flight.aircraft_type}}</a>
     {% endfor %}
   </div>
 
-  <div style="margin-top: 10px;" id="mapid" class="col col-lg-5 col-md-12 col-sm-12 col-12 image-shadow custom-popup">
+
+<div class="col-8">
+  <div style="margin-top: 10px;" id="mapid" class="col-4image-shadow custom-popup">
+    <script src="{% static 'flights/leaflet-geodesic.js' %}"></script>
       {% include 'leaflet.html' %}
+
   </div>
 </div>
 

@@ -68,7 +68,7 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    # 'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.google',
     # 'allauth.socialaccount.providers.facebook',
 ]
 
@@ -188,7 +188,7 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'flights/static')
 ]
 
-MEDIA_URL = 'media/'
+MEDIA_URL = 'media/aircraft/'
 MEDIA_ROOT = os.path.join(BASE_DIR, '/')
 
 

@@ -7,7 +7,7 @@
 <script src="https://unpkg.com/leaflet@^1.0.0/dist/leaflet-src.js"></script>
 
 <div class="row">
-  <div class="col col-xl-4 col-lg-4 col-md-4 col-sm-4">
+  <div class="col-4">
       <a class="btn btn-outline-secondary btn-sm" href="{% url 'flight_by_date' %}" >All Years</a>
     <hr>
       <div class="btn-group">
@@ -19,6 +19,7 @@
         {% endif %}
       </div>
     <div><hr></div>
+    <div style="overflow:auto;" >
       {% for flight in object_list %}
           <li class=list-unstyled><a href ="{% url 'flight_detail' flight.pk %}" class="btn btn-outline-secondary btn-sm">
                       {{ flight.date }} |
@@ -26,11 +27,13 @@
       				{{ flight.route }}</a></li>
       {% endfor %}
     </div>
+  </div>
 
-  <div id="mapid" class="col col-xl-8 col-lg-8 col-md-6 col-sm-6 image-shadow custom-popup">
+  <div id="mapid" class="col-8 image-shadow custom-popup">
       {% include 'leaflet.html' %}
   </div>
 </div>
+
 
 <!-- leaflet-geodesic -->
 <script src="{% static 'flights/leaflet-geodesic.js' %}"></script>

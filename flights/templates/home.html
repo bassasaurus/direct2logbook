@@ -6,15 +6,21 @@
   td{text-align:left;}
 </style>
 
-<div id="floated_div" class="row">
-  <div style="padding-top:10px;" class="col-3 bg-light">
+<div class="row">
+  <div style="padding-top:10px;" class="col-2 bg-light">
     <div style"padding:auto;">
     <p><a href="{% url 'profile' %}"> {{ user.first_name }} {{ user.last_name }}</a></p>
     <hr>
     <p>Recent Flights</p>
-    {% for flight in last_ten %}
-      <a href ="{% url 'flight_detail' flight.pk %}" class="btn btn-sm btn-outline-secondary ">{{ flight.date }} {{ flight.route }}</a>
-    {% endfor %}
+    <div style="padding-top:10px; overflow:auto;" class="bg-light">
+      {% for flight in last_ten %}
+        {% if flight.map_error or flight.duplicate_error or flight.aircraft_type_error or flight.registration_error or flight.crew_error or flight.duration < .1 %}
+            <a href ="{% url 'flight_detail' flight.pk %}" class="btn btn-sm btn-outline-danger">{{ flight.date }}</a>
+            {% else %}
+            <a href ="{% url 'flight_detail' flight.pk %}" class="btn btn-sm btn-outline-secondary">{{ flight.date }}</a>
+        {% endif %}
+      {% endfor %}
+    </div>
   </div>
 
   </div>
@@ -148,16 +154,16 @@
 
             <div id="misc" class="collapse">
                 <div class="row">
-                  <div class="col" style="">
+                  <div class="col-6 col-xs-12" style="">
                     {% include 'table_operation.html' %}
                   </div>
-                  <div class="col" style="">
+                  <div class="col-6 col-xs-12" style="">
                     {% include 'table_weights.html' %}
                   </div>
-                  <div class="col" style="">
+                  <div class="col-6 col-xs-12" style="">
                     {% include 'table_power.html' %}
                   </div>
-                  <div class="col" style="">
+                  <div class="col-6 col-xs-12" style="">
                     {% include 'table_endorsements.html' %}
                   </div>
                 </div>

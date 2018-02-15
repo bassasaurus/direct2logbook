@@ -4,14 +4,13 @@ from flights.views import *
 
 urlpatterns = [
 
-    url(r'^$', SplashScreen.as_view(), name='splash'),
+    url(r'^$', HomeView.as_view(), name='home'),
     #autocomplete urls
     url(r'^aircraft-autocomplete/$', AircraftAutocomplete.as_view(), name='aircraft-autocomplete'),
     url(r'^tailnumber-autocomplete/$', TailNumberAutocomplete.as_view(), name='tailnumber-autocomplete'),
     url(r'^geojson/airports$', geoJSON_airports_view, name='geojson_airports'),
     url(r'^geojson/routes$', geoJSON_routes_view, name='geojson_routes'),
 
-    url(r'^home/$', HomeView.as_view(), name='home'),
     url(r'^profile/$', ProfileView.as_view(), name='profile'),
     url(r'^profile/update/(?P<pk>\d+)/$', ProfileUpdateView.as_view(), name='profile_update'),
     #date view urls

@@ -2,11 +2,13 @@
 {% block content %}
 
 
-<h4>{{ flight.date }} | {{ flight.aircraft_type }} | {{ flight.registration }} | {{ flight.route }}</h4>
+<h3>{{ flight.date }} | {{ flight.aircraft_type }} | {{ flight.registration }} | {{ flight.route }}</h3>
 <hr>
-<form action="" method="post">{% csrf_token %}
+<form id="delete-form" action="" method="post">{% csrf_token %}
     <p>This cannot be undone! But it won't affect related data.</p>
-    <input type="submit" class = "btn btn-shadow btn-danger" value="Delete"/>
+    <input type="submit" class = "confirm-delete btn btn-shadow btn-danger" value="Delete"/>
 </form>
+
+{% include "confirm_delete.html" %}
 
 {% endblock %}

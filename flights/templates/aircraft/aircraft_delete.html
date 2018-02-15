@@ -1,14 +1,9 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<form action="" method="post">{% csrf_token %}
+<form id="delete-form" action="" method="post">{% csrf_token %}
    {% include 'delete_warning.html' %}
-   <input class="confirm-delete btn btn-shadow btn-danger" type="submit" value="Delete" />
+   <input onclick="swal()" class="confirm-delete btn btn-shadow btn-danger" type="submit" value="Delete" />
+   {% include "confirm_delete.html" %}
 </form>
-
-<script>
-$(document).on('click', '.confirm-delete', function(){
-    return confirm('Are you sure you want to delete this?');
-})
-</script>
 {% endblock %}

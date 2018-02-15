@@ -78,7 +78,7 @@
     <p>Class - {{ aircraft.aircraft_class }}</p>
   </div>
 
-  <div class="col-5">
+  <div class="col-3">
     <h3>Tailnumbers</h3>
     <a href class="btn btn-shadow btn-sm btn-primary" data-toggle="modal" data-target="#new_tailnumber_modal"> New Tailnumber</a>
     <hr>
@@ -87,7 +87,7 @@
     {% endfor %}
   </div>
 
-  <div class="col-lg-6 col-md-12 col-sm-12 col-12">
+  <div class="col-6">
     {% if aircraft.image %}
       <div><img class="image-shadow img-rounded img-fluid" src="{{ aircraft.image.url }}"></img></div>
     {% else %}
