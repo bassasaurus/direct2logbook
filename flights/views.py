@@ -111,6 +111,9 @@ class ProfileUpdateView(LoginRequiredMixin, UserObjectsMixin, UpdateView):
         context['page_title'] = 'Update Profile'
         return context
 
+class IndexView(TemplateView):
+    template_name='index.html'
+
 class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
     template_name='home.html'
 
@@ -167,7 +170,7 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         context['gyro_vfr_night'] = currency.gyro_vfr_night(user)
 
         context['totals'] = Total.objects.filter(user=user).exclude(total_time__lte=.1)
-        context['stats'] = Stat.objects.filter(user=user).exclude(total_time__lte=.1)
+        context['stats'] = Stat.objects.filter(user=user)
         context['regs'] = Regs.objects.filter(user=user).all()
         context['weights'] = Weight.objects.filter(user=user).exclude(total__lte=.1)
         context['powers'] = Power.objects.filter(user=user).all()
@@ -300,6 +303,7 @@ class FlightUpdate(LoginRequiredMixin, UserObjectsMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(FlightUpdate, self).get_context_data(**kwargs)
+
         context['zulu_time'] = zulu_time
         context['title'] = "D-> | Update Flight"
         context['page_title'] = "Update Flight"

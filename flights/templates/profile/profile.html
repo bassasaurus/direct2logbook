@@ -4,7 +4,13 @@
 
 <a class="btn-shadow btn-primary" href="{% url 'profile_update' user.profile.pk %}">Update</a></p>
 <hr>
+<p><a href="{% url 'socialaccount_connections' %}">Manage Social Account</a></p>
+
+<p><a href="{% url 'account_change_password' %}">Change password</a></p>
+
 <p>Name: {{ user.first_name }} {{ user.last_name }}</p>
+
+
 
 <p>Company Name: {{ user.profile.company }}</p>
 

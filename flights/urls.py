@@ -4,7 +4,9 @@ from flights.views import *
 
 urlpatterns = [
 
-    url(r'^$', HomeView.as_view(), name='home'),
+    url(r'^home/$', HomeView.as_view(), name='home'),
+    url(r'^$', IndexView.as_view(), name='index'),
+
     #autocomplete urls
     url(r'^aircraft-autocomplete/$', AircraftAutocomplete.as_view(), name='aircraft-autocomplete'),
     url(r'^tailnumber-autocomplete/$', TailNumberAutocomplete.as_view(), name='tailnumber-autocomplete'),

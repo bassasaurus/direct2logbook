@@ -30,16 +30,23 @@
         <li class="nav-item">
           <a class="nav-link" href="contact.html">Contact</a>
         </li>
-
+      {% if user.is_authenticated %}
         <li class="nav-item">
-          <a class="nav-link nav-link--rounded" href="{% url 'account_login' %}">
-            Login
+          <a class="nav-link nav-link--rounded" href="{% url 'account_logout' %}">
+            Logout
           </a>
         </li>
+      {% else %}
+      <li class="nav-item">
+        <a class="nav-link nav-link--rounded" href="{% url 'account_login' %}">
+          Login
+        </a>
+      </li>
+      {% endif %}
       </ul>
     </div>
   </nav>
-    <div style="margin-top: 200px;">
+    <div style="margin-top: 150px;">
       <div class="container">
         <div class="row">
           <div class="col-12">
