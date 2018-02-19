@@ -236,7 +236,6 @@ class FlightArchiveMonth(LoginRequiredMixin, UserObjectsMixin, MonthArchiveView)
 # 	queryset = Flight.objects.all()
 # 	date_field = 'date'
 # 	allow_future = False
-#     year = '2017'
 
 #-------------------Flight CRUD-------------------------
 

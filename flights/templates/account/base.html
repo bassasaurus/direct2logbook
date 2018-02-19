@@ -20,7 +20,7 @@
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <a class="navbar-brand" href="/">Direct2Logbook</a>
+    <a class="navbar-brand" href="/home">Direct2Logbook</a>
 
     <div class="collapse navbar-collapse justify-content-end" id="navbar-collapse">
       <ul class="navbar-nav">
@@ -46,10 +46,17 @@
       </ul>
     </div>
   </nav>
-    <div style="margin-top: 150px;">
+
+    <div style="margin-top: 115px;">
       <div class="container">
         <div class="row">
           <div class="col-12">
+            <div class="row breadcrumb">
+              <div class="col">
+                  <a href="{% url 'home' %}">Home</a> /
+                  <a href="{% url 'profile' %}">Profile</a>
+            </div>
+          </div>
             {% block content %}
             {% endblock %}
           </div>
