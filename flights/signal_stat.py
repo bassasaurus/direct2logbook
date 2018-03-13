@@ -22,8 +22,10 @@ def stat_pre_save(sender, instance, **kwargs):
 def stat_update(sender, instance, **kwargs):
 
     stat = Stat()
-
-    stat = Stat.objects.get_or_create(aircraft_type = instance.aircraft_type)
+    if not instance.aircraft_type:
+        pass
+    else:
+        stat = Stat.objects.get_or_create(aircraft_type = instance.aircraft_type)
 
     aircraft_type = instance.aircraft_type
 
