@@ -121,7 +121,7 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         user = self.request.user
         context = super(HomeView, self).get_context_data(**kwargs)
 
-        context['last_ten'] = Flight.objects.filter(user=user).order_by('-id')[:5]
+        context['recent'] = Flight.objects.filter(user=user).order_by('-id')[:8]
 
         if not Total.objects.filter(user=user):
             context['asel_total'] = 0

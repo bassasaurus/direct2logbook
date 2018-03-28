@@ -140,12 +140,12 @@ def ames_update(sender, **kwargs):
     else:
         ames.last_2yr = round(last_2yr.get('duration__sum'), 1)
 
-    ydt = datetime.date(today.year, 1, 1)
-    ydt = Flight.objects.filter(cat_class_query).filter(date__lte=today,date__gte=ydt).aggregate(Sum('duration'))
-    if ydt.get('duration__sum') is None:
-        ames.ydt = 0
+    ytd = datetime.date(today.year, 1, 1)
+    ytd = Flight.objects.filter(cat_class_query).filter(date__lte=today,date__gte=ytd).aggregate(Sum('duration'))
+    if ytd.get('duration__sum') is None:
+        ames.ytd = 0
     else:
-        ames.ydt = round(ydt.get('duration__sum'), 1)
+        ames.ytd = round(ytd.get('duration__sum'), 1)
 
     ames.save()
 
@@ -286,11 +286,11 @@ def asel_update(sender, **kwargs):
     else:
         ases.last_2yr = round(last_2yr.get('duration__sum'), 1)
 
-    ydt = datetime.date(today.year, 1, 1)
-    ydt = Flight.objects.filter(cat_class_query).filter(date__lte=today,date__gte=ydt).aggregate(Sum('duration'))
-    if ydt.get('duration__sum') is None:
-        ases.ydt = 0
+    ytd = datetime.date(today.year, 1, 1)
+    ytd = Flight.objects.filter(cat_class_query).filter(date__lte=today,date__gte=ytd).aggregate(Sum('duration'))
+    if ytd.get('duration__sum') is None:
+        ases.ytd = 0
     else:
-        ases.ydt = round(ydt.get('duration__sum'), 1)
+        ases.ytd = round(ytd.get('duration__sum'), 1)
 
     ases.save()

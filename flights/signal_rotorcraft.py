@@ -140,12 +140,12 @@ def helo_update(sender, **kwargs):
     else:
         helo.last_2yr = round(last_2yr.get('duration__sum'), 1)
 
-    ydt = datetime.date(today.year, 1, 1)
-    ydt = Flight.objects.filter(cat_class_query).filter(date__lte=today,date__gte=ydt).aggregate(Sum('duration'))
-    if ydt.get('duration__sum') is None:
-        helo.ydt = 0
+    ytd = datetime.date(today.year, 1, 1)
+    ytd = Flight.objects.filter(cat_class_query).filter(date__lte=today,date__gte=ytd).aggregate(Sum('duration'))
+    if ytd.get('duration__sum') is None:
+        helo.ytd = 0
     else:
-        helo.ydt = round(ydt.get('duration__sum'), 1)
+        helo.ytd = round(ytd.get('duration__sum'), 1)
 
     helo.save()
 
@@ -286,11 +286,11 @@ def asel_updater(sender, **kwargs):
     else:
         gyro.last_2yr = round(last_2yr.get('duration__sum'), 1)
 
-    ydt = datetime.date(today.year, 1, 1)
-    ydt = Flight.objects.filter(cat_class_query).filter(date__lte=today,date__gte=ydt).aggregate(Sum('duration'))
-    if ydt.get('duration__sum') is None:
-        gyro.ydt = 0
+    ytd = datetime.date(today.year, 1, 1)
+    ytd = Flight.objects.filter(cat_class_query).filter(date__lte=today,date__gte=ytd).aggregate(Sum('duration'))
+    if ytd.get('duration__sum') is None:
+        gyro.ytd = 0
     else:
-        gyro.ydt = round(ydt.get('duration__sum'), 1)
+        gyro.ytd = round(ytd.get('duration__sum'), 1)
 
     gyro.save()
