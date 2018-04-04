@@ -8,8 +8,8 @@
     <h3>{{ aircraft.aircraft_type }}</h3>
     <hr>
     <div class="btn-group">
-      <a href ="{% url 'aircraft_update' aircraft.pk %}" class="btn btn-shadow btn-secondary btn-sm">Update</a>
-      <a href ="{% url 'aircraft_delete' aircraft.pk %}" class="btn btn-shadow btn-danger btn-sm">Delete</a>
+      <a href ="{% url 'aircraft_update' aircraft.pk %}" class="btn btn-outline-secondary">Update</a>
+      <a href ="{% url 'aircraft_delete' aircraft.pk %}" class="btn btn-outline-danger">Delete</a>
     </div>
 
       <hr>
@@ -80,7 +80,7 @@
 
   <div class="col-3">
     <h3>Tailnumbers</h3>
-    <a href class="btn btn-shadow btn-sm btn-primary" data-toggle="modal" data-target="#new_tailnumber_modal"> New Tailnumber</a>
+    <a href class="btn btn-outline-primary" data-toggle="modal" data-target="#new_tailnumber_modal"> New Tailnumber</a>
     <hr>
     {% for tailnumber in tailnumbers %}
       <a class="btn btn-outline-secondary btn-sm" href ="{% url 'tailnumber_detail' tailnumber.pk %}">{{ tailnumber.registration }}</a>
@@ -130,7 +130,7 @@
             <p class"text-danger">{{ aircraft.class_error }}<p>
           <hr>
           {% endif %}
-          <a href ="{% url 'aircraft_update' aircraft.pk %}" class="btn btn-shadow btn-secondary btn-sm">Update</a>
+          <a href ="{% url 'aircraft_update' aircraft.pk %}" class="btn btn-outline-secondary">Update</a>
         </div>
       </div>
     </div>

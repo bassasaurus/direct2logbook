@@ -11,8 +11,8 @@
     <h3>{{ tailnumber.registration }}</h3>
     <hr>
     <div class="btn-group">
-      <a href ="{% url 'tailnumber_update' tailnumber.pk %}" class="btn btn-shadow btn-secondary btn-sm">Update</a>
-      <a href ="{% url 'tailnumber_delete' tailnumber.pk %}" class="btn btn-shadow btn-danger btn-sm">Delete</a>
+      <a href ="{% url 'tailnumber_update' tailnumber.pk %}" class="btn btn-outline-secondary">Update</a>
+      <a href ="{% url 'tailnumber_delete' tailnumber.pk %}" class="btn btn-outline-danger">Delete</a>
     </div>
     <hr>
     <h4>{{ tailnumber.aircraft }}</h4>
@@ -33,7 +33,7 @@
 
 
     <h3>Routes</h3>
-    
+
     {% for flight in flights %}
       <a href ="{% url 'flight_detail' flight.pk %}" class="btn btn-outline-secondary btn-sm">{{ flight.date }} {{ flight.route }} {{ flight.aircraft_type}}</a>
     {% endfor %}
