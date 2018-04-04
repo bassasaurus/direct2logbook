@@ -15,7 +15,7 @@
 <div class="form-group">
   <div class="input-group-sm">
     {{ flight_form.registration |add_class:"form-control"}}
-    <div><a href class="" data-toggle="modal" data-target="#new_tailnumber_modal"> New Tailnumber</a></div>
+    <div><a target="new" href="{% url 'tailnumber_create' %}"> New Tailnumber</a></div>
   </div>
 </div>
 <div class="form-group">

@@ -218,6 +218,7 @@ class Flight(models.Model):
     remarks = models.CharField(max_length=500, null=True, blank=True)
     simulator = models.NullBooleanField(null=True, blank=True, verbose_name="Sim")
     solo = models.NullBooleanField(null=True, blank=True)
+    
     route_data = PickledObjectField(null=True, blank=True)
     map_error = models.CharField(max_length=100, null=True, blank=True)
     duplicate_error = models.CharField(max_length=100, null=True, blank=True)

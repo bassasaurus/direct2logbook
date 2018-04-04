@@ -6,12 +6,17 @@
   td{text-align:left;}
 </style>
 
-<div class="row bg-light">
-  <div style="padding-top:10px;" class="col-3">
+<div class="row">
+  <div class="row">
+  <div style="padding-top:10px;" class="col-2">
     <h4><a href="{% url 'profile' %}"> {{ user.first_name }} {{ user.last_name }}</a></h4>
   </div>
-  <div class='col-9'>
-    <h4>Put buttons here</h4>
+</div>
+  <div style="margin-top:10px;" class="col-10">
+    <a style="margin-top:5px;" class="btn btn-shadow btn-primary" href="{% url 'flight_create' %}">New Flight</a>
+    <a style="margin-top:5px;" class="btn btn-shadow btn-primary" href="#">Print Logbook</a>
+    <a style="margin-top:5px;" class="btn btn-shadow btn-primary" href="#">IACRA Format</a>
+    <a style="margin-top:5px;" class="btn btn-shadow btn-primary" href="#">Medical Format</a>
   </div>
 </div>
 <hr>
