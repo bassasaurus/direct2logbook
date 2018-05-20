@@ -37,6 +37,9 @@ class ProfileAdmin(admin.ModelAdmin):
     list_display = ('comapny', )
     empty_value_display = ''
 
+class ApproachAdmin(admin.ModelAdmin):
+    list_display = ('approach', 'number')
+
 admin.site.register(Flight, FlightAdmin)
 admin.site.register(Aircraft, AircraftAdmin)
 admin.site.register(Approach)

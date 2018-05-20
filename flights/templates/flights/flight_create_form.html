@@ -2,23 +2,26 @@
 {% load widget_tweaks %}
 
 {% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-10 col-sm-12">
+    <form action="{% url 'flight_create' %}" class="" method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <h4>New Flight</h4>
+        <p>Required *</p>
+      </div>
+      <hr>
+      {% include 'flights/flight_form.html' %}
+      <hr>
+      <button class="btn-shadow btn-shadow-dark" type="submit">Submit</button>
+    </form>
 
-<form action="{% url 'flight_create' %}" class="" method="post">
-  {% csrf_token %}
-  <div class="form-group">
-    <h4>New Flight</h4>
-    <p>Required *</p>
+    {% include 'flights/datepicker.html' %}
+    {% include 'flights/flight_form_checkbox_logic.html' %}
+    {% include 'flights/route_format.html' %}
+    {# {% include 'tailnumbers/tailnumber_create_form_modal.html' %} #}
   </div>
-  <hr>
-  {% include 'flights/flight_form.html' %}
-  <hr>
-  <button class="btn btn-outline-primary" type="submit">Submit</button>
-</form>
-
-{% include 'flights/datepicker.html' %}
-{% include 'flights/flight_form_checkbox_logic.html' %}
-{% include 'flights/route_format.html' %}
-{# {% include 'tailnumbers/tailnumber_create_form_modal.html' %} #}
+</div>
 
 {{ flight_form.media }}
 

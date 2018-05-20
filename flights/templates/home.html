@@ -6,30 +6,30 @@
   td{text-align:left;}
 </style>
 
-<div class="row">
   <div class="row">
-  <div style="padding-top:10px;" class="col-2">
+  <div style="padding-top:10px;" class="col-6">
     <h4><a href="{% url 'profile' %}"> {{ user.first_name }} {{ user.last_name }}</a></h4>
   </div>
 </div>
-  <div style="margin-top:10px;" class="col-10">
-    <a style="margin-top:5px;" class="btn btn-shadow btn-primary" href="{% url 'flight_create' %}">New Flight</a>
-    <a style="margin-top:5px;" class="btn btn-shadow btn-primary" href="#">Print Logbook</a>
-    <a style="margin-top:5px;" class="btn btn-shadow btn-primary" href="#">IACRA Format</a>
-    <a style="margin-top:5px;" class="btn btn-shadow btn-primary" href="#">Medical Format</a>
+<hr>
+  <div class="row">
+  <div style="margin-top:10px;" class="col-8">
+    <a style="margin-top:5px;" class="btn btn-primary" href="{% url 'flight_create' %}">New Flight</a>
+    <a style="margin-top:5px;" class="btn btn-secondary" href="#">Print Logbook</a>
+    <a style="margin-top:5px;" class="btn btn-secondary" href="#">IACRA Format</a>
+    <a style="margin-top:5px;" class="btn btn-secondary" href="#">Medical Format</a>
   </div>
-</div>
+  </div>
 <hr>
 
 <div style="margin-top: 15px;" class="row">
   <div class="col-12">
     <div class="row">
         <div class="col-12">
-        {% for flight in recent %}
+        {% for flight in errors %}
           {% if flight.map_error or flight.duplicate_error or flight.aircraft_type_error or flight.registration_error or flight.crew_error or flight.duration < .1 %}
-              <a href ="{% url 'flight_detail' flight.pk %}" class="btn btn-sm btn-outline-danger">{{ flight.date }}</a>
+              <a href ="{% url 'flight_detail' flight.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ flight.date }} | {{ flight.route }}</a>
               {% else %}
-              <a href ="{% url 'flight_detail' flight.pk %}" class="btn btn-sm btn-outline-secondary">{{ flight.date }}</a>
           {% endif %}
         {% endfor %}
       </div>

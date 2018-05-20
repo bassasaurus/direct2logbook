@@ -2,15 +2,20 @@
 {% load widget_tweaks %}
 {% block content %}
 
-<form action="{% url 'aircraft_create' %}" class="" method="post">
-  {% csrf_token %}
-  <div class="form-group">
-    <h4>New Aircraft</h4>
-    <p>Required *</p>
+<div class="row justify-content-center">
+  <div class="col-lg-10 col-sm-12">
+
+    <form action="{% url 'aircraft_create' %}" class="" method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <h4>New Aircraft</h4>
+        <p>Required *</p>
+      </div>
+      <hr>
+      {% include 'aircraft/aircraft_form.html' %}
+      <hr>
+      <button class="btn-shadow btn-shadow-dark" type="submit">Submit</button>
+    </form>
   </div>
-  <hr>
-  {% include 'aircraft/aircraft_form.html' %}
-  <hr>
-  <button class="btn btn-outline-primary" type="submit">Submit</button>
-</form>
+</div>
 {% endblock %}

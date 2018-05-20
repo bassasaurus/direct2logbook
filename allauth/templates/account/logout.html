@@ -13,7 +13,7 @@
 
     <p>{% trans 'Are you sure you want to sign out?' %}</p>
     <hr>
-    <p><a class="btn btn-shadow btn-danger" href="{% url 'home' %}">Cancel</a><p>
+    <p><a class="btn btn-light" href="{% url 'home' %}">Cancel</a><p>
 
     <form method="post" action="{% url 'account_logout' %}">
       {% csrf_token %}

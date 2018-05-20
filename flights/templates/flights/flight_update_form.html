@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
 {% block content %}
-
-<form action="{% url 'flight_update' flight.pk %}" class="" method="post">
+<div class="row justify-content-center">
+  <div class="col-lg-10 col-sm-12">
+    <form action="{% url 'flight_update' flight.pk %}" class="" method="post">
   {% csrf_token %}
   <div class="form-group">
     <h4>Update Flight {{ flight.pk }}</h4>
@@ -107,9 +108,10 @@
     </div>
   </div>
   <hr>
-  <button class="btn btn-shadow btn-primary btn-sm" type="submit">Update</button>
+  <button class="btn-shadow btn-shadow-dark" type="submit">Update</button>
 </form>
-
+  </div>
+</div>
 {% include 'flights/datepicker.html' %}
 {% include 'flights/flight_form_checkbox_logic.html' %}
 {% include 'flights/route_format.html' %}
