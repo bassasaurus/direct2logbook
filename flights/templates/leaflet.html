@@ -55,7 +55,7 @@
     async: true,
     success: function(latlngs) {
       var filtered = filterSuccessiveDuplicatePositions(latlngs);
-      // insert logic for drawing just a cirlce here if filtered[0] = filtered[1] draw circle
+      // insert logic for drawing just a circle here if filtered[0] = filtered[1] draw circle
       var Geodesic = L.geodesic([filtered], {
         weight: 3,
         opacity: 1,
