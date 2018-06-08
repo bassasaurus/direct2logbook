@@ -1,20 +1,23 @@
-from django.shortcuts import render
-from django.views.generic import ListView
-from flights.models import Flight
-from easy_pdf.views import PDFTemplateView
+from io import BytesIO
+from reportlab.pdfgen import canvas
+from django.http import HttpResponse
 
-class PrintView(PDFTemplateView, ListView):
-    model = Flight
-    template_name = 'pdf_output/pdf_output.html'
-    context_object_name = 'flights'
+def print_view(request):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename="mypdf.pdf"'
 
-    def object_list(self, **kwargs):
-        return Flight.objects.all()[:40]
+    buffer = BytesIO()
+    p = canvas.Canvas(buffer)
 
-    def get_context_data(self, **kwargs):
+    # Start writing the PDF here
+    p.drawString(100, 100, 'Hello world.')
+    # End writing
 
-        return super(PrintView, self).get_context_data(
-            pagesize='A4',
-            title='Logbook',
-            **kwargs
-        )
+    p.showPage()
+    p.save()
+
+    pdf = buffer.getvalue()
+    buffer.close()
+    response.write(pdf)
+
+    return response
