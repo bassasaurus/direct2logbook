@@ -1,23 +1,19 @@
-from io import BytesIO
-from reportlab.pdfgen import canvas
-from django.http import HttpResponse
+from django.views.generic import ListView
+from flights.models import Flight
+from easy_pdf.views import PDFTemplateResponseMixin, PDFTemplateView
+from django.core.paginator import Paginator
 
-def print_view(request):
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'inline; filename="mypdf.pdf"'
 
-    buffer = BytesIO()
-    p = canvas.Canvas(buffer)
+class PDFTemplateResponseMixin(PDFTemplateResponseMixin):
+    download_filename = "logbook.pdf"
 
-    # Start writing the PDF here
-    p.drawString(100, 100, 'Hello world.')
-    # End writing
+class PDFTemplateView(PDFTemplateView):
+    template_name = "pdf_output/pdf_output.html"
 
-    p.showPage()
-    p.save()
+class PrintView(ListView, PDFTemplateView, PDFTemplateResponseMixin):
+    model = Flight
+    context_object_name = 'flights'
 
-    pdf = buffer.getvalue()
-    buffer.close()
-    response.write(pdf)
-
-    return response
+    def object_list(self, **kwargs):
+        object_list = Flight.objects.all()[:80]
+        return(object_list)

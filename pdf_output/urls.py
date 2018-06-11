@@ -4,6 +4,6 @@ from . import views
 
 urlpatterns = [
 
-    url(r'^pdf_output/$', views.print_view, name='pdf'),
+    url(r'^pdf_output/$', views.PrintView.as_view(), name='pdf'),
 
     ]

@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'picklefield',
     'widget_tweaks',
+    'easy_pdf',
 
     #allauth
     'allauth',
