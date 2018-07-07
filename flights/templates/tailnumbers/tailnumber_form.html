@@ -1,4 +1,5 @@
 {% load widget_tweaks %}
+
 <div class="form-group input-group-sm">
   {{ form.registration |attr:"placeholder:Registration *" |add_class:"form-control"}}
 </div>
@@ -7,14 +8,16 @@
 </div>
 <div class="form-check-inline">
   <div class="form-group row">
-    <div class="m-4">
-      {{ form.is_121 |add_class:"form-control reg"}} 121
+    <div id="121" class="m-4">
+      {{ form.is_121 |add_class:"form-control checkbox"}} 121
     </div>
-    <div class="m-4">
-      {{ form.is_135 |add_class:"form-control reg"}} 135
+    <div id="135" class="m-4">
+      {{ form.is_135 |add_class:"form-control checkbox"}} 135
     </div>
-    <div class="m-4">
-      {{ form.is_91 |add_class:"form-control reg"}} 91
+    <div id="91" class="m-4">
+      {{ form.is_91 |add_class:"form-control checkbox"}} 91
     </div>
   </div>
 </div>
+
+{% include "tailnumbers/tailnumber_checkbox_logic.html" %}

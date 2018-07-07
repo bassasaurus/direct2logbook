@@ -8,11 +8,11 @@
 <div class="form-group">
   <div class="input-group-sm">
   {{ flight_form.aircraft_type |add_class:"form-control"}}
+  <div><a target="new" href="{% url 'aircraft_create' %}"> New Aircraft</a></div>
+
   </div>
 </div>
-    <!-- <div class="col-lg-2 col-md-4 col-sm-6"><button class="btn btn-outline-secondary btn-sm" href="{% url 'aircraft_create' %}" target="new"> New Aircraft</button></div> -->
-    <!-- <div class="col-xl-2 col-lg-4 col-md-6 col-sm-6"><button class="btn btn-outline-secondary btn-sm" href="#aircraft_form_modal" data-toggle="modal" data-target="#aircraft_form_modal"> New Aircraft</button></div> -->
-<div class="form-group">
+  <div class="form-group">
   <div class="input-group-sm">
     {{ flight_form.registration |add_class:"form-control"}}
     <div><a target="new" href="{% url 'tailnumber_create' %}"> New Tailnumber</a></div>

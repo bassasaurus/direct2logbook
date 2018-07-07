@@ -1,9 +1,8 @@
 from django.conf.urls import url, include
 
-from . import views
+from pdf_output.views import *
 
 urlpatterns = [
 
-    url(r'^pdf_output/$', views.PrintView.as_view(), name='pdf'),
-
+    url(r'^pdf_output/$', PrintView.as_view(), name='pdf'),
     ]

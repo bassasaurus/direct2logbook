@@ -64,7 +64,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'picklefield',
     'widget_tweaks',
-    'easy_pdf',
+    'django_weasyprint',
 
     #allauth
     'allauth',
@@ -190,8 +190,6 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'flights/static/'),
     os.path.join(BASE_DIR, 'pdf_output/static/'),
 ]
-
-
 
 MEDIA_ROOT = os.path.join(BASE_DIR, '/media/')
 MEDIA_URL = '/media/'

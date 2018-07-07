@@ -1,19 +1,17 @@
-from django.views.generic import ListView
+from django.conf import settings
+from django.views.generic import ListView, TemplateView
 from flights.models import Flight
-from easy_pdf.views import PDFTemplateResponseMixin, PDFTemplateView
-from django.core.paginator import Paginator
+from django.core.cache import cache
+from .pdf_output import pdf_output
+
+from django_weasyprint import WeasyTemplateResponseMixin
 
 
-class PDFTemplateResponseMixin(PDFTemplateResponseMixin):
-    download_filename = "logbook.pdf"
+class PDFView(TemplateView):
+    template_name = 'pdf_output/pdf_output.html'
+    pdf_output()
 
-class PDFTemplateView(PDFTemplateView):
-    template_name = "pdf_output/pdf_output.html"
-
-class PrintView(ListView, PDFTemplateView, PDFTemplateResponseMixin):
-    model = Flight
-    context_object_name = 'flights'
-
-    def object_list(self, **kwargs):
-        object_list = Flight.objects.all()[:80]
-        return(object_list)
+class PrintView(WeasyTemplateResponseMixin, PDFView):
+    pdf_stylesheets = [
+        settings.BASE_DIR + '/pdf_output/static/pdf_output/css/pdf_output.css',
+    ]
