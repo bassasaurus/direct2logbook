@@ -4,15 +4,35 @@
     margin-top: 1cm;
 }
 
-html{
+.number{
+  text-align: right;
+}
+.text{
+  text-align: left;
+}
+
+html {
   font-family: sans-serif;
 }
 
-h1 {
-  text-decoration-color: red;
+.remarks{
+  font-size: auto;
 }
 
-content {
-  font-size: 10px;
-  color: red;
+table{
+  width: 95%;
+}
+
+th{
+  border-bottom: 2px solid black;
+  width: auto;
+  font-size: 14px;
+}
+
+td {
+  font-size: 12px;
+  padding-left: 3px;
+  padding-right: 5px;
+  border: 1px solid black;
+  border-collapse: collapse;
 }
