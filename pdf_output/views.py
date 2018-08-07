@@ -7,7 +7,7 @@ from django_weasyprint import WeasyTemplateResponseMixin
 
 
 class LogView(TemplateView):
-    pdf_output()
+    # pdf_output()
     template_name = 'pdf_output/pdf_output.html'
 
 

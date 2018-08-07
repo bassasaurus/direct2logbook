@@ -45,7 +45,7 @@ class MapData(models.Model):
         index_together = ['iata', 'icao']
 
 class Stat(models.Model):
-    user = user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User, default=1)
     aircraft_type = models.CharField(max_length=10)
     total_time = models.FloatField(null=False, blank=True, default=0, verbose_name="Time")
     pilot_in_command = models.FloatField(null=True, blank=True, default=0, verbose_name="PIC")
@@ -78,7 +78,7 @@ class Stat(models.Model):
         return title
 
 class Total(models.Model):
-    user = user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User, default=1)
     total = models.CharField(max_length=20, default='')
     total_time = models.FloatField(db_index=True, null=True, blank=True, default=0, verbose_name="Time")
     pilot_in_command = models.FloatField(null=True, blank=True, default=0, verbose_name="PIC")
@@ -111,7 +111,7 @@ class Total(models.Model):
         return title
 
 class Power(models.Model):
-    user = user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User, default=1)
     role = models.CharField(db_index=True, max_length=5, default='')
     turbine = models.FloatField(null=True, blank=True, default=0)
     piston = models.FloatField(null=True, blank=True, default=0)
@@ -125,7 +125,7 @@ class Power(models.Model):
         return title
 
 class Regs(models.Model):
-    user = user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User, default=1)
     reg_type = models.CharField(db_index=True, max_length=5, default='', verbose_name="Reg")
     pilot_in_command = models.FloatField(null=True, blank=True, default=0, verbose_name="PIC")
     second_in_command = models.FloatField(null=True, blank=True, default=0, verbose_name="SIC")
@@ -138,7 +138,7 @@ class Regs(models.Model):
         return title
 
 class Endorsement(models.Model):
-    user = user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User, default=1)
     endorsement = models.CharField(max_length=30, default='')
     total = models.FloatField(db_index=True, null=True, blank=True, default=0)
 
@@ -150,7 +150,7 @@ class Endorsement(models.Model):
         return title
 
 class Weight(models.Model):
-    user = user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User, default=1)
     weight = models.CharField(max_length=20, default='')
     total = models.FloatField(null=True, blank=True, default=0)
 
@@ -162,7 +162,7 @@ class Weight(models.Model):
         return title
 
 class Aircraft(models.Model):
-    user = user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User, default=1)
     aircraft_type = models.CharField(db_index=True, max_length=10, unique=True)
     turbine = models.NullBooleanField()
     piston = models.NullBooleanField()
@@ -196,7 +196,7 @@ class Aircraft(models.Model):
         return aircraft_type
 
 class Flight(models.Model):
-    user = user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User, default=1)
     date = models.DateField(db_index=True)
     aircraft_type = models.ForeignKey('Aircraft', default=None, null=True, blank=True, on_delete=models.SET_NULL)
     registration = models.ForeignKey('TailNumber', default=None, null=True, blank=True, on_delete=models.SET_NULL)
@@ -234,13 +234,19 @@ class Flight(models.Model):
         return reverse('flight_detail', kwargs={'pk': self.pk})
 
 class TailNumber(models.Model):
-    user = user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User, default=1)
     registration = models.CharField(db_index=True, max_length=10)
     aircraft = models.ForeignKey('Aircraft', default=None, null=True, blank=True)
     is_121 = models.NullBooleanField(null=True, blank=True)
     is_135 = models.NullBooleanField(null=True, blank=True)
     is_91 = models.NullBooleanField(null=True, blank=True)
-    
+
+    registration_error = models.NullBooleanField(null=True, blank=True)
+    aircraft_type_error = models.NullBooleanField(null=True, blank=True)
+    reg_error = models.NullBooleanField(null=True, blank=True)
+
+
+
 
     class Meta:
         ordering =['aircraft', 'registration', ]
