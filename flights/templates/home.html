@@ -24,19 +24,21 @@
 
 <div style="margin-top: 15px;" class="row">
   <div class="col-12">
-    <div class="row">
-        <div class="col-12">
-        {% for flight in errors %}
-          {% if flight.map_error or flight.duplicate_error or flight.aircraft_type_error or flight.registration_error or flight.crew_error or flight.duration < .1 %}
-              <a href ="{% url 'flight_detail' flight.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ flight.date }} | {{ flight.route }}</a>
-              {% else %}
-          {% endif %}
-        {% endfor %}
-      </div>
-    </div>
+    {% for flight in flight_errors %}
+      {% if flight.map_error or flight.duplicate_error or flight.aircraft_type_error or flight.registration_error or flight.crew_error or flight.duration < .1 %}
+          <a href ="{% url 'flight_detail' flight.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ flight.date }} | {{ flight.route }}</a>
+          {% else %}
+      {% endif %}
+    {% endfor %}
+    {% for aircraft in aircraft_errors %}
+      {% if aircraft.config_error or aircraft.power_error or aircraft.category_error or aircraft.class_error or aircraft.weight_error %}
+        <a href ="{% url 'aircraft_detail' aircraft.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ aircraft }}</a>
+        <hr>
+        {% else %}
+      {% endif %}
+    {% endfor %}
   </div>
 </div>
-<hr>
 
 
     <div style="margin-top: 15px;" class="row">

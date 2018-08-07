@@ -5,6 +5,7 @@
   var mymap = L.map('mapid', {
     minZoom: 2.1,
     maxZoom: 18,
+    zoom: 15,
     zoomSnap: 0.50,
     useCache: true,
     crossOrigin: true
@@ -54,16 +55,31 @@
     dataType: 'json',
     async: true,
     success: function(latlngs) {
-      var filtered = filterSuccessiveDuplicatePositions(latlngs);
-      // insert logic for drawing just a circle here if filtered[0] = filtered[1] draw circle
-      var Geodesic = L.geodesic([filtered], {
-        weight: 3,
-        opacity: 1,
-        color: 'navy',
-        steps: 200,
-      }).addTo(mymap);
-    }
-  });
+      if (filterSuccessiveDuplicatePositions(latlngs).length >= 2){
+        console.log("multiple points")
+        var filtered = filterSuccessiveDuplicatePositions(latlngs);
+        var Geodesic = L.geodesic([filtered], {
+          weight: 3,
+          opacity: 1,
+          color: 'navy',
+          steps: 200,
+        }).addTo(mymap);
+      }
+      else{
+        console.log("single point")
+        var filtered = filterSuccessiveDuplicatePositions(latlngs);
+        var Circle = L.circle(filtered[0], {
+          radius: 3000,
+          color: 'navy',
+          
+        }).addTo(mymap);
+        // sets zoom to view entire circle
+        var currentDiameter = L.circle(filtered[0], 3000);
+        currentDiameter.addTo(mymap);
+        mymap.fitBounds(currentDiameter.getBounds());
+        }
+      }
+      });
 
   // reload on back button
 if(!!window.performance && window.performance.navigation.type == 2){

@@ -122,7 +122,9 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         context = super(HomeView, self).get_context_data(**kwargs)
 
         context['recent'] = Flight.objects.filter(user=user).order_by('-id')[:8]
-        context['errors'] = Flight.objects.all()
+        context['flight_errors'] = Flight.objects.filter(user=user).all()
+        context['aircraft_errors'] = Aircraft.objects.filter(user=user).all()
+        context['tailnumber_errors'] = TailNumber.objects.filter(user=user).all()
 
         if not Total.objects.filter(user=user):
             context['asel_total'] = 0

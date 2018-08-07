@@ -240,7 +240,7 @@ class TailNumber(models.Model):
     is_121 = models.NullBooleanField(null=True, blank=True)
     is_135 = models.NullBooleanField(null=True, blank=True)
     is_91 = models.NullBooleanField(null=True, blank=True)
-    error = models.CharField(max_length=400, null=True, blank=True)
+    
 
     class Meta:
         ordering =['aircraft', 'registration', ]
@@ -251,7 +251,7 @@ class TailNumber(models.Model):
         return registration
 
 class Approach(models.Model):
-    
+
     approach_type = models.CharField(max_length=15)
     number = models.PositiveIntegerField(null=True, blank=True)
 
