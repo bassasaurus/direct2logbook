@@ -18,62 +18,62 @@ def helo_update(sender, **kwargs):
     else:
         helo.total_time = round(total_time.get('duration__sum'),1)
 
-    pilot_in_command = Flight.objects.all().filter(cat_class_query).filter(cat_class_query).filter(pilot_in_command=True).aggregate(Sum('duration'))
+    pilot_in_command = Flight.objects.all().filter(cat_class_query, pilot_in_command=True).aggregate(Sum('duration'))
     if pilot_in_command.get('duration__sum') is None:
         helo.pilot_in_command = 0
     else:
         helo.pilot_in_command = round(pilot_in_command.get('duration__sum'),1)
 
-    second_in_command = Flight.objects.all().filter(cat_class_query).filter(cat_class_query).filter(second_in_command=True).aggregate(Sum('duration'))
+    second_in_command = Flight.objects.all().filter(cat_class_query, second_in_command=True).aggregate(Sum('duration'))
     if second_in_command.get('duration__sum') is None:
         helo.second_in_command = 0
     else:
         helo.second_in_command = round(second_in_command.get('duration__sum'),1)
 
-    cross_country = Flight.objects.all().filter(cat_class_query).filter(cross_country=True).aggregate(Sum('duration'))
+    cross_country = Flight.objects.all().filter(cat_class_query, cross_country=True).aggregate(Sum('duration'))
     if cross_country.get('duration__sum') is None:
         helo.cross_country = 0
     else:
         helo.cross_country = round(cross_country.get('duration__sum'),1)
 
-    instructor = Flight.objects.all().filter(cat_class_query).filter(instructor=True).aggregate(Sum('duration'))
+    instructor = Flight.objects.all().filter(cat_class_query, instructor=True).aggregate(Sum('duration'))
     if instructor.get('duration__sum') is None:
         helo.instructor = 0
     else:
         helo.instructor= round(instructor.get('duration__sum'),1)
 
-    dual = Flight.objects.all().filter(cat_class_query).filter(dual=True).aggregate(Sum('duration'))
+    dual = Flight.objects.all().filter(cat_class_query, dual=True).aggregate(Sum('duration'))
     if dual.get('duration__sum') is None:
         helo.dual = 0
     else:
         helo.dual = round(dual.get('duration__sum'),1)
 
-    solo = Flight.objects.all().filter(cat_class_query).filter(solo=True).aggregate(Sum('duration'))
+    solo = Flight.objects.all().filter(cat_class_query, solo=True).aggregate(Sum('duration'))
     if solo.get('duration__sum') is None:
         helo.solo = 0
     else:
         helo.solo = round(solo.get('duration__sum'),1)
 
-    instrument = Flight.objects.all().filter(cat_class_query).filter(instrument=True).aggregate(Sum('duration'))
-    if instrument.get('duration__sum') is None:
+    instrument = Flight.objects.all().filter(cat_class_query, instrument__gt=0).aggregate(Sum('instrument'))
+    if instrument.get('instrument__sum') is None:
         helo.instrument = 0
     else:
-        helo.instrument = round(instrument.get('duration__sum'),1)
+        helo.instrument = round(instrument.get('instrument__sum'),1)
 
-    simulated_instrument = Flight.objects.all().filter(cat_class_query).aggregate(Sum('simulated_instrument'))
-    if simulated_instrument.get('duration__sum') is None:
+    simulated_instrument = Flight.objects.all().filter(cat_class_query, simulated_instrument__gt=0).aggregate(Sum('simulated_instrument'))
+    if simulated_instrument.get('simulated_instrument__sum') is None:
         helo.simulated_instrument = 0
     else:
         helo.simulated_instrument = round(simulated_instrument.get('simulated_instrument__sum'),1)
 
     simulator = Flight.objects.all().filter(cat_class_query).aggregate(Sum('simulator'))
-    if simulator.get('duration__sum') is None:
+    if simulator.get('simulator__sum') is None:
         helo.simulator = 0
     else:
         helo.simulator = round(simulator.get('simulator__sum'),1)
 
-    night = Flight.objects.all().filter(cat_class_query).aggregate(Sum('night'))
-    if night.get('duration__sum') is None:
+    night = Flight.objects.all().filter(cat_class_query, night__gt=0).aggregate(Sum('night'))
+    if night.get('night__sum') is None:
         helo.night = 0
     else:
         helo.night = round(night.get('night__sum'),1)

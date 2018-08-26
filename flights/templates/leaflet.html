@@ -56,7 +56,7 @@
     async: true,
     success: function(latlngs) {
       if (filterSuccessiveDuplicatePositions(latlngs).length >= 2){
-        console.log("multiple points")
+        // console.log("multiple points")
         var filtered = filterSuccessiveDuplicatePositions(latlngs);
         var Geodesic = L.geodesic([filtered], {
           weight: 3,
@@ -66,12 +66,12 @@
         }).addTo(mymap);
       }
       else{
-        console.log("single point")
+        // console.log("single point")
         var filtered = filterSuccessiveDuplicatePositions(latlngs);
         var Circle = L.circle(filtered[0], {
           radius: 3000,
           color: 'navy',
-          
+
         }).addTo(mymap);
         // sets zoom to view entire circle
         var currentDiameter = L.circle(filtered[0], 3000);

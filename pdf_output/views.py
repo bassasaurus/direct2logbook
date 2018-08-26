@@ -7,11 +7,13 @@ from django_weasyprint import WeasyTemplateResponseMixin
 
 
 class LogView(TemplateView):
-    # pdf_output()
+    pdf_output()
     template_name = 'pdf_output/pdf_output.html'
 
 
 class PDFView(WeasyTemplateResponseMixin, LogView):
     pdf_stylesheets = [
         settings.BASE_DIR + '/pdf_output/static/pdf_output/css/pdf_output.css',
+        settings.BASE_DIR + '/flights/static/flights/custom.css',
+        settings.BASE_DIR + '/flights/static/flights/scss/bootstrap/bootstrap.css',
     ]

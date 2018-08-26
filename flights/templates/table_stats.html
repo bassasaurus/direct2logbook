@@ -1,29 +1,30 @@
+{% load static %}
 
 <table id="stat" class="table custom-table table-hover table-sm">
   <thead class="thead-default">
     <tr>
       <th scope="row">Aircraft Type</th>
-      <th>Time</th>
-      <th>PIC</th>
-      <th>SIC</th>
-      <th>XC</th>
-      <th>CFI</th>
-      <th>Dual</th>
-      <th>Solo</th>
-      <th>Inst</th>
-      <th>Night</th>
-      <th>Sim Inst</th>
-      <th>Sim</th>
-      <th>Day Ldg</th>
-      <th>Night Ldg</th>
-      <th>Last Flown</th>
-      <th>30</th>
-      <th>60</th>
-      <th>90</th>
-      <th>6mo</th>
-      <th>12mo</th>
-      <th>24mo</th>
-      <th>YTD</th>
+      <th class="text-right">Time</th>
+      <th class="text-right">PIC</th>
+      <th class="text-right">SIC</th>
+      <th class="text-right">XC</th>
+      <th class="text-right">CFI</th>
+      <th class="text-right">Dual</th>
+      <th class="text-right">Solo</th>
+      <th class="text-right">Inst</th>
+      <th class="text-right">Night</th>
+      <th class="text-right">Sim Inst</th>
+      <th class="text-right">Sim</th>
+      <th class="text-right">Day Ldg</th>
+      <th class="text-right">Night Ldg</th>
+      <th class="text-right">Last Flown</th>
+      <th class="text-right">30</th>
+      <th class="text-right">60</th>
+      <th class="text-right">90</th>
+      <th class="text-right">6mo</th>
+      <th class="text-right">12mo</th>
+      <th class="text-right">24mo</th>
+      <th class="text-right">YTD</th>
     </tr>
   </thead>
   {% for stat in stats %}

@@ -126,6 +126,7 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         context['aircraft_errors'] = Aircraft.objects.filter(user=user).all()
         context['tailnumber_errors'] = TailNumber.objects.filter(user=user).all()
 
+
         if not Total.objects.filter(user=user):
             context['asel_total'] = 0
         else:
@@ -404,9 +405,6 @@ class AircraftDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
         context = super(AircraftDetail, self).get_context_data(**kwargs)
         context['tailnumbers'] = TailNumber.objects.all().filter(aircraft = self.object )
 
-
-        context['form'] = self.form()
-
         context['zulu_time'] = zulu_time
         context['title'] = "D-> | " + str(self.object)
         context['page_title'] = str(self.object)
@@ -565,4 +563,91 @@ class TailNumberDelete(LoginRequiredMixin, UserObjectsMixin, DeleteView):
         context['home_link'] = reverse('home')
         context['parent_link'] = reverse('aircraft_list')
         context['parent_name'] = 'Aircraft'
+        return context
+
+class IacraView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
+    template_name = "flights/iacra.html"
+    def get_context_data(self, **kwargs):
+        user = self.request.user
+        context = super(IacraView, self).get_context_data(**kwargs)
+
+        context['total'] = Total.objects.filter(user=user).get(total='All')
+        context['ASEL'] = Total.objects.filter(user=user).get(total='ASEL')
+        context['AMEL'] = Total.objects.filter(user=user).get(total='AMEL')
+        context['ASES'] = Total.objects.filter(user=user).get(total='ASES')
+        context['AMES'] = Total.objects.filter(user=user).get(total='AMES')
+        context['HELO'] = Total.objects.filter(user=user).get(total='HELO')
+        context['GYRO'] = Total.objects.filter(user=user).get(total='GYRO')
+
+        airplane_query = Q(aircraft_type__aircraft_category__aircraft_category__icontains = 'airplane')
+        airplane_xc_dual = Flight.objects.all().filter(airplane_query).filter(cross_country=True).filter(dual=True).aggregate(Sum('duration'))
+        if not airplane_xc_dual.get('duration__sum'):
+          context['airplane_xc_dual'] = 0.0
+        else:
+          context['airplane_xc_dual'] = round(airplane_xc_dual.get('duration__sum'),1)
+
+        airplane_xc_solo = Flight.objects.all().filter(airplane_query).filter(cross_country=True).filter(solo=True).aggregate(Sum('duration'))
+        if not airplane_xc_solo.get('duration__sum'):
+          context['airplane_xc_solo'] = 0.0
+        else:
+          context['airplane_xc_solo'] = round(airplane_xc_solo.get('duration__sum'),1)
+
+        airplane_xc_pic_sic_query = Q(cross_country=True) & Q(pilot_in_command=True) | Q(second_in_command=True)
+        airplane_xc_pic_sic = Flight.objects.filter(airplane_query, airplane_xc_pic_sic_query).aggregate(Sum('duration'))
+        if not airplane_xc_pic_sic.get('duration__sum'):
+          context['airplane_xc_pic_sic'] = 0.0
+        else:
+          context['airplane_xc_pic_sic'] = round(airplane_xc_pic_sic.get('duration__sum'),1)
+
+        airplane_night_dual = Flight.objects.all().filter(airplane_query, night=True, dual=True).aggregate(Sum('duration'))
+        if not airplane_night_dual.get('duration__sum'):
+          context['airplane_night_dual'] = 0.0
+        else:
+          context['airplane_night_dual'] = round(airplane_night_dual.get('duration__sum'),1)
+
+        airplane_night_pic_sic = Flight.objects.filter(airplane_query, night=True, pilot_in_command=True, second_in_command=True).aggregate(Sum('duration'))
+        if not airplane_night_pic_sic.get('airplane_night_pic_sic__sum'):
+            context['airplane_night_pic_sic'] = 0.0
+        else:
+            cotext['airplane_night_pic_sic'] = round(airplane_night_pic_sic.get('airplane_night_pic_sic__sum'), 1)
+
+        night_ldg_pic = Flight.objects.filter(airplane_query, pilot_in_command=True).aggregate(Sum('landings_night'))
+        if not night_ldg_pic.get('landings_night__sum'):
+            context['night_ldg_pic'] = 0.0
+        else:
+            context['night_ldg_pic'] = round(night_ldg_pic.get('landings_night__sum'), 1)
+
+        night_ldg_sic = Flight.objects.filter(airplane_query, second_in_command=True).aggregate(Sum('landings_night'))
+        if not night_ldg_sic.get('landings_night__sum'):
+            context['night_ldg_sic'] = 0.0
+        else:
+            context['night_ldg_sic'] = round(night_ldg_sic.get('landings_night__sum'), 1)
+
+#---------------rotorcraft---------------
+        rotorcraft_query = Q(aircraft_type__aircraft_category__aircraft_category__icontains = 'rotorcraft')
+        rotorcraft_xc_dual = Flight.objects.all().filter(rotorcraft_query, cross_country=True, dual=True).aggregate(Sum('duration'))
+        if not rotorcraft_xc_dual.get('duration__sum'):
+          context['rotorcraft_xc_dual'] = 0.0
+        else:
+          context['rotorcraft_xc_dual'] = round(rotorcraft_xc_dual.get('duration__sum'),1)
+
+        rotorcraft_xc_solo = Flight.objects.all().filter(rotorcraft_query, cross_country=True, solo=True).aggregate(Sum('duration'))
+        if not rotorcraft_xc_solo.get('duration__sum'):
+          context['rotorcraft_xc_solo'] = 0.0
+        else:
+          context['rotorcraft_xc_solo'] = round(rotorcraft_xc_solo.get('duration__sum'),1)
+
+        rotorcraft_xc_pic_sic_query = Q(cross_country=True) & Q(pilot_in_command=True) | Q(second_in_command=True)
+        rotorcraft_xc_pic_sic = Flight.objects.filter(rotorcraft_query, rotorcraft_xc_pic_sic_query).aggregate(Sum('duration'))
+        if not rotorcraft_xc_pic_sic.get('duration__sum'):
+          context['rotorcraft_xc_pic_sic'] = 0.0
+        else:
+          context['rotorcraft_xc_pic_sic'] = round(rotorcraft_xc_pic_sic.get('duration__sum'),1)
+
+        rotorcraft_night_dual = Flight.objects.all().filter(rotorcraft_query, night=True, dual=True).aggregate(Sum('duration'))
+        if not rotorcraft_night_dual.get('duration__sum'):
+          context['rotorcraft_night_dual'] = 0.0
+        else:
+          context['rotorcraft_night_dual'] = round(rotorcraft_night_dual.get('duration__sum'),1)
+
         return context

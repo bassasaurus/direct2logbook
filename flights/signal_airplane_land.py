@@ -18,50 +18,50 @@ def amel_update(sender, **kwargs):
     else:
       amel.total_time = round(total_time.get('duration__sum'),1)
 
-    pilot_in_command = Flight.objects.all().filter(cat_class_query).filter(cat_class_query).filter(pilot_in_command=True).aggregate(Sum('duration'))
+    pilot_in_command = Flight.objects.all().filter(cat_class_query, pilot_in_command=True).aggregate(Sum('duration'))
     if not pilot_in_command.get('duration__sum'):
       amel.pilot_in_command = 0
     else:
       amel.pilot_in_command = round(pilot_in_command.get('duration__sum'),1)
 
-    second_in_command = Flight.objects.all().filter(cat_class_query).filter(cat_class_query).filter(second_in_command=True).aggregate(Sum('duration'))
+    second_in_command = Flight.objects.all().filter(cat_class_query, second_in_command=True).aggregate(Sum('duration'))
     if not second_in_command.get('duration__sum'):
       amel.second_in_command = 0
     else:
       amel.second_in_command = round(second_in_command.get('duration__sum'),1)
 
-    cross_country = Flight.objects.all().filter(cat_class_query).filter(cross_country=True).aggregate(Sum('duration'))
+    cross_country = Flight.objects.all().filter(cat_class_query, cross_country=True).aggregate(Sum('duration'))
     if not cross_country.get('duration__sum'):
       amel.cross_country = 0
     else:
       amel.cross_country = round(cross_country.get('duration__sum'),1)
 
-    instructor = Flight.objects.all().filter(cat_class_query).filter(instructor=True).aggregate(Sum('duration'))
+    instructor = Flight.objects.all().filter(cat_class_query, instructor=True).aggregate(Sum('duration'))
     if not instructor.get('duration__sum'):
       amel.instructor = 0
     else:
       amel.instructor= round(instructor.get('duration__sum'),1)
 
-    dual = Flight.objects.all().filter(cat_class_query).filter(dual=True).aggregate(Sum('duration'))
+    dual = Flight.objects.all().filter(cat_class_query, dual=True).aggregate(Sum('duration'))
     if not dual.get('duration__sum'):
       amel.dual = 0
     else:
       amel.dual = round(dual.get('duration__sum'),1)
 
-    solo = Flight.objects.all().filter(cat_class_query).filter(solo=True).aggregate(Sum('duration'))
+    solo = Flight.objects.all().filter(cat_class_query, solo=True).aggregate(Sum('duration'))
     if not solo.get('duration__sum'):
       amel.solo = 0
     else:
       amel.solo = round(solo.get('duration__sum'),1)
 
-    instrument = Flight.objects.all().filter(cat_class_query).filter(instrument=True).aggregate(Sum('duration'))
-    if not instrument.get('duration__sum'):
+    instrument = Flight.objects.filter(cat_class_query, instrument__gt=0).aggregate(Sum('instrument'))
+    if not instrument.get('instrument__sum'):
       amel.instrument = 0
     else:
-      amel.instrument = round(instrument.get('duration__sum'),1)
+      amel.instrument = round(instrument.get('instrument__sum'),1)
 
-    simulated_instrument = Flight.objects.all().filter(cat_class_query).aggregate(Sum('simulated_instrument'))
-    if not simulated_instrument.get('duration__sum'):
+    simulated_instrument = Flight.objects.filter(cat_class_query, simulated_instrument__gt=0).aggregate(Sum('simulated_instrument'))
+    if not simulated_instrument.get('simulated_instrument__sum'):
       amel.simulated_instrument = 0
     else:
       amel.simulated_instrument = round(simulated_instrument.get('simulated_instrument__sum'),1)
@@ -72,8 +72,8 @@ def amel_update(sender, **kwargs):
     else:
       amel.simulator = round(simulator.get('simulator__sum'),1)
 
-    night = Flight.objects.all().filter(cat_class_query).aggregate(Sum('night'))
-    if not night.get('duration__sum'):
+    night = Flight.objects.all().filter(cat_class_query, night__gte=0).aggregate(Sum('night'))
+    if not night.get('night__sum'):
       amel.night = 0
     else:
       amel.night = round(night.get('night__sum'),1)
@@ -84,7 +84,7 @@ def amel_update(sender, **kwargs):
     else:
       amel.landings_day = landings_day.get('landings_day__sum')
 
-    landings_night = Flight.objects.all().filter(cat_class_query).filter(cat_class_query).aggregate(Sum('landings_night'))
+    landings_night = Flight.objects.all().filter(cat_class_query).aggregate(Sum('landings_night'))
     if not landings_night:
       amel.landings_night = 0
     else:
@@ -164,62 +164,62 @@ def asel_update(sender, **kwargs):
     else:
         asel.total_time = round(total_time.get('duration__sum'),1)
 
-    pilot_in_command = Flight.objects.all().filter(cat_class_query).filter(cat_class_query).filter(pilot_in_command=True).aggregate(Sum('duration'))
+    pilot_in_command = Flight.objects.all().filter(cat_class_query, pilot_in_command=True).aggregate(Sum('duration'))
     if not pilot_in_command.get('duration__sum'):
         asel.pilot_in_command = 0
     else:
         asel.pilot_in_command = round(pilot_in_command.get('duration__sum'),1)
 
-    second_in_command = Flight.objects.all().filter(cat_class_query).filter(cat_class_query).filter(second_in_command=True).aggregate(Sum('duration'))
+    second_in_command = Flight.objects.all().filter(cat_class_query, second_in_command=True).aggregate(Sum('duration'))
     if not second_in_command.get('duration__sum'):
         asel.second_in_command = 0
     else:
         asel.second_in_command = round(second_in_command.get('duration__sum'),1)
 
-    cross_country = Flight.objects.all().filter(cat_class_query).filter(cross_country=True).aggregate(Sum('duration'))
+    cross_country = Flight.objects.all().filter(cat_class_query, cross_country=True).aggregate(Sum('duration'))
     if not cross_country.get('duration__sum'):
         asel.cross_country = 0
     else:
         asel.cross_country = round(cross_country.get('duration__sum'),1)
 
-    instructor = Flight.objects.all().filter(cat_class_query).filter(instructor=True).aggregate(Sum('duration'))
+    instructor = Flight.objects.all().filter(cat_class_query, instructor=True).aggregate(Sum('duration'))
     if not instructor.get('duration__sum'):
         asel.instructor = 0
     else:
         asel.instructor= round(instructor.get('duration__sum'),1)
 
-    dual = Flight.objects.all().filter(cat_class_query).filter(dual=True).aggregate(Sum('duration'))
+    dual = Flight.objects.all().filter(cat_class_query, dual=True).aggregate(Sum('duration'))
     if not dual.get('duration__sum'):
         asel.dual = 0
     else:
         asel.dual = round(dual.get('duration__sum'),1)
 
-    solo = Flight.objects.all().filter(cat_class_query).filter(solo=True).aggregate(Sum('duration'))
+    solo = Flight.objects.all().filter(cat_class_query, solo=True).aggregate(Sum('duration'))
     if not solo.get('duration__sum'):
         asel.solo = 0
     else:
         asel.solo = round(solo.get('duration__sum'),1)
 
-    instrument = Flight.objects.all().filter(cat_class_query).filter(instrument=True).aggregate(Sum('duration'))
-    if not instrument.get('duration__sum'):
+    instrument = Flight.objects.all().filter(cat_class_query, instrument__gt=0).aggregate(Sum('instrument'))
+    if not instrument.get('instrument__sum'):
         asel.instrument = 0
     else:
-        asel.instrument = round(instrument.get('duration__sum'),1)
+        asel.instrument = round(instrument.get('instrument__sum'),1)
 
-    simulated_instrument = Flight.objects.all().filter(cat_class_query).aggregate(Sum('simulated_instrument'))
-    if not simulated_instrument.get('duration__sum'):
+    simulated_instrument = Flight.objects.all().filter(cat_class_query, simulated_instrument__gt=0).aggregate(Sum('simulated_instrument'))
+    if not simulated_instrument.get('simulated_instrument__sum'):
         asel.simulated_instrument = 0
     else:
         asel.simulated_instrument = round(simulated_instrument.get('simulated_instrument__sum'),1)
 
-    simulator = Flight.objects.all().filter(cat_class_query).aggregate(Sum('simulator'))
+    simulator = Flight.objects.all().filter(cat_class_query, simulator=True).aggregate(Sum('duration'))
     if not simulator.get('duration__sum'):
         asel.simulator = 0
     else:
-        asel.simulator = round(simulator.get('simulator__sum'),1)
+        asel.simulator = round(simulator.get('duration__sum'),1)
 
-    night = Flight.objects.all().filter(cat_class_query).aggregate(Sum('night'))
-    if not night.get('duration__sum'):
+    night = Flight.objects.all().filter(cat_class_query, night__gt=0).aggregate(Sum('night'))
+    if not night.get('night__sum'):
         asel.night = 0
     else:
         asel.night = round(night.get('night__sum'),1)

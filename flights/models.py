@@ -236,14 +236,12 @@ class Flight(models.Model):
 class TailNumber(models.Model):
     user = models.ForeignKey(User, default=1)
     registration = models.CharField(db_index=True, max_length=10)
-    aircraft = models.ForeignKey('Aircraft', default=None, null=True, blank=True)
+    aircraft = models.ForeignKey('Aircraft', default=None, null=True, blank=False)
     is_121 = models.NullBooleanField(null=True, blank=True)
     is_135 = models.NullBooleanField(null=True, blank=True)
     is_91 = models.NullBooleanField(null=True, blank=True)
 
-    registration_error = models.NullBooleanField(null=True, blank=True)
-    aircraft_type_error = models.NullBooleanField(null=True, blank=True)
-    reg_error = models.NullBooleanField(null=True, blank=True)
+    reg_error = models.CharField(null=True, blank=True, max_length=50)
 
 
 
