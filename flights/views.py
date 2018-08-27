@@ -5,7 +5,7 @@ from flights.forms import *
 from django.db.models import Sum, Q
 
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DetailView, DeleteView
-from django.views.generic.dates import YearArchiveView, MonthArchiveView, ArchiveIndexView, DayArchiveView
+from django.views.generic.dates import YearArchiveView, MonthArchiveView, ArchiveIndexView, DayArchiveView, DayMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from django.http import HttpResponse, JsonResponse
@@ -16,7 +16,7 @@ from django.core.cache import cache
 
 from dal import autocomplete
 import datetime
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from flights.get_map_data import get_map_data
 import flights.currency as currency
@@ -321,14 +321,25 @@ class FlightDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(FlightDetail, self).get_context_data(**kwargs)
+
         queryset = Flight.objects.filter(pk=self.object.pk)
         get_map_data(queryset)
+
+        flight = Flight.objects.get(pk=self.object.pk)
+        next_flight = flight.get_next_by_date()
+        previous_flight = flight.get_previous_by_date()
+
+        context['next_flight'] = next_flight
+        context['previous_flight'] = previous_flight
+
         context['zulu_time'] = zulu_time
         context['title'] = "D-> | Flight Detail"
         context['page_title'] = "Detail"
         context['home_link'] = reverse('home')
         context['parent_link'] = reverse('flight_list')
         context['parent_name'] = 'Logbook'
+
+
         return context
 
 class FlightDelete(LoginRequiredMixin, UserObjectsMixin, DeleteView):
