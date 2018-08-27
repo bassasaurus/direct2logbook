@@ -13,6 +13,7 @@ from django.shortcuts import render, redirect
 import json
 from django.views.decorators.cache import cache_page
 from django.core.cache import cache
+from django.core.exceptions import ObjectDoesNotExist
 
 from dal import autocomplete
 import datetime
@@ -326,8 +327,15 @@ class FlightDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
         get_map_data(queryset)
 
         flight = Flight.objects.get(pk=self.object.pk)
-        next_flight = flight.get_next_by_date()
-        previous_flight = flight.get_previous_by_date()
+        earliest = Flight.objects.earliest('date')
+        try:
+            next_flight = flight.get_next_by_date()
+        except ObjectDoesNotExist:
+            next_flight = flight
+        try:
+            previous_flight = flight.get_previous_by_date()
+        except ObjectDoesNotExist:
+            previous_flight = earliest
 
         context['next_flight'] = next_flight
         context['previous_flight'] = previous_flight
