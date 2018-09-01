@@ -63,7 +63,7 @@ def flight_misc_error(sender, instance, **kwargs):
     else:
         Flight.objects.filter(pk=instance.pk).update(registration_error='')
 
-    data = (instance.pilot_in_command, instance.second_in_command, instance.dual, instance.instructor)
+    data = (instance.pilot_in_command, instance.second_in_command, instance.dual, instance.instructor, instance.solo)
     if not any(data):
         crew_error = "Please select a crew position"
         Flight.objects.filter(pk=instance.pk).update(crew_error=crew_error)

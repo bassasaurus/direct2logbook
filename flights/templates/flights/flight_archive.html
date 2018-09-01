@@ -3,8 +3,16 @@
 {% block content %}
 
 <!-- leaflet -->
-<!-- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="crossorigin=""/>
-<script src="https://unpkg.com/leaflet@^1.0.0/dist/leaflet-src.js"></script> -->
+<link rel="stylesheet" type="text/css" href="{% static 'flights/leaflet.css' %}">
+<script src="{% static 'flights/leaflet_1.3.4.js' %}"></script>
+<!-- control_loading -->
+<script src="{% static 'flights/control_loading.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'flights/control_loading.css' %}">
+<!-- spin.js -->
+<script src="{% static 'flights/spin.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'flights/spin.css' %}">
+
+
 
 {% if not date_list %}
   <div class="page-header">
@@ -25,10 +33,10 @@
     </div>
     <div style="height: 20px; width: 100%;"></div>
 
-    <!-- <div id="mapid" class="col col-lg-12 col-md-12 col-sm-12 image-shadow custom-popup">
+    <div id="mapid" class="col col-lg-12 col-md-12 col-sm-12 image-shadow custom-popup">
       <script src="{% static 'flights/leaflet-geodesic.js' %}"></script>
       {% include "leaflet.html" %}
-    </div> -->
+    </div>
   {% endif %}
 
 

@@ -243,9 +243,6 @@ class TailNumber(models.Model):
 
     reg_error = models.CharField(null=True, blank=True, max_length=50)
 
-
-
-
     class Meta:
         ordering =['aircraft', 'registration', ]
         verbose_name_plural = "Tailnumbers"

@@ -3,8 +3,14 @@
 {% block content %}
 
 <!-- leaflet -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="crossorigin=""/>
-<script src="https://unpkg.com/leaflet@^1.0.0/dist/leaflet-src.js"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'flights/leaflet.css' %}">
+<script src="{% static 'flights/leaflet_1.3.4.js' %}"></script>
+<!-- control_loading -->
+<script src="{% static 'flights/control_loading.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'flights/control_loading.css' %}">
+<!-- spin.js -->
+<script src="{% static 'flights/spin.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'flights/spin.css' %}">
 
 <div class="row">
   <div class="col-4">

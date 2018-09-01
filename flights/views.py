@@ -301,9 +301,7 @@ class FlightCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
 class FlightUpdate(LoginRequiredMixin, UserObjectsMixin, UpdateView):
     model = Flight
     form_class = FlightForm
-
     template_name = 'flights/flight_update_form.html'
-    success_url = '/logbook/'
 
     def get_context_data(self, **kwargs):
         context = super(FlightUpdate, self).get_context_data(**kwargs)
@@ -504,8 +502,7 @@ class ApproachDelete(LoginRequiredMixin, DeleteView):
 class TailNumberList(LoginRequiredMixin, UserObjectsMixin, ListView):
     model = TailNumber
     template_name = "tailnumbers/tailnumber_list.html"
-    paginate_by = 120
-    context_object_name = 'Tail Numbers'
+    context_object_name = 'tailnumbers'
 
     def get_context_data(self, **kwargs):
         context = super(TailNumberList, self).get_context_data(**kwargs)

@@ -5,7 +5,7 @@ from flights.views import *
 urlpatterns = [
 
     url(r'^home/$', HomeView.as_view(), name='home'),
-    url(r'^$', HomeView.as_view(), name='home'),
+    url(r'^$', IndexView.as_view(), name='index'),
     url(r'^iacra/$', IacraView.as_view(), name='iacra'),
 
     #autocomplete urls

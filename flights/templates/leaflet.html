@@ -8,7 +8,10 @@
     zoom: 15,
     zoomSnap: 0.50,
     useCache: true,
-    crossOrigin: true
+    crossOrigin: true,
+    // loadingControl: true,
+    // spinjs:true,
+
   });
 
   L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
@@ -27,7 +30,7 @@
     success: function (data) {
       var airportsLayer = L.geoJSON(data, {
         onEachFeature: function (feature, layer) {
-          layer.bindPopup('<h5>'+feature.properties.icao+'</h5>'+'<h6>'+feature.properties.iata+'</h5>'+'<p>'+feature.properties.name+'</p>'+'<p>'+feature.properties.city+', '+feature.properties.state+', '+feature.properties.country+'</p>'+'<p>'+feature.properties.elevation+' ft</p>');
+          layer.bindPopup('<h5>'+feature.properties.icao+'</h5>'+'<h6>'+feature.properties.iata+'</h5>'+'<hr>'+'<p>'+feature.properties.name+'</p>'+'<p>'+feature.properties.city+', '+feature.properties.state+', '+feature.properties.country+'</p>'+'<p>'+feature.properties.elevation+' ft</p>');
           }
         }).addTo(mymap);
         mymap.fitBounds(airportsLayer.getBounds(), {paddingTopLeft: [40, 40]});
@@ -68,7 +71,7 @@
       else{
         // console.log("single point")
         var filtered = filterSuccessiveDuplicatePositions(latlngs);
-        var Circle = L.circle(filtered[0], {
+        var circle = L.circle(filtered[0], {
           radius: 3000,
           color: 'navy',
 

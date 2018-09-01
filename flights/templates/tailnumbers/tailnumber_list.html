@@ -2,18 +2,15 @@
 
 {% block content %}
 <div>
-  <a class="btn btn-secondary btn-sm" href="{% url 'tailnumber_create' %}">Add</a>
+  <a class="btn btn-primary" href="{% url 'tailnumber_create' %}">New Tailnumber</a>
   <hr>
 </div>
-<div class="row">
-  {% for tail in object_list %}
-  <div style="padding:0px, border:0px" class="col-lg-2 col-md-3 col-sm-4">
-    {{ tailnumber.registration }}
-  </div><!-- /col-md-3-->
+<div>
+  {% for tail in tailnumbers|dictsort:"aircraft" %}
+    {{ tail.aircraft }} | {{ tail.registration }}
   {% endfor %}
 </div>
-</div>
 
-{% include 'pagination.html' %}
+
 
 {% endblock %}
