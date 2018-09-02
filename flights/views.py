@@ -247,7 +247,7 @@ class FlightArchiveMonth(LoginRequiredMixin, UserObjectsMixin, MonthArchiveView)
 class RemarksList(LoginRequiredMixin, UserObjectsMixin, ListView):
     model = Flight
     template_name = "flights/remarks.html"
-    paginate_by = 40
+    pagninate_by = 30
 
     def get_context_data(self, **kwargs):
         context = super(RemarksList, self).get_context_data(**kwargs)
