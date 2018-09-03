@@ -9,9 +9,7 @@
     zoomSnap: 0.50,
     useCache: true,
     crossOrigin: true,
-    // loadingControl: true,
-    // spinjs:true,
-
+    loadingControl: true,
   });
 
   L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
@@ -34,6 +32,7 @@
           }
         }).addTo(mymap);
         mymap.fitBounds(airportsLayer.getBounds(), {paddingTopLeft: [40, 40]});
+        // var conditionalLayer = L.conditionalMarkers(data, {maxMarkers: 40}).addTo(mymap);
       }
     });
 
@@ -62,7 +61,7 @@
         // console.log("multiple points")
         var filtered = filterSuccessiveDuplicatePositions(latlngs);
         var Geodesic = L.geodesic([filtered], {
-          weight: 3,
+          weight: 1.5,
           opacity: 1,
           color: 'navy',
           steps: 200,

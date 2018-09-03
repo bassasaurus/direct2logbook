@@ -5,11 +5,9 @@ from .pdf_output import pdf_output
 
 from django_weasyprint import WeasyTemplateResponseMixin
 
-
 class LogView(TemplateView):
     pdf_output()
     template_name = 'pdf_output/pdf_output.html'
-
 
 class PDFView(WeasyTemplateResponseMixin, LogView):
     pdf_stylesheets = [

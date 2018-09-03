@@ -42,7 +42,7 @@ def pdf_output():
 
     objects = Flight.objects.filter().order_by('date') #ordered 'bottom up' model is 'top down'
 
-    p = Paginator(objects, 29)
+    p = Paginator(objects, 25)
 
     previous = copy.copy(template)
 

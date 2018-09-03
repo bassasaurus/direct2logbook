@@ -20,7 +20,7 @@ html {
 }
 
 table{
-  width: 95%;
+  width: 100%;
 }
 
 th{
@@ -30,9 +30,9 @@ th{
 }
 
 td {
-  font-size: 12px;
-  padding-left: 3px;
-  padding-right: 5px;
+  font-size: 14px;
+  padding-left: 2px;
+  padding-right: 2px;
   border: 1px solid black;
   border-collapse: collapse;
 }
