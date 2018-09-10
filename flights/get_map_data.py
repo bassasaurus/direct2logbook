@@ -3,6 +3,7 @@ from django.core.cache import cache
 import json
 
 def get_map_data(queryset):
+    print('a map should be made')
 
     features = []
     line_json = []

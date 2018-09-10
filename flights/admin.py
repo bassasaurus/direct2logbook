@@ -40,6 +40,7 @@ class ProfileAdmin(admin.ModelAdmin):
 class ApproachAdmin(admin.ModelAdmin):
     list_display = ('approach', 'number')
 
+
 admin.site.register(Flight, FlightAdmin)
 admin.site.register(Aircraft, AircraftAdmin)
 admin.site.register(Approach)

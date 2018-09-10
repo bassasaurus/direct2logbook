@@ -1,140 +1,39 @@
-<table>
-{% for flight in flights %}
-  {% if forloop.first or forloop.counter|divisibleby:22 %}
-  <!-- each page header -->
-    <thead class="">
-      <tr>
-        <th class="text">Date</th>
-        <th class="text">Type</th>
-        <th class="text">Reg</th>
-        <th class="text">Route</th>
-        <th colspan="2" class="number">Duration</th>
-        <th class="number">PIC</th>
-        <th class="number">SIC</th>
-        <th class="number">X Country</th>
-        <th class="number">Night</th>
-        <th class="number">Inst</th>
-        <th class="center">Appr</th>
-        <th class="number">Day Ldg</th>
-        <th class="number">Night Ldg</th>
-        <th class="number">Sim Inst</th>
-        <th class="number">CFI</th>
-        <th class="number">Dual</th>
-        <th class="number">Solo</th>
-      </tr>
-      <tr>
-        <td colspan="4"></td>
-        <td class="number">Multi</td>
-        <td class="number">Single</td>
-        <td colspan="12"></td>
-      </tr>
-    </thead>
-  {% endif %}
-    <tbody>
-    <!-- each flight render with iterable from pages-->
+errors for home.html
 
-        <tr class="{% cycle 'row1' 'row2' %}">
-          <td style="width: 90px;" class="text">{{flight.date|date:"m/d/Y"}}</td>
-          <td style="width: 50px;" class="text">{{flight.aircraft_type}}</td>
-          <td class="text">{{flight.registration}}</td>
-          <td style="width: 200px;" class="center">{{flight.route}}</td>
-          <td class="number">{{flight.duration}}</td>
-          <td class="number">-</td>
-          {% if flight.pilot_in_command %}
-            <td class="number">{{flight.duration}}</td>
-          {% else %}
-            <td class="number">-</td>
-          {% endif %}
-          {% if flight.second_in_command %}
-            <td class="number">{{flight.duration}}</td>
-          {% else %}
-            <td class="number">-</td>
-          {% endif %}
-          {% if flight.cross_country %}
-            <td class="number">{{flight.duration}}</td>
-          {% else %}
-            <td class="number">-</td>
-          {% endif %}
-          <td class="number">{{flight.night|default:"-"}}</td>
-          <td class="number">{{flight.instrument|default:"-"}}</td>
-          <td style="width: 80px;"class="center">{{flight.approaches|default:"-"}}</td>
-          <td class="number">{{flight.landings_day|default:"-"}}</td>
-          <td class="number">{{flight.landings_night|default:"-"}}</td>
-          <td class="number">{{simulated_instrument|default:"-"}}</td>
-          {% if flight.instructor %}
-            <td class="number">{{flight.duration}}</td>
-          {% else %}
-            <td class="number">-</td>
-          {% endif %}
-          {% if flight.dual %}
-            <td class="number">{{flight.duration}}</td>
-          {% else %}
-            <td class="number">-</td>
-          {% endif %}
-          {% if flight.solo %}
-            <td class="number">{{flight.duration}}</td>
-          {% else %}
-            <td class="number">-</td>
-          {% endif %}
-        </tr>
 
-    <!-- each page footer -->
-  {% if forloop.last or forloop.counter|divisibleby:21  %}
-        <tr>
-          <td style="border: 0px;" colspan="3"></td>
-          <td>This Page</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-        </tr>
-        <tr>
-          <td style="border: 0px;" colspan="3"></td>
-          <td>Previous</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-        </tr>
-        <tr>
-          <td style="border: 0px;"colspan="3"></td>
-          <td>Total</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-          <td class="number">-</td>
-        </tr>
-  {% endif %}
-{% endfor %}
-    </tbody>
-</table>
+<div style="margin-top: 15px;" class="row">
+  <div class="col">
+    <table>
+      <th>Flight Errors</th>
+        {% for flight in flight_errors %}
+          {% if flight.map_error or flight.duplicate_error or flight.aircraft_type_error or flight.registration_error or flight.crew_error or flight.duration < .1 %}
+            <tr><td><a href ="{% url 'flight_detail' flight.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ flight.date }} | {{ flight.route }}</a></td></tr>
+    </table>
+    </div>
+          {% else %}
+      {% endif %}
+    {% endfor %}
+  <div class="col">
+    <table>
+      <th>Aircraft Errors</th>
+        {% for aircraft in aircraft_errors %}
+          {% if aircraft.config_error or aircraft.power_error or aircraft.category_error or aircraft.class_error or aircraft.weight_error %}
+            <tr><td><a href ="{% url 'aircraft_detail' aircraft.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ aircraft }}</a></td></tr>
+        {% else %}
+      {% endif %}
+    {% endfor %}
+  </table>
+  </div>
+    <div class="col">
+      <table>
+        <th>Tailnumber Errors</th>
+          {% for tailnumber in tailnumber_errors %}
+            {% if tailnumber.reg_error %}
+              <tr><td><a href ="{% url 'tailnumber_detail' tailnumber.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ tailnumber }}</a></td></tr>
+        {% else %}
+      {% endif %}
+    {% endfor %}
+    </table>
+    <hr>
+  </div>
+</div>

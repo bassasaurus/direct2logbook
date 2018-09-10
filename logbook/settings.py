@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'picklefield',
     'widget_tweaks',
     'django_weasyprint',
+    'django_q',
 
     #allauth
     'allauth',
@@ -208,7 +209,20 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' #disable/setup 
 # CORS_ORIGIN_ALLOW_ALL = True
 
 CACHES = {'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
+
         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
         'LOCATION': 'json_cache_table',
     }
+}
+
+Q_CLUSTER = {
+    'name': 'DjangORM',
+    'workers': 4,
+    'timeout': 90,
+    'retry': 120,
+    'queue_limit': 50,
+    'bulk': 10,
+    'orm': 'default'
 }

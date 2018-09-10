@@ -47,27 +47,27 @@ class MapData(models.Model):
 class Stat(models.Model):
     user = models.ForeignKey(User, default=1)
     aircraft_type = models.CharField(max_length=10)
-    total_time = models.FloatField(null=False, blank=True, default=0, verbose_name="Time")
-    pilot_in_command = models.FloatField(null=True, blank=True, default=0, verbose_name="PIC")
-    second_in_command = models.FloatField(null=True, blank=True, default=0, verbose_name="SIC")
-    cross_country = models.FloatField(null=True, blank=True, default=0, verbose_name="XC")
-    instructor = models.FloatField(null=True, blank=True, default=0 , verbose_name="CFI")
-    dual = models.FloatField(null=True, blank=True, default=0)
-    solo = models.FloatField(null=True, blank=True, default=0)
-    instrument = models.FloatField(null=True, blank=True, default=0, verbose_name="Inst")
-    night = models.FloatField(null=True, blank=True, default=0)
-    simulated_instrument = models.FloatField(null=True, blank=True, default=0, verbose_name="Sim Inst")
-    simulator = models.FloatField(null=True, blank=True, default=0, verbose_name="Sim")
+    total_time = models.DecimalField(decimal_places=1, max_digits=6,null=False, blank=True, default=0, verbose_name="Time")
+    pilot_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="PIC")
+    second_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="SIC")
+    cross_country = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="XC")
+    instructor = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0 , verbose_name="CFI")
+    dual = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0)
+    solo = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0)
+    instrument = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="Inst")
+    night = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0)
+    simulated_instrument = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="Sim Inst")
+    simulator = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="Sim")
     landings_day = models.PositiveIntegerField(null=True, blank=True, default=0, verbose_name="Day Ldg")
     landings_night = models.PositiveIntegerField(null=True, blank=True, default=0, verbose_name="Night Ldg")
     last_flown = models.DateField(db_index=True, null=True, blank=True)
-    last_30 = models.FloatField(null=True, blank=True, verbose_name='30')
-    last_60 = models.FloatField(null=True, blank=True, verbose_name='60')
-    last_90 = models.FloatField(null=True, blank=True, verbose_name='90')
-    last_180 = models.FloatField(null=True, blank=True, verbose_name='6mo')
-    last_yr = models.FloatField(null=True, blank=True, verbose_name='12mo')
-    last_2yr = models.FloatField(null=True, blank=True, verbose_name='24')
-    ytd = models.FloatField(null=True, blank=True, verbose_name='YDT')
+    last_30 = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, verbose_name='30')
+    last_60 = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, verbose_name='60')
+    last_90 = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, verbose_name='90')
+    last_180 = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, verbose_name='6mo')
+    last_yr = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, verbose_name='12mo')
+    last_2yr = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, verbose_name='24')
+    ytd = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, verbose_name='YDT')
 
 
     class Meta:
@@ -80,28 +80,28 @@ class Stat(models.Model):
 class Total(models.Model):
     user = models.ForeignKey(User, default=1)
     total = models.CharField(max_length=20, default='')
-    total_time = models.FloatField(db_index=True, null=True, blank=True, default=0, verbose_name="Time")
-    pilot_in_command = models.FloatField(null=True, blank=True, default=0, verbose_name="PIC")
-    second_in_command = models.FloatField(null=True, blank=True, default=0, verbose_name="SIC")
-    cross_country = models.FloatField(null=True, blank=True, default=0, verbose_name="XC")
-    instructor = models.FloatField(null=True, blank=True, default=0, verbose_name="CFI")
-    dual = models.FloatField(null=True, blank=True, default=0)
-    solo = models.FloatField(null=True, blank=True, default=0)
-    instrument = models.FloatField(null=True, blank=True, default=0, verbose_name="Inst")
-    night = models.FloatField(null=True, blank=True, default=0)
-    simulated_instrument = models.FloatField(null=True, blank=True, default=0, verbose_name="Sim Inst")
-    simulator = models.FloatField(null=True, blank=True, default=0, verbose_name="Sim")
+    total_time = models.DecimalField(decimal_places=1, max_digits=6,db_index=True, null=True, blank=True, default=0, verbose_name="Time")
+    pilot_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="PIC")
+    second_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="SIC")
+    cross_country = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="XC")
+    instructor = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="CFI")
+    dual = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0)
+    solo = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0)
+    instrument = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="Inst")
+    night = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0)
+    simulated_instrument = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="Sim Inst")
+    simulator = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="Sim")
     landings_day = models.PositiveIntegerField(null=True, blank=True, default=0, verbose_name="Day Ldg")
     landings_night = models.PositiveIntegerField(null=True, blank=True, default=0, verbose_name="Night Ldg")
     landings_total = models.PositiveIntegerField(null=True, blank=True, default=0, verbose_name="Total Ldg")
     last_flown = models.DateField(null=True, blank=True)
-    last_30 = models.FloatField(null=True, blank=True, verbose_name='30')
-    last_60 = models.FloatField(null=True, blank=True, verbose_name='60')
-    last_90 = models.FloatField(null=True, blank=True, verbose_name='90')
-    last_180 = models.FloatField(null=True, blank=True, verbose_name='6mo')
-    last_yr = models.FloatField(null=True, blank=True, verbose_name='12mo')
-    last_2yr = models.FloatField(null=True, blank=True, verbose_name='24')
-    ytd = models.FloatField(null=True, blank=True, verbose_name='YDT')
+    last_30 = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, verbose_name='30')
+    last_60 = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, verbose_name='60')
+    last_90 = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, verbose_name='90')
+    last_180 = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, verbose_name='6mo')
+    last_yr = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, verbose_name='12mo')
+    last_2yr = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, verbose_name='24')
+    ytd = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, verbose_name='YDT')
 
     class Meta:
         ordering = ['-total_time']
@@ -113,8 +113,8 @@ class Total(models.Model):
 class Power(models.Model):
     user = models.ForeignKey(User, default=1)
     role = models.CharField(db_index=True, max_length=5, default='')
-    turbine = models.FloatField(null=True, blank=True, default=0)
-    piston = models.FloatField(null=True, blank=True, default=0)
+    turbine = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0)
+    piston = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0)
 
     class Meta:
         verbose_name_plural = "Power"
@@ -127,8 +127,8 @@ class Power(models.Model):
 class Regs(models.Model):
     user = models.ForeignKey(User, default=1)
     reg_type = models.CharField(db_index=True, max_length=5, default='', verbose_name="Reg")
-    pilot_in_command = models.FloatField(null=True, blank=True, default=0, verbose_name="PIC")
-    second_in_command = models.FloatField(null=True, blank=True, default=0, verbose_name="SIC")
+    pilot_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="PIC")
+    second_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="SIC")
 
     class Meta:
         verbose_name_plural = "Regs"
@@ -140,7 +140,7 @@ class Regs(models.Model):
 class Endorsement(models.Model):
     user = models.ForeignKey(User, default=1)
     endorsement = models.CharField(max_length=30, default='')
-    total = models.FloatField(db_index=True, null=True, blank=True, default=0)
+    total = models.DecimalField(decimal_places=1, max_digits=6,db_index=True, null=True, blank=True, default=0)
 
     class Meta:
         ordering = ['-total']
@@ -152,7 +152,7 @@ class Endorsement(models.Model):
 class Weight(models.Model):
     user = models.ForeignKey(User, default=1)
     weight = models.CharField(max_length=20, default='')
-    total = models.FloatField(null=True, blank=True, default=0)
+    total = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0)
 
     class Meta:
         verbose_name_plural = "Weight"
@@ -202,7 +202,7 @@ class Flight(models.Model):
     registration = models.ForeignKey('TailNumber', default=None, null=True, blank=True, on_delete=models.SET_NULL)
     route = models.CharField(max_length=50, )
     legs = models.PositiveIntegerField(null=True)
-    duration = models.FloatField(null=True, validators=[positive_validator])
+    duration = models.DecimalField(decimal_places=1, max_digits=3, null=True, validators=[positive_validator])
     landings_day = models.PositiveIntegerField(null=True, blank=True, verbose_name="Day Ldg")
     landings_night = models.PositiveIntegerField(null=True, blank=True, verbose_name="Night Ldg")
     night = models.FloatField(null=True, blank=True, validators=[positive_validator])

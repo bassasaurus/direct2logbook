@@ -22,43 +22,6 @@
   </div>
 <hr>
 
-<div style="margin-top: 15px;" class="row">
-  <div class="col">
-    <table>
-      <th>Flight Errors</th>
-        {% for flight in flight_errors %}
-          {% if flight.map_error or flight.duplicate_error or flight.aircraft_type_error or flight.registration_error or flight.crew_error or flight.duration < .1 %}
-            <tr><td><a href ="{% url 'flight_detail' flight.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ flight.date }} | {{ flight.route }}</a></td></tr>
-    </table>
-    </div>
-          {% else %}
-      {% endif %}
-    {% endfor %}
-  <div class="col">
-    <table>
-      <th>Aircraft Errors</th>
-        {% for aircraft in aircraft_errors %}
-          {% if aircraft.config_error or aircraft.power_error or aircraft.category_error or aircraft.class_error or aircraft.weight_error %}
-            <tr><td><a href ="{% url 'aircraft_detail' aircraft.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ aircraft }}</a></td></tr>
-        {% else %}
-      {% endif %}
-    {% endfor %}
-  </table>
-  </div>
-    <div class="col">
-      <table>
-        <th>Tailnumber Errors</th>
-          {% for tailnumber in tailnumber_errors %}
-            {% if tailnumber.reg_error %}
-              <tr><td><a href ="{% url 'tailnumber_detail' tailnumber.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ tailnumber }}</a></td></tr>
-        {% else %}
-      {% endif %}
-    {% endfor %}
-    </table>
-    <hr>
-  </div>
-</div>
-
     <div style="margin-top: 15px;" class="row">
       <div class="col-6">
         <div>

@@ -10,9 +10,12 @@ django-allauth==0.33.0
 django-autocomplete-light==3.2.10
 django-cors-headers==2.1.0
 django-debug-toolbar==1.8
+django-easy-pdf==0.1.1
 django-extensions==1.9.6
 django-picklefield==1.0.0
+django-weasyprint==0.5.2
 django-widget-tweaks==1.4.1
+django-wkhtmltopdf==3.2.0
 djangorestframework==3.7.1
 drfdocs==0.0.11
 html5lib==1.0.1
@@ -27,6 +30,8 @@ pycparser==2.18
 pyflakes==1.5.0
 PyPDF2==1.26.0
 Pyphen==0.9.4
+python-dateutil==2.7.3
+python-memcached==1.59
 python3-openid==3.1.0
 pytz==2017.2
 reportlab==3.4.0
@@ -36,6 +41,7 @@ six==1.11.0
 sqlparse==0.2.4
 tinycss2==0.6.1
 urllib3==1.22
+wcwidth==0.1.7
 WeasyPrint==0.42.3
 webencodings==0.5.1
 Werkzeug==0.12.2
