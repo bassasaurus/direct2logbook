@@ -30,27 +30,27 @@
   {% for stat in stats %}
   <tr>
     <td>{{ stat.aircraft_type }}</td>
-    <td class="number">{{ stat.total_time }}</td>
-    <td class="number">{{ stat.pilot_in_command }}</td>
-    <td class="number">{{ stat.second_in_command }}</td>
-    <td class="number">{{ stat.cross_country }}</td>
-    <td class="number">{{ stat.instructor }}</td>
-    <td class="number">{{ stat.dual }}</td>
-    <td class="number">{{ stat.solo }}</td>
-    <td class="number">{{ stat.instrument }}</td>
-    <td class="number">{{ stat.night }}</td>
-    <td class="number">{{ stat.simulated_instrument }}</td>
-    <td class="number">{{ stat.simulator }}</td>
-    <td class="number">{{ stat.landings_day }}</td>
-    <td class="number">{{ stat.landings_night }}</td>
-    <td class="number">{{ stat.last_flown }}</td>
-    <td class="number">{{ stat.last_30 }}</td>
-    <td class="number">{{ stat.last_60 }}</td>
-    <td class="number">{{ stat.last_90 }}</td>
-    <td class="number">{{ stat.last_180 }}</td>
-    <td class="number">{{ stat.last_yr }}</td>
-    <td class="number">{{ stat.last_2yr }}</td>
-    <td class="number">{{ stat.ytd }}</td>
+    <td class="text-right">{{ stat.total_time }}</td>
+    <td class="text-right">{{ stat.pilot_in_command }}</td>
+    <td class="text-right">{{ stat.second_in_command }}</td>
+    <td class="text-right">{{ stat.cross_country }}</td>
+    <td class="text-right">{{ stat.instructor }}</td>
+    <td class="text-right">{{ stat.dual }}</td>
+    <td class="text-right">{{ stat.solo }}</td>
+    <td class="text-right">{{ stat.instrument }}</td>
+    <td class="text-right">{{ stat.night }}</td>
+    <td class="text-right">{{ stat.simulated_instrument }}</td>
+    <td class="text-right">{{ stat.simulator }}</td>
+    <td class="text-right">{{ stat.landings_day }}</td>
+    <td class="text-right">{{ stat.landings_night }}</td>
+    <td class="text-right">{{ stat.last_flown }}</td>
+    <td class="text-right">{{ stat.last_30 }}</td>
+    <td class="text-right">{{ stat.last_60 }}</td>
+    <td class="text-right">{{ stat.last_90 }}</td>
+    <td class="text-right">{{ stat.last_180 }}</td>
+    <td class="text-right">{{ stat.last_yr }}</td>
+    <td class="text-right">{{ stat.last_2yr }}</td>
+    <td class="text-right">{{ stat.ytd }}</td>
   </tr>
   {% endfor %}
 </table>

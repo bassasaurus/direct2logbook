@@ -8,7 +8,7 @@
   </thead>
   {% for reg in regs %}
   <tr>
-    <td>{{ reg.reg_type }}</td><td class="number">{{ reg.pilot_in_command }}</td><td class="number">{{ reg.second_in_command }}</td>
+    <td>{{ reg.reg_type }}</td><td class="text-right">{{ reg.pilot_in_command }}</td><td class="text-right">{{ reg.second_in_command }}</td>
   </tr>
   {% endfor %}
 </table>

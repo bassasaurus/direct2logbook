@@ -103,49 +103,49 @@ def ames_update(sender, **kwargs):
     if last_30.get('duration__sum') is None:
         ames.last_30 = 0
     else:
-        ames.last_30 = last_30.get('duration__sum'), 1)
+        ames.last_30 = last_30.get('duration__sum')
 
     last_60 = today - datetime.timedelta(days=60)
     last_60 = Flight.objects.filter(cat_class_query).filter(date__lte=today,date__gte=last_60).aggregate(Sum('duration'))
     if last_60.get('duration__sum') is None:
         ames.last_60 = 0
     else:
-        ames.last_60 = last_60.get('duration__sum'), 1)
+        ames.last_60 = last_60.get('duration__sum')
 
     last_90 = today - datetime.timedelta(days=90)
     last_90 = Flight.objects.filter(cat_class_query).filter(date__lte=today,date__gte=last_90).aggregate(Sum('duration'))
     if last_90.get('duration__sum') is None:
         ames.last_90 = 0
     else:
-        ames.last_90 = last_90.get('duration__sum'), 1)
+        ames.last_90 = last_90.get('duration__sum')
 
     last_180 = today - datetime.timedelta(days=180)
     last_180 = Flight.objects.filter(cat_class_query).filter(date__lte=today,date__gte=last_180).aggregate(Sum('duration'))
     if last_180.get('duration__sum') is None:
         ames.last_180 = 0
     else:
-        ames.last_180 = last_180.get('duration__sum'), 1)
+        ames.last_180 = last_180.get('duration__sum')
 
     last_yr = today - datetime.timedelta(days=365)
     last_yr = Flight.objects.filter(cat_class_query).filter(date__lte=today,date__gte=last_yr).aggregate(Sum('duration'))
     if last_yr.get('duration__sum') is None:
         ames.last_yr = 0
     else:
-        ames.last_yr = last_yr.get('duration__sum'), 1)
+        ames.last_yr = last_yr.get('duration__sum')
 
     last_2yr = today - datetime.timedelta(days=730)
     last_2yr = Flight.objects.filter(cat_class_query).filter(date__lte=today,date__gte=last_2yr).aggregate(Sum('duration'))
     if last_2yr.get('duration__sum') is None:
         ames.last_2yr = 0
     else:
-        ames.last_2yr = last_2yr.get('duration__sum'), 1)
+        ames.last_2yr = last_2yr.get('duration__sum')
 
     ytd = datetime.date(today.year, 1, 1)
     ytd = Flight.objects.filter(cat_class_query).filter(date__lte=today,date__gte=ytd).aggregate(Sum('duration'))
     if ytd.get('duration__sum') is None:
         ames.ytd = 0
     else:
-        ames.ytd = ytd.get('duration__sum'), 1)
+        ames.ytd = ytd.get('duration__sum')
 
     ames.save()
 
@@ -249,48 +249,48 @@ def asel_update(sender, **kwargs):
     if last_30.get('duration__sum') is None:
         ases.last_30 = 0
     else:
-        ases.last_30 = last_30.get('duration__sum'), 1)
+        ases.last_30 = last_30.get('duration__sum')
 
     last_60 = today - datetime.timedelta(days=60)
     last_60 = Flight.objects.filter(cat_class_query).filter(date__lte=today,date__gte=last_60).aggregate(Sum('duration'))
     if last_60.get('duration__sum') is None:
         ases.last_60 = 0
     else:
-        ases.last_60 = last_60.get('duration__sum'), 1)
+        ases.last_60 = last_60.get('duration__sum')
 
     last_90 = today - datetime.timedelta(days=90)
     last_90 = Flight.objects.filter(cat_class_query).filter(date__lte=today,date__gte=last_90).aggregate(Sum('duration'))
     if last_90.get('duration__sum') is None:
         ases.last_90 = 0
     else:
-        ases.last_90 = last_90.get('duration__sum'), 1)
+        ases.last_90 = last_90.get('duration__sum')
 
     last_180 = today - datetime.timedelta(days=180)
     last_180 = Flight.objects.filter(cat_class_query).filter(date__lte=today,date__gte=last_180).aggregate(Sum('duration'))
     if last_180.get('duration__sum') is None:
         ases.last_180 = 0
     else:
-        ases.last_180 = last_180.get('duration__sum'), 1)
+        ases.last_180 = last_180.get('duration__sum')
 
     last_yr = today - datetime.timedelta(days=365)
     last_yr = Flight.objects.filter(cat_class_query).filter(date__lte=today,date__gte=last_yr).aggregate(Sum('duration'))
     if last_yr.get('duration__sum') is None:
         ases.last_yr = 0
     else:
-        ases.last_yr = last_yr.get('duration__sum'), 1)
+        ases.last_yr = last_yr.get('duration__sum')
 
     last_2yr = today - datetime.timedelta(days=730)
     last_2yr = Flight.objects.filter(cat_class_query).filter(date__lte=today,date__gte=last_2yr).aggregate(Sum('duration'))
     if last_2yr.get('duration__sum') is None:
         ases.last_2yr = 0
     else:
-        ases.last_2yr = last_2yr.get('duration__sum'), 1)
+        ases.last_2yr = last_2yr.get('duration__sum')
 
     ytd = datetime.date(today.year, 1, 1)
     ytd = Flight.objects.filter(cat_class_query).filter(date__lte=today,date__gte=ytd).aggregate(Sum('duration'))
     if ytd.get('duration__sum') is None:
         ases.ytd = 0
     else:
-        ases.ytd = ytd.get('duration__sum'), 1)
+        ases.ytd = ytd.get('duration__sum')
 
     ases.save()
