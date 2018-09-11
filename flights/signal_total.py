@@ -2,6 +2,7 @@ from flights.models import *
 from django.db.models.signals import pre_save, post_save, post_delete
 from django.db.models import Sum, Q
 import datetime
+from math import floor
 
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
@@ -9,83 +10,38 @@ def total_update(sender, **kwargs):
     today = datetime.date.today()
     total = Total.objects.get(total='All')
 
-    total_time = Flight.objects.all().aggregate(Sum('duration'))
-    if not total_time.get('duration__sum'):
-        total.total_time = 0
-    else:
-        total.total_time = total_time.get('duration__sum')
+    amel = Total.objects.get(total='AMEL')
+    asel = Total.objects.get(total='ASEL')
+    ames = Total.objects.get(total='AMES')
+    ases = Total.objects.get(total='ASES')
+    helo = Total.objects.get(total='HELO')
+    gyro = Total.objects.get(total='GYRO')
 
-    pilot_in_command = Flight.objects.all().filter(pilot_in_command=True).aggregate(Sum('duration'))
-    if not pilot_in_command.get('duration__sum'):
-        total.pilot_in_command = 0
-    else:
-        total.pilot_in_command = pilot_in_command.get('duration__sum')
+    total.total_time = amel.total_time + asel.total_time + ames.total_time + ases.total_time + helo.total_time + gyro.total_time
 
-    second_in_command = Flight.objects.all().filter(second_in_command=True).aggregate(Sum('duration'))
-    if not second_in_command.get('duration__sum'):
-        total.second_in_command = 0
-    else:
-        total.second_in_command = second_in_command.get('duration__sum')
+    total.pilot_in_command = amel.pilot_in_command + asel.pilot_in_command + ames.pilot_in_command + ases.pilot_in_command + helo.pilot_in_command + gyro.pilot_in_command
 
-    cross_country = Flight.objects.all().filter(cross_country=True).aggregate(Sum('duration'))
-    if not cross_country.get('duration__sum'):
-        total.cross_country = 0
-    else:
-        total.cross_country = cross_country.get('duration__sum')
+    total.second_in_command = amel.second_in_command + asel.second_in_command + ames.second_in_command + ases.second_in_command + helo.second_in_command + gyro.second_in_command
 
-    instructor = Flight.objects.all().filter(instructor=True).aggregate(Sum('duration'))
-    if not instructor.get('duration__sum'):
-        total.instructor = 0
-    else:
-        total.instructor= instructor.get('duration__sum')
+    total.cross_country = amel.cross_country + asel.cross_country + ames.cross_country + ases.cross_country + helo.cross_country + gyro.cross_country
 
-    dual = Flight.objects.all().filter(dual=True).aggregate(Sum('duration'))
-    if not dual.get('duration__sum'):
-        total.dual = 0
-    else:
-        total.dual = dual.get('duration__sum')
+    total.instructor = amel.instructor + asel.instructor + ames.instructor + ases.instructor + helo.instructor + gyro.instructor
 
-    solo = Flight.objects.all().filter(solo=True).aggregate(Sum('duration'))
-    if not solo.get('duration__sum'):
-        total.solo = 0
-    else:
-        total.solo = solo.get('duration__sum')
+    total.dual = amel.dual + asel.dual + ames.dual + ases.dual + helo.dual + gyro.dual
 
-    instrument = Flight.objects.all().aggregate(Sum('instrument'))
-    if not instrument.get('instrument__sum'):
-        total.instrument = 0
-    else:
-        total.instrument = instrument.get('instrument__sum')
+    total.solo = amel.solo + asel.solo + ames.solo + ases.solo + helo.solo + gyro.solo
 
-    simulated_instrument = Flight.objects.all().aggregate(Sum('simulated_instrument'))
-    if not simulated_instrument.get('simulated_instrument__sum'):
-        total.simulated_instrument = 0
-    else:
-        total.simulated_instrument = simulated_instrument.get('simulated_instrument__sum')
+    total.instrument = amel.instrument + asel.instrument + ames.instrument + ases.instrument + helo.instrument + gyro.instrument
 
-    simulator = Flight.objects.all().aggregate(Sum('simulator'))
-    if not simulator.get('simulator__sum'):
-        total.simulator = 0
-    else:
-        total.simulator = simulator.get('simulator__sum')
+    total.simulated_instrument = amel.simulated_instrument + asel.simulated_instrument + ames.simulated_instrument + ases.simulated_instrument + helo.simulated_instrument + gyro.simulated_instrument
 
-    night = Flight.objects.all().aggregate(Sum('night'))
-    if not night.get('night__sum'):
-        total.night = 0
-    else:
-        total.night = night.get('night__sum')
+    total.simulator = amel.simulator + asel.simulator + ames.simulator + ases.simulator + helo.simulator + gyro.simulator
 
-    landings_day = Flight.objects.all().aggregate(Sum('landings_day'))
-    if not landings_day.get('landings_day__sum'):
-        total.landings_day = 0
-    else:
-        total.landings_day = landings_day.get('landings_day__sum')
+    total.night = amel.night + asel.night + ames.night + ases.night + helo.night + gyro.night
 
-    landings_night = Flight.objects.all().aggregate(Sum('landings_night'))
-    if not landings_night.get('landings_night__sum'):
-        total.landings_night = 0
-    else:
-        total.landings_night = landings_night.get('landings_night__sum')
+    total.landings_day = amel.landings_day + asel.landings_day + ames.landings_day + ases.landings_day + helo.landings_day + gyro.landings_day
+
+    total.landings_night = amel.landings_night + asel.landings_night + ames.landings_night + ases.landings_night + helo.landings_night + gyro.landings_night
 
     total.landings_total = total.landings_day + total.landings_night
 
