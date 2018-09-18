@@ -10,6 +10,7 @@ import datetime
 def amel_update(sender, **kwargs):
     today = datetime.date.today()
     amel = Total.objects.get(total='AMEL')
+    flight = Flight()
     cat_class_query = Q(aircraft_type__aircraft_class__aircraft_class__icontains = 'multi engine land') & Q(aircraft_type__aircraft_category__aircraft_category__icontains = 'airplane')
 
     total_time = Flight.objects.all().filter(cat_class_query).aggregate(Sum('duration'))
@@ -54,6 +55,7 @@ def amel_update(sender, **kwargs):
     else:
       amel.solo = solo.get('duration__sum')
 
+    #field_aggregate
     instrument = Flight.objects.filter(cat_class_query, instrument__gt=0).aggregate(Sum('instrument'))
     if not instrument.get('instrument__sum'):
       amel.instrument = 0

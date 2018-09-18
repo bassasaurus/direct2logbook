@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'dal',
     'dal_select2',
 
+    'accounts',
     'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -65,36 +66,17 @@ INSTALLED_APPS = [
     'picklefield',
     'widget_tweaks',
     'django_weasyprint',
-    'django_q',
 
-    #allauth
-    'allauth',
-    'allauth.account',
-    'allauth.socialaccount',
-    'allauth.socialaccount.providers.google',
-    # 'allauth.socialaccount.providers.facebook',
 ]
 
 AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
     'django.contrib.auth.backends.ModelBackend',
-    # `allauth` specific authentication methods, such as login by e-mail
-    'allauth.account.auth_backends.AuthenticationBackend',
 )
 
-ACCOUNT_AUTHENTICATION_METHOD = ("email")
-SOCIALACCOUNT_QUERY_EMAIL = ['ACCOUNT_EMAIL_REQUIRED']
-SOCIALACCOUNT_AUTO_SIGNUP = [True]
-ACCOUNT_EMAIL_REQUIRED = [True]
-ACCOUNT_LOGIN_ATTEMPTS_LIMIT = [5]
-ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = [15]
-ACCOUNT_LOGIN_ON_PASSWORD_RESET = [False]
-ACCOUNT_LOGOUT_ON_PASSWORD_CHANGE = [False]
+
 LOGIN_REDIRECT_URL = '/home'
 
-# ACCOUNT_EMAIL_CONFIRMATION_HMAC = [True]
-# ACCOUNT_EMAIL_VERIFICATION = ['mandatory']
-# ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = [3]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -165,8 +147,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-#required by allauth
-SITE_ID = 2
 
 
 # Internationalization
@@ -206,23 +186,11 @@ REST_FRAMEWORK = {
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' #disable/setup for production
 
+
 # CORS_ORIGIN_ALLOW_ALL = True
 
 CACHES = {'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
-        'LOCATION': '127.0.0.1:11211',
-
         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
         'LOCATION': 'json_cache_table',
     }
-}
-
-Q_CLUSTER = {
-    'name': 'DjangORM',
-    'workers': 4,
-    'timeout': 90,
-    'retry': 120,
-    'queue_limit': 50,
-    'bulk': 10,
-    'orm': 'default'
 }

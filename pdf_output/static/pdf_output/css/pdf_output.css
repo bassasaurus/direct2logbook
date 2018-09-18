@@ -4,13 +4,6 @@
     margin-top: 1cm;
 }
 
-.number{
-  text-align: right;
-}
-.text{
-  text-align: left;
-}
-
 html {
   font-family: sans-serif;
 }
@@ -19,6 +12,13 @@ html {
   font-size: auto;
 }
 
+.text{
+  text-align: left;
+}
+
+.number{
+  text-align: right;
+}
 table{
   width: 100%;
 }

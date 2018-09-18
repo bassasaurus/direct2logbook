@@ -20,21 +20,17 @@ from django.conf import settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 
 urlpatterns = [
-
-    url(r'^accounts/', include('allauth.urls')),
-
+    url(r'^accounts/', include('django.contrib.auth.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^', include('flights.urls')),
     url(r'^', include('pdf_output.urls')),
     url(r'^api/', include('api.urls')),
     url(r'^api/docs/', include('rest_framework_docs.urls')),
-
     ]
 
 if settings.DEBUG is True:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += staticfiles_urlpatterns()
-
 
 if settings.DEBUG:
     import debug_toolbar

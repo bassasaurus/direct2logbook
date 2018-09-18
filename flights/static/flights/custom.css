@@ -33,7 +33,6 @@
   }
 
 .custom-table{
-  text-align: center;
   table-layout:auto; width:100%;
   overflow: scroll;
   white-space: nowrap;

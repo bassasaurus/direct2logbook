@@ -24,9 +24,6 @@
     <!-- sweetalert -->
     <script src="{% static 'flights/sweetalert/sweetalert.min.js' %}"></script>
     <link rel="stylesheet" type="text/css" href="{% static 'flights/sweetalert/sweetalert.css' %}">
-
-
-
   </head>
   <body>
     {% if user.is_authenticated %}
@@ -41,10 +38,16 @@
           </div>
         </div>
       {% include 'blocks/footer.html' %}
-    {% else %}
+      {% else %}
       {% include 'blocks/navbar.html' %}
-      {% include 'blocks/header_hero.html' %}
-      {% include 'blocks/features.html' %}
+      <div style="margin-top: 115px;">
+        <div class="container">
+          <div style="margin-top: 25px">
+            {% block account_content %}
+            {% endblock %}
+          </div>
+        </div>
+      </div>
       {% include 'blocks/footer.html' %}
     {% endif %}
 

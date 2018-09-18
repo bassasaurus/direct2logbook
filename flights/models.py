@@ -1,5 +1,4 @@
 import re
-
 from django.db import models
 from django.db import signals
 from django.dispatch import receiver

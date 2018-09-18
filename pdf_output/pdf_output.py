@@ -1,8 +1,8 @@
 from flights.models import Flight
 from django.core.paginator import Paginator
 from django.db.models import Sum
-
 from django.core.cache import cache
+import numbers
 
 from datetime import datetime
 
@@ -17,7 +17,7 @@ def make_table_row(iterable):
     text = 'text'
     number = 'number'
     for i in iterable:
-        if isinstance(i, (int, float)) or i == '-':
+        if isinstance(i, numbers.Number) or i == '-':
             i = '<td ' + 'class="' + number + '"' + '>' + str(i) + "</td>"
         else:
             i = '<td ' + 'class="' + text + '"' + '>' + str(i) + "</td>"
@@ -40,7 +40,8 @@ def pdf_output():
 
     file.close()
 
-    objects = Flight.objects.filter().order_by('date') #ordered 'bottom up' model is 'top down'
+    objects = Flight.objects.filter().order_by('date')[:50]
+    # objects = Flight.objects.filter().order_by('date') #ordered 'bottom up' model is 'top down'
 
     p = Paginator(objects, 25)
 

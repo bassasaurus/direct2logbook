@@ -1,44 +1,11 @@
 {% load static %}
+<!doctype>
 <html>
-  <head>
-    <!-- <link rel="stylesheet" type="text/css" href="{% static 'pdf_output/css/pdf_output.css' %}" /> -->
-    <!-- <link rel="stylesheet" type="text/css" href="{% static 'flights/scss/bootstrap/bootstrap.css' %}" /> -->
-    <!-- <link rel="stylesheet" type="text/css" href="{% static 'flights/sweetalert/sweetalert.css' %}"> -->
+<head>
+  <title>Logbook for {{ user.first_name}} {{ user.last_name }}</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+ </head>
+<body>
 
-  </head>
-  <body>
-
-    <!-- <div id="loading-image" class="sk-fading-circle">
-      <div class="sk-circle1 sk-circle"></div>
-      <div class="sk-circle2 sk-circle"></div>
-      <div class="sk-circle3 sk-circle"></div>
-      <div class="sk-circle4 sk-circle"></div>
-      <div class="sk-circle5 sk-circle"></div>
-      <div class="sk-circle6 sk-circle"></div>
-      <div class="sk-circle7 sk-circle"></div>
-      <div class="sk-circle8 sk-circle"></div>
-      <div class="sk-circle9 sk-circle"></div>
-      <div class="sk-circle10 sk-circle"></div>
-      <div class="sk-circle11 sk-circle"></div>
-      <div class="sk-circle12 sk-circle"></div>
-    </div> -->
-
-    {% include 'pdf_output/log_table.html' %}
-
-  </body>
-
-  <!-- <script>
-    $('#loading-image').show();
-    $.ajax({
-        url: "/log_table",
-        cache: false,
-        success: function(html){
-          $('.info').append(html);
-        },
-        complete: function(){
-          $('#loading-image').hide();
-        }
-      });
-    </script> -->
-
-</html>
+  {% include "pdf_output/log_table.html" %}
+</body>
