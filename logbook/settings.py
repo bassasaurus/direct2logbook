@@ -191,6 +191,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' #disable/setup 
 
 CACHES = {'default': {
         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'json_cache_table',
+        'LOCATION': 'cache_table',
     }
 }

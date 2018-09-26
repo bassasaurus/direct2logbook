@@ -25,7 +25,7 @@ def make_table_row(iterable):
         row = str(strip_all(list))
     return strip_all(row)
 
-def pdf_output():
+def pdf_output(objects):
 
     template = dict(total=0, pilot_in_command=0,
                     second_in_command=0, cross_country=0,
@@ -39,9 +39,6 @@ def pdf_output():
     file.write('')
 
     file.close()
-
-    objects = Flight.objects.filter().order_by('date')[:50]
-    # objects = Flight.objects.filter().order_by('date') #ordered 'bottom up' model is 'top down'
 
     p = Paginator(objects, 25)
 

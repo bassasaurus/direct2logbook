@@ -100,3 +100,6 @@ ENV/
 /site
 
 .pyc
+
+# redis dump file
+.rdb

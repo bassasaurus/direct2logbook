@@ -27,15 +27,15 @@
     <span class="navbar-toggler-icon"></span>
   </button>
 
-  <a class="navbar-brand" href="{% url 'home' %}"><img src="{% static 'flights/images/direct2globe.png' %}" width="180" height="50"></img></a>
+  <a class="navbar-brand" href="{% url 'index' %}"><img src="{% static 'flights/images/direct2globe.png' %}" width="180" height="50"></img></a>
 
   <div class="collapse navbar-collapse justify-content-end" id="navbar-collapse">
     <ul class="navbar-nav">
       <li class="nav-item">
-        <a class="nav-link" href="#">Sign Up</a>
+        <a class="nav-link" href="{% url 'signup' %}">Sign Up</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" href="#">Contact</a>
+        <a class="nav-link" href="mailto:direct2logbook.com@gmail.com?subject=Customer Inquiry">Contact</a>
       </li>
       {% endif %}
 

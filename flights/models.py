@@ -22,7 +22,6 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     company = models.CharField(max_length=50, default='')
     
-
     def __str__(self):
         title = str(self.user)
         return title
