@@ -34,7 +34,6 @@ class LoginRequiredMixin(LoginRequiredMixin):
     login_url = '/accounts/login'
     # redirect_field_name = None
 
-
 def geoJSON_airports_view(request):
     if request.method == 'GET':
 
@@ -191,6 +190,7 @@ class FlightArchive(LoginRequiredMixin, UserObjectsMixin, ArchiveIndexView):
     allow_empty = True
     allow_future = False
 
+
     def get_context_data(self, **kwargs):
         context = super(FlightArchive, self).get_context_data(**kwargs)
         get_map_data(self.object_list)
@@ -200,6 +200,7 @@ class FlightArchive(LoginRequiredMixin, UserObjectsMixin, ArchiveIndexView):
         context['parent_link'] = reverse('home')
         context['page_title'] = 'Map'
         return context
+
 
 class FlightArchiveYear(LoginRequiredMixin, UserObjectsMixin, YearArchiveView):
     model = Flight

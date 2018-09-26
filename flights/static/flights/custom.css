@@ -41,3 +41,7 @@
 .img-thumbnail{
   border: 0px;
 }
+
+.list-group{
+  border: 1px;
+}

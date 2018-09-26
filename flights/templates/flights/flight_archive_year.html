@@ -27,8 +27,8 @@
     <div><hr></div>
 			{% for date in date_list %}
     		<li class=list-unstyled>
-          <a href='/flights/by_date/{{ year|date:"Y" }}/{{ date|date:"b" }}'class="btn btn-outline-secondary btn-sm">
-    		      {{ date|date }}</a></li>
+          <a href='/flights/by_date/{{ year|date:"Y" }}/{{ date|date:"b" }}'class="">
+    		      <div class=""><p>{{ date|date }}</a></p></div></li>
 			{% endfor %}
   </div>
   <div id="mapid" class="col-10 image-shadow custom-popup">

@@ -26,10 +26,10 @@
     <div><hr></div>
     <div style="overflow:auto;" >
       {% for flight in object_list %}
-          <li class=list-unstyled><a href ="{% url 'flight_detail' flight.pk %}" class="btn btn-outline-secondary btn-sm">
-                      {{ flight.date }} |
-      				{{ flight.registration }} |
-      				{{ flight.route }}</a></li>
+          <li class=list-unstyled><a href ="{% url 'flight_detail' flight.pk %}" class="">
+              <div class="list-group"><p>{{ flight.date }} |
+      				{{ flight.registration }} </br>
+      				{{ flight.route }}</a></p></div></li>
       {% endfor %}
     </div>
   </div>

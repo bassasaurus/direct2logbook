@@ -8,7 +8,6 @@ from django_weasyprint import WeasyTemplateResponseMixin
 from rq.decorators import job
 from redis import Redis
 from rq import Queue
-from multiprocessing import Process
 
 
 q = Queue(connection=Redis())

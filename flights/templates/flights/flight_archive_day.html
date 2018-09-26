@@ -28,7 +28,7 @@
       {% for flight in object_list %}
           <li class=list-unstyled><a href ="{% url 'flight_detail' flight.pk %}" class="btn btn-outline-secondary btn-sm">
                       {{ flight.date }} |
-      				{{ flight.registration }} |
+      				{{ flight.registration }} 
       				{{ flight.route }}</a></li>
       {% endfor %}
     </div>
