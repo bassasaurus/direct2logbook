@@ -60,8 +60,6 @@ class AircraftForm(forms.ModelForm):
             'aircraft_class': 'Class*',
             }
 
-
-
 class ApproachForm(forms.ModelForm):
 
     class Meta:

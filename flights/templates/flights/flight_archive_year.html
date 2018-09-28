@@ -18,10 +18,10 @@
       <hr>
     	<div class="btn-group">
     		{% if previous_year %}
-    		    <a href='/flights/by_date/{{ previous_year|date:"Y" }}' class="btn btn-outline-secondary btn-sm">- Year</a>
+    		    <a href='/flights/by_date/{{ previous_year|date:"Y" }}' class="btn btn-outline-secondary btn-sm">< Year</a>
     		{% endif %}
     		{% if next_year %}
-    				<a href='/flights/by_date/{{ next_year|date:"Y" }}' class="btn btn-outline-secondary btn-sm">Year +</a>
+    				<a href='/flights/by_date/{{ next_year|date:"Y" }}' class="btn btn-outline-secondary btn-sm">Year ></a>
     		{% endif %}
     	</div>
     <div><hr></div>

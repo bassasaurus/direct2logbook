@@ -17,17 +17,17 @@
     <hr>
       <div class="btn-group">
         {% if previous_month %}
-            <a href='/flights/by_date/{{ previous_month|date:"Y" }}/{{ previous_month|date:"b" }}' class="btn btn-outline-secondary btn-sm">- Month</a>
+            <a href='/flights/by_date/{{ previous_month|date:"Y" }}/{{ previous_month|date:"b" }}' class="btn btn-outline-secondary btn-sm">< Month</a>
         {% endif %}
         {% if next_month %}
-            <a href='/flights/by_date/{{ next_month|date:"Y" }}/{{ next_month|date:"b" }}' class="btn btn-outline-secondary btn-sm">Month +</a>
+            <a href='/flights/by_date/{{ next_month|date:"Y" }}/{{ next_month|date:"b" }}' class="btn btn-outline-secondary btn-sm">Month ></a>
         {% endif %}
       </div>
     <div><hr></div>
     <div style="overflow:auto;" >
       {% for flight in object_list %}
-          <li class=list-unstyled><a href ="{% url 'flight_detail' flight.pk %}" class="">
-              <div class="list-group"><p>{{ flight.date }} |
+          <li class=list-unstyled><a href ="{% url 'flight_detail' flight.pk %}" class="list-group">
+              <div><p>{{ flight.date }} |
       				{{ flight.registration }} </br>
       				{{ flight.route }}</a></p></div></li>
       {% endfor %}

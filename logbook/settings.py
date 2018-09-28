@@ -66,7 +66,7 @@ INSTALLED_APPS = [
     'picklefield',
     'widget_tweaks',
     'django_weasyprint',
-
+    'columns',
 ]
 
 AUTHENTICATION_BACKENDS = (

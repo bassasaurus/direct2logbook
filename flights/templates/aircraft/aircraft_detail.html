@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load flights_filters %}
+{% load columns %}
 {% block content%}
 
 <div class="row">
@@ -78,21 +79,24 @@
     <p>Class - {{ aircraft.aircraft_class }}</p>
   </div>
 
-  <div class="col-3">
+  <div class="col-4">
     <h3>Tailnumbers</h3>
     <hr>
     <a class="btn btn-outline-primary"target="new" href="{% url 'tailnumber_create' %}"> New Tailnumber</a>
     <hr>
+    
     {% for tailnumber in tailnumbers %}
-      <a class="btn btn-outline-secondary" href ="{% url 'tailnumber_detail' tailnumber.pk %}">{{ tailnumber.registration }}</a>
+
+        <a class="" href ="{% url 'tailnumber_detail' tailnumber.pk %}">{{ tailnumber.registration }}</a>
     {% endfor %}
+
   </div>
 
-  <div class="col-6">
+  <div class="col-5">
     {% if aircraft.image %}
-      <div><img class="image-shadow img-rounded img-fluid" src="{{ aircraft.image.url }}"></img></div>
+      <div><img alt="aircraft photo" class="ac-img image-shadow img-rounded img-fluid" src="{{ aircraft.image }}"></img></div>
     {% else %}
-      <img class="image-shadow img-rounded img-fluid" src="{% static '/img/aircraft-placeholder.png' %}"></img>
+      <img alt="aircraft photo" class="ac-img image-shadow img-rounded img-fluid" src="{% static 'flights/aircraft-placeholder.png' %}"></img>
     {% endif %}
   </div>
 </div>

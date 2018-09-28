@@ -21,7 +21,7 @@ route_validator = RegexValidator(route_match, "Must be UPPERCASE in a combinatio
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     company = models.CharField(max_length=50, default='')
-    
+
     def __str__(self):
         title = str(self.user)
         return title

@@ -34,16 +34,15 @@ class StatAdmin(admin.ModelAdmin):
     empty_value_display = ''
 
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('comapny', )
+    list_display = ('company',)
     empty_value_display = ''
 
 class ApproachAdmin(admin.ModelAdmin):
-    list_display = ('approach', 'number')
-
+    list_display = ('approach_type', 'number')
 
 admin.site.register(Flight, FlightAdmin)
 admin.site.register(Aircraft, AircraftAdmin)
-admin.site.register(Approach)
+admin.site.register(Approach, ApproachAdmin)
 admin.site.register(AircraftCategory)
 admin.site.register(AircraftClass)
 admin.site.register(TailNumber, TailnumberAdmin)
@@ -54,4 +53,4 @@ admin.site.register(Regs)
 admin.site.register(Endorsement)
 admin.site.register(Weight)
 admin.site.register(MapData, MapDataAdmin)
-admin.site.register(Profile)
+admin.site.register(Profile, ProfileAdmin)
