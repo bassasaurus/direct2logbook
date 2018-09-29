@@ -5,7 +5,7 @@
       <table id="logbook" style="" class="custom-table table-striped table-hover">
         <thead class="custom-table">
             <th></th>
-            <th class="text-left">Date</th>
+            <th class="pl-2 text-left">Date</th>
             <th class="text-left">Type</th>
             <th class="text-left">Reg</th>
             <th class="text-left">Route</th>
@@ -14,8 +14,8 @@
             <th class="pl-3 text-right">SIC</th>
             <th class="pl-3 text-left">X Country</th>
             <th class="pl-3 text-right">Night</th>
-            <th class="pl-3 text-right">Inst</th>
-            <th class="text-left">Appr</th>
+            <th class="pl-3 pr-3 text-right">Inst</th>
+            <th class="ml-3 text-left">Appr</th>
             <th class="pl-3 text-right">Day Ldg</th>
             <th class="pl-3 text-right">Night Ldg</th>
             <th class="pl-3 text-right">Sim Inst</th>
@@ -37,7 +37,7 @@
                     <a href ="{% url 'flight_detail' flight.pk %}" class="btn btn-sm btn-outline-primary">View</a>
                     {% endif %}
                 </td>
-                <td class="pr-4 text-left">{{flight.date|date:"m/d/Y"}}</td>
+                <td class="pl-2 pr-4 text-left">{{flight.date|date:"m/d/Y"}}</td>
                 <td class="pr-4 text-left">{{flight.aircraft_type}}</td>
                 <td class="pr-4 text-left">{{flight.registration}}</td>
                 <td class="pr-4 text-left">{{flight.route}}</td>

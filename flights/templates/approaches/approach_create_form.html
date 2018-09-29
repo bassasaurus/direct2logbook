@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load crispy_forms_tags %}
 {% block content%}
 
 <div class="page-header">
@@ -7,7 +6,7 @@
 </div>
 <p>* Required </p>
 <div class="input-group">
-  {% crispy form %}
+  {% form %}
 </div>
 <div style="height: 350px; width: 100%;"></div>
 {% endblock %}
