@@ -1,6 +1,7 @@
 {% extends "registration/base.html" %}
 
 {% block account_content %}
-  <p>You are logged out.</p>
-  <a href="{% url 'login'%}">Login</a>
+  <h3>You are logged out.</h3>
+  <hr>
+  <a class="btn-shadow btn-shadow-dark" href="{% url 'login'%}">Login</a>
 {% endblock %}

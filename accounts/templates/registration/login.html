@@ -1,5 +1,6 @@
 {% extends 'registration/base.html' %}
-<div>
+{% load widget_tweaks %}
+
 {% block account_content %}
 
 
@@ -16,26 +17,27 @@
   {% endif %}
 {% endif %}
 
-<form method="post" action="{% url 'login' %}">
-{% csrf_token %}
+    <h3>Login</h3>
+    <hr>
+    <form method="post" action="{% url 'login' %}">
+    {% csrf_token %}
+      <p>
+        <div>
+          <p>{{ form.username |attr:"placeholder:Username" |add_class:"form-control"}}</p>
+          <p>{{ form.password |attr:"placeholder:Password" |add_class:"form-control"}}</p>
+        </div>
+      </p>
+      <hr>
+      <p>
+        <div>
+          <input class="btn-shadow btn-shadow-dark" type="submit" value="login" />
+          <input type="hidden" name="next" value="{{ next }}" />
+        </div>
+      </p>
+    </form>
 
-<div>
-  <td>{{ form.username.label_tag }}</td>
-  <td>{{ form.username }}</td>
-</div>
-<div>
-  <td>{{ form.password.label_tag }}</td>
-  <td>{{ form.password }}</td>
-</div>
-
-<div>
-  <input type="submit" value="login" />
-  <input type="hidden" name="next" value="{{ next }}" />
-</div>
-</form>
-<hr>
-{# Assumes you setup the password_reset view in your URLconf #}
-<p><a href="{% url 'password_reset' %}">Lost password?</a></p>
+  {# Assumes you setup the password_reset view in your URLconf #}
+  <hr>
+  <p><a class="btn-shadow btn-shadow-dark" href="{% url 'password_reset' %}">Lost password?</a></p>
 
 {% endblock %}
-<div>

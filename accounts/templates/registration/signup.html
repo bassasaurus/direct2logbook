@@ -1,10 +1,32 @@
 {% extends "registration/base.html" %}
+{% load widget_tweaks %}
 
 {% block account_content %}
-  <h2>Sign up</h2>
+  <h3>Sign up</h3>
+  <hr>
   <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Sign up</button>
+    <p>
+      <div>{{ form.username |attr:"placeholder:Username" |add_class:"form-control" }}</div>
+      <small id="usernameHelp" class="form-text text-muted">150 characters or fewer. Letters, digits and @/./+/-/_ only.</small>
+    </p>
+    <p>
+      <div>{{ form.first_name |attr:"placeholder:First Name" |add_class:"form-control" }}</div>
+    </p>
+    <p>
+      <div>{{ form.last_name |attr:"placeholder:Last Name" |add_class:"form-control" }}</div>
+    </p>
+    <p>
+      <div>{{ form.email |attr:"placeholder:Email" |add_class:"form-control" }}</div>
+    </p>
+    <p>
+      <div>{{ form.password1 |attr:"placeholder:Password" |add_class:"form-control" }}</div>
+      <small id="passwordHelp" class="form-text text-muted">Your password must contain at least 8 characters.</small>
+    </p>
+    <p>
+      <div>{{ form.password2 |attr:"placeholder:Password Again" |add_class:"form-control" }}</div>
+    </p>
+    <hr>
+    <button class="btn-shadow btn-shadow-dark" type="submit">Sign up</button>
   </form>
 {% endblock %}
