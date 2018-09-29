@@ -4,16 +4,18 @@
 {% block content %}
 
 <form action="{% url 'profile_update' profile.pk %}" method="get">
-  <h4>Update Profile</h4>
+  <h3>Update Profile</h3>
   <hr>
   {% csrf_token %}
 
-  {{ user_form.as_p }}
+  <div><h5>{{ user.first_name }} {{ user.last_name}}</h5></div>
   <hr>
 
-  {{ profile_form.as_p }}
+  <p>
+  <div>{{ profile_form.company |attr:"placeholder:Company" |add_class:"form-control"}}</div>
+  </p>
   <hr>
-  <button class="btn btn-shadow btn-primary btn-sm" type="submit">Submit</button>
+  <button class="btn-shadow btn-shadow-dark btn-block" type="submit">Submit</button>
 </form>
 
 {% endblock %}

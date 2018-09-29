@@ -4,7 +4,8 @@
 
 <form id="delete-form" action="" method="post">{% csrf_token %}
    {% include 'delete_warning.html' %}
-   <input type="submit" class = "confirm-delete btn btn-outline-danger" value="Delete" />
+   <hr>
+   <input type="submit" class = "btn-shadow btn-shadow-danger btn-block" value="Delete" />
 </form>
 
 {% include "confirm_delete.html" %}
