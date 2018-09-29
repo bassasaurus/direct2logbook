@@ -465,6 +465,7 @@ class ApproachCreate(LoginRequiredMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super(ApproachCreate, self).get_context_data(**kwargs)
         context['title'] = "D-> | New Approach Type"
+        context['form'] = ApproachForm()
         return context
 
 class ApproachUpdate(LoginRequiredMixin, UpdateView):

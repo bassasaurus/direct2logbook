@@ -48,7 +48,8 @@ def aircraft_fields():
 
 def approach_fields():
 	return [
-			'approach_type'
+			'approach_type',
+			'number',
 			]
 
 

@@ -1,12 +1,22 @@
 {% extends 'base.html' %}
+{% load widget_tweaks %}
 {% block content%}
 
-<div class="page-header">
-  <h3>New approach type</h3>
+<div class="row justify-content-center">
+  <div class="col-xl-12 col-lg-12 col-m-12 col-sm-12 col-xs-12">
+    <form action="{% url 'approach_create' %}" class="" method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <h4>Add Approaches</h4>
+        <p>Required *</p>
+      </div>
+      <hr>
+      {{ form }}
+      <hr>
+      <button class="btn-shadow btn-shadow-dark" type="submit">Submit</button>
+    </form>
+
+  </div>
 </div>
-<p>* Required </p>
-<div class="input-group">
-  {% form %}
-</div>
-<div style="height: 350px; width: 100%;"></div>
+
 {% endblock %}
