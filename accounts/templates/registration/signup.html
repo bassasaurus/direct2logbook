@@ -8,7 +8,7 @@
     {% csrf_token %}
     <p>
       <div>{{ form.username |attr:"placeholder:Username" |add_class:"form-control" }}</div>
-      <small id="usernameHelp" class="form-text text-muted">150 characters or fewer. Letters, digits and @/./+/-/_ only.</small>
+      <small class="form-text text-muted">150 characters or fewer. Letters, digits and @/./+/-/_ only.</small>
     </p>
     <p>
       <div>{{ form.first_name |attr:"placeholder:First Name" |add_class:"form-control" }}</div>
@@ -24,7 +24,7 @@
       <small id="passwordHelp" class="form-text text-muted">Your password must contain at least 8 characters.</small>
     </p>
     <p>
-      <div>{{ form.password2 |attr:"placeholder:Password Again" |add_class:"form-control" }}</div>
+      <div>{{ form.password2 |attr:"placeholder:Password again" |add_class:"form-control" }}</div>
     </p>
     <hr>
     <button class="btn-shadow btn-shadow-dark" type="submit">Sign up</button>

@@ -16,8 +16,8 @@
 <div class="row">
   <div class="col-3">
     <div class="btn-group">
-      <a href ="{% url 'flight_detail' previous_flight.pk %}" class="btn btn-sm btn-outline-secondary">Previous</a>
-      <a href ="{% url 'flight_detail'  next_flight.pk %}" class="btn btn-sm btn-outline-secondary">Next</a>
+      <a href ="{% url 'flight_detail' previous_flight.pk %}" class="btn btn-sm btn-outline-secondary">Previous Day</a>
+      <a href ="{% url 'flight_detail'  next_flight.pk %}" class="btn btn-sm btn-outline-secondary">Next Day</a>
     </div>
     <hr>
     <div class="btn-group">
@@ -101,7 +101,7 @@
         <p>{{ flight.remarks }}</p>
         {% else %}
       {% endif %}
-    
+
   </div>
   <div class="col-9">
     <div id="mapid" class="img-responsive image-shadow custom-popup">

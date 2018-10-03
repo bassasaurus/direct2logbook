@@ -194,6 +194,8 @@ class Aircraft(models.Model):
         aircraft_type = str(self.aircraft_type)
         return aircraft_type
 
+
+
 class Flight(models.Model):
     user = models.ForeignKey(User, default=1)
     date = models.DateField(db_index=True)

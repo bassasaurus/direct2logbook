@@ -84,7 +84,7 @@
     <hr>
     <a class="btn btn-outline-primary"target="new" href="{% url 'tailnumber_create' %}"> New Tailnumber</a>
     <hr>
-    
+
     {% for tailnumber in tailnumbers %}
 
         <a class="" href ="{% url 'tailnumber_detail' tailnumber.pk %}">{{ tailnumber.registration }}</a>
@@ -96,7 +96,7 @@
     {% if aircraft.image %}
       <div><img alt="aircraft photo" class="ac-img image-shadow img-rounded img-fluid" src="{{ aircraft.image }}"></img></div>
     {% else %}
-      <img alt="aircraft photo" class="ac-img image-shadow img-rounded img-fluid" src="{% static 'flights/aircraft-placeholder.png' %}"></img>
+      <img alt="aircraft photo" class="ac-img image-shadow img-rounded img-fluid" src="{% static 'flights/images/aircraft-placeholder.png' %}"></img>
     {% endif %}
   </div>
 </div>

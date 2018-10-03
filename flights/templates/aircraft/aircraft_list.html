@@ -12,8 +12,8 @@
 
 <div class="row">
   {% for aircraft in object_list %}
-  <div class="col-lg-3 col-md-3 col-sm-3">
-    <div style="margin-top: 10px;" class="card">
+  <div class="col-4">
+    <div style="margin-left: 0px; margin-right: 0px; margin-top: 10px;" class="card">
       {% if aircraft.image %}
         <img class="card-img-top img-fluid" src={{ aircraft.image }}>
         {% else %}
@@ -34,7 +34,5 @@
 
   {% endfor %}
 </div><!-- row -->
-
-{% include 'aircraft/aircraft_create_form_modal.html' %}
 
 {% endblock %}

@@ -2,103 +2,106 @@
 
 <div class="form-group">
   <div class="input-group-sm">
-    {{ flight_form.date |attr:"autocomplete:off" |attr:"placeholder:Date *" |add_class:"form-control"}}
+    {{ form.date |attr:"autocomplete:off" |attr:"placeholder:Date *" |add_class:"form-control"}}
   </div>
 </div>
 <div class="form-group">
   <div class="input-group-sm">
-  {{ flight_form.aircraft_type |add_class:"form-control"}}
+  {{ form.aircraft_type |add_class:"form-control"}}
   <div><a target="new" href="{% url 'aircraft_create' %}"> New Aircraft</a></div>
 
   </div>
 </div>
   <div class="form-group">
   <div class="input-group-sm">
-    {{ flight_form.registration |add_class:"form-control"}}
+    {{ form.registration |add_class:"form-control"}}
     <div><a target="new" href="{% url 'tailnumber_create' %}"> New Tailnumber</a></div>
   </div>
 </div>
 <div class="form-group">
   <div class="input-group-sm">
-    {{ flight_form.route |attr:"id:route" |attr:"autocomplete:off" |attr:"placeholder:Route *" |add_class:"form-control"}}
+    {{ form.route |attr:"id:route" |attr:"autocomplete:off" |attr:"placeholder:Route *" |add_class:"form-control"}}
+    <small class="form-text text-muted">Use ATA or ICAO and space between to autoformat</small>
   </div>
 </div>
 <div class="form-group">
   <div class="input-group-sm">
-  {{ flight_form.legs |attr:"placeholder:Legs *" |add_class:"form-control"}}
+  {{ form.legs |attr:"placeholder:Legs *" |add_class:"form-control"}}
   </div>
 </div>
 <div class="form-group">
   <div class="input-group-sm">
-  {{ flight_form.duration |attr:"placeholder:Duration *" |add_class:"form-control"}}
+  {{ form.duration |attr:"placeholder:Duration *" |add_class:"form-control"}}
+  <small class="form-text text-muted">Positive number greater than .1</small>
   </div>
 </div>
 <div class="form-group form-inline">
   <div class="row">
     <div class="m-4">
-      {{ flight_form.pilot_in_command |attr:"id:pic" |add_class:"form-control exclcb"}} PIC
+      {{ form.pilot_in_command |attr:"id:pic" |add_class:"form-control exclcb"}} PIC
     </div>
     <div class="m-4">
-      {{ flight_form.second_in_command |attr:"id:sic" |add_class:"form-control exlcb"}} SIC
+      {{ form.second_in_command |attr:"id:sic" |add_class:"form-control exlcb"}} SIC
     </div>
     <div class="m-4">
-      {{ flight_form.solo |attr:"id:solo" |add_class:"form-control solo"}} Solo
+      {{ form.solo |attr:"id:solo" |add_class:"form-control solo"}} Solo
     </div>
     <div class="m-4">
-      {{ flight_form.dual |attr:"id:dual" |add_class:"form-control dual"}} Dual
+      {{ form.dual |attr:"id:dual" |add_class:"form-control dual"}} Dual
     </div>
     <div class="m-4">
-      {{ flight_form.instructor |attr:"id:cfi" |add_class:"form-control"}} CFI
+      {{ form.instructor |attr:"id:cfi" |add_class:"form-control"}} CFI
     </div>
     <div class="m-4">
-      {{ flight_form.simulator |add_class:"form-control"}} Sim
+      {{ form.simulator |add_class:"form-control"}} Sim
     </div>
     <div class="m-4">
-      {{ flight_form.cross_country |add_class:"form-control"}} XCountry
+      {{ form.cross_country |add_class:"form-control"}} XCountry
     </div>
   </div>
 </div>
 <div class="form-group">
   <div class="input-group-sm">
-  {{ flight_form.landings_day |attr:"placeholder:Ldg Day" |add_class:"form-control"}}
+  {{ form.landings_day |attr:"placeholder:Ldg Day" |add_class:"form-control"}}
   </div>
 </div>
 <div class="form-group">
   <div class="input-group-sm">
-  {{ flight_form.landings_night |attr:"placeholder:Ldg Night" |add_class:"form-control"}}
+  {{ form.landings_night |attr:"placeholder:Ldg Night" |add_class:"form-control"}}
   </div>
 </div>
 <div class="form-group">
   <div class="input-group-sm">
-  {{ flight_form.night |attr:"placeholder:Night" |add_class:"form-control"}}
+  {{ form.night |attr:"placeholder:Night" |add_class:"form-control"}}
   </div>
 </div>
 <div class="form-group">
   <div class="input-group-sm">
-  {{ flight_form.instrument |attr:"placeholder:IFR" |add_class:"form-control"}}
+  {{ form.instrument |attr:"placeholder:IFR" |add_class:"form-control"}}
   </div>
 </div>
 <div class="form-group">
   <div class="input-group-sm">
-  {{ flight_form.simulated_instrument |attr:"placeholder:Simulated IFR" |add_class:"form-control"}}
+  {{ form.simulated_instrument |attr:"placeholder:Simulated IFR" |add_class:"form-control"}}
   </div>
 </div>
 <div class="form-group">
   <label>Approaches</label>
   <div class="input-group-sm">
-    {{ flight_form.approaches |add_class:"form-control"}}
+    {{ form.approaches |add_class:"form-control"}}
   </div>
   <div class="form-group form-inline">
     <div class="row">
       <div class="m-4">
-        {{ flight_form.holding |add_class:"form-control" }} Holding
+        {{ form.holding |add_class:"form-control" }} Holding
       </div>
     </div>
   </div>
 </div>
 <div class="form-group">
   <div class="input-group-sm">
-    {{ flight_form.remarks |attr:"placeholder:Remarks" |add_class:"form-control"}}
-    <label class="text-muted">500 char limit</label>
+    {{ form.remarks |attr:"placeholder:Remarks" |add_class:"form-control"}}
+    <small class="form-text text-muted">500 char limit</small>
   </div>
 </div>
+{{ form.media }}

@@ -26,7 +26,6 @@ urlpatterns = [
     # Example: flights/2012/nov/15
     # url(r'^flights/by_date/(?P<year>[0-9]{4})/(?P<month>[-\w]+)/(?P<day>[0-9]+)/$', FlightArchiveDay.as_view(), name='flight_by_day'),
 
-
     #model CRUD urls
     url(r'^logbook/$', FlightList.as_view(), name='flight_list'),
     url(r'^logbook/create/$', FlightCreate.as_view(), name='flight_create'),
