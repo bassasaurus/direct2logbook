@@ -2,13 +2,21 @@ from django.contrib import admin
 from django.contrib.admin import AdminSite
 from .models import *
 
+class ApproachInline(admin.TabularInline):
+    model = Approach
+
 class FlightAdmin(admin.ModelAdmin):
+    inlines = [
+        ApproachInline,
+    ]
+
     list_display = ('user', 'date', 'aircraft_type', 'registration', 'route', 'duration',
-    'landings_day', 'landings_night', 'night', 'instrument', 'approaches',
+    'landings_day', 'landings_night', 'night', 'instrument', #approaches used to be here
     'cross_country', 'second_in_command', 'pilot_in_command', 'simulated_instrument',
     'instructor', 'dual', 'simulator', 'solo', 'remarks', 'route_data', 'map_error',
      'duplicate_error', 'aircraft_type_error', 'registration_error', 'crew_error')
     empty_value_display = ''
+
 
 class AircraftAdmin(admin.ModelAdmin):
     list_display = ('user', 'aircraft_type', 'turbine', 'piston', 'requires_type',
@@ -38,7 +46,7 @@ class ProfileAdmin(admin.ModelAdmin):
     empty_value_display = ''
 
 class ApproachAdmin(admin.ModelAdmin):
-    list_display = ('approach_type', 'number')
+    list_display = ('flight_object', 'approach_type', 'number')
 
 admin.site.register(Flight, FlightAdmin)
 admin.site.register(Aircraft, AircraftAdmin)

@@ -6,11 +6,9 @@
   <hr>
 </div>
 <div>
-  {% for tail in tailnumbers|dictsort:"aircraft" %}
+  {% for tail in tailnumbers %}
     {{ tail.aircraft }} | {{ tail.registration }}
   {% endfor %}
 </div>
-
-
 
 {% endblock %}

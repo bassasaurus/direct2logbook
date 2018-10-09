@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import inlineformset_factory
 from flights.models import *
 from django.contrib.auth.models import User
 from flights.fields import *
@@ -60,12 +61,6 @@ class AircraftForm(forms.ModelForm):
             'aircraft_class': 'Class*',
             }
 
-class ApproachForm(forms.ModelForm):
-
-    class Meta:
-        model = Approach
-        fields = approach_fields()
-
 class TailNumberForm(forms.ModelForm):
 
     class Meta:
@@ -82,3 +77,12 @@ class TailNumberForm(forms.ModelForm):
             'is_135': '135',
             'is_91': '91',
         }
+
+# class ApproachForm(forms.ModelForm):
+#
+#     class Meta:
+#         model = Approach
+#         fields = ['approach_type', 'number']
+#
+# ApproachFormSet = inlineformset_factory(Flight, Approach,
+#                                             form=ApproachForm, extra=4)

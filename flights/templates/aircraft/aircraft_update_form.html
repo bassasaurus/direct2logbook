@@ -3,7 +3,7 @@
 
 <div class="row justify-content-center">
   <div class="col-lg-12 col-sm-12">
-    <form action="{% url 'aircraft_update' aircraft.pk %}" class="" method="post">
+    <form action="" class="" method="post">
       {% csrf_token %}
       <div class="form-group">
         <h4>Update {{ aircraft.aircraft_type }}</h4>

@@ -41,11 +41,11 @@ urlpatterns = [
     url(r'^aircraft/detail/(?P<pk>\d+)/$', AircraftDetail.as_view(), name='aircraft_detail'),
     url(r'^aircraft/delete/(?P<pk>\d+)/$', AircraftDelete.as_view(), name='aircraft_delete'),
 
-    url(r'^approaches/$', ApproachList.as_view(), name='approach_list'),
-    url(r'^approaches/create/$', ApproachCreate.as_view(), name='approach_create'),
-    url(r'^approaches/update/(?P<pk>\d+)/$', ApproachUpdate.as_view(), name='approach_update'),
-    url(r'^approaches/detail/(?P<pk>\d+)/$', ApproachDetail.as_view(), name='approach_detail'),
-    url(r'^approaches/delete/(?P<pk>\d+)/$', ApproachDelete.as_view(), name='approach_delete'),
+    # url(r'^approaches/$', ApproachList.as_view(), name='approach_list'),
+    # url(r'^approaches/create/$', ApproachCreate.as_view(), name='approach_create'),
+    # url(r'^approaches/update/(?P<pk>\d+)/$', ApproachUpdate.as_view(), name='approach_update'),
+    # url(r'^approaches/detail/(?P<pk>\d+)/$', ApproachDetail.as_view(), name='approach_detail'),
+    # url(r'^approaches/delete/(?P<pk>\d+)/$', ApproachDelete.as_view(), name='approach_delete'),
 
     url(r'^tailnumbers/$', TailNumberList.as_view(), name='tailnumber_list'),
     url(r'^tailnumbers/create/$', TailNumberCreate.as_view(), name='tailnumber_create'),

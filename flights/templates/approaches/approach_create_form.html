@@ -8,12 +8,11 @@
       {% csrf_token %}
       <div class="form-group">
         <h4>Add Approaches</h4>
-        <p>Required *</p>
       </div>
       <hr>
-      {{ form }}
+      {{ formset.as_p }}
       <hr>
-      <button class="btn-shadow btn-shadow-dark" type="submit">Submit</button>
+      <button class="btn-shadow btn-shadow-dark btn-block" type="submit">Submit</button>
     </form>
 
   </div>

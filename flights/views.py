@@ -24,6 +24,9 @@ import flights.currency as currency
 
 zulu_time = datetime.datetime.now().strftime('%Y %b %d %H:%M') + " UTC"
 
+from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSet, ModelFormSetView
+from extra_views.generic import GenericInlineFormSet
+
 class UserObjectsMixin():
 
     def get_queryset(self):
@@ -275,38 +278,68 @@ class FlightList(LoginRequiredMixin, UserObjectsMixin, ListView):
         context['page_title'] = "Logbook"
         return context
 
-class FlightCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
+
+class ApproachCreateInline(InlineFormSet):
+    model = Approach
+    fields = ['approach_type', 'number']
+    factory_kwargs = {'extra':4}
+
+class ApproachUpdateInline(InlineFormSet):
+    model = Approach
+    fields = ['approach_type', 'number']
+    factory_kwargs = {'extra':0}
+
+
+class FlightCreate(LoginRequiredMixin, UserObjectsMixin, CreateWithInlinesView):
     model = Flight
+    inlines = [ApproachCreateInline, ]
     form_class = FlightForm
-
     template_name = 'flights/flight_create_form.html'
-    success_url = '/logbook/'
+    # success_url = '/logbook/'
 
-    def get_context_data(self, **kwargs):
-        context = super(FlightCreate, self).get_context_data(**kwargs)
-
-
-        context['title'] = "D-> | New Flight"
-        context['page_title'] = "New Flight"
-        context['home_link'] = reverse('home')
-        context['parent_link'] = reverse('flight_list')
-        context['parent_name'] = 'Logbook'
-        return context
-
-class FlightUpdate(LoginRequiredMixin, UserObjectsMixin, UpdateView):
+class FlightUpdate(UpdateWithInlinesView):
     model = Flight
+    inlines = [ApproachUpdateInline, ]
     form_class = FlightForm
     template_name = 'flights/flight_update_form.html'
+    success_url = '/logbook/'
 
-    def get_context_data(self, **kwargs):
-        context = super(FlightUpdate, self).get_context_data(**kwargs)
 
-        context['title'] = "D-> | Update Flight"
-        context['page_title'] = "Update Flight"
-        context['home_link'] = reverse('home')
-        context['parent_link'] = reverse('flight_list')
-        context['parent_name'] = 'Logbook'
-        return context
+# class FlightCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
+#     model = Flight
+#     form_class = FlightForm
+#
+#     template_name = 'flights/flight_create_form.html'
+#     success_url = '/logbook/'
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(FlightCreate, self).get_context_data(**kwargs)
+#
+#         context['approach_formset'] = ApproachFormSet()
+#
+#         context['title'] = "D-> | New Flight"
+#         context['page_title'] = "New Flight"
+#         context['home_link'] = reverse('home')
+#         context['parent_link'] = reverse('flight_list')
+#         context['parent_name'] = 'Logbook'
+#         return context
+
+# class FlightUpdate(LoginRequiredMixin, UserObjectsMixin, UpdateView):
+#     model = Flight
+#     form_class = FlightForm
+#     template_name = 'flights/flight_update_form.html'
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(FlightUpdate, self).get_context_data(**kwargs)
+#
+#         context['approach_formset'] = ApproachFormSet()
+#
+#         context['title'] = "D-> | Update Flight"
+#         context['page_title'] = "Update Flight"
+#         context['home_link'] = reverse('home')
+#         context['parent_link'] = reverse('flight_list')
+#         context['parent_name'] = 'Logbook'
+#         return context
 
 class FlightDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
     model = Flight
@@ -439,56 +472,61 @@ class AircraftDelete(LoginRequiredMixin, UserObjectsMixin, DeleteView):
 
 #-------------------Approach CRUD-----------------------
 
-class ApproachList(LoginRequiredMixin, ListView):
-    model = Approach
-    template_name = "approaches/approach_list.html"
+# class ApproachFormsetView(LoginRequiredMixin, ModelFormSetView):
+#     model = Approach
+#     template_name = "approaches/approach_create_form.html"
+#     fields = ['approach_type', 'number']
 
-    def get_context_data(self, **kwargs):
-        context = super(ApproachList, self).get_context_data(**kwargs)
-        context['title'] = "D-> | Approach Types"
-        return context
-
-class ApproachCreate(LoginRequiredMixin, CreateView):
-    model = Approach
-    form_class = ApproachForm
-    template_name = "approaches/approach_create_form.html"
-
-    def get_context_data(self, **kwargs):
-        context = super(ApproachCreate, self).get_context_data(**kwargs)
-        context['title'] = "D-> | New Approach Type"
-        context['form'] = ApproachForm()
-        return context
-
-class ApproachUpdate(LoginRequiredMixin, UpdateView):
-    model = Approach
-    form_class = ApproachForm
-    template_name = 'approaches/approach_update_form.html'
-    success_url = '/approaches'
-
-    def get_context_data(self, **kwargs):
-        context = super(ApproachUpdate, self).get_context_data(**kwargs)
-        context['title'] = "D-> | Rename Approach"
-        return context
-
-class ApproachDetail(LoginRequiredMixin, DetailView):
-    model = Approach
-    template_name = 'approaches/approach_detail.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(ApproachDetail, self).get_context_data(**kwargs)
-
-        context['title'] = "D-> | Approach Detail"
-        return context
-
-class ApproachDelete(LoginRequiredMixin, DeleteView):
-    model = Approach
-    template_name = 'approaches/approach_delete.html'
-    success_url = '/approaches'
-
-    def get_context_data(self, **kwargs):
-        context = super(ApproachDelete, self).get_context_data(**kwargs)
-        context['title'] = "D-> | Delete Approach Type"
-        return context
+# class ApproachList(LoginRequiredMixin, ListView):
+#     model = Approach
+#     template_name = "approaches/approach_list.html"
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(ApproachList, self).get_context_data(**kwargs)
+#         context['title'] = "D-> | Approach Types"
+#         return context
+#
+# class ApproachCreate(LoginRequiredMixin, CreateView):
+#     model = Approach
+#     form_class = ApproachInline
+#     template_name = "flights/flight_create_form.html"
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(ApproachCreate, self).get_context_data(**kwargs)
+#         context['title'] = "D-> | New Approach Type"
+#         context['form'] = ApproachForm()
+#         return context
+#
+# class ApproachUpdate(LoginRequiredMixin, UpdateView):
+#     model = Approach
+#     form_class = ApproachForm
+#     template_name = 'approaches/approach_update_form.html'
+#     success_url = '/approaches'
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(ApproachUpdate, self).get_context_data(**kwargs)
+#         context['title'] = "D-> | Rename Approach"
+#         return context
+#
+# class ApproachDetail(LoginRequiredMixin, DetailView):
+#     model = Approach
+#     template_name = 'approaches/approach_detail.html'
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(ApproachDetail, self).get_context_data(**kwargs)
+#
+#         context['title'] = "D-> | Approach Detail"
+#         return context
+#
+# class ApproachDelete(LoginRequiredMixin, DeleteView):
+#     model = Approach
+#     template_name = 'approaches/approach_delete.html'
+#     success_url = '/approaches'
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(ApproachDelete, self).get_context_data(**kwargs)
+#         context['title'] = "D-> | Delete Approach Type"
+#         return context
 
 #------------------TailNumber CRUD----------------------
 

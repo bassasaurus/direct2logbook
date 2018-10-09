@@ -10,8 +10,6 @@ def flight_fields():
 			'landings_night',
 			'night',
 			'instrument',
-			'approaches',
-			'holding',
 			'cross_country',
 			'second_in_command',
 			'pilot_in_command',
@@ -43,13 +41,6 @@ def aircraft_fields():
 			'aircraft_category',
 			'aircraft_class',
 			'image',
-			]
-
-
-def approach_fields():
-	return [
-			'approach_type',
-			'number',
 			]
 
 

@@ -11,6 +11,7 @@ from django.template.defaultfilters import truncatechars  # or truncatewords
 
 from django.core.validators import MinValueValidator, RegexValidator
 
+
 BOOL_CHOICES = ((True, 'Yes'), (False, 'No'))
 
 positive_validator = MinValueValidator(0.0, "Must be a positive number > 0.1")
@@ -208,8 +209,7 @@ class Flight(models.Model):
     landings_night = models.PositiveIntegerField(null=True, blank=True, verbose_name="Night Ldg")
     night = models.FloatField(null=True, blank=True, validators=[positive_validator])
     instrument = models.FloatField(null=True, blank=True, verbose_name="Inst", validators=[positive_validator])
-    approaches = models.ForeignKey('Approach', default=None, null=True, blank=True, verbose_name="Appr", on_delete=models.SET_NULL)
-    holding = models.NullBooleanField(null=True, blank=True, verbose_name="Holding")
+
     cross_country = models.NullBooleanField(null=True, blank=True, verbose_name="XCountry")
     second_in_command = models.NullBooleanField(null=True, blank=True, verbose_name="SIC")
     pilot_in_command = models.NullBooleanField(null=True, blank=True, verbose_name="PIC")
@@ -254,8 +254,27 @@ class TailNumber(models.Model):
 
 class Approach(models.Model):
 
-    approach_type = models.CharField(max_length=15)
-    number = models.PositiveIntegerField(null=True, blank=True)
+    APPR_CHOICES=(
+        ('ILS', 'ILS'),
+        ('CATII', 'ILS CAT II'),
+        ('CATIII', 'ILS CAT III'),
+        ('GPS', 'GPS'),
+        ('RNAV', 'RNAV'),
+        ('LOC', 'LOC'),
+        ('VOR', 'VOR'),
+        ('NDB', 'NDB'),
+        ('BC', 'LOC BC'),
+
+        ('SDF', 'SDF'),
+        ('LDA', 'LDA'),
+        ('TACAN', 'TACAN'),
+        ('MLS', 'MLS'),
+        ('Holding', 'Holding')
+        )
+
+    flight_object = models.ForeignKey('Flight', default=None, null=True, blank=True, verbose_name="Flight", on_delete=models.SET_NULL)
+    approach_type = models.CharField(max_length=15, choices=APPR_CHOICES, verbose_name="Approach Type")
+    number = models.PositiveIntegerField(null=True, blank=True, verbose_name="Number")
 
     class Meta:
         ordering =['approach_type']

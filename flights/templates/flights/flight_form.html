@@ -20,18 +20,24 @@
 </div>
 <div class="form-group">
   <div class="input-group-sm">
-    {{ form.route |attr:"id:route" |attr:"autocomplete:off" |attr:"placeholder:Route *" |add_class:"form-control"}}
+    <label class="text-muted">Route</label>
+    {{ form.route |attr:"id:route" |attr:"autocomplete:off" |attr:"placeholder:XXX-XXXX-*" |add_class:"form-control"}}
     <small class="form-text text-muted">Use ATA or ICAO and space between to autoformat</small>
   </div>
 </div>
+
 <div class="form-group">
   <div class="input-group-sm">
-  {{ form.legs |attr:"placeholder:Legs *" |add_class:"form-control"}}
+    <label class="text-muted">Legs*</label>
+    {{ form.legs |attr:"autocomplete:off" |add_class:"form-control"}}
+    <small class="form-text text-muted"></small>
   </div>
 </div>
+
 <div class="form-group">
   <div class="input-group-sm">
-  {{ form.duration |attr:"placeholder:Duration *" |add_class:"form-control"}}
+    <label class="text-muted">Duration</label>
+  {{ form.duration |attr:"placeholder:X.X" |add_class:"form-control"}}
   <small class="form-text text-muted">Positive number greater than .1</small>
   </div>
 </div>
@@ -62,46 +68,55 @@
 </div>
 <div class="form-group">
   <div class="input-group-sm">
-  {{ form.landings_day |attr:"placeholder:Ldg Day" |add_class:"form-control"}}
+    <label class="text-muted">Day Landings</label>
+  {{ form.landings_day |add_class:"form-control"}}
   </div>
 </div>
 <div class="form-group">
   <div class="input-group-sm">
-  {{ form.landings_night |attr:"placeholder:Ldg Night" |add_class:"form-control"}}
+    <label class="text-muted">Night Landings</label>
+  {{ form.landings_night |add_class:"form-control"}}
   </div>
 </div>
 <div class="form-group">
   <div class="input-group-sm">
-  {{ form.night |attr:"placeholder:Night" |add_class:"form-control"}}
+    <label class="text-muted">Night</label>
+  {{ form.night |add_class:"form-control"}}
   </div>
 </div>
 <div class="form-group">
   <div class="input-group-sm">
-  {{ form.instrument |attr:"placeholder:IFR" |add_class:"form-control"}}
+    <label class="text-muted">IFR</label>
+  {{ form.instrument |add_class:"form-control"}}
   </div>
 </div>
 <div class="form-group">
   <div class="input-group-sm">
-  {{ form.simulated_instrument |attr:"placeholder:Simulated IFR" |add_class:"form-control"}}
+    <label class="text-muted">Simulated IFR</label>
+  {{ form.simulated_instrument |add_class:"form-control"}}
   </div>
 </div>
 <div class="form-group">
-  <label>Approaches</label>
   <div class="input-group-sm">
-    {{ form.approaches |add_class:"form-control"}}
-  </div>
-  <div class="form-group form-inline">
-    <div class="row">
-      <div class="m-4">
-        {{ form.holding |add_class:"form-control" }} Holding
-      </div>
+    <label class="text-muted">Approaches</label>
+    <div class="form-control">
+      {% for formset in inlines %}
+        {% for form in formset %}
+          {{ form.id }}
+          {{ formset.management_form }}
+          {{ form.approach_type }}{{ form.number }}
+        {% endfor %}
+      {% endfor %}
     </div>
   </div>
 </div>
 <div class="form-group">
   <div class="input-group-sm">
-    {{ form.remarks |attr:"placeholder:Remarks" |add_class:"form-control"}}
+    <label class="text-muted">Remarks</label>
+    {{ form.remarks |add_class:"form-control"}}
     <small class="form-text text-muted">500 char limit</small>
   </div>
 </div>
+
+
 {{ form.media }}
