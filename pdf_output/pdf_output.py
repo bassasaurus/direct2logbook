@@ -131,6 +131,12 @@ def pdf_output(objects):
 
             date = flight.date.strftime("%m-%d-%Y")
 
+            '''
+                add this to log_line:
+                {% for approach in flight.approach_set.all %}
+                    <small>{{ approach.approach_type }}-{{ approach.number }}</small>
+                {% endfor %}
+            '''
             log_line = (date, flight.aircraft_type, flight.registration, flight.route, flight.duration, row['pilot_in_command'],
                     row['second_in_command'], row['cross_country'], row['instructor'], row['dual'], row['solo'], row['night'],
                     row['simulated_instrument'], row['landings_day'], row['landings_night'])

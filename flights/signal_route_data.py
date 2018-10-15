@@ -7,7 +7,7 @@ from django.dispatch import receiver
 def save_route_data(sender, instance, **kwargs):
 
     route_data = []
-    route = re.split('\W+', instance.route) #separate individual code
+    route = re.split('\W+', instance.route) #separate individual codes
 
     for code in route: #XXXX, XXXX, XXXX
         code = code.upper()

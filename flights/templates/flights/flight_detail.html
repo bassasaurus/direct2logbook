@@ -80,23 +80,30 @@
 
       {% if flight.instrument %}
         <p>Instrument {{ flight.instrument }}</p>
+         <hr>
           {% else %}
       {% endif %}
 
       <p>Legs {{ flight.legs }}</p>
       <hr>
 
+      {% if flight.landings_day %}
       <p>Day Landings {{ flight.landings_day }}</p>
+      <hr>
+      {% endif %}
 
       {% if flight.night %}
         <p>Night Landings {{ flight.landings_night }}</p>
-        {% else %}
+        <hr>
       {% endif %}
 
-      <hr>
-      <p>Approaches {{ flight.approaches }}</p>
-      <hr>
+      <p>Approaches</p>
+      {% for approach in flight.approach_set.all %}
+        <br>{{ approach.approach_type }} {{ approach.number }}</br>
+      {% endfor %}
+
       {% if flight.remarks %}
+      <hr>
         <p>Remarks:<p>
         <p>{{ flight.remarks }}</p>
         {% else %}

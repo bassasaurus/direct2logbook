@@ -256,20 +256,20 @@ class Approach(models.Model):
 
     APPR_CHOICES=(
         ('ILS', 'ILS'),
-        ('CATII', 'ILS CAT II'),
-        ('CATIII', 'ILS CAT III'),
+        ('CATII', 'CAT II'),
+        ('CATIII', 'CAT III'),
         ('GPS', 'GPS'),
         ('RNAV', 'RNAV'),
         ('LOC', 'LOC'),
         ('VOR', 'VOR'),
         ('NDB', 'NDB'),
-        ('BC', 'LOC BC'),
+        ('LOC BC', 'LOC BC'),
 
         ('SDF', 'SDF'),
         ('LDA', 'LDA'),
         ('TACAN', 'TACAN'),
         ('MLS', 'MLS'),
-        ('Holding', 'Holding')
+        ('Hold', 'Hold')
         )
 
     flight_object = models.ForeignKey('Flight', default=None, null=True, blank=True, verbose_name="Flight", on_delete=models.SET_NULL)

@@ -15,7 +15,7 @@
             <th class="pl-3 text-left">X Country</th>
             <th class="pl-3 text-right">Night</th>
             <th class="pl-3 pr-3 text-right">Inst</th>
-            <th class="ml-3 text-left">Appr</th>
+            <th class="ml-3 text-left">Approaches</th>
             <th class="pl-3 text-right">Day Ldg</th>
             <th class="pl-3 text-right">Night Ldg</th>
             <th class="pl-3 text-right">Sim Inst</th>
@@ -47,7 +47,11 @@
                 <td class="text-right">{{flight.cross_country|iconbool}}</td>
                 <td class="pr-4 text-right">{{flight.night|default:"-"}}</td>
                 <td class="pr-4 text-right">{{flight.instrument|default:"-"}}</td>
-                <td class="text-left">{{flight.approaches|default:"-"}}</td>
+                <td class="text-left">
+                  {% for approach in flight.approach_set.all %}
+                    <small>{{ approach.approach_type }}-{{ approach.number }}</small>
+                  {% endfor %}
+                </td>
                 <td class="text-right">{{flight.landings_day|default:"-"}}</td>
                 <td class="text-right">{{flight.landings_night|default:"-"}}</td>
                 <td class="text-right">{{simulated_instrument|iconbool}}</td>

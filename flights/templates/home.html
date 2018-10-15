@@ -148,8 +148,17 @@
           <thead class="thead-default">
             <th colspan=2 class="text-center">IFR Currency</th>
           </thead>
-          <tr><td>Approaches</td><td>?/6</td></tr>
-          <tr><td>Holding</td><td>Date of last hold</td></tr>
+          {% if appr_quantity < 6 %}
+              <tr><td>Approaches</td><td class="text-danger">{{ appr_quantity }}/6</td></tr>
+            {% elif appr_quantity >= 6 %}
+              <tr><td>Approaches</td><td class="text-success">{{ appr_quantity }}/6</td></tr>
+            {% else %}
+          {% endif %}
+          {% if hold_quantity < 1 %}
+              <tr><td>Holding</td><td class="text-danger">{{ hold_quantity }}/6</td></tr>
+            {% else %}
+              <tr><td>Holding</td><td class="text-success">{{ hold_quantity }}/6</td></tr>
+          {% endif %}
         </table>
       </div>
     </div>
