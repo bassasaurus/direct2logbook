@@ -290,17 +290,26 @@ class ApproachUpdateInline(InlineFormSet):
     fields = ['approach_type', 'number']
     factory_kwargs = {'extra':0}
 
+class HoldingCreateInline(InlineFormSet):
+    model = Holding
+    fields = ['hold' , 'hold_number']
+    factory_kwargs = {'extra':1}
+
+class HoldingUpdateInline(InlineFormSet):
+    model = Holding
+    fields = ['hold' , 'hold_number']
+    factory_kwargs = {'extra':0}
 
 class FlightCreate(LoginRequiredMixin, UserObjectsMixin, CreateWithInlinesView):
     model = Flight
-    inlines = [ApproachCreateInline, ]
+    inlines = [ApproachCreateInline, HoldingCreateInline]
     form_class = FlightForm
     template_name = 'flights/flight_create_form.html'
     # success_url = '/logbook/'
 
 class FlightUpdate(UpdateWithInlinesView):
     model = Flight
-    inlines = [ApproachUpdateInline, ]
+    inlines = [ApproachUpdateInline, HoldingUpdateInline]
     form_class = FlightForm
     template_name = 'flights/flight_update_form.html'
     success_url = '/logbook/'

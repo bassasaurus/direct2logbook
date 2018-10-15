@@ -15,7 +15,7 @@
             <th class="pl-3 text-left">X Country</th>
             <th class="pl-3 text-right">Night</th>
             <th class="pl-3 pr-3 text-right">Inst</th>
-            <th class="ml-3 text-left">Approaches</th>
+            <th class="ml-3 text-left">Appr | Hold</th>
             <th class="pl-3 text-right">Day Ldg</th>
             <th class="pl-3 text-right">Night Ldg</th>
             <th class="pl-3 text-right">Sim Inst</th>
@@ -50,6 +50,10 @@
                 <td class="text-left">
                   {% for approach in flight.approach_set.all %}
                     <small>{{ approach.approach_type }}-{{ approach.number }}</small>
+                  {% endfor %}
+
+                  {% for holding in flight.holding_set.all %}
+                    <small>{% if holding.hold %}| Hold-{{ holding.hold_number }} {% endif %}</small>
                   {% endfor %}
                 </td>
                 <td class="text-right">{{flight.landings_day|default:"-"}}</td>

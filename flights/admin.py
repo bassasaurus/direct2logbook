@@ -5,13 +5,17 @@ from .models import *
 class ApproachInline(admin.TabularInline):
     model = Approach
 
+class HoldingInline(admin.TabularInline):
+    model = Holding
+
 class FlightAdmin(admin.ModelAdmin):
     inlines = [
         ApproachInline,
+        HoldingInline,
     ]
 
     list_display = ('user', 'date', 'aircraft_type', 'registration', 'route', 'duration',
-    'landings_day', 'landings_night', 'night', 'instrument', #approaches used to be here
+    'landings_day', 'landings_night', 'night', 'instrument',
     'cross_country', 'second_in_command', 'pilot_in_command', 'simulated_instrument',
     'instructor', 'dual', 'simulator', 'solo', 'remarks', 'route_data', 'map_error',
      'duplicate_error', 'aircraft_type_error', 'registration_error', 'crew_error')
@@ -48,9 +52,15 @@ class ProfileAdmin(admin.ModelAdmin):
 class ApproachAdmin(admin.ModelAdmin):
     list_display = ('flight_object', 'approach_type', 'number')
 
+class HoldingAdmin(admin.ModelAdmin):
+    list_display = ('flight_object', 'hold', 'hold_number')
+
 admin.site.register(Flight, FlightAdmin)
 admin.site.register(Aircraft, AircraftAdmin)
+
+admin.site.register(Holding, HoldingAdmin)
 admin.site.register(Approach, ApproachAdmin)
+
 admin.site.register(AircraftCategory)
 admin.site.register(AircraftClass)
 admin.site.register(TailNumber, TailnumberAdmin)

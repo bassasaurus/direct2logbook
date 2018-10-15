@@ -196,7 +196,6 @@ class Aircraft(models.Model):
         return aircraft_type
 
 
-
 class Flight(models.Model):
     user = models.ForeignKey(User, default=1)
     date = models.DateField(db_index=True)
@@ -209,7 +208,6 @@ class Flight(models.Model):
     landings_night = models.PositiveIntegerField(null=True, blank=True, verbose_name="Night Ldg")
     night = models.FloatField(null=True, blank=True, validators=[positive_validator])
     instrument = models.FloatField(null=True, blank=True, verbose_name="Inst", validators=[positive_validator])
-
     cross_country = models.NullBooleanField(null=True, blank=True, verbose_name="XCountry")
     second_in_command = models.NullBooleanField(null=True, blank=True, verbose_name="SIC")
     pilot_in_command = models.NullBooleanField(null=True, blank=True, verbose_name="PIC")
@@ -269,7 +267,6 @@ class Approach(models.Model):
         ('LDA', 'LDA'),
         ('TACAN', 'TACAN'),
         ('MLS', 'MLS'),
-        ('Hold', 'Hold')
         )
 
     flight_object = models.ForeignKey('Flight', default=None, null=True, blank=True, verbose_name="Flight", on_delete=models.SET_NULL)
@@ -283,8 +280,11 @@ class Approach(models.Model):
     def __str__(self):
         return self.approach_type
 
-    def get_absolute_url(self):
-        return reverse('approach_detail', kwargs={'pk': self.pk})
+class Holding(models.Model):
+
+    flight_object = models.ForeignKey('Flight', default=None, null=True, blank=True, verbose_name="Flight", on_delete=models.SET_NULL)
+    hold = models.NullBooleanField(null=True, blank=True)
+    hold_number = models.PositiveIntegerField(null=True, blank=True, verbose_name="Number")
 
 class AircraftCategory(models.Model):
     aircraft_category = models.CharField(max_length=30)

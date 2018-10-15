@@ -112,6 +112,20 @@
 </div>
 <div class="form-group">
   <div class="input-group-sm">
+    <label class="text-muted">Holding</label>
+    <div class="form-control">
+      {% for formset in inlines %}
+        {% for form in formset %}
+          {{ form.id }}
+          {{ formset.management_form }}
+          {{ form.hold }}{{ form.hold_number }}
+        {% endfor %}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+<div class="form-group">
+  <div class="input-group-sm">
     <label class="text-muted">Remarks</label>
     {{ form.remarks |add_class:"form-control"}}
     <small class="form-text text-muted">500 char limit</small>

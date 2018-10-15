@@ -101,6 +101,13 @@
       {% for approach in flight.approach_set.all %}
         <br>{{ approach.approach_type }} {{ approach.number }}</br>
       {% endfor %}
+      <hr>
+
+      <p>Holding</p>
+      {% for holding in flight.holding_set.all %}
+        <br>{{ holding.approach_type }}{{ holding.hold_number }}</br>
+        <hr>
+      {% endfor %}
 
       {% if flight.remarks %}
       <hr>
