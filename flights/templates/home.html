@@ -149,15 +149,15 @@
             <th colspan=2 class="text-center">IFR Currency</th>
           </thead>
           {% if appr_quantity < 6 %}
-              <tr><td>Approaches</td><td class="text-danger">{{ appr_quantity }}/6</td></tr>
+              <tr><td>Approaches</td><td class="text-danger">{{ appr_quantity }}/6 - {{ still_needed }} Still needed by {{ appr_current_date }}</td></tr>
             {% elif appr_quantity >= 6 %}
               <tr><td>Approaches</td><td class="text-success">{{ appr_quantity }}/6</td></tr>
             {% else %}
           {% endif %}
-          {% if hold_quantity < 1 %}
-              <tr><td>Holding</td><td class="text-danger">{{ hold_quantity }}/6</td></tr>
+          {% if not hold_quantity or hold_quantity == 0 %}
+              <tr><td>Holding</td><td class="text-danger">No holds in last 6 months</td></tr>
             {% else %}
-              <tr><td>Holding</td><td class="text-success">{{ hold_quantity }}/6</td></tr>
+              <tr><td>Holding</td><td class="text-success">{{ hold_quantity }}/1 - Holding current until {{ hold_current_date }}</td></tr>
           {% endif %}
         </table>
       </div>

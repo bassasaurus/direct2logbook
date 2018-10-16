@@ -129,7 +129,7 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         context['aircraft_errors'] = Aircraft.objects.filter(user=user).all()
         context['tailnumber_errors'] = TailNumber.objects.filter(user=user).all()
 
-
+        #cat/class vfr day, night currency
         if not Total.objects.filter(user=user):
             context['asel_total'] = 0
         else:
@@ -161,10 +161,22 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         else:
             context['gyro_total'] = Total.objects.filter(user=user).get(total="GYRO")
 
-        appr_qs = Flight.objects.filter(approach__number__gte=0).aggregate(Sum(F('approach__number')))
+        # IFR currency
+        today = datetime.date.today()
+        last_180 = today - datetime.timedelta(days=180)
+        appr_qs = Flight.objects.filter(date__lte=today, date__gte=last_180).filter(approach__number__gte=0).aggregate(Sum(F('approach__number')))
+        hold_qs = Flight.objects.filter(date__lte=today, date__gte=last_180).filter(holding__hold_number__gte=0).aggregate(Sum(F('holding__hold_number')))
 
-        context['hold_quantity'] = 0
-        context['appr_quantity'] = appr_qs.get('approach__number__sum')
+        last_approach_date = Flight.objects.filter(approach__number__gte=0).latest('approach__number')
+        last_hold_date = Flight.objects.filter(holding__hold_number=True).latest('holding__hold_number')
+        print(last_hold_date)
+
+        context['appr_current_date'] = last_approach_date.date + datetime.timedelta(180)
+        context['hold_current_date'] = last_hold_date.date + datetime.timedelta(180)
+        
+        context['hold_quantity'] = hold_qs.get('holding__hold_number__sum')
+        context['appr_quantity'] = appr_qs.get('approach__number__sum') #Model__field__SumFunctionValue
+        context['still_needed'] = 6 - appr_qs.get('approach__number__sum')
         context['amel_vfr_night'] = currency.amel_vfr_night(user)
         context['amel_vfr_day'] = currency.amel_vfr_day(user)
         context['asel_vfr_night'] = currency.asel_vfr_night(user)
