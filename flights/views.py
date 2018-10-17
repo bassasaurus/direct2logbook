@@ -167,13 +167,14 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         appr_qs = Flight.objects.filter(date__lte=today, date__gte=last_180).filter(approach__number__gte=0).aggregate(Sum(F('approach__number')))
         hold_qs = Flight.objects.filter(date__lte=today, date__gte=last_180).filter(holding__hold_number__gte=0).aggregate(Sum(F('holding__hold_number')))
 
-        last_approach_date = Flight.objects.filter(approach__number__gte=0).latest('approach__number')
-        last_hold_date = Flight.objects.filter(holding__hold_number=True).latest('holding__hold_number')
-        print(last_hold_date)
+        oldest_approach_date = Flight.objects.filter(date__lte=today, date__gte=last_180).filter(approach__number__gte=0).first()
+        print(oldest_approach_date.date)
+        # last_hold_date = Flight.objects.filter(holding__hold_number=True).latest('holding__hold_number')
 
-        context['appr_current_date'] = last_approach_date.date + datetime.timedelta(180)
-        context['hold_current_date'] = last_hold_date.date + datetime.timedelta(180)
-        
+        context['appr_current_date'] = oldest_approach_date.date + datetime.timedelta(180)
+        #needs if not hold_current_date: code
+        # context['hold_current_date'] = last_hold_date.date + datetime.timedelta(180)
+
         context['hold_quantity'] = hold_qs.get('holding__hold_number__sum')
         context['appr_quantity'] = appr_qs.get('approach__number__sum') #Model__field__SumFunctionValue
         context['still_needed'] = 6 - appr_qs.get('approach__number__sum')

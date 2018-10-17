@@ -3,6 +3,7 @@
 
 <form id="delete-form" action="" method="post">{% csrf_token %}
    {% include 'delete_warning.html' %}
+   <hr>
    <input onclick="swal()" class="btn-shadow btn-shadow-danger btn-block" type="submit" value="Delete" />
    {% include "confirm_delete.html" %}
 
