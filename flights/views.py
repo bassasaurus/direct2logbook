@@ -164,20 +164,36 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         # IFR currency
         today = datetime.date.today()
         last_180 = today - datetime.timedelta(days=180)
+
         appr_qs = Flight.objects.filter(date__lte=today, date__gte=last_180).filter(approach__number__gte=0).aggregate(Sum(F('approach__number')))
-        hold_qs = Flight.objects.filter(date__lte=today, date__gte=last_180).filter(holding__hold_number__gte=0).aggregate(Sum(F('holding__hold_number')))
+        if not appr_qs:
+            context['appr_quantity'] = 0
+            context['still_needed'] = 6
+        else:
+            context['appr_quantity'] = appr_qs.get('approach__number__sum') #Model__field__SumFunctionValue
+            context['still_needed'] = 6 - int(appr_qs.get('approach__number__sum'))
 
         oldest_approach_date = Flight.objects.filter(date__lte=today, date__gte=last_180).filter(approach__number__gte=0).first()
-        print(oldest_approach_date.date)
-        # last_hold_date = Flight.objects.filter(holding__hold_number=True).latest('holding__hold_number')
+        if not oldest_approach_date:
+            context['appr_current_date'] = None
+        else:
+            context['appr_current_date'] = oldest_approach_date.date + datetime.timedelta(180)
 
-        context['appr_current_date'] = oldest_approach_date.date + datetime.timedelta(180)
-        #needs if not hold_current_date: code
-        # context['hold_current_date'] = last_hold_date.date + datetime.timedelta(180)
+        hold_qs = Flight.objects.filter(date__lte=today, date__gte=last_180).filter(holding__hold_number__gte=0).aggregate(Sum(F('holding__hold_number')))
+        if not hold_qs:
+            context['hold_quantity'] = 0
+        else:
+            context['hold_quantity'] = hold_qs.get('holding__hold_number__sum')
 
-        context['hold_quantity'] = hold_qs.get('holding__hold_number__sum')
-        context['appr_quantity'] = appr_qs.get('approach__number__sum') #Model__field__SumFunctionValue
-        context['still_needed'] = 6 - appr_qs.get('approach__number__sum')
+
+        hold_date_qs = Flight.objects.filter(date__lte=today, date__gte=last_180).filter(holding__hold_number=True).last()
+        print(hold_date_qs)
+        if not hold_date_qs:
+            context['hold_current_date'] = None
+        else:
+            context['hold_current_date'] = hold_date_qs.date + datetime.timedelta(180)
+
+
         context['amel_vfr_night'] = currency.amel_vfr_night(user)
         context['amel_vfr_day'] = currency.amel_vfr_day(user)
         context['asel_vfr_night'] = currency.asel_vfr_night(user)
@@ -286,22 +302,16 @@ class FlightList(LoginRequiredMixin, UserObjectsMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(FlightList, self).get_context_data(**kwargs)
 
-
         context['title'] = "D-> | Logbook"
         context['parent_name'] = 'Home'
         context['parent_link'] = reverse('home')
         context['page_title'] = "Logbook"
         return context
 
-class ApproachCreateInline(InlineFormSet):
+class ApproachInline(InlineFormSet):
     model = Approach
     fields = ['approach_type', 'number']
-    factory_kwargs = {'extra':4}
-
-class ApproachUpdateInline(InlineFormSet):
-    model = Approach
-    fields = ['approach_type', 'number']
-    factory_kwargs = {'extra':0}
+    factory_kwargs = {'extra':1}
 
 class HoldingCreateInline(InlineFormSet):
     model = Holding
@@ -315,14 +325,14 @@ class HoldingUpdateInline(InlineFormSet):
 
 class FlightCreate(LoginRequiredMixin, UserObjectsMixin, CreateWithInlinesView):
     model = Flight
-    inlines = [ApproachCreateInline, HoldingCreateInline]
+    inlines = [ApproachInline, HoldingCreateInline]
     form_class = FlightForm
     template_name = 'flights/flight_create_form.html'
     # success_url = '/logbook/'
 
 class FlightUpdate(UpdateWithInlinesView):
     model = Flight
-    inlines = [ApproachUpdateInline, HoldingUpdateInline]
+    inlines = [ApproachInline, HoldingUpdateInline]
     form_class = FlightForm
     template_name = 'flights/flight_update_form.html'
     success_url = '/logbook/'

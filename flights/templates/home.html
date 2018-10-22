@@ -153,6 +153,7 @@
             {% elif appr_quantity >= 6 %}
               <tr><td>Approaches</td><td class="text-success">{{ appr_quantity }}/6 - Current until {{ appr_current_date }}</td></tr>
             {% else %}
+              <tr><td>Approaches</td><td class="text-danger">No approaches in last 6 months</td></tr>
           {% endif %}
           {% if not hold_quantity or hold_quantity == 0 %}
               <tr><td>Holding</td><td class="text-danger">No holds in last 6 months</td></tr>

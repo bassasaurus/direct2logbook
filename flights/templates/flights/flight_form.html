@@ -1,12 +1,15 @@
+{% load static %}
 {% load widget_tweaks %}
 
 <div class="form-group">
   <div class="input-group-sm">
+    {{ form.date.errors }}
     {{ form.date |attr:"autocomplete:off" |attr:"placeholder:Date *" |add_class:"form-control"}}
   </div>
 </div>
 <div class="form-group">
   <div class="input-group-sm">
+  {{ form.aircraft_type.errors }}
   {{ form.aircraft_type |add_class:"form-control"}}
   <div><a target="new" href="{% url 'aircraft_create' %}"> New Aircraft</a></div>
 
@@ -14,6 +17,7 @@
 </div>
   <div class="form-group">
   <div class="input-group-sm">
+    {{ form.registration.errors }}
     {{ form.registration |add_class:"form-control"}}
     <div><a target="new" href="{% url 'tailnumber_create' %}"> New Tailnumber</a></div>
   </div>
@@ -21,6 +25,7 @@
 <div class="form-group">
   <div class="input-group-sm">
     <label class="text-muted">Route</label>
+    {{ form.route.errors }}
     {{ form.route |attr:"id:route" |attr:"autocomplete:off" |attr:"placeholder:XXX-XXXX-*" |add_class:"form-control"}}
     <small class="form-text text-muted">Use ATA or ICAO and space between to autoformat</small>
   </div>
@@ -29,6 +34,7 @@
 <div class="form-group">
   <div class="input-group-sm">
     <label class="text-muted">Legs*</label>
+    {{ form.legs.errors }}
     {{ form.legs |attr:"autocomplete:off" |add_class:"form-control"}}
     <small class="form-text text-muted"></small>
   </div>
@@ -37,8 +43,9 @@
 <div class="form-group">
   <div class="input-group-sm">
     <label class="text-muted">Duration</label>
-  {{ form.duration |attr:"placeholder:X.X" |add_class:"form-control"}}
-  <small class="form-text text-muted">Positive number greater than .1</small>
+    {{ form.duration.errors }}
+    {{ form.duration |attr:"placeholder:X.X" |add_class:"form-control"}}
+    <small class="form-text text-muted">Positive number greater than .1</small>
   </div>
 </div>
 <div class="form-group form-inline">
@@ -99,13 +106,20 @@
 <div class="form-group">
   <div class="input-group-sm">
     <label class="text-muted">Approaches</label>
-    <div class="form-control">
+    <div class="form-control pl-4 pt-2">
       {% for formset in inlines %}
         {% for form in formset %}
-          {{ form.id }}
+        <div id="approach_form" class="row">
           {{ formset.management_form }}
-          {{ form.approach_type }}{{ form.number }}
+          {{ form.errors }}
+          {{ form.id }}
+          <div class="col pr-5>">{{ form.approach_type |add_class:"form-control" }}</div>
+          <div class="col pr-5>">{{ form.number |add_class:"form-control" }} </div>
+          <div style="display: none;" class="col pr-5">{% if form.instance.pk %}{{ form.DELETE }}{% endif %}</div>
+
+       </div>
         {% endfor %}
+
       {% endfor %}
     </div>
   </div>
@@ -116,9 +130,11 @@
     <div class="form-control">
       {% for formset in inlines %}
         {% for form in formset %}
+
           {{ form.id }}
           {{ formset.management_form }}
-          {{ form.hold }}{{ form.hold_number }}
+          {{ form.hold }} {{ form.hold_number }}
+
         {% endfor %}
       {% endfor %}
     </div>
@@ -132,5 +148,12 @@
   </div>
 </div>
 
-
+<script src="{% static 'flights/jquery.formset.js' %}"></script>
+<script type="text/javascript">
+    $(function() {
+        $('#approach_form').formset({
+            prefix: '{{ formset.approach }}'
+        });
+    })
+</script>
 {{ form.media }}
