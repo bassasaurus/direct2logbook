@@ -24,8 +24,7 @@ import flights.currency as currency
 
 zulu_time = datetime.datetime.now().strftime('%Y %b %d %H:%M') + " UTC"
 
-from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSet, ModelFormSetView
-from extra_views.generic import GenericInlineFormSet
+from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSet, ModelFormSetView, NamedFormsetsMixin
 
 class UserObjectsMixin():
 
@@ -168,10 +167,9 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         appr_qs = Flight.objects.filter(date__lte=today, date__gte=last_180).filter(approach__number__gte=0).aggregate(Sum(F('approach__number')))
         if not appr_qs:
             context['appr_quantity'] = 0
-            context['still_needed'] = 6
         else:
             context['appr_quantity'] = appr_qs.get('approach__number__sum') #Model__field__SumFunctionValue
-            context['still_needed'] = 6 - int(appr_qs.get('approach__number__sum'))
+            # context['still_needed'] = 6 - int(appr_qs.get('approach__number__sum'))
 
         oldest_approach_date = Flight.objects.filter(date__lte=today, date__gte=last_180).filter(approach__number__gte=0).first()
         if not oldest_approach_date:
@@ -308,31 +306,31 @@ class FlightList(LoginRequiredMixin, UserObjectsMixin, ListView):
         context['page_title'] = "Logbook"
         return context
 
-class ApproachInline(InlineFormSet):
+class ApproachCreateInline(InlineFormSet):
     model = Approach
-    fields = ['approach_type', 'number']
-    factory_kwargs = {'extra':1}
+    fields = '__all__'
+    factory_kwargs = {'extra':1, 'can_delete':True, 'max_num':4, 'min_num':0}
 
-class HoldingCreateInline(InlineFormSet):
-    model = Holding
-    fields = ['hold' , 'hold_number']
-    factory_kwargs = {'extra':1}
+class ApproachUpdateInline(InlineFormSet):
+    model = Approach
+    fields = '__all__'
+    factory_kwargs = {'extra':0, 'can_delete':True, 'max_num':4}
 
-class HoldingUpdateInline(InlineFormSet):
-    model = Holding
-    fields = ['hold' , 'hold_number']
-    factory_kwargs = {'extra':0}
+# class HoldingInLine(InlineFormSet):
+#     model = Holding
+#     fields = '__all__'
 
-class FlightCreate(LoginRequiredMixin, UserObjectsMixin, CreateWithInlinesView):
+class FlightCreate(LoginRequiredMixin, UserObjectsMixin, NamedFormsetsMixin, CreateWithInlinesView):
     model = Flight
-    inlines = [ApproachInline, HoldingCreateInline]
+    inlines = [ApproachCreateInline,]
+    inlines_names = ['approach_inlines',]
     form_class = FlightForm
     template_name = 'flights/flight_create_form.html'
     # success_url = '/logbook/'
 
 class FlightUpdate(UpdateWithInlinesView):
     model = Flight
-    inlines = [ApproachInline, HoldingUpdateInline]
+    inlines = [ApproachUpdateInline]
     form_class = FlightForm
     template_name = 'flights/flight_update_form.html'
     success_url = '/logbook/'

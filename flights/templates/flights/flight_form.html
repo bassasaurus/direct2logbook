@@ -108,38 +108,25 @@
     <label class="text-muted">Approaches</label>
     <div class="form-control pl-4 pt-2">
       {% for formset in inlines %}
-        {% for form in formset %}
-        <div id="approach_form" class="row">
-          {{ formset.management_form }}
-          {{ form.errors }}
-          {{ form.id }}
-          <div class="col pr-5>">{{ form.approach_type |add_class:"form-control" }}</div>
-          <div class="col pr-5>">{{ form.number |add_class:"form-control" }} </div>
-          <div style="display: none;" class="col pr-5">{% if form.instance.pk %}{{ form.DELETE }}{% endif %}</div>
-
-       </div>
-        {% endfor %}
-
+        {{ formset.management_form }}
+        {{ form.id }}
+          {% for form in formset %}
+            <div id="approach_form" class="row">
+              {{ form.errors }}
+              <table><tbody>
+              <tr>
+                <td>{{ form.approach_type |add_class:"form-control" }}</td>
+                <td>{{ form.number |add_class:"form-control" }}</td>
+                <td>{% if form.instance.pk %}{{ form.DELETE }}{% endif %}</td>
+              </tr>
+              </tbody></table>
+           </div>
+          {% endfor %}
       {% endfor %}
     </div>
   </div>
 </div>
-<div class="form-group">
-  <div class="input-group-sm">
-    <label class="text-muted">Holding</label>
-    <div class="form-control">
-      {% for formset in inlines %}
-        {% for form in formset %}
-
-          {{ form.id }}
-          {{ formset.management_form }}
-          {{ form.hold }} {{ form.hold_number }}
-
-        {% endfor %}
-      {% endfor %}
-    </div>
-  </div>
-</div>
+<!-- holding formset goes here from scratch.txt -->
 <div class="form-group">
   <div class="input-group-sm">
     <label class="text-muted">Remarks</label>
@@ -151,8 +138,9 @@
 <script src="{% static 'flights/jquery.formset.js' %}"></script>
 <script type="text/javascript">
     $(function() {
-        $('#approach_form').formset({
-            prefix: '{{ formset.approach }}'
+        $('#approach_form table tbody tr').formset({
+            prefix: 'approach_set',
+            formCssClass: 'dynamic-formset1'
         });
     })
 </script>
