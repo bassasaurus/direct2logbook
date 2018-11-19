@@ -106,22 +106,20 @@
 <div class="form-group">
   <div class="input-group-sm">
     <label class="text-muted">Approaches</label>
-    <div class="form-control pl-4 pt-2">
+    <div  id="approach_form" class="form-control pl-4 pt-2">
       {% for formset in inlines %}
-        {{ formset.management_form }}
-        {{ form.id }}
+        <table>
           {% for form in formset %}
-            <div id="approach_form" class="row">
+            {{ form.id }}
               {{ form.errors }}
-              <table><tbody>
-              <tr>
-                <td>{{ form.approach_type |add_class:"form-control" }}</td>
-                <td>{{ form.number |add_class:"form-control" }}</td>
-                <td>{% if form.instance.pk %}{{ form.DELETE }}{% endif %}</td>
-              </tr>
-              </tbody></table>
-           </div>
+                <tr>
+                  <td>{{ form.approach_type }}</td>
+                  <td>{{ form.number }}</td>
+                  <td>{% if form.instance.pk %}{{ form.DELETE }}{% endif %}</td>
+                </tr>
           {% endfor %}
+        </table>
+          {{ formset.management_form }}
       {% endfor %}
     </div>
   </div>
@@ -138,9 +136,9 @@
 <script src="{% static 'flights/jquery.formset.js' %}"></script>
 <script type="text/javascript">
     $(function() {
-        $('#approach_form table tbody tr').formset({
+        $('#approach_form table tr').formset({
             prefix: 'approach_set',
-            formCssClass: 'dynamic-formset1'
+            formCssClass: 'approach-formset'
         });
     })
 </script>
