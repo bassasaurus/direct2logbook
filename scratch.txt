@@ -1,5 +1,28 @@
 <div class="form-group">
   <div class="input-group-sm">
+    <label class="text-muted">Approaches</label>
+    <div  id="approach_form" class="form-control pl-4 pt-2">
+      {% for formset in inlines %}
+        <table>
+          {% for form in formset %}
+            {{ form.id }}
+              {{ form.errors }}
+                <tr class="formset_row">
+                  <td>{{ form.approach_type }}</td>
+                  <td>{{ form.number }}</td>
+                  <td>{% if form.instance.pk %}{{ form.DELETE }}{% endif %}</td>
+                </tr>
+          {% endfor %}
+        </table>
+        {{ formset.management_form }}
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+
+<div class="form-group">
+  <div class="input-group-sm">
     <label class="text-muted">Holding</label>
     <div class="form-control">
       {{ form.id }}
@@ -15,3 +38,30 @@
     </div>
   </div>
 </div>
+
+
+# class ApproachInline(InlineFormSetFactory):
+#     model = Approach
+#     fields = '__all__'
+#     factory_kwargs = {'extra':1, 'max_num':4}
+#
+# class HoldingInline(InlineFormSetFactory):
+#     model = Holding
+#     fields = '__all__'
+#     factory_kwargs = {'extra': 1, 'max_num':1, 'min_num': 0}
+
+# class FlightCreate(LoginRequiredMixin, UserObjectsMixin, NamedFormsetsMixin, CreateWithInlinesView):
+#     model = Flight
+#     inlines = [ApproachInline,]
+#     inlines_names = ['approach_inlines',]
+#     form_class = FlightForm
+#     template_name = 'flights/flight_create_form.html'
+#     # success_url = '/logbook/'
+
+# class FlightUpdate(LoginRequiredMixin, UserObjectsMixin, NamedFormsetsMixin, UpdateWithInlinesView):
+#     model = Flight
+#     inlines = [ApproachInline,]
+#     inlines_names = ['approach_inlines',]
+#     form_class = FlightForm
+#     template_name = 'flights/flight_update_form.html'
+#     success_url = '/logbook/'

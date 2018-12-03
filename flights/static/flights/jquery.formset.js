@@ -17,6 +17,7 @@
             totalForms = $('#id_' + options.prefix + '-TOTAL_FORMS'),
             maxForms = $('#id_' + options.prefix + '-MAX_NUM_FORMS'),
             minForms = $('#id_' + options.prefix + '-MIN_NUM_FORMS'),
+            // initForms = $('#id_' + options.prefix + '-INITIAL_FORMS'),
             childElementSelector = 'input,select,textarea,label,div',
             $$ = $(this),
 
@@ -51,6 +52,7 @@
                 return minForms.length == 0 ||   // For Django versions pre 1.7
                     (minForms.val() == '' || (totalForms.val() - minForms.val() > 0));
             },
+
 
             insertDeleteLink = function(row) {
                 var delCssSelector = $.trim(options.deleteCssClass).replace(/\s+/g, '.'),
@@ -113,6 +115,7 @@
                     return false;
                 });
             };
+
 
         $$.each(function(i) {
             var row = $(this),
@@ -179,7 +182,6 @@
                 var numCols = $$.eq(0).children().length,   // This is a bit of an assumption :|
                     buttonRow = $('<tr><td colspan="' + numCols + '"><a class="' + options.addCssClass + '" href="javascript:void(0)">' + options.addText + '</a></tr>')
                                 .addClass(options.formCssClass + '-add');
-                                // console.log(buttonRow)
                 $$.parent().append(buttonRow);
                 if (hideAddButton) buttonRow.hide();
                 addButton = buttonRow.find('a');
@@ -211,8 +213,6 @@
                 return false;
             });
         }
-
-        // console.log(totalForms, maxForms, minForms)
 
         return $$;
 

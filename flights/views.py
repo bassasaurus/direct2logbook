@@ -3,6 +3,8 @@ from django.contrib.auth.models import User, Group
 
 from flights.forms import *
 from django.db.models import Sum, Q, F
+from django.db import transaction
+from django.forms import inlineformset_factory
 
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DetailView, DeleteView
 from django.views.generic.dates import YearArchiveView, MonthArchiveView, ArchiveIndexView, DayArchiveView, DayMixin
@@ -24,7 +26,8 @@ import flights.currency as currency
 
 zulu_time = datetime.datetime.now().strftime('%Y %b %d %H:%M') + " UTC"
 
-from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSet, ModelFormSetView, NamedFormsetsMixin
+from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSetFactory, ModelFormSetView, NamedFormsetsMixin
+
 
 class UserObjectsMixin():
 
@@ -306,35 +309,59 @@ class FlightList(LoginRequiredMixin, UserObjectsMixin, ListView):
         context['page_title'] = "Logbook"
         return context
 
-class ApproachCreateInline(InlineFormSet):
-    model = Approach
-    fields = '__all__'
-    factory_kwargs = {'extra':1, 'can_delete':True, 'max_num':4, 'min_num':0}
-
-class ApproachUpdateInline(InlineFormSet):
-    model = Approach
-    fields = '__all__'
-    factory_kwargs = {'extra':0, 'can_delete':True, 'max_num':4}
-
-# class HoldingInLine(InlineFormSet):
-#     model = Holding
-#     fields = '__all__'
-
-class FlightCreate(LoginRequiredMixin, UserObjectsMixin, NamedFormsetsMixin, CreateWithInlinesView):
+class FlightCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
     model = Flight
-    inlines = [ApproachCreateInline,]
-    inlines_names = ['approach_inlines',]
     form_class = FlightForm
     template_name = 'flights/flight_create_form.html'
-    # success_url = '/logbook/'
 
-class FlightUpdate(UpdateWithInlinesView):
+    def get_context_data(self, **kwargs):
+        context = super(FlightCreate, self).get_context_data(**kwargs)
+        context['approaches'] = inlineformset_factory(Flight, Approach, fields=('approach_type', 'number'), max_num=4, extra=1)
+        context['holding'] = inlineformset_factory(Flight, Holding, fields=('hold', 'hold_number'), max_num=1, extra=1)
+
+        return context
+
+class FlightUpdate(LoginRequiredMixin, UserObjectsMixin, UpdateView):
     model = Flight
-    inlines = [ApproachUpdateInline]
     form_class = FlightForm
     template_name = 'flights/flight_update_form.html'
-    success_url = '/logbook/'
 
+    def get_context_data(self, **kwargs):
+        context = super(FlightUpdate, self).get_context_data(**kwargs)
+        ApproachFormSet = inlineformset_factory(Flight, Approach, fields=('approach_type', 'number'), max_num=4, extra=1)
+        HoldingFormSet = inlineformset_factory(Flight, Holding, fields=('hold', 'hold_number'), max_num=1, extra=1)
+
+        if self.request.POST:
+            # Create a formset instance to edit an existing model object,
+            # but use POST data to populate the formset.
+            context['approaches'] = ApproachFormSet(self.request.POST, instance=self.get_object())
+            context['holding'] = HoldingFormSet(self.request.POST, instance=self.get_object())
+
+        else:
+            # Create a formset with the data from model object and add it to context
+            context['approaches'] = ApproachFormSet(instance=self.get_object())
+            context['holding'] = HoldingFormSet(instance=self.get_object())
+
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        approaches = context['approaches']
+        holding = context['holding']
+        with transaction.atomic():
+            self.object = form.save()
+
+            if approaches.is_valid():
+                approaches.instance = self.object
+                approaches.save()
+            if holding.is_valid():
+                holding.instance = self.object
+                holding.save()
+            else:
+                context.update({'approaches': approaches}, {'holding': holding})
+                return self.render_to_response(context)
+
+        return super(FlightUpdate, self).form_valid(form)
 
 class FlightDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
     model = Flight
@@ -365,7 +392,6 @@ class FlightDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
         context['home_link'] = reverse('home')
         context['parent_link'] = reverse('flight_list')
         context['parent_name'] = 'Logbook'
-
 
         return context
 

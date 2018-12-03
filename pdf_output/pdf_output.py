@@ -144,6 +144,7 @@ def pdf_output(objects):
             log_line = "<tr>" + make_table_row(log_line) + "</tr>"
 
             file.write(log_line + '\n')
+            # print(log_line)
 
         total['total'] = round(this_page['total'] + total['total'], 1)
         total['pilot_in_command'] = round(this_page['pilot_in_command'] + total['pilot_in_command'], 1)
