@@ -26,8 +26,7 @@ import flights.currency as currency
 
 zulu_time = datetime.datetime.now().strftime('%Y %b %d %H:%M') + " UTC"
 
-from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSetFactory, ModelFormSetView, NamedFormsetsMixin
-
+from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSetFactory, ModelFormSetView, NamedFormsetsMixin, SortableListMixin
 
 class UserObjectsMixin():
 

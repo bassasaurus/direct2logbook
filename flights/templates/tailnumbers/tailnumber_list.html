@@ -5,10 +5,21 @@
   <a class="btn btn-primary" href="{% url 'tailnumber_create' %}">New Tailnumber</a>
   <hr>
 </div>
-<div>
-  {% for tail in tailnumbers %}
-    {{ tail.aircraft }} | {{ tail.registration }}
-  {% endfor %}
+<div class="">
+  {% regroup tailnumbers by aircraft as aircraft_list %}
+  <div class="row">
+    {% for aircraft in aircraft_list %}
+        <div class="col-12"><a class="text-dark" href="{% url 'aircraft_detail' aircraft.grouper.pk %}"><h4>{{ aircraft.grouper }}</h4></a>
+            <div style="display: table-cell;">
+              {% for tailnumber in aircraft.list %}
+              <a class="" href="{% url 'tailnumber_detail' tailnumber.pk %}">{{ tailnumber.registration }}</a>
+            {% endfor %}
+            </div>
+            <hr>
+        </div>
+    {% endfor %}
+
+  </div>
 </div>
 
 {% endblock %}

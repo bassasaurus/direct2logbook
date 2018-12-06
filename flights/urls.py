@@ -35,7 +35,7 @@ urlpatterns = [
     url(r'^logbook/remarks$', RemarksList.as_view(), name='remarks'),
 
 
-    url(r'^aircraft/$', AircraftList.as_view(), name='aircraft_list'),
+    url(r'^aircraft/$', TailNumberList.as_view(), name='aircraft_list'),
     url(r'^aircraft/create', AircraftCreate.as_view(), name='aircraft_create'),
     url(r'^aircraft/update/(?P<pk>\d+)/$', AircraftUpdate.as_view(), name='aircraft_update'),
     url(r'^aircraft/detail/(?P<pk>\d+)/$', AircraftDetail.as_view(), name='aircraft_detail'),
@@ -47,7 +47,7 @@ urlpatterns = [
     # url(r'^approaches/detail/(?P<pk>\d+)/$', ApproachDetail.as_view(), name='approach_detail'),
     # url(r'^approaches/delete/(?P<pk>\d+)/$', ApproachDelete.as_view(), name='approach_delete'),
 
-    url(r'^tailnumbers/$', TailNumberList.as_view(), name='tailnumber_list'),
+    # url(r'^tailnumbers/$', TailNumberList.as_view(), name='tailnumber_list'),
     url(r'^tailnumbers/create/$', TailNumberCreate.as_view(), name='tailnumber_create'),
     url(r'^tailnumbers/update/(?P<pk>\d+)/$', TailNumberUpdate.as_view(), name='tailnumber_update'),
     url(r'^tailnumbers/detail/(?P<pk>\d+)/$', TailNumberDetail.as_view(), name='tailnumber_detail'),
