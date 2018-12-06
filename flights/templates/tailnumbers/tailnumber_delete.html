@@ -3,7 +3,8 @@
 {% block content %}
 
 <form id="delete-form" action="" method="post">{% csrf_token %}
-   {% include 'delete_warning.html' %}
+  <p>Are you sure you want to delete "{{ object }}"?</p>
+  <p>This cannot be undone and may affect entries in other data models. If you need to change it, please <a href="{% url 'tailnumber_update' object.pk %}">update</a> the entry instead.</p>
    <hr>
    <input type="submit" class = "btn-shadow btn-shadow-danger btn-block" value="Delete" />
 </form>

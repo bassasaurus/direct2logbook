@@ -1,17 +1,15 @@
 {% extends 'base.html' %}
 {% block content %}
 
-
-
-  <div class="row">
+<div class="row">
   <div style="padding-top:10px;" class="col-6">
-    <h4><a href="{% url 'profile' %}"> {{ user.first_name }} {{ user.last_name }}</a></h4>
+    <h3><a style="text-decoration: underline;" class="text-dark link" href="{% url 'profile' %}"> {{ user.first_name }} {{ user.last_name }}</a></h3>
   </div>
 </div>
 <hr>
   <div class="row">
   <div style="margin-top:10px;" class="col-8">
-    <a style="margin-top:5px;" class="btn btn-outline-primary" href="{% url 'flight_create' %}">New Flight</a>
+    <a style="margin-top:5px;" class="btn btn-primary" href="{% url 'flight_create' %}">New Flight</a>
     <a style="margin-top:5px;" class="btn btn-outline-secondary" href="{% url 'pdf' %}" target="_blank">Print Logbook</a>
     <a style="margin-top:5px;" class="btn btn-outline-secondary" href="{% url 'iacra' %}" target="_blank">IACRA Format</a>
 

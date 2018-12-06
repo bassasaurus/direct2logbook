@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-
 {% block content%}
 {% load static %}
 
@@ -40,10 +39,9 @@
 
 
 <div class="col-9">
-  <div style="margin-top: 10px;" id="mapid" class="col-4image-shadow custom-popup">
+  <div style="margin-top: 10px;" id="mapid" class="col image-shadow custom-popup">
     <script src="{% static 'flights/leaflet-geodesic.js' %}"></script>
       {% include 'leaflet.html' %}
-
   </div>
 </div>
 

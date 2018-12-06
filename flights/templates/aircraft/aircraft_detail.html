@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
-{% load static %}
-{% load flights_filters %}
-{% load columns %}
 {% block content%}
+{% load static %}
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="crossorigin=""/>
+<script src="https://unpkg.com/leaflet@^1.0.0/dist/leaflet-src.js"></script>
 
 <div class="row">
   <div class="col-3">
@@ -12,6 +13,8 @@
       <a href ="{% url 'aircraft_update' aircraft.pk %}" class="btn btn-outline-secondary">Update</a>
       <a href ="{% url 'aircraft_delete' aircraft.pk %}" class="btn btn-outline-danger">Delete</a>
     </div>
+    <hr>
+    <a href ="{% url 'tailnumber_create' %}" class="btn btn-primary">New Tailnumber</a>
 
       <hr>
       {% if aircraft.turbine %}
@@ -79,27 +82,12 @@
     <p>Class - {{ aircraft.aircraft_class }}</p>
   </div>
 
-  <div class="col-4">
-    <h3>Tailnumbers</h3>
-    <hr>
-    <a class="btn btn-outline-primary"target="new" href="{% url 'tailnumber_create' %}"> New Tailnumber</a>
-    <hr>
-
-    {% for tailnumber in tailnumbers %}
-
-        <a class="" href ="{% url 'tailnumber_detail' tailnumber.pk %}">{{ tailnumber.registration }}</a>
-    {% endfor %}
-
+  <div class="col-9">
+    <div style="margin-top: 10px;" id="mapid" class="col image-shadow custom-popup">
+      <script src="{% static 'flights/leaflet-geodesic.js' %}"></script>
+        {% include 'leaflet.html' %}
+    </div>
   </div>
-
-  <div class="col-5">
-    {% if aircraft.image %}
-      <div><img alt="aircraft photo" class="ac-img image-shadow img-rounded img-fluid" src="{{ aircraft.image }}"></img></div>
-    {% else %}
-      <img alt="aircraft photo" class="ac-img image-shadow img-rounded img-fluid" src="{% static 'flights/images/aircraft-placeholder.png' %}"></img>
-    {% endif %}
-  </div>
-</div>
 
 
 {% if aircraft.power_error or aircraft.config_error %}
