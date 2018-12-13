@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.conf.urls.static import static
 from django.conf import settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+from django.conf.urls import handler404, handler500
+from flights.views import error_404, error_500
 
 urlpatterns = [
     url(r'^accounts/', include('django.contrib.auth.urls')),
@@ -28,6 +30,9 @@ urlpatterns = [
     url(r'^api/', include('api.urls')),
     url(r'^api/docs/', include('rest_framework_docs.urls')),
     ]
+
+handler404 = error_404
+handler500 = error_500
 
 if settings.DEBUG is True:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -26,7 +26,13 @@ import flights.currency as currency
 
 zulu_time = datetime.datetime.now().strftime('%Y %b %d %H:%M') + " UTC"
 
-from extra_views import CreateWithInlinesView, UpdateWithInlinesView, InlineFormSetFactory, ModelFormSetView, NamedFormsetsMixin, SortableListMixin
+def error_404(request):
+        data = {}
+        return render(request,'flights/error_404.html', data)
+
+def error_500(request):
+        data = {}
+        return render(request,'flights/error_500.html', data)
 
 class UserObjectsMixin():
 
