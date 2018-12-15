@@ -27,13 +27,18 @@ DJANGO_ROOT = dirname(dirname(abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'cvwyg2m5y*$@e0v3--$dnq2b05elcf66(c_qoa&kjm$7+@9jrq'
+with open('logbook/key.txt') as f:
+    SECRET_KEY = f.read().strip()
+
+SECRET_KEY = SECRET_KEY
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-# ALLOWED_HOSTS = ["*"]
-ALLOWED_HOSTS = []
+DEBUG = False
+ALLOWED_HOSTS = ["*"]
+
+# DEBUG = True
+# ALLOWED_HOSTS = []
 
 # APPEND_SLASH = False
 
@@ -82,6 +87,7 @@ LOGIN_REDIRECT_URL = '/home'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -130,6 +136,8 @@ DATABASES = {
     }
 }
 
+CONN_MAX_AGE = None
+
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
@@ -174,9 +182,6 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'pdf_output/static/'),
 ]
 
-MEDIA_ROOT = os.path.join(BASE_DIR, '/media/')
-MEDIA_URL = '/media/'
-
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
@@ -195,4 +200,23 @@ CACHES = {'default': {
         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
         'LOCATION': 'cache_table',
     }
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'logbook/debug.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
 }

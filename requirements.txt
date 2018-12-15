@@ -1,5 +1,7 @@
 arrow==0.12.1
 blessed==1.15.0
+cairocffi==0.9.0
+CairoSVG==2.2.1
 certifi==2017.7.27.1
 cffi==1.11.5
 chardet==3.0.4
@@ -37,6 +39,7 @@ python-memcached==1.59
 python3-openid==3.1.0
 pytz==2017.2
 redis==2.10.6
+reportlab==3.5.12
 requests==2.18.4
 requests-oauthlib==0.8.0
 rq==0.12.0
@@ -49,4 +52,5 @@ wcwidth==0.1.7
 WeasyPrint==0.42.3
 webencodings==0.5.1
 Werkzeug==0.12.2
+whitenoise==4.1.2
 xhtml2pdf==0.2.2

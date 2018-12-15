@@ -24,6 +24,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from flights.get_map_data import get_map_data
 import flights.currency as currency
 
+
 zulu_time = datetime.datetime.now().strftime('%Y %b %d %H:%M') + " UTC"
 
 def error_404(request):
@@ -193,7 +194,6 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
 
 
         hold_date_qs = Flight.objects.filter(date__lte=today, date__gte=last_180).filter(holding__hold_number=True).last()
-        print(hold_date_qs)
         if not hold_date_qs:
             context['hold_current_date'] = None
         else:
