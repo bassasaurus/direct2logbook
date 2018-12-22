@@ -227,4 +227,4 @@ ANYMAIL = {
     "MAILGUN_SENDER_DOMAIN": 'mg.direct2logbook.com',  # your Mailgun domain, if needed
 }
 EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"  # or sendgrid.EmailBackend, or...
-DEFAULT_FROM_EMAIL = "clearance.clarence@gmail.com"  # if you don't already have this in settings
+DEFAULT_FROM_EMAIL = "no-reply@direct2logbook.com"  # if you don't already have this in settings
