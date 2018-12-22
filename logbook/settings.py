@@ -1,6 +1,7 @@
 import os
 from os.path import abspath, basename, dirname, join, normpath
 from sys import path
+from decouple import config
 
 
 """
@@ -27,10 +28,8 @@ DJANGO_ROOT = dirname(dirname(abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-with open('logbook/key.txt') as f:
-    SECRET_KEY = f.read().strip()
 
-SECRET_KEY = SECRET_KEY
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
@@ -74,6 +73,7 @@ INSTALLED_APPS = [
     'django_weasyprint',
     'columns',
     'extra_views',
+    'anymail',
 ]
 
 AUTHENTICATION_BACKENDS = (
@@ -220,3 +220,11 @@ LOGGING = {
         },
     },
 }
+
+ANYMAIL = {
+    # (exact settings here depend on your ESP...)
+    "MAILGUN_API_KEY": config('MAILGUN_API_KEY'),
+    "MAILGUN_SENDER_DOMAIN": 'mg.direct2logbook.com',  # your Mailgun domain, if needed
+}
+EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"  # or sendgrid.EmailBackend, or...
+DEFAULT_FROM_EMAIL = "clearance.clarence@gmail.com"  # if you don't already have this in settings
