@@ -324,6 +324,10 @@ class FlightCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
         context['approaches'] = inlineformset_factory(Flight, Approach, fields=('approach_type', 'number'), max_num=4, extra=1)
         context['holding'] = inlineformset_factory(Flight, Holding, fields=('hold', 'hold_number'), max_num=1, extra=1)
 
+        context['title'] = "D-> | Logbook"
+        context['parent_name'] = 'Logbook'
+        context['parent_link'] = reverse('flight_list')
+        context['page_title'] = "New Flight"
         return context
 
 class FlightUpdate(LoginRequiredMixin, UserObjectsMixin, UpdateView):
@@ -347,6 +351,10 @@ class FlightUpdate(LoginRequiredMixin, UserObjectsMixin, UpdateView):
             context['approaches'] = ApproachFormSet(instance=self.get_object())
             context['holding'] = HoldingFormSet(instance=self.get_object())
 
+        context['title'] = "D-> | Logbook"
+        context['parent_name'] = 'Logbook'
+        context['parent_link'] = reverse('flight_list')
+        context['page_title'] = "Update Flight"
         return context
 
     def form_valid(self, form):
@@ -520,7 +528,7 @@ class TailNumberCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
     model = TailNumber
     form_class = TailNumberForm
     template_name = "tailnumbers/tailnumber_create_form.html"
-    success_url = "/aircraft/"
+
 
     def get_context_data(self, **kwargs):
         context = super(TailNumberCreate, self).get_context_data(**kwargs)
@@ -536,7 +544,6 @@ class TailNumberUpdate(LoginRequiredMixin, UserObjectsMixin, UpdateView):
     model = TailNumber
     form_class = TailNumberForm
     template_name = 'tailnumbers/tailnumber_update_form.html'
-    success_url = '/home/'
 
     def get_context_data(self, **kwargs):
         context = super(TailNumberUpdate, self).get_context_data(**kwargs)

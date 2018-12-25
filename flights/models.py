@@ -234,7 +234,7 @@ class Flight(models.Model):
 
 class TailNumber(models.Model):
     user = models.ForeignKey(User, default=1)
-    registration = models.CharField(db_index=True, max_length=10)
+    registration = models.CharField(db_index=True, max_length=10, unique=True)
     aircraft = models.ForeignKey('Aircraft', default=None, blank=False)
     is_121 = models.NullBooleanField(null=True, blank=True)
     is_135 = models.NullBooleanField(null=True, blank=True)
@@ -249,6 +249,9 @@ class TailNumber(models.Model):
     def __str__(self):
         registration = str(self.registration)
         return registration
+
+    def get_absolute_url(self):
+        return reverse('tailnumber_detail', kwargs={'pk': self.pk})
 
 class Approach(models.Model):
 

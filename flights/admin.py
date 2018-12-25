@@ -28,7 +28,7 @@ class AircraftAdmin(admin.ModelAdmin):
      'power_error', 'config_error', 'weight_error', 'category_error', 'class_error')
 
 class TailnumberAdmin(admin.ModelAdmin):
-    list_display = ('user', 'registration', 'aircraft', 'is_121', 'is_135', 'is_91', 'reg_error')
+    list_display = ('user', 'registration', 'aircraft', 'is_121', 'is_135', 'is_91', 'reg_error', 'pk')
     search_fields = ('registration',)
     empty_value_display = ''
 
