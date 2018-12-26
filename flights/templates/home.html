@@ -8,10 +8,12 @@
 </div>
 <hr>
   <div class="row">
-  <div style="margin-top:10px;" class="col-8">
-    <a style="margin-top:5px;" class="btn btn-primary" href="{% url 'flight_create' %}">New Flight</a>
-    <a style="margin-top:5px;" class="btn btn-outline-secondary" href="{% url 'pdf' %}" target="_blank">Print Logbook</a>
-    <a style="margin-top:5px;" class="btn btn-outline-secondary" href="{% url 'iacra' %}" target="_blank">IACRA Format</a>
+  <div style="margin-top:10px;" class="col">
+    <a class="btn btn-primary" href="{% url 'flight_create' %}">New Flight</a>
+    <a class="btn btn-outline-secondary" href="{% url 'iacra' %}" target="_blank">IACRA Format</a>
+
+    <!-- <a style="margin-top:5px;" class="btn btn-outline-secondary" href="{% url 'pdf' %}" target="_blank">Print Logbook</a> -->
+    <button id="pdf" class="btn btn-outline-secondary">Print Logbook</button>
 
   </div>
   </div>
@@ -211,17 +213,29 @@
       </div>
     </div>
 
+{% csrf_token %}
 <script>
-// Initialize tooltip component
-$(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-})
+  var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+  function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        }
+    }
+});
 
-// Initialize popover component
-$(function () {
-  $('[data-toggle="popover"]').popover()
-})
-</script>
+  $('#pdf').click(function(e) {
+    $.ajax({
+      type:"POST",
+      url:"/pdf_output/",
+
+  });
+  })
+  </script>
 
 
 {% include 'tablefixer.html' %}

@@ -228,3 +228,5 @@ ANYMAIL = {
 }
 EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"  # or sendgrid.EmailBackend, or...
 DEFAULT_FROM_EMAIL = "no-reply@direct2logbook.com"  # if you don't already have this in settings
+
+CSRF_USE_SESSIONS = True
