@@ -230,9 +230,15 @@ $.ajaxSetup({
 
   $('#pdf').click(function(e) {
     $.ajax({
-      type:"POST",
+      type:"GET",
       url:"/pdf_output/",
 
+      success: function(result) {
+        swal ( "Success" ,  "Check your email in a few minutes" ,  "success" )
+       },
+       error: function(result) {
+         swal ( "Error" ,  "Refresh this page and try again." ,  "error" )
+       }
   });
   })
   </script>

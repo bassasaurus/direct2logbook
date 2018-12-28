@@ -191,10 +191,8 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20
 }
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' #disable/setup for production
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' #disable/setup for production
 
-
-# CORS_ORIGIN_ALLOW_ALL = True
 
 CACHES = {'default': {
         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',

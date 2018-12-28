@@ -5,6 +5,7 @@ from .pdf_output import pdf_output
 from flights.views import UserObjectsMixin, LoginRequiredMixin
 from django_weasyprint import WeasyTemplateResponseMixin
 from django.core.mail import EmailMessage
+from django.http import HttpResponse
 
 
 class LogView(TemplateView, UserObjectsMixin, LoginRequiredMixin):
@@ -38,11 +39,15 @@ class LogView(TemplateView, UserObjectsMixin, LoginRequiredMixin):
 #         )
 
 def PDFView(request):
-    if request.method == 'POST':
+    if request.method == 'GET':
         email = EmailMessage(
             'Your Logbook', #subject
-            'This outta be a sweet Logbook PDF', #message
+            'This oughtta be a sweet Logbook.pdf', #message
             'no-reply@direct2logbook.com', #from
             ['clearance.clarence@gmail.com'], #to
             )
+        attachment = open('manage.py', 'r')
+        email.attach('manage.py', attachment.read(), 'multipart/form-data')
         email.send(fail_silently=False)
+    html = "<h1>Logbook Endpoint</h1>"
+    return HttpResponse(html)
