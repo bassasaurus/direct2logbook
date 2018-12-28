@@ -228,18 +228,19 @@ $.ajaxSetup({
     }
 });
 
-  $('#pdf').click(function(e) {
+  $('#pdf').click(function() {
     $.ajax({
       type:"GET",
       url:"/pdf_output/",
 
       success: function(result) {
-        swal ( "Success" ,  "Check your email in a few minutes" ,  "success" )
+        swal ( "Success" ,  "Check your email in a few minutes." ,  "success" )
        },
        error: function(result) {
          swal ( "Error" ,  "Refresh this page and try again." ,  "error" )
        }
-  });
+
+     });
   })
   </script>
 

@@ -39,12 +39,13 @@ class LogView(TemplateView, UserObjectsMixin, LoginRequiredMixin):
 #         )
 
 def PDFView(request):
+    user_email = request.user.email
     if request.method == 'GET':
         email = EmailMessage(
             'Your Logbook', #subject
             'This oughtta be a sweet Logbook.pdf', #message
             'no-reply@direct2logbook.com', #from
-            ['clearance.clarence@gmail.com'], #to
+            [user_email], #to
             )
         attachment = open('manage.py', 'r')
         email.attach('manage.py', attachment.read(), 'multipart/form-data')
