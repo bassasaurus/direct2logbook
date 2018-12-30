@@ -16,7 +16,8 @@ $('#delete-form').submit(function (e, params) {
                confirmButtonColor: "#da3849",
                confirmButtonText: "Delete",
                cancelButtonText: "Cancel",
-               closeOnConfirm: true
+               closeOnConfirm: true,
+               allowOutsideClick: false,
            }, function (isConfirm) {
                if (isConfirm) {
                    $(e.currentTarget).trigger(e.type, { 'send': true });

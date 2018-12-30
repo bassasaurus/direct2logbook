@@ -76,30 +76,35 @@
 <div class="form-group">
   <div class="input-group-sm">
     <label class="text-muted">Day Landings</label>
+    {{ form.landings_day.errors }}
   {{ form.landings_day |add_class:"form-control"}}
   </div>
 </div>
 <div class="form-group">
   <div class="input-group-sm">
     <label class="text-muted">Night Landings</label>
+    {{ form.landings_night.errors }}
   {{ form.landings_night |add_class:"form-control"}}
   </div>
 </div>
 <div class="form-group">
   <div class="input-group-sm">
     <label class="text-muted">Night</label>
+    {{ form.night.error }}
   {{ form.night |add_class:"form-control"}}
   </div>
 </div>
 <div class="form-group">
   <div class="input-group-sm">
     <label class="text-muted">IFR</label>
+    {{ form.instrument.error }}
   {{ form.instrument |add_class:"form-control"}}
   </div>
 </div>
 <div class="form-group">
   <div class="input-group-sm">
     <label class="text-muted">Simulated IFR</label>
+    {{ form.simulated_instrument.error }}
   {{ form.simulated_instrument |add_class:"form-control"}}
   </div>
 </div>
@@ -142,6 +147,7 @@
 <div class="form-group">
   <div class="input-group-sm">
     <label class="text-muted">Remarks</label>
+    {{ form.remarks.error }}
     {{ form.remarks |add_class:"form-control"}}
     <small class="form-text text-muted">500 char limit</small>
   </div>

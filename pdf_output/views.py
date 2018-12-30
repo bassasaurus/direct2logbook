@@ -6,8 +6,11 @@ from flights.views import UserObjectsMixin, LoginRequiredMixin
 from django_weasyprint import WeasyTemplateResponseMixin
 from django.core.mail import EmailMessage
 from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
 
+from weasyprint import HTML, CSS
 
+@login_required
 class LogView(TemplateView, UserObjectsMixin, LoginRequiredMixin):
     # objects = Flight.objects.filter().order_by('date')[:50]
     objects = Flight.objects.filter().order_by('date') #ordered 'bottom up' model is 'top down'
@@ -38,7 +41,14 @@ class LogView(TemplateView, UserObjectsMixin, LoginRequiredMixin):
 #             context, **response_kwargs
 #         )
 
+@login_required
 def PDFView(request):
+    user = request.user
+    objects = Flight.objects.filter(user=user).order_by('date')
+    pdf_output(objects)
+
+    logbook = HTML('pdf_output/templates/pdf_output/log_table.html')
+
     user_email = request.user.email
     if request.method == 'GET':
         email = EmailMessage(
@@ -50,5 +60,5 @@ def PDFView(request):
         attachment = open('manage.py', 'r')
         email.attach('manage.py', attachment.read(), 'multipart/form-data')
         email.send(fail_silently=False)
-    html = "<h1>Logbook Endpoint</h1>"
+    html = ""
     return HttpResponse(html)

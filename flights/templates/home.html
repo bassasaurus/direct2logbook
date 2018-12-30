@@ -215,6 +215,20 @@
 
 {% csrf_token %}
 <script>
+
+  $(document).ajaxSend(function(){
+    swal({
+      type: 'info',
+      title: 'Preparing your logbook.',
+      toast: true,
+      position: 'top',
+      showConfirmButton: false,
+      allowOutsideClick: false,
+      timer: 40000,
+    })
+
+});
+
   var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
   function csrfSafeMethod(method) {
     // these HTTP methods do not require CSRF protection
@@ -228,17 +242,28 @@ $.ajaxSetup({
     }
 });
 
-  $('#pdf').click(function() {
+  $('#pdf').click(function(e) {
+    e.preventDefault();
     $.ajax({
       type:"GET",
       url:"/pdf_output/",
 
       success: function(result) {
-        swal ( "Success" ,  "Check your email in a few minutes." ,  "success" )
+        swal ({
+          title: "Success",
+          text: "Check your email.",
+          type: "success",
+          allowOutsideClick: false,
+        })
        },
-       error: function(result) {
-         swal ( "Error" ,  "Refresh this page and try again." ,  "error" )
-       }
+      error: function(result) {
+        swal ({
+          title: "Error",
+          text: "Refresh this page and try again.",
+          type: "error",
+          allowOutsideClick: false,
+        })
+       },
 
      });
   })

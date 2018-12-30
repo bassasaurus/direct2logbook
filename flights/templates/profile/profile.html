@@ -7,11 +7,13 @@
 
     <h3>{{ user.first_name }} {{ user.last_name }}</h3>
     <hr>
-    <p>{{ user.email }}<p>
+    <p>Email: {{ user.email }}<p>
     <hr>
 
-    <p>{{ user.profile.company }}</p>
-
+    <p>Company: {{ user.profile.company }}</p>
+    <hr>
+    <p>Questions or problems with the app? Email us <a target="new" href="mailto:support@direct2logbook.com?subject=Support">here</a></p>
+    <p>Include a screenshot if possible, and a description of the error. More info is better</p>
     <hr>
     <p><a class="btn-shadow btn-shadow-dark btn-block" href="{% url 'profile_update' user.profile.pk %}">Update</a></p>
   </div>

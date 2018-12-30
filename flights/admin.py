@@ -21,7 +21,6 @@ class FlightAdmin(admin.ModelAdmin):
      'duplicate_error', 'aircraft_type_error', 'registration_error', 'crew_error')
     empty_value_display = ''
 
-
 class AircraftAdmin(admin.ModelAdmin):
     list_display = ('user', 'aircraft_type', 'pk', 'turbine', 'piston', 'requires_type',
     'tailwheel', 'compleks', 'high_performance', 'aircraft_category', 'aircraft_class', 'image',

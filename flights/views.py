@@ -35,6 +35,10 @@ def error_500(request):
         data = {}
         return render(request,'flights/error_500.html', data)
 
+def error_403(request):
+        data = {}
+        return render(request,'flights/error_403.html', data)
+
 class UserObjectsMixin():
 
     def get_queryset(self):
