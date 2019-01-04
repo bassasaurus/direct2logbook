@@ -220,11 +220,12 @@
     swal({
       type: 'info',
       title: 'Preparing your logbook.',
+      footer: 'Stay on this page.',
       toast: true,
       position: 'top',
       showConfirmButton: false,
       allowOutsideClick: false,
-      timer: 40000,
+      timer: 50000,
     })
 
 });
@@ -245,8 +246,10 @@ $.ajaxSetup({
   $('#pdf').click(function(e) {
     e.preventDefault();
     $.ajax({
-      type:"GET",
+      type:"POST",
       url:"/pdf_output/",
+      cache: false,
+       timeout: 10000,
 
       success: function(result) {
         swal ({

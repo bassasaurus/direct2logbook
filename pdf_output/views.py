@@ -45,12 +45,14 @@ class LogView(TemplateView, UserObjectsMixin, LoginRequiredMixin):
 def PDFView(request):
     user = request.user
     objects = Flight.objects.filter(user=user).order_by('date')
-    pdf_output(objects)
 
-    logbook = HTML('pdf_output/templates/pdf_output/log_table.html')
+    # pdf_output(objects)
+    # logbook = HTML('pdf_output/templates/pdf_output/log_table.html')
+    # logbook.write_pdf('/pdf_output/logbook.pdf')
 
     user_email = request.user.email
-    if request.method == 'GET':
+    if request.method == 'POST':
+
         email = EmailMessage(
             'Your Logbook', #subject
             'This oughtta be a sweet Logbook.pdf', #message

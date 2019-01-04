@@ -16,31 +16,32 @@
     <p>Please login to see this page.</p>
   {% endif %}
 {% endif %}
-<div class="card">
-  <div class="card-body">
-      <div class="card-title"><h3>Login</h3></div>
-        <hr>
-        <form method="post" action="{% url 'login' %}">
-        {% csrf_token %}
-          <p>
-            <div>
-              <p>{{ form.username |attr:"placeholder:Username" |add_class:"form-control"}}</p>
-              <p>{{ form.password |attr:"placeholder:Password" |add_class:"form-control"}}</p>
-            </div>
-          </p>
+<div class="row">
+  <div class="col-12">
+        <div class=""><h3>Login</h3></div>
           <hr>
-          <p>
-            <div>
-              <input class="btn-shadow btn-shadow-dark" type="submit" value="login" />
-              <input type="hidden" name="next" value="{{ next }}" />
-            </div>
-          </p>
-        </form>
-        <hr>
-        {# Assumes you setup the password_reset view in your URLconf #}
-        <p><a class="btn-shadow btn-shadow-dark" href="{% url 'password_reset' %}">Lost password?</a></p>
+          <form method="post" action="{% url 'login' %}">
+          {% csrf_token %}
+            <p>
+              <div>
+                <p>{{ form.username |attr:"placeholder:Username" |add_class:"form-control"}}</p>
+                <p>{{ form.password |attr:"placeholder:Password" |add_class:"form-control"}}</p>
+              </div>
+            </p>
+            <hr>
+            <p>
+              <div>
+                <input class="btn-shadow btn-shadow-dark" type="submit" value="login" />
+                <input type="hidden" name="next" value="{{ next }}" />
+              </div>
+            </p>
+          </form>
+          <hr>
+          {# Assumes you setup the password_reset view in your URLconf #}
+          <p><a class="btn-shadow btn-shadow-dark" href="{% url 'password_reset' %}">Lost password?</a></p>
       </div>
     </div>
+
 
 
 
