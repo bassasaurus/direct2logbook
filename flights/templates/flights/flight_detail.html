@@ -2,9 +2,6 @@
 {% block content %}
 {% load static %}
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="crossorigin=""/>
-<script src="https://unpkg.com/leaflet@^1.0.0/dist/leaflet-src.js"></script>
-
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-12">
   <h3>{{ flight.date }} | {{ flight.aircraft_type }} | {{ flight.registration }} | {{ flight.route }}</h3>
@@ -119,8 +116,7 @@
   </div>
   <div class="col-9">
     <div id="mapid" class="img-responsive image-shadow custom-popup">
-      <script src="{% static 'flights/leaflet-geodesic.js' %}"></script>
-      {% include 'leaflet.html' %}
+
     </div>
   </div>
 </div>
