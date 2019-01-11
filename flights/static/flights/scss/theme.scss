@@ -8,6 +8,9 @@
 /* bootstrap overrides */
 @import "bootstrap/overrides";
 
+/* bootstrap */
+@import "bootstrap/bootstrap";
+
 /* components */
 @import "custom/components/alerts";
 @import "custom/components/animation";
@@ -58,6 +61,7 @@
 
 /* general pages */
 @import "custom/pages/pricing_charts";
+@import "custom/pages/pricing_charts_2";
 @import "custom/pages/pricing";
 @import "custom/pages/coming_soon";
 @import "custom/pages/timeline";

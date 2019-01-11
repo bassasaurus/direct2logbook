@@ -73,14 +73,13 @@ INSTALLED_APPS = [
     'columns',
     'extra_views',
     'anymail',
+    'sass_processor',
 ]
 
 AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
     'django.contrib.auth.backends.ModelBackend',
 )
-
-
 
 
 LOGIN_REDIRECT_URL = '/home'
@@ -177,12 +176,22 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'sass_processor.finders.CssFinder',
+]
+
 STATIC_ROOT = os.path.join(BASE_DIR, '/static/')
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'flights/static/'),
     os.path.join(BASE_DIR, 'pdf_output/static/'),
 ]
+
+SASS_PRECISION = 8 #bootsrap setting
+
+SASS_OUTPUT_STYLE = 'nested' #compact for production
 
 
 REST_FRAMEWORK = {
