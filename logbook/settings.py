@@ -3,7 +3,6 @@ from os.path import abspath, basename, dirname, join, normpath
 from sys import path
 from decouple import config
 
-
 """
 Django settings for logbook project.
 
@@ -82,6 +81,8 @@ AUTHENTICATION_BACKENDS = (
 )
 
 
+
+
 LOGIN_REDIRECT_URL = '/home'
 
 
@@ -100,6 +101,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'logbook.urls'
+
 
 TEMPLATES = [
     {

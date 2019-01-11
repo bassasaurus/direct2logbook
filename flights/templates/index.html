@@ -1,1 +1,149 @@
-{% extends 'base.html' %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <title>{{ title }}</title>
+
+    <link rel="stylesheet" type="text/css" href="{% static 'flights/scss/_index_app.css' %}" />
+
+    <!-- jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+    <!-- jqueryui -->
+    <script src="{% static 'flights/jqueryui/jquery-ui.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'flights/jqueryui/jquery-ui.css' %}" />
+
+    <!-- Bootstrap CSS file -->
+    <link rel="stylesheet" type="text/css" href="{% static 'flights/scss/bootstrap/bootstrap.css' %}" />
+    <!-- Theme CSS file -->
+    <link rel="stylesheet" type="text/css" href="{% static 'flights/dist/theme.css' %}" />
+    <!-- google icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <!-- custom css -->
+    <link rel="stylesheet" type="text/css" href="{% static 'flights/custom.css' %}" />
+    <!-- sweetalert -->
+    <!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support -->
+    <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
+    <script src="{% static 'flights/sweetalert2/sweetalert2.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'flights/sweetalert2/sweetalert2.css' %}">
+    <!-- theme icons -->
+    <script src="https://unpkg.com/ionicons@4.4.8/dist/ionicons.js"></script>
+    <!-- leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js"></script>
+    <!-- control_loading -->
+    <script src="{% static 'flights/control_loading.js' %}"></script>
+    <link rel="stylesheet" type="text/css" href="{% static 'flights/control_loading.css' %}">
+    <!-- conditionalLayer -->
+    <script src="{% static 'flights/leaflet-conditionalLayer.js' %}"></script>
+
+  </head>
+<body>
+  <!--[if lt IE 9]>
+    <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <!--[if lt IE 8]>
+    <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+  <![endif]-->
+
+{% include 'blocks/navbar.html' %}
+
+  <script type="text/javascript">
+    $(function () {
+      if (!window.utils.isMobile()) {
+        // parallax header
+        $(window).scroll(function() {
+          var scroll = $(window).scrollTop(),
+          slowScroll = scroll/4,
+          slowBg = slowScroll;
+
+          $('.index-app-hero').css("background-position", "center " + -slowBg + "px");
+        });
+      }
+    });
+  </script>
+
+  <div class="index-app-hero">
+    <div class="container">
+      <h2 class="customFadeInUp">
+        Direct2Logbook
+        <br>
+      </h2>
+      <p class="customFadeInUp">
+        OS independent online pilot's logbook; <br>
+        no reports to run with map displays included.
+      </p>
+
+      <a href="{% url 'signup' %}" class="btn-pill btn-pill-success btn-pill-lg customFadeInUp">Sign Up</a>
+    </div>
+  </div>
+
+  <div class="index-app-news">
+    <div class="container">
+      <span>New</span>
+      <strong>Still being developed</strong> <a class="nav-link" target="_blank" href="mailto:info@direct2logbook.com?subject=Testing_Inquiry">Become a tester.</a>
+      <!-- <a href="#">A mobile app is coming soon!.</a> -->
+    </div>
+  </div>
+
+  <div class="index-app-features">
+    <section class="clearfix">
+        <img src="{% static '/flights/images/devices/devices-4.png' %}" class="browser" />
+
+      <div class="info">
+        <h3>Stats at a glance</h3>
+        <h4>
+          Direct2Logbook calculates everything you need as you enter new data.
+        </h4>
+        <p>
+          Your information is easily readable on a variety of devices.
+        </p>
+      </div>
+      <hr>
+    </section>
+  </div>
+  {% include 'blocks/features.html' %}
+
+  <div class="index-features-user">
+    <header>
+      <h3>Your files are always secured</h3>
+      <h4>
+        We have the best security infrastructure available, your files will always be safe and we make daily backups
+      </h4>
+    </header>
+    <section class="clearfix">
+      <img src="{% static 'flights/images/devices/iphone-14.png' %}" class="devices float-right" />
+
+      <h4>Access to your business on the go</h4>
+      <p>
+        Spacial has both a web app and an android app to make your website easy and always available. It offers you all the designs in collaboration with some smart people. Your projects will look great everywhere you go. Use new components that come included!
+      </p>
+      <p>
+        Spacial is an advanced theme solution for desktop, tablet, and mobile devices. It works in all browsers and your clients can pay instantly.
+      </p>
+      <div class="icons">
+        <i class="ion-monitor"></i>
+        <i class="ion-ipad"></i>
+        <i class="ion-iphone"></i>
+      </div>
+      <hr>
+    </section>
+  </div>
+
+  {% include 'blocks/footer.html' %}
+
+  <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+  <script>
+    // (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+    // function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+    // e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+    // e.src='//www.google-analytics.com/analytics.js';
+    // r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+    // ga('create','UA-XXXXX-X','auto');ga('send','pageview');
+  </script>
+</body>
+</html>

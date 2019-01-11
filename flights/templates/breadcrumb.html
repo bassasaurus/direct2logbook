@@ -4,7 +4,7 @@
       <a href="{{ home_link }}">Home /</a>
     {% endif %}
     {% if parent_link %}
-      <a href="{{ parent_link }}">{{ parent_name }} /</a> {{ page_title }}
+      <a href="{{ parent_link }}">{{ parent_name }} /</a> {{ page_title }}{% if is_paginated %} / Page {{ page_obj.number }} {% endif %}
     {% else %}
       {{ page_title }}
     {% endif %}
