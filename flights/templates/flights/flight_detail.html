@@ -1,125 +1,78 @@
 {% extends 'base.html' %}
-{% block content %}
+{% load flights_filters %}
 {% load static %}
+{% block content %}
 
 <div class="row">
   <div class="col-lg-12 col-md-12 col-sm-12 col-12">
-  <h3>{{ flight.date }} | {{ flight.aircraft_type }} | {{ flight.registration }} | {{ flight.route }}</h3>
-
-  <hr>
+    <h3>{{ flight.date }} | {{ flight.aircraft_type }} | {{ flight.registration }} | {{ flight.route }}</h3>
+    <table class="">
+      <thead class="">
+        <tr class="">
+          {% if flight.pilot_in_command %}<th>PIC</th>{% endif %}
+          {% if flight.second_in_command %}<th>SIC</th>{% endif %}
+          {% if flight.cross_country %}<th>XC</th>{% endif %}
+          {% if flight.night %}<th>Night</th>{% endif %}
+          {% if flight.instrument %}<th>IFR</th>{% endif %}
+          {% if flight.approach_type %}<th>Approaches</th>{% endif %}
+          {% if holding.hold %}<th>Holding</th>{% endif %}
+          {% if flight.landings_day %}<th>Day Landing</th>{% endif %}
+          {% if flight.landings_night %}<th>Night Landing</th>{% endif %}
+          {% if flight.simulated_instrument %}<th>Sim Instrument</th>{% endif %}
+          {% if flight.instructor %}<th>CFI</th>{% endif %}
+          {% if flight.dual %}<th>Dual</th>{% endif %}
+          {% if flight.solo %}<th>Solo</th>{% endif %}
+          {% if flight.simulator %}<th>Sim</th>{% endif %}
+          {% if flight.remarks %}<th>Remarks</th>{% endif %}
+        </tr>
+      </thead>
+      <tbody>
+          <tr>
+            {% if flight.pilot_in_command %}<td>{{ flight.pilot_in_command|iconbool }}</td>{% endif %}
+            {% if flight.secondary_in_command %}<td>{{ flight.second_in_command|iconbool }}</td>{% endif %}
+            {% if flight.cross_country %}<td>{{ flight.cross_country|iconbool }}</td>{% endif %}
+            {% if flight.night %}<td>{{ flight.night }}</td>{% endif %}
+            {% if flight.instrument %}<td>{{ flight.instrument }}</td>{% endif %}
+            {% if flight.approach_type %}<td>{{ flight.approach_type }}-{{ approach.number }}</td>{% endif %}
+            {% if holding.hold %}<td>{{ holding.hold|iconbool }}-{{ holding.hold_number }}</td>{% endif %}
+            {% if flight.landings_day %}<td>{{ flight.landings_day }}</td>{% endif %}
+            {% if flight.landings_night %}<td>{{ flight.landings_night }}</td>{% endif %}
+            {% if flight.simulated_instrument %}<td>{{ flight.simulated_instrument }}</td>{% endif %}
+            {% if flight.instructor %}<td>{{ flight.instructor|iconbool }}</td>{% endif %}
+            {% if flight.dual %}<td>{{ flight.dual|iconbool }}</td>{% endif %}
+            {% if flight.solo %}<td>{{ flight.solo|iconbool }}</td>{% endif %}
+            {% if flight.simulator %}<td>{{ flight.simulator|iconbool }}</td>{% endif %}
+            {% if flight.remarks %}<td>{{ flight.remarks }}</td>{% endif %}
+          </tr>
+      </tbody>
+    </table>
+  </div>
 </div>
-</div>
-
+<hr>
 <div class="row">
-  <div class="col-3">
-    <div class="btn-group">
-      <a href ="{% url 'flight_detail' previous_flight.pk %}" class="btn btn-sm btn-outline-secondary">Previous Flight</a>
-      <a href ="{% url 'flight_detail'  next_flight.pk %}" class="btn btn-sm btn-outline-secondary">Next Flight</a>
-    </div>
-    <hr>
+  <div class="col-12">
     <div class="btn-group">
       <a href ="{% url 'flight_update' flight.pk %}" class="btn btn-outline-secondary">Update</a>
       <a href ="{% url 'flight_delete' flight.pk %}" class="btn btn-outline-danger ">Delete</a>
     </div>
+    <hr>
+    <div class="row">
+      <div class="col-12">
+        <div class="btn-group">
+          <a href ="{% url 'flight_detail' previous_flight.pk %}" class="btn btn-sm btn-outline-secondary">Previous Flight</a>
+          <a href ="{% url 'flight_detail'  next_flight.pk %}" class="btn btn-sm btn-outline-secondary">Next Flight</a>
+        </div>
 
-      <hr>
-      <p>Aircraft {{ flight.aircraft_type }}</p>
-      <p>Registration {{ flight.registration }}</p>
-      <hr>
-      <p>Duration {{ flight.duration }}</p>
-      <hr>
-      {% if flight.pilot_in_command %}
-        <p>PIC</p>
-        <hr>
-        {% else %}
-      {% endif %}
-
-      {% if flight.second_in_command %}
-        <p>SIC</p>
-        <hr>
-        {% else %}
-      {% endif %}
-
-      {% if flight.instructor %}
-        <p>Instructor</p>
-        <hr>
-        {% else %}
-      {% endif %}
-
-      {% if flight.dual %}
-        <p>Dual</p>
-        <hr>
-        {% else %}
-      {% endif %}
-
-      {% if flight.solo %}
-        <p>Solo</p>
-        <hr>
-        {% else %}
-      {% endif %}
-
-      {% if flight.simulator %}
-        <p>Sim</p>
-        {% else %}
-      {% endif %}
-
-      {% if flight.cross_country %}
-        <p>Cross Country</p>
-        <hr>
-        {% else %}
-      {% endif %}
-
-      {% if flight.night %}
-        <p>Night {{ flight.night }}</p>
-        <hr>
-        {% else %}
-      {% endif %}
-
-      {% if flight.instrument %}
-        <p>Instrument {{ flight.instrument }}</p>
-         <hr>
-          {% else %}
-      {% endif %}
-
-      <p>Legs {{ flight.legs }}</p>
-      <hr>
-
-      {% if flight.landings_day %}
-      <p>Day Landings {{ flight.landings_day }}</p>
-      <hr>
-      {% endif %}
-
-      {% if flight.night %}
-        <p>Night Landings {{ flight.landings_night }}</p>
-        <hr>
-      {% endif %}
-
-      <p>Approaches</p>
-      {% for approach in flight.approach_set.all %}
-        <br>{{ approach.approach_type }} {{ approach.number }}</br>
-      {% endfor %}
-      <hr>
-
-      <p>Holding</p>
-      {% for holding in flight.holding_set.all %}
-        <br>{{ holding.approach_type }}{{ holding.hold_number }}</br>
-        <hr>
-      {% endfor %}
-
-      {% if flight.remarks %}
-      <hr>
-        <p>Remarks:<p>
-        <p>{{ flight.remarks }}</p>
-        {% else %}
-      {% endif %}
-
-  </div>
-  <div class="col-9">
-    <div id="mapid" class="img-responsive image-shadow custom-popup">
-
-    </div>
   </div>
 </div>
+<hr>
+  <div class="row">
+    <div class="col-12">
+      <div id="mapid" class="img-responsive image-shadow custom-popup">
+
+    </div>
+    </div>
+  </div>
 </div>
 
 {% if flight.map_error or flight.duplicate_error or flight.aircraft_type_error or flight.registration_error or flight.crew_error or flight.duration < .1 %}

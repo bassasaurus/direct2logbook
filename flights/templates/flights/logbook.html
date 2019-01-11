@@ -14,7 +14,7 @@
             <th class="pl-3 text-right">SIC</th>
             <th class="pl-3 text-left">X Country</th>
             <th class="pl-3 text-right">Night</th>
-            <th class="pl-3 pr-3 text-right">Inst</th>
+            <th class="pl-3 pr-3 text-right">IFR</th>
             <th class="ml-3 text-left">Appr | Hold</th>
             <th class="pl-3 text-right">Day Ldg</th>
             <th class="pl-3 text-right">Night Ldg</th>
@@ -58,7 +58,7 @@
                 </td>
                 <td class="text-right">{{flight.landings_day|default:"-"}}</td>
                 <td class="text-right">{{flight.landings_night|default:"-"}}</td>
-                <td class="text-right">{{simulated_instrument|iconbool}}</td>
+                <td class="text-right">{{flight.simulated_instrument}}</td>
                 <td class="text-right">{{flight.instructor|iconbool}}</td>
                 <td class="text-right">{{flight.dual|iconbool}}</td>
                 <td class="text-right">{{flight.solo|iconbool}}</td>
