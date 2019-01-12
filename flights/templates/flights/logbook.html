@@ -29,7 +29,8 @@
 
           {% for flight in object_list %}
             <tr class="custom-table
-                {% if flight.map_error or flight.duplicate_error or flight.aircraft_type_error or flight.registration_error or flight.crew_error or flight.duration < .1 %}text-danger{% endif %}">
+                {% if flight.map_error or flight.duplicate_error or flight.aircraft_type_error or flight.registration_error or flight.crew_error or flight.duration < .1 %}
+                text-danger{% endif %}">
                 <td style="background-color:#fff;">
                   {% if flight.map_error or flight.duplicate_error or flight.aircraft_type_error or flight.registration_error or flight.crew_error or flight.duration < .1 %}
                     <a href ="{% url 'flight_detail' flight.pk %}" class="btn btn-sm btn-outline-danger">View</a>
@@ -58,7 +59,7 @@
                 </td>
                 <td class="text-right">{{flight.landings_day|default:"-"}}</td>
                 <td class="text-right">{{flight.landings_night|default:"-"}}</td>
-                <td class="text-right">{{flight.simulated_instrument}}</td>
+                <td class="text-right">{{flight.simulated_instrument|default:"-"}}</td>
                 <td class="text-right">{{flight.instructor|iconbool}}</td>
                 <td class="text-right">{{flight.dual|iconbool}}</td>
                 <td class="text-right">{{flight.solo|iconbool}}</td>

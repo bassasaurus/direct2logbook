@@ -54,3 +54,7 @@ a:link:active, a:visited:active {
   width:350px;
   height:350px;
 }
+
+.mb-detail{
+  margin-bottom: 10px;
+}

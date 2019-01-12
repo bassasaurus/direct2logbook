@@ -3,49 +3,36 @@
 {% load static %}
 {% block content %}
 
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="crossorigin=""/>
+<script src="https://unpkg.com/leaflet@^1.0.0/dist/leaflet-src.js"></script>
+
 <div class="row">
-  <div class="col-lg-12 col-md-12 col-sm-12 col-12">
-    <h3>{{ flight.date }} | {{ flight.aircraft_type }} | {{ flight.registration }} | {{ flight.route }}</h3>
-    <table class="">
-      <thead class="">
-        <tr class="">
-          {% if flight.pilot_in_command %}<th>PIC</th>{% endif %}
-          {% if flight.second_in_command %}<th>SIC</th>{% endif %}
-          {% if flight.cross_country %}<th>XC</th>{% endif %}
-          {% if flight.night %}<th>Night</th>{% endif %}
-          {% if flight.instrument %}<th>IFR</th>{% endif %}
-          {% if flight.approach_type %}<th>Approaches</th>{% endif %}
-          {% if holding.hold %}<th>Holding</th>{% endif %}
-          {% if flight.landings_day %}<th>Day Landing</th>{% endif %}
-          {% if flight.landings_night %}<th>Night Landing</th>{% endif %}
-          {% if flight.simulated_instrument %}<th>Sim Instrument</th>{% endif %}
-          {% if flight.instructor %}<th>CFI</th>{% endif %}
-          {% if flight.dual %}<th>Dual</th>{% endif %}
-          {% if flight.solo %}<th>Solo</th>{% endif %}
-          {% if flight.simulator %}<th>Sim</th>{% endif %}
-          {% if flight.remarks %}<th>Remarks</th>{% endif %}
-        </tr>
-      </thead>
-      <tbody>
-          <tr>
-            {% if flight.pilot_in_command %}<td>{{ flight.pilot_in_command|iconbool }}</td>{% endif %}
-            {% if flight.secondary_in_command %}<td>{{ flight.second_in_command|iconbool }}</td>{% endif %}
-            {% if flight.cross_country %}<td>{{ flight.cross_country|iconbool }}</td>{% endif %}
-            {% if flight.night %}<td>{{ flight.night }}</td>{% endif %}
-            {% if flight.instrument %}<td>{{ flight.instrument }}</td>{% endif %}
-            {% if flight.approach_type %}<td>{{ flight.approach_type }}-{{ approach.number }}</td>{% endif %}
-            {% if holding.hold %}<td>{{ holding.hold|iconbool }}-{{ holding.hold_number }}</td>{% endif %}
-            {% if flight.landings_day %}<td>{{ flight.landings_day }}</td>{% endif %}
-            {% if flight.landings_night %}<td>{{ flight.landings_night }}</td>{% endif %}
-            {% if flight.simulated_instrument %}<td>{{ flight.simulated_instrument }}</td>{% endif %}
-            {% if flight.instructor %}<td>{{ flight.instructor|iconbool }}</td>{% endif %}
-            {% if flight.dual %}<td>{{ flight.dual|iconbool }}</td>{% endif %}
-            {% if flight.solo %}<td>{{ flight.solo|iconbool }}</td>{% endif %}
-            {% if flight.simulator %}<td>{{ flight.simulator|iconbool }}</td>{% endif %}
-            {% if flight.remarks %}<td>{{ flight.remarks }}</td>{% endif %}
-          </tr>
-      </tbody>
-    </table>
+  <div class="col-12">
+    <p><h4>{{ flight.date }} {{ flight.aircraft_type }} | {{ flight.registration }}</h4><p>
+    <p><h6>{{ flight.route }}</h6></p>
+    <p><h6>
+      {% if flight.pilot_in_command %}PIC |{% endif %}
+      {% if flight.second_in_command %}SIC |{% endif %}
+      {% if flight.cross_country %}XC |{% endif %}
+      {% if flight.night %}Night |{{flight.night}}{% endif %}
+      {% if flight.instrument %}IFR {{flight.instrument}} |{% endif %}
+      {% for approach in flight.approach_set.all %}
+        {{ approach.approach_type }}-{{ approach.number }} |
+      {% endfor %}
+      {% for holding in flight.holding_set.all %}
+        {% if holding.hold %}| Hold-{{ holding.hold_number }} {% endif %}
+      {% endfor %}
+      {% if flight.landings_day %}{{flight.landings_day}}D |{% endif %}
+      {% if flight.landings_night %}{{flight.landings_night}}N |{% endif %}
+      {% if flight.simulated_instrument %}Hood |{{flight.simulated_instrument}}{% endif %}
+      {% if flight.instructor %}CFI |{{flight.instructor}}{% endif %}
+      {% if flight.dual %}Dual |{% endif %}
+      {% if flight.solo %}Solo |{% endif %}
+    </h6></p>
+    <p><h6>
+      {% if flight.remarks %}Remarks:<p><h7>{{flight.remarks}}</h7></p>{% endif %}
+    </h6></p>
+
   </div>
 </div>
 <hr>
@@ -53,27 +40,29 @@
   <div class="col-12">
     <div class="btn-group">
       <a href ="{% url 'flight_update' flight.pk %}" class="btn btn-outline-secondary">Update</a>
-      <a href ="{% url 'flight_delete' flight.pk %}" class="btn btn-outline-danger ">Delete</a>
+      <a href ="{% url 'flight_delete' flight.pk %}" class="btn btn-outline-danger">Delete</a>
     </div>
-    <hr>
-    <div class="row">
-      <div class="col-12">
-        <div class="btn-group">
-          <a href ="{% url 'flight_detail' previous_flight.pk %}" class="btn btn-sm btn-outline-secondary">Previous Flight</a>
-          <a href ="{% url 'flight_detail'  next_flight.pk %}" class="btn btn-sm btn-outline-secondary">Next Flight</a>
-        </div>
+  </div>
+</div>
 
+<hr>
+<div class="row">
+  <div class="col-12">
+    <div class="btn-group">
+      <a href ="{% url 'flight_detail' previous_flight.pk %}" class="btn btn-sm btn-outline-secondary">Previous Flight</a>
+      <a href ="{% url 'flight_detail'  next_flight.pk %}" class="btn btn-sm btn-outline-secondary">Next Flight</a>
+    </div>
   </div>
 </div>
 <hr>
-  <div class="row">
-    <div class="col-12">
-      <div id="mapid" class="img-responsive image-shadow custom-popup">
-
-    </div>
-    </div>
+<div class="row">
+  <div class="col-12">
+  <div style="margin-top: 10px;" id="mapid" class="col image-shadow custom-popup">
+    <script src="{% static 'flights/leaflet-geodesic.js' %}"></script>
   </div>
 </div>
+</div>
+
 
 {% if flight.map_error or flight.duplicate_error or flight.aircraft_type_error or flight.registration_error or flight.crew_error or flight.duration < .1 %}
 
@@ -126,5 +115,6 @@
    $("#errors").modal();
   });
 </script>
+{% include 'tablefixer.html' %}
 
 {% endblock %}
