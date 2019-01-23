@@ -5,47 +5,50 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="crossorigin=""/>
 <script src="https://unpkg.com/leaflet@^1.0.0/dist/leaflet-src.js"></script>
 
+<div class="row flex-md-row">
+  <div class="col flex-md-column">
+    <div class="btn-group">
+      <a href ="{% url 'aircraft_update' aircraft.pk %}" class="btn btn-outline-secondary">Update</a>
+      <a href ="{% url 'aircraft_delete' aircraft.pk %}" class="btn btn-outline-danger">Delete</a>
+      <a href ="{% url 'tailnumber_create' %}" class="btn btn-outline-primary">New Tailnumber</a>
+    </div>
+  </div>
+</div>
+<hr>
 <div class="row">
   <div class="col-12">
-    <p><h4>{{ aircraft.aircraft_type }}</h4><p>
-    <p><h6>{{ aircraft.aircraft_category }} {{ aircraft.aircraft_class }}</h6></p>
-    <p><h6>
+    <h4>{{ aircraft.aircraft_type }}</h4>
+    <h6>{{ aircraft.aircraft_category }} {{ aircraft.aircraft_class }}</h6>
+    <h6>
       {% if aircraft.turbine %}Turbine{% endif %}
       {% if aircraft.Piston %}Piston{% endif %}
-    </h6><p>
-    <p><h6>
+    </h6>
+    <h6>
       {% if aircraft.requires_type %}Type Rating Required {% endif %}
       {% if aircraft.tailwheel %}Tailwheel {% endif %}
       {% if aircraft.simple %}Simple {% endif %}
       {% if aircraft.compleks %}Complex {% if aircraft.high_performance %}|{% endif %}{% endif %}
       {% if aircraft.high_performance %}High Performance {% endif %}
-    </h6><p>
+    </h6>
+    <h6>
       {% if aircraft.superr %}Super {% endif %}
       {% if aircraft.heavy %}Heavy {% endif %}
       {% if aircraft.large %}Large {% endif %}
       {% if aircraft.medium %}Medium {% endif %}
       {% if aircraft.small %}Small {% endif %}
       {% if aircraft.light_sport %}LSA {% endif %}
-    <p><h6>
-    </h6><p>
-    <hr>
-    <div class="btn-group">
-      <a href ="{% url 'aircraft_update' aircraft.pk %}" class="btn btn-outline-secondary">Update</a>
-      <a href ="{% url 'aircraft_delete' aircraft.pk %}" class="btn btn-outline-danger">Delete</a>
-    </div>
-    <hr>
-    <a href ="{% url 'tailnumber_create' %}" class="btn btn-primary">New Tailnumber</a>
+    </h6>
   </div>
 </div>
 <hr>
 <div class="row">
   <div class="col-12">
     <div style="margin-top: 10px;" id="mapid" class="col image-shadow custom-popup">
-      <script src="{% static 'flights/leaflet-geodesic.js' %}"></script>
+      <script src="{% static 'flights/leaflet/leaflet-geodesic.js' %}"></script>
 
     </div>
   </div>
-</div
+</div>
 
 
 {% if aircraft.power_error or aircraft.config_error %}
@@ -85,7 +88,7 @@
       </div>
     </div>
   </div>
-  {% else %}
+
 {% endif %}
 
 <script>

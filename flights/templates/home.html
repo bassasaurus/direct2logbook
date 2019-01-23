@@ -9,21 +9,19 @@
 <hr>
   <div class="row">
   <div style="margin-top:10px;" class="col">
-    <a class="btn btn-primary" href="{% url 'flight_create' %}">New Flight</a>
-    <a class="btn btn-outline-secondary" href="{% url 'iacra' %}" target="_blank">IACRA Format</a>
-
     <!-- <a style="margin-top:5px;" class="btn btn-outline-secondary" href="{% url 'pdf' %}" target="_blank">Print Logbook</a> -->
     <button id="pdf" class="btn btn-outline-secondary">Print Logbook</button>
+    <!-- <a class="btn btn-outline-secondary" target="_blank" href="{% url 'pdf'%}">Print Logbook</a> -->
 
   </div>
   </div>
 <hr>
 
-<div style="margin-top: 15px;" class="row">
-  <div class="col">
+<div style="margin-top: 15px;" class="row flex-sm-row">
+  <div class="col flex-md-column">
     <table>
       <thead>
-        <th>Flight Errors</th>
+        <th class="text-nowrap">Flight Errors</th>
       </thead>
         {% for flight in flight_errors %}
           {% if flight.map_error or flight.duplicate_error or flight.aircraft_type_error or flight.registration_error or flight.crew_error or flight.duration < .1 %}
@@ -33,10 +31,10 @@
           {% else %}
           {% endif %}
     {% endfor %}
-  <div class="col">
+  <div class="col flex-md-column">
     <table>
       <thead>
-        <th>Aircraft Errors</th>
+        <th class="text-nowrap">Aircraft Errors</th>
       </thead>
         {% for aircraft in aircraft_errors %}
           {% if aircraft.config_error or aircraft.power_error or aircraft.category_error or aircraft.class_error or aircraft.weight_error %}
@@ -46,10 +44,10 @@
     {% endfor %}
   </table>
   </div>
-    <div class="col">
+    <div class="col flex-md-column">
       <table>
         <thead>
-          <th>Tailnumber Errors</th>
+          <th class="text-nowrap">Tailnumber Errors</th>
         </thead>
           {% for tailnumber in tailnumber_errors %}
             {% if tailnumber.reg_error %}
@@ -62,12 +60,12 @@
 </div>
 <hr>
 
-    <div style="margin-top: 15px;" class="row">
-      <div class="col-6">
+    <div style="margin-top: 15px;" class="row flex-md-row">
+      <div class="col flex-md-column">
         <div>
           <table class="table table-bordered table-sm">
-            <thead class="thead-default">
-              <th colspan="3" class="text-center" style="width:120px;">VFR Currency</th>
+            <thead class="thead-light">
+              <th colspan="3" class="text-center text-nowrap" style="width:120px;">VFR Currency</th>
             </thead>
                 {% if not asel_total.total_time or asel_total.total_time < .1 %}
                 {% else %}
@@ -143,22 +141,22 @@
           </table>
         </div>
       </div>
-      <div class="col-6">
+      <div class="col flex-md-column">
         <table class="table table-bordered table-sm">
-          <thead class="thead-default">
-            <th colspan=2 class="text-center">IFR Currency</th>
+          <thead class="thead-light">
+            <th colspan=2 class="text-center text-nowrap">IFR Currency</th>
           </thead>
           {% if appr_quantity < 6 %}
-              <tr><td>Approaches</td><td class="text-danger">{{ appr_quantity }}/6 - {{ still_needed }} Still needed by {{ appr_current_date }}</td></tr>
+              <tr><td>Approaches</td><td class="text-danger text-nowrap">{{ appr_quantity }}/6 - {{ still_needed }} Still needed by {{ appr_current_date }}</td></tr>
             {% elif appr_quantity >= 6 %}
-              <tr><td>Approaches</td><td class="text-success">{{ appr_quantity }}/6 - Current until {{ appr_current_date }}</td></tr>
+              <tr><td>Approaches</td><td class="text-success text-nowrap">{{ appr_quantity }}/6 - Current until {{ appr_current_date }}</td></tr>
             {% else %}
-              <tr><td>Approaches</td><td class="text-danger">No approaches in last 6 months</td></tr>
+              <tr><td>Approaches</td><td class="text-danger text-nowrap">No approaches in last 6 months</td></tr>
           {% endif %}
           {% if not hold_quantity or hold_quantity == 0 %}
-              <tr><td>Holding</td><td class="text-danger">No holds in last 6 months</td></tr>
+              <tr><td>Holding</td><td class="text-danger text-nowrap">No holds in last 6 months</td></tr>
             {% else %}
-              <tr><td>Holding</td><td class="text-success">{{ hold_quantity }}/1 - Holding current until {{ hold_current_date }}</td></tr>
+              <tr><td>Holding</td><td class="text-success text-nowrap">{{ hold_quantity }}/1 - Holding current until {{ hold_current_date }}</td></tr>
           {% endif %}
         </table>
       </div>
@@ -183,7 +181,7 @@
           </ul>
 
           <!-- Content Panel -->
-          <div id="clothing-nav-content" class="tab-content">
+          <div id="" class="tab-content">
 
           <div role="tabpanel" class="tab-pane fade show active" id="totals" aria-labelledby="totals-tab">
           {% include 'table_totals.html' %}
@@ -194,24 +192,25 @@
           </div>
 
           <div role="tabpanel" class="tab-pane fade" id="misc" aria-labelledby="misc-tab">
-            <div class="row">
-              <div class="col-6 col-xs-12" style="">
+            <div class="row flex-md-row">
+              <div class="col flex-md-column" style="">
                 {% include 'table_operation.html' %}
               </div>
-              <div class="col-6 col-xs-12" style="">
+              <div class="col flex-md-column2" style="">
                 {% include 'table_weights.html' %}
               </div>
-              <div class="col-6 col-xs-12" style="">
+            </div>
+            <div class="row flex-md-row">
+              <div class="col flex-md-column" style="">
                 {% include 'table_power.html' %}
               </div>
-              <div class="col-6 col-xs-12" style="">
+              <div class="col flex-md-column" style="">
                 {% include 'table_endorsements.html' %}
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
 
 {% csrf_token %}
 <script>

@@ -1,4 +1,3 @@
-from flights.models import Flight
 from django.core.paginator import Paginator
 from django.db.models import Sum
 from django.core.cache import cache
@@ -24,6 +23,7 @@ def make_table_row(iterable):
         list.append(i)
         row = str(strip_all(list))
     return strip_all(row)
+
 
 def pdf_output(objects):
 

@@ -9,6 +9,7 @@
         <div class="form-group">
           <h4>Update Flight {{ flight.pk }}</h4>
           <p>Required *</p>
+          {{ form.non_field_errors }}
         </div>
         <hr>
         {% include 'flights/flight_form.html' %}

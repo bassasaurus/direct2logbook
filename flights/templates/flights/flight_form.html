@@ -12,8 +12,7 @@
   {{ form.aircraft_type.errors }}
   {{ form.aircraft_type |add_class:"form-control"}}
   <div><a target="new" href="{% url 'aircraft_create' %}"> New Aircraft</a></div>
-
-  </div>
+</div>
 </div>
   <div class="form-group">
   <div class="input-group-sm">
@@ -112,7 +111,8 @@
 <div class="form-group">
   <div class="input-group-sm">
     <label class="text-muted">Approaches</label>
-    <div id="approach_form" class="form-control pl-4 pt-2">
+    <p class="text-danger">{{ inlines.non_form_errors }}<p>
+    <div id="approach_form" class="">
       <table>
         {{ form.errors }}
         {% for form in approaches %}
@@ -131,7 +131,8 @@
 <div class="form-group">
   <div class="input-group-sm">
     <label class="text-muted">Holding</label>
-    <div class="form-control">
+    <p class="text-danger">{{ inlines.non_form_errors }}</p>
+    <div class="">
       {{ holding.management_form }}
         {% for form in holding %}
         {{ form.id }}

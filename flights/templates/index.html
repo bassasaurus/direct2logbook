@@ -1,36 +1,23 @@
 {% load static %}
-{% load sass_tags %}
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="shortcut icon" type="image/png" href="{% static 'flights/images/favicon.ico' %}"/>
+<!doctype html>
+<html class="no-js" lang="">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>{{ title }}</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <title>{{ title }}</title>
+  <!-- Place favicon.ico and apple-touch-icon(s) in the root directory -->
+  <link rel="shortcut icon" href="images/favicon.ico">
 
-    <!-- jquery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-    <!-- jqueryui -->
-    <script src="{% static 'flights/jqueryui/jquery-ui.js' %}"></script>
+  <!-- stylesheets -->
+  <link rel="stylesheet" type="text/css" href="{% static 'flights/dist/theme.css' %}" />
 
-    <script src="{% static 'flights/js/theme.js' %}"></script>
-    <link rel="stylesheet" type="text/css" href="{% static 'flights/jqueryui/jquery-ui.css' %}" />
-
-    <!-- Theme CSS file -->
-    <!-- sass_src .scss to remcompile -->
-    <link href="{% static 'flights/scss/theme.css' %}" rel="stylesheet" type="text/css" />
-
-    <!-- google icons -->
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-    <!-- custom css -->
-    <link rel="stylesheet" type="text/css" href="{% static 'flights/custom.css' %}" />
-    <!-- theme icons -->
-    <script src="https://unpkg.com/ionicons@4.4.8/dist/ionicons.js"></script>
-
-
-  </head>
+  <!-- javascript -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+  <script src="{% static 'flights/dist/theme.min.js' %}"></script>
+</head>
 <body>
   <!--[if lt IE 9]>
     <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -58,21 +45,21 @@
   </script>
 
   <div class="index-app-hero">
-    <div class="container">
-      <h2 class="customFadeInUp">
-        Direct2Logbook
-        <br>
-      </h2>
-      <p class="customFadeInUp">
-        OS independent online pilot's logbook; <br>
-        no reports to run, with map displays included.
-      </p>
+      <div class="container">
+        <h2 class="customFadeInUp">
+          Direct2Logbook
+          <br>
+        </h2>
+        <p class="customFadeInUp">
+          OS independent online pilot's logbook; <br>
+          no reports to run, with map displays included.
+        </p>
 
-      <a href="{% url 'signup' %}" class="btn-pill btn-pill-success btn-pill-lg customFadeInUp">Sign Up</a>
+        <a href="{% url 'signup' %}" class="btn-pill btn-pill-success btn-pill-lg customFadeInUp">Sign Up</a>
+      </div>
     </div>
-  </div>
 
-  <div class="index-app-news">
+    <div class="index-app-news">
     <div class="container">
       <span>New</span>
       <strong>Still being developed</strong> <a class="nav-link" target="_blank" href="mailto:info@direct2logbook.com?subject=Testing_Inquiry">Become a tester.</a>
@@ -96,19 +83,80 @@
       <hr>
     </section>
   </div>
-  {% include 'blocks/features.html' %}
+
+  <div class="index-features-files index-app clearfix">
+    <div class="container2">
+      <div class="container1">
+        <div class="col col-left">
+
+          <div class="features">
+            <div class="feature clearfix">
+              <div class="image">
+                <img src="{% static 'flights/images/icons/features-icon-upload.png' %}" />
+              </div>
+              <div class="info">
+                <strong>
+                  Import your curent logbook.
+                </strong>
+                <p>
+                  Easy upload from a variety of popular logbook programs via .csv
+                </p>
+              </div>
+            </div>
+            <div class="feature clearfix">
+              <div class="image">
+                <img src="{% static 'flights/images/icons/features-icon-world.png' %}" />
+              </div>
+              <div class="info">
+                <strong>
+                  This is the central storage space across all of your devices.
+                </strong>
+                <p>
+                  OS independent cloud storage for your logbook data.
+                </p>
+              </div>
+            </div>
+            <div class="feature clearfix">
+              <div class="image">
+                <img src="{% static 'flights/images/icons/features-icon-repeat.png' %}" />
+              </div>
+              <div class="info">
+                <strong>
+                  Every data point is automatically updated as you enter a new flight. No reports to run.
+                </strong>
+                <p>
+                  Your data is organized by category, class, endorsement, turbine, piston, PIC, SIC, currency and many more.
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+        <div class="col col-right">
+          <div class="info">
+            <h3>Home Page</h3>
+            <h4>
+              All the numbers at a glance with minimal navigation.
+            </h4>
+            <p>
+              Three responsive tables provide all of the information you need for applications, insurance forms, and IACRA. Curency is divided between Category/Class as well as aircraft type. Your data is also separated between weight, power type, and command position.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="index-features-user">
     <header>
-      <h3>Your files are always secured</h3>
+      <h3>Cloud storage across all of your devices</h3>
       <h4>
-        We have the best security infrastructure available, your files will always be safe and we make daily backups
+        Don't let another application keep you tied to an OS ecosystem.
       </h4>
     </header>
     <section class="clearfix">
-      <img src="{% static 'flights/images/devices/iphone-14.png' %}" class="devices float-right" />
+      <img src="{% static 'flights/images/devices/ipad-1.png' %}" class="devices float-right" />
 
-      <h4>Access to your business on the go</h4>
+      <h4>Responsive design looks great and works great on several device categories.</h4>
       <p>
         Spacial has both a web app and an android app to make your website easy and always available. It offers you all the designs in collaboration with some smart people. Your projects will look great everywhere you go. Use new components that come included!
       </p>
@@ -120,11 +168,39 @@
         <i class="ion-ipad"></i>
         <i class="ion-iphone"></i>
       </div>
-      <hr>
     </section>
   </div>
 
-  {% include 'blocks/footer.html' %}
+  <div class="business-single-client index-app">
+    <div class="quote-wrapper">
+      <p>
+        "I created this app because the current options are too expensive and limit you to a particular operating system while making you pay extra for features such as a map view and cloud syncing."
+      </p>
+      <div class="author">
+        Blake Powell, Developer
+      </div>
+    </div>
+  </div>
+
+  <div class="index-app-devices">
+    <div class="container">
+      <img src="{% static 'flights/images/devices/devices-4-2.png' %}" class="img-fluid d-block mx-auto">
+
+      <div class="cta">
+        <h3>
+          Try Direct2Logbook.com
+        </h3>
+        <p>
+          Try our free trial for 30 days, no credit card required
+        </p>
+        <a href="{% url 'signup' %}">
+          Create an account
+        </a>
+      </div>
+    </div>
+  </div>
+
+{% include 'blocks/footer.html' %}
 
   <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
   <script>

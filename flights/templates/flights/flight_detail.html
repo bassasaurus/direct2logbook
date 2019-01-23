@@ -8,9 +8,17 @@
 
 <div class="row">
   <div class="col-12">
-    <p><h4>{{ flight.date }} {{ flight.aircraft_type }} | {{ flight.registration }}</h4><p>
-    <p><h6>{{ flight.route }}</h6></p>
-    <p><h6>
+    <div class="btn-group">
+      <a href ="{% url 'flight_update' flight.pk %}" class="btn btn-outline-secondary">Update</a>
+      <a href ="{% url 'flight_delete' flight.pk %}" class="btn btn-outline-danger">Delete</a>
+    </div>
+  </div>
+</div>
+<hr>
+<div class="row">
+  <div class="col-12">
+    <h4>{{ flight.date }} {{ flight.aircraft_type }} | {{ flight.registration }}</h4>
+    <h6>{{ flight.route }} -
       {% if flight.pilot_in_command %}PIC |{% endif %}
       {% if flight.second_in_command %}SIC |{% endif %}
       {% if flight.cross_country %}XC |{% endif %}
@@ -28,22 +36,14 @@
       {% if flight.instructor %}CFI |{{flight.instructor}}{% endif %}
       {% if flight.dual %}Dual |{% endif %}
       {% if flight.solo %}Solo |{% endif %}
-    </h6></p>
-    <p><h6>
+    </h6>
+    <h6>
       {% if flight.remarks %}Remarks:<p><h7>{{flight.remarks}}</h7></p>{% endif %}
-    </h6></p>
+    </h6>
 
   </div>
 </div>
-<hr>
-<div class="row">
-  <div class="col-12">
-    <div class="btn-group">
-      <a href ="{% url 'flight_update' flight.pk %}" class="btn btn-outline-secondary">Update</a>
-      <a href ="{% url 'flight_delete' flight.pk %}" class="btn btn-outline-danger">Delete</a>
-    </div>
-  </div>
-</div>
+
 
 <hr>
 <div class="row">
@@ -58,7 +58,7 @@
 <div class="row">
   <div class="col-12">
   <div style="margin-top: 10px;" id="mapid" class="col image-shadow custom-popup">
-    <script src="{% static 'flights/leaflet-geodesic.js' %}"></script>
+    <script src="{% static 'flights/leaflet/leaflet-geodesic.js' %}"></script>
   </div>
 </div>
 </div>

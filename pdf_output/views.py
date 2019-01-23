@@ -10,20 +10,28 @@ from django.contrib.auth.decorators import login_required
 
 from weasyprint import HTML, CSS
 
-@login_required
+from redis import Redis
+from rq import Queue
+from rq.decorators import job
+
+redis_conn = Redis()
+q = Queue('pdf', connection = redis_conn)
+
 class LogView(TemplateView, UserObjectsMixin, LoginRequiredMixin):
     # objects = Flight.objects.filter().order_by('date')[:50]
     objects = Flight.objects.filter().order_by('date') #ordered 'bottom up' model is 'top down'
     pdf_output(objects)
     template_name = 'pdf_output/pdf_output.html'
 
+
 # class PDFView(WeasyTemplateResponseMixin, LogView):
 #     pdf_stylesheets = [
 #         settings.BASE_DIR + '/pdf_output/static/pdf_output/css/pdf_output.css',
 #         settings.BASE_DIR + '/flights/static/flights/custom.css',
-#         settings.BASE_DIR + '/flights/static/flights/scss/bootstrap/bootstrap.css',
+#         settings.BASE_DIR + '/flights/static/flights/dist/bootstrap/bootstrap.css',
 #     ]
 #
+#     @job('pdf', connection=redis_conn, timeout=60)
 #     def render_to_response(self, context, **response_kwargs):
 #
 #         """
@@ -39,7 +47,7 @@ class LogView(TemplateView, UserObjectsMixin, LoginRequiredMixin):
 #         })
 #         return super(WeasyTemplateResponseMixin, self).render_to_response(
 #             context, **response_kwargs
-#         )
+        # )
 
 @login_required
 def PDFView(request):
@@ -48,7 +56,7 @@ def PDFView(request):
 
     # pdf_output(objects)
     # logbook = HTML('pdf_output/templates/pdf_output/log_table.html')
-    # logbook.write_pdf('/pdf_output/logbook.pdf')
+    # logbook.write_pdf('logbook.pdf')
 
     user_email = request.user.email
     if request.method == 'POST':
@@ -59,8 +67,8 @@ def PDFView(request):
             'no-reply@direct2logbook.com', #from
             [user_email], #to
             )
-        attachment = open('manage.py', 'r')
-        email.attach('manage.py', attachment.read(), 'multipart/form-data')
+        attachment = open('pdf_output/templates/pdf_output/log_table.html', 'r')
+        email.attach('log_table.html', attachment.read())
         email.send(fail_silently=False)
-    html = ""
+    html = "Email Sent"
     return HttpResponse(html)
