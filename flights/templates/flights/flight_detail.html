@@ -17,16 +17,18 @@
 <hr>
 <div class="row">
   <div class="col-12">
-    <h4>{{ flight.date }} {{ flight.aircraft_type }} | {{ flight.registration }}</h4>
+    <h4>{{ flight.date }} {{ flight.aircraft_type }} | {{ flight.registration }} | {{ flight.duration }}</h4>
     <h6>{{ flight.route }} -
       {% if flight.pilot_in_command %}PIC |{% endif %}
       {% if flight.second_in_command %}SIC |{% endif %}
       {% if flight.cross_country %}XC |{% endif %}
       {% if flight.night %}Night |{{flight.night}}{% endif %}
       {% if flight.instrument %}IFR {{flight.instrument}} |{% endif %}
+      <!-- if app approach -->
       {% for approach in flight.approach_set.all %}
-        {{ approach.approach_type }}-{{ approach.number }} |
+        {{ approach.approach_type }}-{{ approach.number }},
       {% endfor %}
+      <!-- if holding  -->
       {% for holding in flight.holding_set.all %}
         {% if holding.hold %}| Hold-{{ holding.hold_number }} {% endif %}
       {% endfor %}
