@@ -4,12 +4,6 @@ from django.core.cache import cache
 import numbers
 from datetime import datetime
 import copy
-from redis import Redis
-from rq import Queue
-from rq.decorators import job
-
-redis_conn = Redis()
-q = Queue('pdf', connection = redis_conn)
 
 def strip_all(string):
     string = str(string).replace("'","").strip("[").strip("]").replace(",","")
@@ -28,7 +22,6 @@ def make_table_row(iterable):
         row = str(strip_all(list))
     return strip_all(row)
 
-@job(queue = 'pdf', connection = redis_conn, timeout = 300)
 def pdf_output(objects):
 
     template = dict(total=0, pilot_in_command=0,
@@ -53,6 +46,8 @@ def pdf_output(objects):
     for page_num in p.page_range:
 
         this_page = copy.copy(template)
+
+        #maek this write to a string instead and return that string
 
         flights = p.page(page_num).object_list
 
@@ -190,8 +185,4 @@ def pdf_output(objects):
         file.write("</table>")
     file.close()
 
-    # logbook = HTML(filename='pdf_output/templates/pdf_output/log_table.html') #where pdf_output writes the file
-    # print(logbook)
-    # logbook.write_pdf(target='pdf_output/logbook.pdf') # where can this be saved? Profile.file_field?
-    #
-    return None
+    return file

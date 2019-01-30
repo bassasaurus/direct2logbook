@@ -2,7 +2,7 @@ from flights.models import MapData, Flight
 from django.core.cache import cache
 import json
 
-def get_map_data(queryset):
+def get_map_data(queryset, user):
 
     features = []
     line_json = []
@@ -32,7 +32,11 @@ def get_map_data(queryset):
 
     feature_collection = {"type":"FeatureCollection","features": features }
 
-    cache.set('airports',feature_collection, 5*60)
+    user_cache = 'airports_{}'.format(user.id)
+    cache.set(user_cache, feature_collection, 1*60)
 
     line_json = str(line_json)
-    cache.set('routes', line_json, 5*60)
+    user_cache = 'routes_{}'.format(user.id)
+    cache.set(user_cache, line_json, 1*60)
+
+    return feature_collection, line_json

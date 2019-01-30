@@ -49,16 +49,20 @@ class LoginRequiredMixin(LoginRequiredMixin):
     login_url = '/accounts/login'
     # redirect_field_name = None
 
-def geoJSON_airports_view(request):
+def geoJSON_airports_view(request, user_id):
     if request.method == 'GET':
+        user = request.user
 
-        data = cache.get('airports')
+        user_cache = 'airports_{}'.format(user.id)
+        data = cache.get(user_cache)
         return JsonResponse(data, content_type='application/json', safe=False)
 
-def geoJSON_routes_view(request):
+def geoJSON_routes_view(request, user_id):
     if request.method == 'GET':
+        user = request.user
 
-        data = cache.get('routes')
+        user_cache = 'routes_{}'.format(user.id)
+        data = cache.get(user_cache)
         return HttpResponse(data, content_type='text/html')
 
 class AircraftAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
@@ -243,7 +247,8 @@ class FlightArchive(LoginRequiredMixin, UserObjectsMixin, ArchiveIndexView):
 
     def get_context_data(self, **kwargs):
         context = super(FlightArchive, self).get_context_data(**kwargs)
-        get_map_data(self.object_list)
+        user = self.request.user
+        get_map_data(self.object_list, user)
 
         context['title'] = "D-> | Map"
         context['parent_name'] = 'Home'
@@ -261,7 +266,8 @@ class FlightArchiveYear(LoginRequiredMixin, UserObjectsMixin, YearArchiveView):
 
     def get_context_data(self, **kwargs):
         context = super(FlightArchiveYear, self).get_context_data(**kwargs)
-        get_map_data(self.object_list)
+        user = self.request.user
+        get_map_data(self.object_list, user)
 
         context['title'] = "D-> | Flights by Year"
         context['home_link'] = reverse('home')
@@ -279,7 +285,8 @@ class FlightArchiveMonth(LoginRequiredMixin, UserObjectsMixin, MonthArchiveView)
 
     def get_context_data(self, **kwargs):
         context = super(FlightArchiveMonth, self).get_context_data(**kwargs)
-        get_map_data(self.object_list)
+        user = self.request.user
+        get_map_data(self.object_list, user)
 
         context['title'] = "D-> | Flights by Month"
         context['home_link'] = reverse('home')
@@ -394,7 +401,8 @@ class FlightDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
         context = super(FlightDetail, self).get_context_data(**kwargs)
 
         queryset = Flight.objects.filter(pk=self.object.pk)
-        get_map_data(queryset)
+        user = self.request.user
+        get_map_data(queryset, user)
 
         flight = Flight.objects.get(pk=self.object.pk)
         earliest = Flight.objects.earliest('date')

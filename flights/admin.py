@@ -45,7 +45,7 @@ class StatAdmin(admin.ModelAdmin):
     empty_value_display = ''
 
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('company',)
+    list_display = ('user','company','log_table')
     empty_value_display = ''
 
 class ApproachAdmin(admin.ModelAdmin):

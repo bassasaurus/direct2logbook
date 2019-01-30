@@ -11,8 +11,8 @@ urlpatterns = [
     #autocomplete urls
     url(r'^aircraft-autocomplete/$', AircraftAutocomplete.as_view(), name='aircraft-autocomplete'),
     url(r'^tailnumber-autocomplete/$', TailNumberAutocomplete.as_view(), name='tailnumber-autocomplete'),
-    url(r'^geojson/airports$', geoJSON_airports_view, name='geojson_airports'),
-    url(r'^geojson/routes$', geoJSON_routes_view, name='geojson_routes'),
+    url(r'^geojson/airports/(?P<user_id>\d+)/$', geoJSON_airports_view, name='geojson_airports'),
+    url(r'^geojson/routes/(?P<user_id>\d+)/$', geoJSON_routes_view, name='geojson_routes'),
 
     url(r'^profile/$', ProfileView.as_view(), name='profile'),
     url(r'^profile/update/(?P<pk>\d+)/$', ProfileUpdateView.as_view(), name='profile_update'),

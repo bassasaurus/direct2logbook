@@ -73,7 +73,6 @@ INSTALLED_APPS = [
     'columns',
     'extra_views',
     'anymail',
-    'sass_processor',
 ]
 
 AUTHENTICATION_BACKENDS = (
@@ -180,7 +179,6 @@ USE_TZ = True
 STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'sass_processor.finders.CssFinder',
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, '/static/')
@@ -190,9 +188,8 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'pdf_output/static/'),
 ]
 
-SASS_PRECISION = 8 #bootsrap setting
-
-SASS_OUTPUT_STYLE = 'nested' #compact for production
+MEDIA_ROOT = os.path.join(BASE_DIR, '/media/')
+MEDIA_URL = '/media/'
 
 
 REST_FRAMEWORK = {
