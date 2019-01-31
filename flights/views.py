@@ -244,7 +244,6 @@ class FlightArchive(LoginRequiredMixin, UserObjectsMixin, ArchiveIndexView):
     allow_empty = True
     allow_future = False
 
-
     def get_context_data(self, **kwargs):
         context = super(FlightArchive, self).get_context_data(**kwargs)
         user = self.request.user
@@ -254,6 +253,8 @@ class FlightArchive(LoginRequiredMixin, UserObjectsMixin, ArchiveIndexView):
         context['parent_name'] = 'Home'
         context['parent_link'] = reverse('home')
         context['page_title'] = 'Map'
+        context['years'] = Flight.objects.dates('date', 'year')
+        context['months'] = Flight.objects.dates('date', 'month')
         return context
 
 
@@ -274,6 +275,7 @@ class FlightArchiveYear(LoginRequiredMixin, UserObjectsMixin, YearArchiveView):
         context['parent_name'] = 'Map'
         context['parent_link'] = reverse('flight_by_date')
         context['page_title'] = "Flights by Year"
+        context['years'] = Flight.objects.dates('date', 'year')
         return context
 
 class FlightArchiveMonth(LoginRequiredMixin, UserObjectsMixin, MonthArchiveView):
@@ -293,6 +295,8 @@ class FlightArchiveMonth(LoginRequiredMixin, UserObjectsMixin, MonthArchiveView)
         context['parent_name'] = 'Map'
         context['parent_link'] = reverse('flight_by_date')
         context['page_title'] = "Flights by Month"
+        context['years'] = Flight.objects.dates('date', 'year')
+        context['months'] = Flight.objects.dates('date', 'month')
         return context
 
 # class FlightArchiveDay(LoginRequiredMixin, UserObjectsMixin, DayArchiveView):

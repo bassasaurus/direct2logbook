@@ -2,34 +2,44 @@
 {% load static %}
 {% block content %}
 
+<hr>
 <div class="row">
-  <div class="col-4">
-    <h3>Current Date Range</h3>
-      <!-- <a class="btn btn-outline-secondary btn-sm" href="{% url 'flight_by_date' %}" >All Years</a> -->
-    <hr>
-      <div class="btn-group">
+  <div class="col">
+    {% for year in years %}
+      <a href="/flights/by_date/{{ year|date:'Y' }}">{{ year|date:"Y" }}</a>
+    {% endfor %}
+  </div>
+</div>
+<hr>
+<div class="row">
+  <div class="col">
+      <div class="">
         {% if previous_month %}
-            <a href='/flights/by_date/{{ previous_month|date:"Y" }}/{{ previous_month|date:"b" }}' class="btn btn-outline-secondary btn-sm">- Month</a>
+            <a href='/flights/by_date/{{ previous_month|date:"Y" }}/{{ previous_month|date:"b" }}' class="">- {{ previous_month|date:"F" }}</a>
         {% endif %}
+        <span class="font-weight-bold">| {{ month|date:"F" }}, {{ month|date:"Y" }} |</span>
         {% if next_month %}
-            <a href='/flights/by_date/{{ next_month|date:"Y" }}/{{ next_month|date:"b" }}' class="btn btn-outline-secondary btn-sm">Month +</a>
+            <a href='/flights/by_date/{{ next_month|date:"Y" }}/{{ next_month|date:"b" }}' class="">{{ next_month|date:"F" }} +</a>
         {% endif %}
       </div>
-    <div><hr></div>
-    <div style="overflow:auto;" >
+  </div>
+</div>
+<hr>
+<div class="row">
+  <div class="col">
       {% for flight in object_list %}
-          <li class=list-unstyled><a href ="{% url 'flight_detail' flight.pk %}" class="list-group">
-              <div><p>{{ flight.date }} |
-      				{{ flight.registration }} </br>
-      				{{ flight.route }}</a></p></div></li>
+          <a class="text-nowrap" href ="{% url 'flight_detail' flight.pk %}">
+            {{ flight.date }} {{ flight.registration }} {{ flight.route }}
+          </a> |
       {% endfor %}
-    </div>
   </div>
-
-  <div id="mapid" class="col-8 image-shadow custom-popup">
+</div>
+<hr>
+<div class="row">
+  <div id="mapid" class="col image-shadow custom-popup">
     {% include 'leaflet.html' %}
-
   </div>
+</div>
 
 
 

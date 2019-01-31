@@ -2,15 +2,6 @@
 {% load static %}
 {% block content %}
 
-<!-- leaflet -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js"></script>
-<!-- control_loading -->
-<script src="{% static 'flights/control_loading.js' %}"></script>
-<link rel="stylesheet" type="text/css" href="{% static 'flights/control_loading.css' %}">
-<!-- conditionalLayer -->
-<script src="{% static 'flights/leaflet-conditionalLayer.js' %}"></script>
-
 {% if not date_list %}
   <div class="page-header">
     <h3>No flights yet, start <a href="{% url 'flight_create' %}">here</a>.<h3>
@@ -20,21 +11,25 @@
     <div class="image-shadow"id="mapid"></div>
   </div>
 {% else %}
+{% endif %}
 
-    <div class="row">
-      <div class="col-lg-12 col-md-12 col-sm-12">
-        {% for date in date_list %}
-            <a style="margin-top: 5px;" href="/flights/by_date/{{ date|date:'Y' }}" class="btn btn-outline-secondary">{{ date|date:"Y" }}</a>
-        {% endfor %}
-      </div>
+<hr>
+<div class="row">
+  <div class="col">
+    {% for year in years %}
+      <a href="/flights/by_date/{{ year|date:'Y' }}">{{ year|date:"Y" }}</a>
+    {% endfor %}
+  </div>
+</div>
+<hr>
+
+<div class="row">
+  <div class="col">
+    <div id="mapid" class="col image-shadow custom-popup">
+      <!-- leaflet.html -->
     </div>
-    <div style="height: 20px; width: 100%;"></div>
-
-    <!-- <div id="mapid" class="col col-lg-12 col-md-12 col-sm-12 image-shadow custom-popup">
-      {% include 'leaflet.html' %}
-
-    </div> -->
-  {% endif %}
+  </div>
+</div>
 
 
 {% endblock %}

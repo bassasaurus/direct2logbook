@@ -2,30 +2,47 @@
 {% load static %}
 {% block content %}
 
+<hr>
 <div class="row">
-  <div class="col-2">
-      <a class="btn btn-outline-secondary btn-sm" href="{% url 'flight_by_date' %}">All Years</a>
-      <hr>
-    	<div class="btn-group">
-    		{% if previous_year %}
-    		    <a href='/flights/by_date/{{ previous_year|date:"Y" }}' class="btn btn-outline-secondary btn-sm">- Year</a>
-    		{% endif %}
-    		{% if next_year %}
-    				<a href='/flights/by_date/{{ next_year|date:"Y" }}' class="btn btn-outline-secondary btn-sm">Year +</a>
-    		{% endif %}
-    	</div>
-    <div><hr></div>
+  <div class="col">
+    {% for year in years %}
+      <a href="/flights/by_date/{{ year|date:'Y' }}">{{ year|date:"Y" }}</a>
+    {% endfor %}
+  </div>
+</div>
+<hr>
+<div class="row">
+  <div class="col">
+      <div class="">
+        {% if previous_year %}
+            <a href='/flights/by_date/{{ previous_year|date:"Y" }}' class="">- {{ previous_year|date:"Y" }}</a>
+        {% endif %}
+          <span class="font-weight-bold">| {{ year|date:"Y" }} |</span>
+        {% if next_year %}
+            <a href='/flights/by_date/{{ next_year|date:"Y" }}' class="">{{ next_year|date:"Y" }} +</a>
+        {% endif %}
+      </div>
+  </div>
+</div>
+<hr>
+<div class="row">
+  <div class="col">
+    <div style="display: inline;" class="align-center">
 			{% for date in date_list %}
-    		<li class=list-unstyled>
-          <a href='/flights/by_date/{{ year|date:"Y" }}/{{ date|date:"b" }}'class="">
-    		      <div class=""><p>{{ date|date }}</a></p></div></li>
-			{% endfor %}
-  </div>
+          <a href='/flights/by_date/{{ year|date:"Y" }}/{{ date|date:"b" }}'class="">{{ date|date:"F" }}</a> |
+      {% endfor %}
+      </div>
 
-  <div id="mapid" class="col-10 image-shadow custom-popup">
-    {% include 'leaflet.html' %}
-  </div>
+    </div>
+</div>
 
+<hr>
+<div class="row">
+  <div class="col">
+    <div id="mapid" class="col image-shadow custom-popup">
+      {% include 'leaflet.html' %}
+    </div>
+  </div>
 </div>
 
 
