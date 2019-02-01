@@ -504,7 +504,8 @@ class AircraftDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
         context['tailnumbers'] = TailNumber.objects.all().filter(aircraft = self.object )
 
         flights = Flight.objects.all().filter(aircraft_type = self.object)
-        get_map_data(flights)
+        user = self.request.user
+        get_map_data(flights, user)
         context['flights'] = flights
 
         context['title'] = "D-> | " + str(self.object)
@@ -584,7 +585,8 @@ class TailNumberDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
     def get_context_data(self, **kwargs):
         tailnumber = self.object
         flights = Flight.objects.all().filter(registration = self.object)
-        get_map_data(flights)
+        user = self.request.user
+        get_map_data(flights, user)
         context = super(TailNumberDetail, self).get_context_data(**kwargs)
 
         context['title'] = "D-> | " + str(self.object)

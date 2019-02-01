@@ -1,5 +1,6 @@
 // map init
 var mymap = L.map('mapid', {
+  preferCanvas: true,
   minZoom: 2.1,
   maxZoom: 18,
   zoom: 15,
