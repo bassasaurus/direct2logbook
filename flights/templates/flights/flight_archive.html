@@ -3,7 +3,7 @@
 {% block content %}
 
 <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.52.0/mapbox-gl.js'></script>
-<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.52.0/mapbox-gl.css' rel='stylesheet' />
+<link rel='stylesheet' href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.52.0/mapbox-gl.css' />
 
 <hr>
 <div class="row">
@@ -18,7 +18,7 @@
 <div class="row">
   <div class="col">
     <div id="mapid" class="col image-shadow custom-popup">
-      <!-- leaflet.html -->
+      {% include 'leaflet.html' %}
     </div>
   </div>
 </div>
