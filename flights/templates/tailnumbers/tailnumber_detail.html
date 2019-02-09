@@ -2,9 +2,7 @@
 {% block content%}
 {% load static %}
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="crossorigin=""/>
-<script src="https://unpkg.com/leaflet@^1.0.0/dist/leaflet-src.js"></script>
-
+<hr>
 <div class="btn-group">
   <a href ="{% url 'tailnumber_update' tailnumber.pk %}" class="btn btn-outline-secondary">Update</a>
   <a href ="{% url 'tailnumber_delete' tailnumber.pk %}" class="btn btn-outline-danger">Delete</a>
@@ -39,7 +37,7 @@
 <div class="row">
   <div class="col-12">
   <div style="margin-top: 10px;" id="mapid" class="col image-shadow custom-popup">
-    <script src="{% static 'flights/leaflet/leaflet-geodesic.js' %}"></script>
+    {% include 'leaflet.html' %}
   </div>
 </div>
 </div>

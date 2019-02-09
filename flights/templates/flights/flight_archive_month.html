@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load columns %}
 {% block content %}
 
 <hr>
 <div class="row">
   <div class="col">
-    {% for year in years %}
+    {% for year in years reversed %}
       <a href="/flights/by_date/{{ year|date:'Y' }}">{{ year|date:"Y" }}</a>
     {% endfor %}
   </div>
@@ -25,16 +26,22 @@
   </div>
 </div>
 <hr>
-<div class="row">
-  <div class="col">
-      {% for flight in object_list %}
-          <a class="text-nowrap" href ="{% url 'flight_detail' flight.pk %}">
-            {{ flight.date }} {{ flight.registration }} {{ flight.route }}
-          </a> |
-      {% endfor %}
-  </div>
-</div>
-<hr>
+<div class="row flex-sm-row">
+  {% for col in object_list|columns:2 reversed %}
+      <div class="col flex-md-column">
+          {% for flight in col reversed %}
+              <div class="item">
+                <a href="{% url 'flight_detail' flight.pk %}">
+                  {{ flight.date }} {{ flight.registration }}
+                  {{ flight.route }}
+                  <hr style="margin: 0px;">
+                </a>
+              </div>
+          {% endfor %}
+      </div><!-- /col-md-6 -->
+  {% endfor %}
+</div><!-- /row -->
+<br>
 <div class="row">
   <div id="mapid" class="col image-shadow custom-popup">
     {% include 'leaflet.html' %}

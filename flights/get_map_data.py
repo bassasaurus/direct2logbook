@@ -18,6 +18,7 @@ def get_map_data(queryset, user):
 
     for flight in queryset:
         for map_obj in flight.route_data:
+            line_json.append([map_obj.latitude, map_obj.longitude]) #assemble polyline
             if map_obj not in unique_values:
                 unique_values.add(map_obj)
 
@@ -40,7 +41,8 @@ def get_map_data(queryset, user):
 
             features.append(feature)
 
-            line_json.append([map_obj.latitude, map_obj.longitude]) #assemble polyline
+
+
 
     feature_collection = {"type":"FeatureCollection","features": features }
 

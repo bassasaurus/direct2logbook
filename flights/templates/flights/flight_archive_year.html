@@ -5,7 +5,7 @@
 <hr>
 <div class="row">
   <div class="col">
-    {% for year in years %}
+    {% for year in years reversed %}
       <a href="/flights/by_date/{{ year|date:'Y' }}">{{ year|date:"Y" }}</a>
     {% endfor %}
   </div>
@@ -14,12 +14,12 @@
 <div class="row">
   <div class="col">
       <div class="">
-        {% if previous_year %}
-            <a href='/flights/by_date/{{ previous_year|date:"Y" }}' class="">- {{ previous_year|date:"Y" }}</a>
+        {% if next_year %}
+            <a href='/flights/by_date/{{ next_year|date:"Y" }}' class="">+ {{ next_year|date:"Y" }}</a>
         {% endif %}
           <span class="font-weight-bold">| {{ year|date:"Y" }} |</span>
-        {% if next_year %}
-            <a href='/flights/by_date/{{ next_year|date:"Y" }}' class="">{{ next_year|date:"Y" }} +</a>
+        {% if previous_year %}
+            <a href='/flights/by_date/{{ previous_year|date:"Y" }}' class="">{{ previous_year|date:"Y" }} -</a>
         {% endif %}
       </div>
   </div>
