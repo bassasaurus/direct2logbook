@@ -10,8 +10,8 @@
 <hr>
   <div class="row">
   <div style="margin-top:10px;" class="col">
-    <button id="pdf" class="btn btn-outline-secondary">Print Logbook</button>
-
+    <!-- <button id="pdf" class="btn btn-outline-secondary">Print Logbook</button> -->
+    <a target="new" class="btn btn-outline-secondary" href="{% url 'pdf' user.pk %}">Print Logbook</a>
   </div>
   </div>
 <hr>
@@ -22,9 +22,11 @@
       <thead>
         <th class="text-nowrap">Flight Errors</th>
       </thead>
+      <tbody>
         {% for flight in flight_errors %}
           {% if flight.map_error or flight.duplicate_error or flight.aircraft_type_error or flight.registration_error or flight.crew_error or flight.duration < .1 %}
             <tr><td><a href ="{% url 'flight_detail' flight.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ flight.date }} | {{ flight.route }}</a></td></tr>
+      </tbody>
     </table>
   </div>
           {% else %}
@@ -212,67 +214,7 @@
           </div>
         </div>
       </div>
-
-{% csrf_token %}
-<script>
-
-  $(document).ajaxSend(function(){
-    swal({
-      type: 'info',
-      title: 'Preparing your logbook.',
-      footer: 'Stay on this page.',
-      toast: true,
-      position: 'top',
-      showConfirmButton: false,
-      allowOutsideClick: false,
-      timer: 50000,
-    })
-
-});
-
-  var csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
-  function csrfSafeMethod(method) {
-    // these HTTP methods do not require CSRF protection
-    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
-}
-$.ajaxSetup({
-    beforeSend: function(xhr, settings) {
-        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        }
-    }
-});
-
-  $('#pdf').click(function(e) {
-    e.preventDefault();
-    $.ajax({
-      type:"POST",
-      url:"/pdf_output/",
-      cache: false,
-       timeout: 20000,
-
-      success: function(result) {
-        swal ({
-          title: "Success",
-          text: "Check your email.",
-          type: "success",
-          allowOutsideClick: false,
-        })
-       },
-      error: function(result) {
-        swal ({
-          title: "Error",
-          text: "Refresh this page and try again.",
-          type: "error",
-          allowOutsideClick: false,
-        })
-       },
-
-     });
-  })
-  </script>
-
-
+      
 {% include 'tablefixer.html' %}
 
 {% endblock %}

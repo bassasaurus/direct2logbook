@@ -1,11 +1,9 @@
 @page {
     size: legal landscape;
-    margin-left: 2cm;
-    margin-top: 1cm;
 }
 
 html {
-  font-family: sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 .remarks{
@@ -19,6 +17,7 @@ html {
 .number{
   text-align: right;
 }
+
 table{
   width: 100%;
 }
@@ -36,4 +35,3 @@ td {
   border: 1px solid black;
   border-collapse: collapse;
 }
-/* loader */

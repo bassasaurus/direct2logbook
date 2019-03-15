@@ -200,14 +200,14 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         else:
             context['appr_current_date'] = oldest_approach_date.date + datetime.timedelta(180)
 
-        hold_qs = Flight.objects.filter(date__lte=today, date__gte=last_180).filter(holding__hold_number__gte=0).aggregate(Sum(F('holding__hold_number')))
+        hold_qs = Flight.objects.filter(date__lte=today, date__gte=last_180).filter(holding__hold=True)
         if not hold_qs:
             context['hold_quantity'] = 0
         else:
-            context['hold_quantity'] = hold_qs.get('holding__hold_number__sum')
+            context['hold_quantity'] = 1
 
 
-        hold_date_qs = Flight.objects.filter(date__lte=today, date__gte=last_180).filter(holding__hold_number=True).last()
+        hold_date_qs = Flight.objects.filter(date__lte=today, date__gte=last_180).filter(holding__hold=True).last()
         if not hold_date_qs:
             context['hold_current_date'] = None
         else:
@@ -343,7 +343,7 @@ class FlightCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
     def get_context_data(self, **kwargs):
         context = super(FlightCreate, self).get_context_data(**kwargs)
         context['approaches'] = inlineformset_factory(Flight, Approach, fields=('approach_type', 'number'), max_num=4, extra=1)
-        context['holding'] = inlineformset_factory(Flight, Holding, fields=('hold', 'hold_number'), max_num=1, extra=1)
+        context['holding'] = inlineformset_factory(Flight, Holding, fields=('hold',), max_num=1, extra=1)
 
         context['title'] = "D-> | New Flight"
         context['parent_name'] = 'Logbook'
@@ -359,7 +359,7 @@ class FlightUpdate(LoginRequiredMixin, UserObjectsMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super(FlightUpdate, self).get_context_data(**kwargs)
         ApproachFormSet = inlineformset_factory(Flight, Approach, fields=('approach_type', 'number'), max_num=4, extra=1)
-        HoldingFormSet = inlineformset_factory(Flight, Holding, fields=('hold', 'hold_number'), max_num=1, extra=1)
+        HoldingFormSet = inlineformset_factory(Flight, Holding, fields=('hold',), max_num=1, extra=1)
 
         if self.request.POST:
             # Create a formset instance to edit an existing model object,

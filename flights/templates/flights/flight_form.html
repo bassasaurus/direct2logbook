@@ -127,23 +127,21 @@
     </div>
   </div>
 </div>
-
+<hr>
 <div class="form-group">
   <div class="input-group-sm">
-    <label class="text-muted">Holding</label>
     <p class="text-danger">{{ inlines.non_form_errors }}</p>
-    <div class="">
       {{ holding.management_form }}
         {% for form in holding %}
-        {{ form.id }}
-          <div class="row">
-            <div class="col-5">{{ form.hold |add_class:"form-control" }}</div>
-            <div class="col-5 pr-5">{{ form.hold_number |add_class:"form-control" |attr:"placeholder:Number"}}</div>
-          </div>
+          {{ form.id }}
+            <div class="row">
+              <div class="col-1 align-bottom text-muted">Holding</div>
+              <div class="col-1 align-bottom"> {{ form.hold |add_class:"form-control exclcb" }}</div>
+            </div>
         {% endfor %}
     </div>
   </div>
-</div>
+<hr>
 
 <div class="form-group">
   <div class="input-group-sm">

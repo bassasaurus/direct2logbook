@@ -291,8 +291,7 @@ class Approach(models.Model):
 class Holding(models.Model):
 
     flight_object = models.ForeignKey('Flight', default=None, null=True, blank=True, verbose_name="Flight", on_delete=models.SET_NULL)
-    hold = models.NullBooleanField(null=True, blank=True)
-    hold_number = models.PositiveIntegerField(null=True, blank=True, verbose_name="Number")
+    hold = models.BooleanField(blank=True, default=False)
 
 class AircraftCategory(models.Model):
     aircraft_category = models.CharField(max_length=30)

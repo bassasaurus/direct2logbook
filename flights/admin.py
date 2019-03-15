@@ -52,7 +52,7 @@ class ApproachAdmin(admin.ModelAdmin):
     list_display = ('flight_object', 'approach_type', 'number')
 
 class HoldingAdmin(admin.ModelAdmin):
-    list_display = ('flight_object', 'hold', 'hold_number')
+    list_display = ('flight_object', 'hold')
 
 admin.site.register(Flight, FlightAdmin)
 admin.site.register(Aircraft, AircraftAdmin)
