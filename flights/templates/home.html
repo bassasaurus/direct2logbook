@@ -11,7 +11,7 @@
   <div class="row">
   <div style="margin-top:10px;" class="col">
     <!-- <button id="pdf" class="btn btn-outline-secondary">Print Logbook</button> -->
-    <a target="new" class="btn btn-outline-secondary" href="{% url 'pdf' user.pk %}">Print Logbook</a>
+    <a target="" id="pdf" class="btn btn-outline-secondary" href="{% url 'pdf' user.pk %}">Print Logbook</a>
   </div>
   </div>
 <hr>
@@ -214,7 +214,25 @@
           </div>
         </div>
       </div>
-      
+
 {% include 'tablefixer.html' %}
+
+<script>
+
+  $('#pdf').click(function(e) {
+    swal({
+    type: 'info',
+    title: 'Preparing your logbook.',
+    text: 'Please be patient.',
+    footer: 'This might take several minutes.',
+    toast: true,
+    position: 'top',
+    showConfirmButton: false,
+    allowOutsideClick: false,
+    // timer: 50000,
+  })
+});
+
+</script>
 
 {% endblock %}

@@ -1,4 +1,4 @@
-from flights.models import Flight, Total
+from flights.models import Flight, Total, Stat
 from django.contrib.auth.decorators import login_required
 import datetime
 from io import BytesIO
@@ -6,7 +6,7 @@ from io import BytesIO
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, legal, landscape
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import Paragraph, Table, SimpleDocTemplate, Spacer, TableStyle
+from reportlab.platypus import Paragraph, Table, SimpleDocTemplate, Spacer, TableStyle, PageBreak
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import inch
@@ -26,27 +26,52 @@ def entry(object, flight):
         entry = str(object)
     return entry
 
+class FooterCanvas(canvas.Canvas):
+
+    def __init__(self, *args, **kwargs):
+        canvas.Canvas.__init__(self, *args, **kwargs)
+        self.pages = []
+
+    def showPage(self):
+        self.pages.append(dict(self.__dict__))
+        self._startPage()
+
+    def save(self):
+        page_count = len(self.pages)
+        for page in self.pages:
+            self.__dict__.update(page)
+            self.draw_canvas(page_count)
+            canvas.Canvas.showPage(self)
+        canvas.Canvas.save(self)
+
+    def draw_canvas(self, page_count):
+        page = "Page %s of %s" % (self._pageNumber, page_count)
+        x = 130
+        self.saveState()
+        self.setFont('Helvetica', 10)
+        self.drawString(45, 65, "I certify that the entries in this logbook are true.")
+
+        self.setStrokeColorRGB(0, 0, 0)
+        self.setLineWidth(0.5)
+        self.line(255, 60, 480, 60)
+
+        self.drawString(13*inch/2, 30, page)
+        self.restoreState()
 
 @login_required
 def PDFView(request, user_id):
 
     user = request.user
 
-    # flight_objects = Flight.objects.filter(user=user).order_by('date')
-    flight_objects = Flight.objects.filter(user=user).order_by('-date')[:100]
-    total_objects = Total.objects.filter(user=user)
-    # number of flights per page
-    # pages = Paginator(objects, 30)
-    # Create the HttpResponse object with the appropriate PDF headers.
     buffer = BytesIO()
 
     doc = SimpleDocTemplate(buffer,
                             pagesize=landscape(legal),
                             verbosity=1,
-                            rightMargin=0.5*inch,
                             leftMargin=0.5*inch,
+                            rightMargin=0.5*inch,
                             topMargin=0.5*inch,
-                            bottomMargin=.25*inch)
+                            bottomMargin=1.25*inch)
 
     styles = getSampleStyleSheet()
 
@@ -64,6 +89,14 @@ def PDFView(request, user_id):
 
     #summary page starts here
 
+
+    text = "<para size=15 align=left><u><b>Category Class Summary</b></u></para>"
+    cat_class_title = Paragraph(text, style=styles["Normal"])
+    story.append(cat_class_title)
+    story.append(spacer)
+
+    #total table
+    total_objects = Total.objects.filter(user=user)
     totals_that_exist =[]
     for total in total_objects:
         if total.total_time > 0.0:
@@ -74,15 +107,19 @@ def PDFView(request, user_id):
         total = Total.objects.get(total=total)
         row = [str(total.total), str(total.total_time), str(total.pilot_in_command), str(total.second_in_command), str(total.cross_country),
                 str(total.instructor), str(total.dual), str(total.solo), str(total.instrument), str(total.night), str(total.simulated_instrument),
-                str(total.simulator), str(total.landings_day), str(total.landings_night), str(total.landings_day + total.landings_night)]
+                str(total.simulator), str(total.landings_day), str(total.landings_night), str(total.landings_day + total.landings_night),
+                str(total.last_flown.strftime("%m/%d/%Y")), str(total.last_30), str(total.last_60), str(total.last_90), str(total.last_180),
+                str(total.last_yr), str(total.last_2yr), str(total.ytd) ]
 
         total_data.append(row)
 
-    total_header = [ "", "Time", "PIC", "SIC", "XC", "CFI", "Dual", "Solo", "IFR", "Night", "Hood", "Sim", "D Ldg", "N Ldg", "Total Ldg"]
+    total_header = [ "Cat/Class", "Time", "PIC", "SIC", "XC", "CFI", "Dual", "Solo",
+                    "IFR", "Night", "Hood", "Sim", "D Ldg", "N Ldg", "Total Ldg",
+                    "Last Flown", "30", "60", "90", "6mo", "1yr", "2yr", "Ytd"]
 
     total_data.insert(0, total_header)
 
-    total_table = Table(total_data)
+    total_table = Table(total_data, hAlign='LEFT')
 
     total_table.setStyle(tablestyle)
 
@@ -90,7 +127,49 @@ def PDFView(request, user_id):
 
     story.append(spacer)
 
+    #stats table
+
+    text = "<para size=15 align=left><u><b>Aircraft Summary</b></u></para>"
+    aircraft_stats_title = Paragraph(text, style=styles["Normal"])
+    story.append(aircraft_stats_title)
+    story.append(spacer)
+
+    today = datetime.date.today()
+    last_5yr = today - datetime.timedelta(days=1825)
+    # stat_objects = Stat.objects.filter(last_flown__gte=last_5yr)
+    stat_objects = Stat.objects.all()
+
+    stat_data = []
+    for stat in stat_objects:
+        row = [str(stat.aircraft_type), str(stat.total_time), str(stat.pilot_in_command), str(stat.second_in_command), str(stat.cross_country),
+                str(stat.instructor), str(stat.dual), str(stat.solo), str(stat.instrument), str(stat.night), str(stat.simulated_instrument),
+                str(stat.simulator), str(stat.landings_day), str(stat.landings_night),
+                str(stat.last_flown.strftime("%m/%d/%Y")), str(stat.last_30), str(stat.last_60), str(stat.last_90), str(stat.last_180),
+                str(stat.last_yr), str(stat.last_2yr), str(stat.ytd) ]
+
+        stat_data.append(row)
+
+    stat_header = [ "Type", "Time", "PIC", "SIC", "XC", "CFI", "Dual", "Solo",
+                    "IFR", "Night", "Hood", "Sim", "D Ldg", "N Ldg",
+                    "Last Flown", "30", "60", "90", "6mo", "1yr", "2yr", "Ytd"]
+
+    stat_data.insert(0, stat_header)
+
+    stat_table = Table(stat_data, hAlign='LEFT')
+
+    stat_table.setStyle(tablestyle)
+
+    story.append(stat_table)
+
+    story.append(spacer)
+
+
+    story.append(PageBreak())
+
     # logbook starts here
+
+    # flight_objects = Flight.objects.filter(user=user).order_by('date')
+    flight_objects = Flight.objects.filter(user=user).order_by('-date')[:100]
 
     logbook_data = []
 
@@ -131,21 +210,27 @@ def PDFView(request, user_id):
 
     logbook_data.insert(0, logbook_header)
 
-    logbook_table = Table(logbook_data, repeatRows=(1))
+    logbook_table = Table(logbook_data, repeatRows=(1), hAlign='LEFT')
 
     logbook_table.setStyle(tablestyle)
 
     styles = getSampleStyleSheet()
 
+    text= "<para size=15 align=left><u><b>Logbook</b></u></para>"
+    logbook_title = Paragraph(text, style=styles["Normal"])
+    story.append(logbook_title)
+    story.append(spacer)
+
     story.append(logbook_table)
 
-
-
     #build pdf
-    doc.build(story)
+    doc.multiBuild(story, canvasmaker=FooterCanvas)
+    # doc.build(story)
     # Get the value of the BytesIO buffer and write it to the response.
     pdf = buffer.getvalue()
     buffer.close()
+
+
 
     #email message/attachment
     # subject = "Logbook for {} {}".format(user.first_name, user.last_name)

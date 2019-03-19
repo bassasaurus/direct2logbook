@@ -27,13 +27,16 @@
 
 
   <script>
+
     $( document ).ready(function() {
       swal({
         title: "Check your email.",
         text: "Thanks for being patient!",
         icon: "success",
         type: "success",
-      });
-     });
+    }).then(function(){
+        window.location.href = {% url 'home' %}
+    });
+   });
   </script>
 </html>
