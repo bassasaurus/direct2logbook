@@ -17,7 +17,7 @@
 <hr>
 
 <div style="margin-top: 15px;" class="row flex-sm-row">
-  <div class="col flex-md-column">
+  <div class="col flex-sm-column">
     <table>
       <thead>
         <th class="text-nowrap">Flight Errors</th>
@@ -28,11 +28,12 @@
             <tr><td><a href ="{% url 'flight_detail' flight.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ flight.date }} | {{ flight.route }}</a></td></tr>
       </tbody>
     </table>
-  </div>
+
           {% else %}
           {% endif %}
     {% endfor %}
-  <div class="col flex-md-column">
+  </div>
+  <div class="col flex-sm-column">
     <table>
       <thead>
         <th class="text-nowrap">Aircraft Errors</th>
@@ -40,12 +41,12 @@
         {% for aircraft in aircraft_errors %}
           {% if aircraft.config_error or aircraft.power_error or aircraft.category_error or aircraft.class_error or aircraft.weight_error %}
             <tr><td><a href ="{% url 'aircraft_detail' aircraft.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ aircraft }}</a></td></tr>
-        {% else %}
+          {% else %}
       {% endif %}
     {% endfor %}
   </table>
   </div>
-    <div class="col flex-md-column">
+    <div class="col flex-sm-column">
       <table>
         <thead>
           <th class="text-nowrap">Tailnumber Errors</th>

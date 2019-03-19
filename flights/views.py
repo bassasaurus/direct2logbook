@@ -138,7 +138,6 @@ class IndexView(TemplateView):
         context['title'] = 'D-> | Direct2Logbook'
         return context
 
-
 class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
     template_name='home.html'
 
