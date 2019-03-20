@@ -89,7 +89,6 @@ def PDFView(request, user_id):
 
     #summary page starts here
 
-
     text = "<para size=15 align=left><u><b>Category Class Summary</b></u></para>"
     cat_class_title = Paragraph(text, style=styles["Normal"])
     story.append(cat_class_title)
@@ -127,7 +126,7 @@ def PDFView(request, user_id):
 
     story.append(spacer)
 
-    #stats table
+    #aircraft stats table
 
     text = "<para size=15 align=left><u><b>Aircraft Summary</b></u></para>"
     aircraft_stats_title = Paragraph(text, style=styles["Normal"])
@@ -165,6 +164,8 @@ def PDFView(request, user_id):
 
 
     story.append(PageBreak())
+
+    #misc tables start here
 
     # logbook starts here
 

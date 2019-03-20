@@ -27,11 +27,10 @@
           {% if flight.map_error or flight.duplicate_error or flight.aircraft_type_error or flight.registration_error or flight.crew_error or flight.duration < .1 %}
             <tr><td><a href ="{% url 'flight_detail' flight.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ flight.date }} | {{ flight.route }}</a></td></tr>
       </tbody>
-    </table>
-
+      </table>
           {% else %}
           {% endif %}
-    {% endfor %}
+        {% endfor %}
   </div>
   <div class="col flex-sm-column">
     <table>
@@ -42,8 +41,8 @@
           {% if aircraft.config_error or aircraft.power_error or aircraft.category_error or aircraft.class_error or aircraft.weight_error %}
             <tr><td><a href ="{% url 'aircraft_detail' aircraft.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ aircraft }}</a></td></tr>
           {% else %}
-      {% endif %}
-    {% endfor %}
+          {% endif %}
+        {% endfor %}
   </table>
   </div>
     <div class="col flex-sm-column">
@@ -54,9 +53,9 @@
           {% for tailnumber in tailnumber_errors %}
             {% if tailnumber.reg_error %}
               <tr><td><a href ="{% url 'tailnumber_detail' tailnumber.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ tailnumber }}</a></td></tr>
-        {% else %}
-      {% endif %}
-    {% endfor %}
+            {% else %}
+            {% endif %}
+          {% endfor %}
     </table>
   </div>
 </div>
