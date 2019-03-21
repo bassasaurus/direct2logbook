@@ -1,4 +1,4 @@
-from flights.models import Flight, Total, Stat
+from flights.models import Flight, Total, Stat, Regs, Power
 from django.contrib.auth.decorators import login_required
 import datetime
 from io import BytesIO
@@ -16,6 +16,7 @@ from django.core.mail import send_mail
 
 from django.http import HttpResponse
 from django.template.response import TemplateResponse
+
 
 def entry(object, flight):
     if not object:
@@ -56,6 +57,9 @@ class FooterCanvas(canvas.Canvas):
         self.line(255, 60, 480, 60)
 
         self.drawString(13*inch/2, 30, page)
+
+        self.setFont('Helvetica-Oblique', 7)
+        self.drawString(800, 30, "Powered by Direct2Logbook.com and ReportLab")
         self.restoreState()
 
 @login_required
@@ -68,14 +72,12 @@ def PDFView(request, user_id):
     doc = SimpleDocTemplate(buffer,
                             pagesize=landscape(legal),
                             verbosity=1,
-                            leftMargin=0.5*inch,
-                            rightMargin=0.5*inch,
+                            leftMargin=0.25*inch,
+                            rightMargin=0.25*inch,
                             topMargin=0.5*inch,
                             bottomMargin=1.25*inch)
 
     styles = getSampleStyleSheet()
-
-    spacer = Spacer(1, 0.25*inch)
 
     tablestyle = TableStyle([
                         ('FONT', (0,0), (-1,0), 'Helvetica-Bold', 10),
@@ -87,9 +89,25 @@ def PDFView(request, user_id):
 
     story = []
 
-    #summary page starts here
+    #cover page starts here
+    spacer = Spacer(1, 1.5*inch)
+    story.append(spacer)
 
-    text = "<para size=15 align=left><u><b>Category Class Summary</b></u></para>"
+    spacer = Spacer(1, 1.5*inch)
+    text = "<para size=50 align=center>Logbook for {} {}</para>".format(user.first_name, user.last_name)
+    title =  Paragraph(text, style=styles["Normal"])
+    story.append(title)
+    story.append(spacer)
+    text = "<para size=15 align=center>Data current as of {}</para>".format(datetime.date.today().strftime("%m/%d/%Y"))
+    title =  Paragraph(text, style=styles["Normal"])
+    story.append(title)
+    story.append(PageBreak())
+
+
+
+    #summary page starts here
+    spacer = Spacer(1, 0.25*inch)
+    text = "<para size=15 align=left><u><b>Category and Class Summary</b></u></para>"
     cat_class_title = Paragraph(text, style=styles["Normal"])
     story.append(cat_class_title)
     story.append(spacer)
@@ -126,6 +144,72 @@ def PDFView(request, user_id):
 
     story.append(spacer)
 
+    #misc tables start here
+
+
+    #role_table
+    spacer = Spacer(1, 0.25*inch)
+    text = "<para size=15 align=left><u><b>Role Summary</b></u></para>"
+    role_title = Paragraph(text, style=styles["Normal"])
+    story.append(role_title)
+    story.append(spacer)
+
+
+    role_objects = Power.objects.filter(user=user)
+    role_data = []
+    for role in role_objects:
+        row = [str(role.role), str(role.turbine), str(role.piston)]
+        role_data.append(row)
+    role_header = ["Role", "Turbine", "Piston"]
+    role_data.insert(0, role_header)
+    role_table = Table(role_data, hAlign="LEFT")
+    role_tablestyle = TableStyle([
+                        ('FONT', (0,0), (-1,0), 'Helvetica-Bold', 10),
+                        ('LINEBELOW',(0,0),(-1,0),1.0,colors.black),
+                        ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
+                        ('LINEBELOW',(0,0),(-1,-1),.25,colors.black),
+                        ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
+                        ])
+    role_table.setStyle(role_tablestyle)
+    story.append(role_table)
+    story.append(spacer)
+
+    #regs_table
+    spacer = Spacer(1, 0.25*inch)
+    text = "<para size=15 align=left><u><b>FAR Summary</b></u></para>"
+    far_title = Paragraph(text, style=styles["Normal"])
+    story.append(far_title)
+    story.append(spacer)
+
+    regs_objects = Regs.objects.filter(user=user)
+    regs_data = []
+    for regs in regs_objects:
+        row = [str(regs.reg_type), str(regs.pilot_in_command), str(regs.second_in_command)]
+
+        regs_data.append(row)
+
+    regs_header = ["FAR", "PIC", "SIC"]
+    regs_data.insert(0, regs_header)
+    regs_table = Table(regs_data, hAlign='LEFT')
+    reg_tablestyle = TableStyle([
+                        ('FONT', (0,0), (-1,0), 'Helvetica-Bold', 10),
+                        ('LINEBELOW',(0,0),(-1,0),1.0,colors.black),
+                        ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
+                        ('LINEBELOW',(0,0),(-1,-1),.25,colors.black),
+                        ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
+                        ])
+
+    regs_table.setStyle(reg_tablestyle)
+    story.append(regs_table)
+    story.append(spacer)
+
+    #misc_container_table
+    # misc_data = [role_data, regs_data]
+    # misc_table_container = Table(misc_data, hAlign="LEFT")
+    #
+    # story.append(misc_table_container)
+    # story.append(spacer)
+
     #aircraft stats table
 
     text = "<para size=15 align=left><u><b>Aircraft Summary</b></u></para>"
@@ -154,7 +238,7 @@ def PDFView(request, user_id):
 
     stat_data.insert(0, stat_header)
 
-    stat_table = Table(stat_data, hAlign='LEFT')
+    stat_table = Table(stat_data, repeatRows=(1), hAlign='LEFT')
 
     stat_table.setStyle(tablestyle)
 
@@ -164,8 +248,6 @@ def PDFView(request, user_id):
 
 
     story.append(PageBreak())
-
-    #misc tables start here
 
     # logbook starts here
 
@@ -225,6 +307,7 @@ def PDFView(request, user_id):
     story.append(logbook_table)
 
     #build pdf
+    # doc.multiBuild(story, onFirstPage=myFirstPage, onLaterPages=myLaterPages)
     doc.multiBuild(story, canvasmaker=FooterCanvas)
     # doc.build(story)
     # Get the value of the BytesIO buffer and write it to the response.
