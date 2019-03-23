@@ -1,4 +1,4 @@
-from flights.models import Flight, Total, Stat, Regs, Power
+from flights.models import Flight, Total, Stat, Regs, Power, Weight, Endorsement
 from django.contrib.auth.decorators import login_required
 import datetime
 from io import BytesIO
@@ -6,10 +6,10 @@ from io import BytesIO
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, legal, landscape
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.platypus import Paragraph, Table, SimpleDocTemplate, Spacer, TableStyle, PageBreak
+from reportlab.platypus import Paragraph, Table, SimpleDocTemplate, Spacer, TableStyle, PageBreak, LongTable
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib.units import inch
+from reportlab.lib.units import inch, mm
 
 from django.core.mail import EmailMessage
 from django.core.mail import send_mail
@@ -27,48 +27,49 @@ def entry(object, flight):
         entry = str(object)
     return entry
 
-class FooterCanvas(canvas.Canvas):
+def add_first_page_number(canvas, doc):
+    canvas.saveState()
 
-    def __init__(self, *args, **kwargs):
-        canvas.Canvas.__init__(self, *args, **kwargs)
-        self.pages = []
+    canvas.setFont('Helvetica-Oblique', 7)
+    canvas.drawString(800, 30, "Powered by Direct2Logbook.com and ReportLab")
 
-    def showPage(self):
-        self.pages.append(dict(self.__dict__))
-        self._startPage()
+    canvas.setFont('Helvetica', 10)
+    page_number_text = "%d" % (doc.page)
+    canvas.drawCentredString(
+     14 * inch/2,
+     30,
+     page_number_text
+    )
+    canvas.restoreState()
 
-    def save(self):
-        page_count = len(self.pages)
-        for page in self.pages:
-            self.__dict__.update(page)
-            self.draw_canvas(page_count)
-            canvas.Canvas.showPage(self)
-        canvas.Canvas.save(self)
+def add_later_page_number(canvas, doc):
+    canvas.saveState()
 
-    def draw_canvas(self, page_count):
-        page = "Page %s of %s" % (self._pageNumber, page_count)
-        x = 130
-        self.saveState()
-        self.setFont('Helvetica', 10)
-        self.drawString(45, 65, "I certify that the entries in this logbook are true.")
+    canvas.setFont('Helvetica-Oblique', 7)
+    canvas.drawString(800, 30, "Powered by Direct2Logbook.com and ReportLab")
 
-        self.setStrokeColorRGB(0, 0, 0)
-        self.setLineWidth(0.5)
-        self.line(255, 60, 480, 60)
+    canvas.setFont('Helvetica', 10)
+    canvas.drawString(30, 50, "I certify that the entries in this logbook are true.")
 
-        self.drawString(13*inch/2, 30, page)
+    canvas.setStrokeColorRGB(0, 0, 0)
+    canvas.setLineWidth(0.5)
+    canvas.line(240, 50, 480, 50)
 
-        self.setFont('Helvetica-Oblique', 7)
-        self.drawString(800, 30, "Powered by Direct2Logbook.com and ReportLab")
-        self.restoreState()
+    canvas.setFont('Helvetica', 10)
+    page_number_text = "%d" % (doc.page)
+    canvas.drawCentredString(
+        14 * inch/2,
+        30,
+        page_number_text
+    )
+    canvas.restoreState()
+
 
 @login_required
 def PDFView(request, user_id):
 
     user = request.user
-
     buffer = BytesIO()
-
     doc = SimpleDocTemplate(buffer,
                             pagesize=landscape(legal),
                             verbosity=1,
@@ -76,16 +77,7 @@ def PDFView(request, user_id):
                             rightMargin=0.25*inch,
                             topMargin=0.5*inch,
                             bottomMargin=1.25*inch)
-
     styles = getSampleStyleSheet()
-
-    tablestyle = TableStyle([
-                        ('FONT', (0,0), (-1,0), 'Helvetica-Bold', 10),
-                        ('LINEBELOW',(0,0),(-1,0),1.0,colors.black),
-                        ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
-                        ('LINEBELOW',(0,0),(-1,-1),.25,colors.black),
-                        ('ALIGN', (4, 0), (-1, -1), 'RIGHT'),
-                        ])
 
     story = []
 
@@ -102,8 +94,6 @@ def PDFView(request, user_id):
     title =  Paragraph(text, style=styles["Normal"])
     story.append(title)
     story.append(PageBreak())
-
-
 
     #summary page starts here
     spacer = Spacer(1, 0.25*inch)
@@ -135,10 +125,15 @@ def PDFView(request, user_id):
                     "Last Flown", "30", "60", "90", "6mo", "1yr", "2yr", "Ytd"]
 
     total_data.insert(0, total_header)
-
     total_table = Table(total_data, hAlign='LEFT')
-
-    total_table.setStyle(tablestyle)
+    cat_class_tablestyle = TableStyle([
+                        ('FONT', (0,0), (-1,0), 'Helvetica-Bold', 10),
+                        ('LINEBELOW',(0,0),(-1,0),1.0,colors.black),
+                        ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
+                        ('LINEBELOW',(0,0),(-1,-1),.25,colors.black),
+                        ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+                        ])
+    total_table.setStyle(cat_class_tablestyle)
 
     story.append(total_table)
 
@@ -146,20 +141,13 @@ def PDFView(request, user_id):
 
     #misc tables start here
 
-
-    #role_table
-    spacer = Spacer(1, 0.25*inch)
-    text = "<para size=15 align=left><u><b>Role Summary</b></u></para>"
-    role_title = Paragraph(text, style=styles["Normal"])
-    story.append(role_title)
-    story.append(spacer)
-
-
+    # role_table
     role_objects = Power.objects.filter(user=user)
     role_data = []
     for role in role_objects:
         row = [str(role.role), str(role.turbine), str(role.piston)]
         role_data.append(row)
+
     role_header = ["Role", "Turbine", "Piston"]
     role_data.insert(0, role_header)
     role_table = Table(role_data, hAlign="LEFT")
@@ -168,24 +156,16 @@ def PDFView(request, user_id):
                         ('LINEBELOW',(0,0),(-1,0),1.0,colors.black),
                         ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
                         ('LINEBELOW',(0,0),(-1,-1),.25,colors.black),
-                        ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
+                        ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
                         ])
     role_table.setStyle(role_tablestyle)
-    story.append(role_table)
-    story.append(spacer)
+
 
     #regs_table
-    spacer = Spacer(1, 0.25*inch)
-    text = "<para size=15 align=left><u><b>FAR Summary</b></u></para>"
-    far_title = Paragraph(text, style=styles["Normal"])
-    story.append(far_title)
-    story.append(spacer)
-
     regs_objects = Regs.objects.filter(user=user)
     regs_data = []
     for regs in regs_objects:
         row = [str(regs.reg_type), str(regs.pilot_in_command), str(regs.second_in_command)]
-
         regs_data.append(row)
 
     regs_header = ["FAR", "PIC", "SIC"]
@@ -200,15 +180,75 @@ def PDFView(request, user_id):
                         ])
 
     regs_table.setStyle(reg_tablestyle)
-    story.append(regs_table)
+
+    #weight_table
+    weight_objects = Weight.objects.filter(user=user)
+
+    weights_that_exist =[]
+    for weight in weight_objects:
+        if weight.total > 0.0:
+            weights_that_exist.append(weight)
+
+    weight_data = []
+
+    for weight in weights_that_exist:
+        row = [str(weight.weight), str(weight.total)]
+        weight_data.append(row)
+
+    weight_header = ['Weight', 'Total']
+    weight_data.insert(0, weight_header)
+    weight_table = Table(weight_data, hAlign='LEFT')
+    weight_tablestyle = TableStyle([
+                        ('FONT', (0,0), (-1,0), 'Helvetica-Bold', 10),
+                        ('LINEBELOW',(0,0),(-1,0),1.0,colors.black),
+                        ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
+                        ('LINEBELOW',(0,0),(-1,-1),.25,colors.black),
+                        ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+                        ])
+
+    weight_table.setStyle(weight_tablestyle)
+
+    #endoresment_table
+
+    endorsement_objects = Endorsement.objects.filter(user=user)
+
+    endorsements_that_exist =[]
+    for endorsement in endorsement_objects:
+        if endorsement.total > 0.0:
+            endorsements_that_exist.append(endorsement)
+
+    endorsement_data = []
+
+    for endorsement in endorsements_that_exist:
+        row = [str(endorsement.endorsement), str(endorsement.total)]
+        endorsement_data.append(row)
+
+    endorsement_header = ['Endorsement', 'Total']
+    endorsement_data.insert(0, endorsement_header)
+    endorsement_table = Table(endorsement_data, hAlign='LEFT')
+    endorsement_tablestyle = TableStyle([
+                        ('FONT', (0,0), (-1,0), 'Helvetica-Bold', 10),
+                        ('LINEBELOW',(0,0),(-1,0),1.0,colors.black),
+                        ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
+                        ('LINEBELOW',(0,0),(-1,-1),.25,colors.black),
+                        ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+                        ])
+
+    endorsement_table.setStyle(endorsement_tablestyle)
+
+    #misc_table
+    text = "<para size=15 align=left><u><b>Misc Summary</b></u></para>"
+    misc_title = Paragraph(text, style=styles["Normal"])
+    story.append(misc_title)
     story.append(spacer)
 
-    #misc_container_table
-    # misc_data = [role_data, regs_data]
-    # misc_table_container = Table(misc_data, hAlign="LEFT")
-    #
-    # story.append(misc_table_container)
-    # story.append(spacer)
+    misc_data = [
+                [role_table, regs_table, weight_table, endorsement_table]
+                ]
+
+    misc_table = Table(misc_data, hAlign="LEFT")
+    story.append(misc_table)
+    story.append(spacer)
 
     #aircraft stats table
 
@@ -239,8 +279,14 @@ def PDFView(request, user_id):
     stat_data.insert(0, stat_header)
 
     stat_table = Table(stat_data, repeatRows=(1), hAlign='LEFT')
-
-    stat_table.setStyle(tablestyle)
+    stat_tablestyle = TableStyle([
+                        ('FONT', (0,0), (-1,0), 'Helvetica-Bold', 10),
+                        ('LINEBELOW',(0,0),(-1,0),1.0,colors.black),
+                        ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
+                        ('LINEBELOW',(0,0),(-1,-1),.25,colors.black),
+                        ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+                        ])
+    stat_table.setStyle(stat_tablestyle)
 
     story.append(stat_table)
 
@@ -293,9 +339,16 @@ def PDFView(request, user_id):
 
     logbook_data.insert(0, logbook_header)
 
-    logbook_table = Table(logbook_data, repeatRows=(1), hAlign='LEFT')
+    logbook_table = LongTable(logbook_data, repeatRows=(1), hAlign='LEFT')
 
-    logbook_table.setStyle(tablestyle)
+    logbook_tablestyle = TableStyle([
+                        ('FONT', (0,0), (-1,0), 'Helvetica-Bold', 10),
+                        ('LINEBELOW',(0,0),(-1,0),1.0,colors.black),
+                        ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
+                        ('LINEBELOW',(0,0),(-1,-1),.25,colors.black),
+                        ('ALIGN', (4, 0), (-1, -1), 'RIGHT'),
+                        ])
+    logbook_table.setStyle(logbook_tablestyle)
 
     styles = getSampleStyleSheet()
 
@@ -308,7 +361,7 @@ def PDFView(request, user_id):
 
     #build pdf
     # doc.multiBuild(story, onFirstPage=myFirstPage, onLaterPages=myLaterPages)
-    doc.multiBuild(story, canvasmaker=FooterCanvas)
+    doc.multiBuild(story, onFirstPage=add_first_page_number, onLaterPages=add_later_page_number)
     # doc.build(story)
     # Get the value of the BytesIO buffer and write it to the response.
     pdf = buffer.getvalue()
