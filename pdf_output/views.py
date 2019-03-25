@@ -17,7 +17,6 @@ from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.template.response import TemplateResponse
 
-
 def entry(object, flight):
     if not object:
         entry = '-'
@@ -27,8 +26,10 @@ def entry(object, flight):
         entry = str(object)
     return entry
 
-def add_first_page_number(canvas, doc):
+def title_page(canvas, doc):
     canvas.saveState()
+
+    canvas.drawImage('pdf_output/wings.png', 103, 205, width=800, height=229)
 
     canvas.setFont('Helvetica-Oblique', 7)
     canvas.drawString(800, 30, "Powered by Direct2Logbook.com and ReportLab")
@@ -82,14 +83,19 @@ def PDFView(request, user_id):
     story = []
 
     #cover page starts here
-    spacer = Spacer(1, 1.5*inch)
-    story.append(spacer)
+    spacer15= Spacer(1, 1.5*inch)
+    spacer10= Spacer(1, 1.0*inch)
+    spacer025= Spacer(1, .25*inch)
+    spacer050= Spacer(1, .50*inch)
 
-    spacer = Spacer(1, 1.5*inch)
+    story.append(spacer15)
+    story.append(spacer025)
     text = "<para size=50 align=center>Logbook for {} {}</para>".format(user.first_name, user.last_name)
     title =  Paragraph(text, style=styles["Normal"])
     story.append(title)
-    story.append(spacer)
+    story.append(spacer15)
+    story.append(spacer15)
+
     text = "<para size=15 align=center>Data current as of {}</para>".format(datetime.date.today().strftime("%m/%d/%Y"))
     title =  Paragraph(text, style=styles["Normal"])
     story.append(title)
@@ -293,7 +299,7 @@ def PDFView(request, user_id):
     story.append(spacer)
 
 
-    story.append(PageBreak())
+    # story.append(PageBreak())
 
     # logbook starts here
 
@@ -361,7 +367,7 @@ def PDFView(request, user_id):
 
     #build pdf
     # doc.multiBuild(story, onFirstPage=myFirstPage, onLaterPages=myLaterPages)
-    doc.multiBuild(story, onFirstPage=add_first_page_number, onLaterPages=add_later_page_number)
+    doc.multiBuild(story, onFirstPage=title_page, onLaterPages=add_later_page_number)
     # doc.build(story)
     # Get the value of the BytesIO buffer and write it to the response.
     pdf = buffer.getvalue()
