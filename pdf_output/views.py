@@ -270,22 +270,29 @@ def PDFView(request, user_id):
 
     stat_data = []
     for stat in stat_objects:
-        date_condition = [stat.last_30, stat.last_60, stat.last_90, stat.last_180, stat.last_yr, stat.last_2yr, stat.ytd]
+        #avoids None failure when user hasn't logged time in aircraft
+        date_condition = [stat.last_flown, stat.last_30, stat.last_60, stat.last_90, stat.last_180, stat.last_yr, stat.last_2yr, stat.ytd]
         if None not in date_condition:
+
             row = [str(stat.aircraft_type), str(stat.total_time), str(stat.pilot_in_command), str(stat.second_in_command), str(stat.cross_country),
                     str(stat.instructor), str(stat.dual), str(stat.solo), str(stat.instrument), str(stat.night), str(stat.simulated_instrument),
                     str(stat.simulator), str(stat.landings_day), str(stat.landings_night),
                     str(stat.last_flown.strftime("%m/%d/%Y")), str(stat.last_30), str(stat.last_60), str(stat.last_90), str(stat.last_180),
                     str(stat.last_yr), str(stat.last_2yr), str(stat.ytd) ]
+            stat_data.append(row)
+
         else:
             pass
-        stat_data.append(row)
+
+
 
     stat_header = [ "Type", "Time", "PIC", "SIC", "XC", "CFI", "Dual", "Solo",
                     "IFR", "Night", "Hood", "Sim", "D Ldg", "N Ldg",
                     "Last Flown", "30", "60", "90", "6mo", "1yr", "2yr", "Ytd"]
 
     stat_data.insert(0, stat_header)
+
+
 
     stat_table = Table(stat_data, repeatRows=(1), hAlign='LEFT')
     stat_tablestyle = TableStyle([
@@ -306,8 +313,8 @@ def PDFView(request, user_id):
 
     # logbook starts here
 
-    # flight_objects = Flight.objects.filter(user=user).order_by('date')
-    flight_objects = Flight.objects.filter(user=user).order_by('-date')[:200]
+    flight_objects = Flight.objects.filter(user=user).order_by('date')
+    # flight_objects = Flight.objects.filter(user=user).order_by('-date')[:200]
 
     logbook_data = []
 

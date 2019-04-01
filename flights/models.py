@@ -237,6 +237,9 @@ class Flight(models.Model):
     def get_absolute_url(self):
         return reverse('flight_detail', kwargs={'pk': self.pk})
 
+    def __str__(self):
+        return "{} | {}".format(self.date, self.route)
+
 class TailNumber(models.Model):
     user = models.ForeignKey(User, default=1)
     registration = models.CharField(db_index=True, max_length=10, unique=True)
@@ -284,9 +287,6 @@ class Approach(models.Model):
     class Meta:
         ordering =['approach_type']
         verbose_name_plural = "Approaches"
-
-    def __str__(self):
-        return self.approach_type
 
 class Holding(models.Model):
 
