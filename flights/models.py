@@ -12,7 +12,7 @@ from django.template.defaultfilters import truncatechars  # or truncatewords
 from django.core.validators import MinValueValidator, RegexValidator
 
 
-BOOL_CHOICES = ((True, 'Yes'), (False, 'No'))
+BOOL_CHOICES = ((True, 'Yes'), (False, 'No', None, ''))
 
 positive_validator = MinValueValidator(0.0, "Must be a positive number > 0.1")
 

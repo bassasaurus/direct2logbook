@@ -24,7 +24,6 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from flights.get_map_data import get_map_data
 import flights.currency as currency
 
-
 zulu_time = datetime.datetime.now().strftime('%Y %b %d %H:%M') + " UTC"
 
 def error_404(request):
@@ -140,6 +139,7 @@ class IndexView(TemplateView):
 
 class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
     template_name='home.html'
+
 
     def get_context_data(self, **kwargs):
         user = self.request.user

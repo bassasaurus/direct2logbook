@@ -270,12 +270,15 @@ def PDFView(request, user_id):
 
     stat_data = []
     for stat in stat_objects:
-        row = [str(stat.aircraft_type), str(stat.total_time), str(stat.pilot_in_command), str(stat.second_in_command), str(stat.cross_country),
-                str(stat.instructor), str(stat.dual), str(stat.solo), str(stat.instrument), str(stat.night), str(stat.simulated_instrument),
-                str(stat.simulator), str(stat.landings_day), str(stat.landings_night),
-                str(stat.last_flown.strftime("%m/%d/%Y")), str(stat.last_30), str(stat.last_60), str(stat.last_90), str(stat.last_180),
-                str(stat.last_yr), str(stat.last_2yr), str(stat.ytd) ]
-
+        date_condition = [stat.last_30, stat.last_60, stat.last_90, stat.last_180, stat.last_yr, stat.last_2yr, stat.ytd]
+        if None not in date_condition:
+            row = [str(stat.aircraft_type), str(stat.total_time), str(stat.pilot_in_command), str(stat.second_in_command), str(stat.cross_country),
+                    str(stat.instructor), str(stat.dual), str(stat.solo), str(stat.instrument), str(stat.night), str(stat.simulated_instrument),
+                    str(stat.simulator), str(stat.landings_day), str(stat.landings_night),
+                    str(stat.last_flown.strftime("%m/%d/%Y")), str(stat.last_30), str(stat.last_60), str(stat.last_90), str(stat.last_180),
+                    str(stat.last_yr), str(stat.last_2yr), str(stat.ytd) ]
+        else:
+            pass
         stat_data.append(row)
 
     stat_header = [ "Type", "Time", "PIC", "SIC", "XC", "CFI", "Dual", "Solo",
