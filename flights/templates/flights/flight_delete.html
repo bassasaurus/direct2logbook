@@ -4,11 +4,11 @@
 
 <h3>{{ flight.date }} | {{ flight.aircraft_type }} | {{ flight.registration }} | {{ flight.route }}</h3>
 <hr>
-<form id="delete-form" action="" method="post">{% csrf_token %}
+<form  action="" method="post">{% csrf_token %}
     <p>This cannot be undone! But it won't affect related data.</p>
     <p>You can also <a href="{% url 'flight_update' object.pk %}">update</a> the entry instead.</p>
     <hr>
-    <input type="submit" class = "btn-shadow btn-shadow-danger btn-block" value="Delete"/>
+    <input id="delete-confirm" type="submit" class = "btn-shadow btn-shadow-danger btn-block" value="Delete"/>
 </form>
 
 {% include "confirm_delete.html" %}

@@ -1,28 +1,5 @@
 <script>
-$('#delete-form').submit(function (e, params) {
-       var localParams = params || {};
-
-       if (!localParams.send) {
-           e.preventDefault();
-       }
-
-          //additional input validations can be done hear
-
-        Swal.fire({
-         title: 'Are you sure?',
-         text: "You won't be able to revert this!",
-         type: 'warning',
-         showCancelButton: true,
-         confirmButtonColor: '#3085d6',
-         cancelButtonColor: '#d33',
-         confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-         if (result.value) {
-           Swal.fire(
-             'Deleted!',
-             'success'
-           )
-         }
-       })
-});
+    $(document).on('click', '#delete-confirm', function(){
+        return confirm('Are you sure you want to delete this?');
+    })
 </script>

@@ -150,6 +150,14 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         context['aircraft_errors'] = Aircraft.objects.filter(user=user).all()
         context['tailnumber_errors'] = TailNumber.objects.filter(user=user).all()
 
+        aircraft_list = []
+        for aircraft in Aircraft.objects.all():
+            if TailNumber.objects.filter(aircraft__aircraft_type=aircraft).exists():
+                pass
+            else:
+                aircraft_list.append(aircraft)
+                context['aircraft_needs_tailnumber'] = aircraft_list
+
         #cat/class vfr day, night currency
         if not Total.objects.filter(user=user):
             context['asel_total'] = 0
@@ -204,7 +212,6 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
             context['hold_quantity'] = 0
         else:
             context['hold_quantity'] = 1
-
 
         hold_date_qs = Flight.objects.filter(date__lte=today, date__gte=last_180).filter(holding__hold=True).last()
         if not hold_date_qs:
@@ -446,20 +453,20 @@ class FlightDelete(LoginRequiredMixin, UserObjectsMixin, DeleteView):
 
 #-------------------Aircraft CRUD-----------------------
 
-class AircraftList(LoginRequiredMixin, UserObjectsMixin, ListView):
-    model = Aircraft
-    template_name = "aircraft/aircraft_list.html"
-    aircraft_form = AircraftForm
-
-    def get_context_data(self, **kwargs):
-        user = self.request.user
-        context = super(AircraftList, self).get_context_data(**kwargs)
-
-        context['title'] = "D-> | Aircraft"
-        context['parent_name'] = 'Home'
-        context['parent_link'] = reverse('home')
-        context['page_title'] = "Aircraft"
-        return context
+# class AircraftList(LoginRequiredMixin, UserObjectsMixin, ListView):
+#     model = Aircraft
+#     template_name = "aircraft/aircraft_list.html"
+#     aircraft_form = AircraftForm
+#
+#     def get_context_data(self, **kwargs):
+#         user = self.request.user
+#         context = super(AircraftList, self).get_context_data(**kwargs)
+#
+#         context['title'] = "D-> | Aircraft"
+#         context['parent_name'] = 'Home'
+#         context['parent_link'] = reverse('home')
+#         context['page_title'] = "Aircraft"
+#         return context
 
 class AircraftCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
     model = Aircraft
@@ -502,10 +509,15 @@ class AircraftDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
         context = super(AircraftDetail, self).get_context_data(**kwargs)
         context['tailnumbers'] = TailNumber.objects.all().filter(aircraft = self.object )
 
-        flights = Flight.objects.all().filter(aircraft_type = self.object)
+        flights = Flight.objects.all().filter(aircraft_type=self.object)
         user = self.request.user
         get_map_data(flights, user)
         context['flights'] = flights
+
+        if TailNumber.objects.filter(aircraft__aircraft_type=self.object).exists():
+            pass
+        else:
+            context['aircraft_needs_tailnumber'] = "Please select a tailnumber for {}".format(self.object.aircraft_type)
 
         context['title'] = "D-> | " + str(self.object)
         context['page_title'] = str(self.object)
@@ -539,6 +551,14 @@ class TailNumberList(LoginRequiredMixin, UserObjectsMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super(TailNumberList, self).get_context_data(**kwargs)
+
+        aircraft_list = []
+        for aircraft in Aircraft.objects.all():
+            if TailNumber.objects.filter(aircraft__aircraft_type=aircraft).exists():
+                pass
+            else:
+                aircraft_list.append(aircraft)
+                context['aircraft_needs_tailnumber'] = aircraft_list
 
         context['title'] = "D-> | Aircraft"
         context['parent_name'] = 'Home'

@@ -34,7 +34,6 @@ urlpatterns = [
     url(r'^logbook/delete/(?P<pk>\d+)/$', FlightDelete.as_view(), name='flight_delete'),
     url(r'^logbook/remarks$', RemarksList.as_view(), name='remarks'),
 
-
     url(r'^aircraft/$', TailNumberList.as_view(), name='aircraft_list'),
     url(r'^aircraft/create', AircraftCreate.as_view(), name='aircraft_create'),
     url(r'^aircraft/update/(?P<pk>\d+)/$', AircraftUpdate.as_view(), name='aircraft_update'),

@@ -11,28 +11,21 @@
   <hr>
 
 <div class="row">
-  {% for aircraft in object_list %}
-  <div class="col-4">
-    <div style="margin-left: 0px; margin-right: 0px; margin-top: 10px;" class="card">
-      {% if aircraft.image %}
-        <img class="card-img-top img-fluid" src={{ aircraft.image }}>
-        {% else %}
-      {% endif %}
-      <div class="card-body">
-        {% if aircraft.config_error or aircraft.power_error or aircraft.weight_error or aircraft.category_error or aircraft.class_error %}
-        <h4 class="card-title text-danger">{{ aircraft.aircraft_type }}</h4>
-        <p class="card-text"></p>
-        <a href ="{% url 'aircraft_detail' aircraft.pk %}" class="btn btn-outline-danger btn-sm">View</a>
-        {% else %}
-        <h4 class="card-title">{{ aircraft.aircraft_type }}</h4>
-        <p class="card-text"></p>
-        <a href ="{% url 'aircraft_detail' aircraft.pk %}" class="btn btn-outline-primary btn-sm">View</a>
-        {% endif %}
-      </div>
-    </div>
-  </div>
+  {% regroup aircraft by tailnumber as aircraft_list %}
+  <div class="row">
+    {% for aircraft in aircraft_list %}
+        <div class="col-12"><a style="text-decoration: underline;" class="text-dark" href="{% url 'aircraft_detail' aircraft.grouper.pk %}"><h4>{{ aircraft.grouper }}</h4></a>
+            <div style="display: inline;">
+              {% for tailnumber in aircraft.list %}
+                <a href="{% url 'tailnumber_detail' tailnumber.pk %}">{{ tailnumber.registration }}</a>
+              {% endfor %}
+            </div>
+            <hr>
+        </div>
+    {% endfor %}
 
-  {% endfor %}
+  </div>
+  </div>
 </div><!-- row -->
 
 {% endblock %}
