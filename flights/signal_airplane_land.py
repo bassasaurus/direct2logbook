@@ -294,5 +294,5 @@ def asel_update(sender, **kwargs):
         asel.ydt = 0
     else:
         asel.ydt = ydt.get('duration__sum')
-
+    
     asel.save()

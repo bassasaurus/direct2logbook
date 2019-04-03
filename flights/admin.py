@@ -14,7 +14,7 @@ class FlightAdmin(admin.ModelAdmin):
         HoldingInline,
     ]
 
-    list_display = ('user', 'date', 'aircraft_type', 'registration', 'route', 'duration','pk',
+    list_display = ('pk', 'user', 'date', 'route', 'aircraft_type', 'registration', 'duration',
     'landings_day', 'landings_night', 'night', 'instrument',
     'cross_country', 'second_in_command', 'pilot_in_command', 'simulated_instrument',
     'instructor', 'dual', 'simulator', 'solo', 'remarks', 'route_data', 'map_error',
@@ -37,15 +37,15 @@ class MapDataAdmin(admin.ModelAdmin):
     empty_value_display = ''
 
 class TotalAdmin(admin.ModelAdmin):
-    list_display = ('user', 'total', 'total_time', 'pilot_in_command', 'second_in_command', 'cross_country', 'instructor', 'dual', 'solo', 'instrument', 'night', 'simulated_instrument', 'simulator', 'landings_day', 'landings_night', 'landings_total')
+    list_display = ('user', 'pk', 'total', 'total_time', 'pilot_in_command', 'second_in_command', 'cross_country', 'instructor', 'dual', 'solo', 'instrument', 'night', 'simulated_instrument', 'simulator', 'landings_day', 'landings_night', 'landings_total')
     empty_value_display = ''
 
 class StatAdmin(admin.ModelAdmin):
-    list_display = ('user', 'aircraft_type', 'total_time')
+    list_display = ('user', 'pk', 'aircraft_type', 'total_time')
     empty_value_display = ''
 
 class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('user','company','log_table')
+    list_display = ('user', 'pk', 'company','signature')
     empty_value_display = ''
 
 class ApproachAdmin(admin.ModelAdmin):

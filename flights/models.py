@@ -26,10 +26,10 @@ def user_directory_path(instance, filename):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     company = models.CharField(max_length=50, default='')
-    log_table = models.FileField(upload_to=user_directory_path)
+    signature = models.FileField(upload_to=user_directory_path)
 
     def __str__(self):
-        title = str(self.user)
+        title = "{} {}".format(self.user, self.pk)
         return title
 
 #FAA data from http://www.faa.gov/airports/airport_safety/airportdata_5010/menu/nfdcfacilitiesexport.cfm?Region=&District=&State=&County=&City=&Use=PU&Certification=

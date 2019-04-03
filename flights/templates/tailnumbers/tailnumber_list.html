@@ -10,7 +10,7 @@
 
 <div class="mt-4">
   {% for aircraft in aircraft_needs_tailnumber %}
-    <p><u><a class="text-danger" href="{% url 'aircraft_detail' aircraft.pk %}">{{ aircraft.aircraft_type }}</a></u> Has not been assigned a tailnumber. It will appear below when it has.</p>
+    <p><u><a class="text-danger" href="{% url 'aircraft_detail' aircraft.pk %}">{{ aircraft.aircraft_type }}</a></u> Has not been assigned a tailnumber. It will not be included in any calculations.</p>
   {% endfor %}
 </div>
 <hr>
