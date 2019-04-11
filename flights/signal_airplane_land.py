@@ -68,11 +68,11 @@ def amel_update(sender, **kwargs):
     else:
       amel.simulated_instrument = simulated_instrument.get('simulated_instrument__sum')
 
-    simulator = Flight.objects.all().filter(cat_class_query).aggregate(Sum('simulator'))
+    simulator = Flight.objects.all().filter(cat_class_query, simulator=True).aggregate(Sum('duration'))
     if not simulator.get('duration__sum'):
       amel.simulator = 0
     else:
-      amel.simulator = simulator.get('simulator__sum')
+      amel.simulator = simulator.get('duration__sum')
 
     night = Flight.objects.all().filter(cat_class_query, night__gte=0).aggregate(Sum('night'))
     if not night.get('night__sum'):
@@ -80,19 +80,20 @@ def amel_update(sender, **kwargs):
     else:
       amel.night = night.get('night__sum')
 
-    landings_day = Flight.objects.all().filter(cat_class_query).aggregate(Sum('landings_day'))
+    landings_day = Flight.objects.filter(cat_class_query).aggregate(Sum('landings_day'))
     if not landings_day:
       amel.landings_day = 0
     else:
       amel.landings_day = landings_day.get('landings_day__sum')
 
-    landings_night = Flight.objects.all().filter(cat_class_query).aggregate(Sum('landings_night'))
+    landings_night = Flight.objects.filter(cat_class_query).aggregate(Sum('landings_night'))
     if not landings_night:
       amel.landings_night = 0
     else:
       amel.landings_night = landings_night.get('landings_night__sum')
 
     amel.landings_total = amel.landings_day + amel.landings_night
+    
 
     try:
       last_flown = Flight.objects.filter(cat_class_query).latest('date')
@@ -294,5 +295,5 @@ def asel_update(sender, **kwargs):
         asel.ydt = 0
     else:
         asel.ydt = ydt.get('duration__sum')
-    
+
     asel.save()

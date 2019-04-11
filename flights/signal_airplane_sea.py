@@ -66,8 +66,8 @@ def ames_update(sender, **kwargs):
     else:
         ames.simulated_instrument = simulated_instrument.get('simulated_instrument__sum')
 
-    simulator = Flight.objects.all().filter(cat_class_query).aggregate(Sum('simulator'))
-    if simulator.get('duration__sum') is None:
+    simulator = Flight.objects.all().filter(cat_class_query, simulator=True).aggregate(Sum('duration'))
+    if not simulator.get('duration__sum'):
         ames.simulator = 0
     else:
         ames.simulator = simulator.get('duration__sum')
@@ -212,8 +212,8 @@ def asel_update(sender, **kwargs):
     else:
         ases.simulated_instrument = simulated_instrument.get('simulated_instrument__sum')
 
-    simulator = Flight.objects.all().filter(cat_class_query).aggregate(Sum('duration'))
-    if simulator.get('duration__sum') is None:
+    simulator = Flight.objects.all().filter(cat_class_query, simulator=True).aggregate(Sum('duration'))
+    if not simulator.get('duration__sum'):
         ases.simulator = 0
     else:
         ases.simulator = simulator.get('duration__sum')

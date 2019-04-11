@@ -42,7 +42,6 @@ def aggregate_field_value(cat_class, query, field):
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
 def total_updater(sender, **kwargs):
-    print('total_updater')
     boolean_fields = ['pilot_in_command', 'second_in_command', 'cross_country',
     'instructor', 'dual', 'solo', 'simulator']
 

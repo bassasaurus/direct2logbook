@@ -30,6 +30,8 @@ DJANGO_ROOT = dirname(dirname(abspath(__file__)))
 
 SECRET_KEY = config('SECRET_KEY')
 
+SITE_ID = 4
+
 # SECURITY WARNING: don't run with debug turned on in production!
 
 DEBUG = True
@@ -47,16 +49,16 @@ INSTALLED_APPS = [
     'dal',
     'dal_select2',
 
-    'accounts',
+    'django.contrib.contenttypes',
+    'django.contrib.auth',
+    'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    #native
+    #apps
+    'accounts',
     'flights',
     'pdf_output',
 
@@ -130,10 +132,22 @@ WSGI_APPLICATION = 'logbook.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
+POSTGRES_DB_NAME = config('POSTGRES_DB_NAME')
+POSTGRES_UN = config('POSTGRES_UN')
+POSTGRES_PW = config('POSTGRES_PW')
+
 DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    # }
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': POSTGRES_DB_NAME,
+        'USER': POSTGRES_UN,
+        'PASSWORD': POSTGRES_PW,
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 

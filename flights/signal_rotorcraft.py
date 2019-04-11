@@ -66,11 +66,11 @@ def helo_update(sender, **kwargs):
     else:
         helo.simulated_instrument = simulated_instrument.get('simulated_instrument__sum')
 
-    simulator = Flight.objects.all().filter(cat_class_query).aggregate(Sum('simulator'))
-    if simulator.get('simulator__sum') is None:
+    simulator = Flight.objects.all().filter(cat_class_query, simulator=True).aggregate(Sum('duration'))
+    if not simulator.get('duration__sum'):
         helo.simulator = 0
     else:
-        helo.simulator = simulator.get('simulator__sum')
+        helo.simulator = simulator.get('duration__sum')
 
     night = Flight.objects.all().filter(cat_class_query, night__gt=0).aggregate(Sum('night'))
     if night.get('night__sum') is None:
@@ -212,11 +212,11 @@ def asel_updater(sender, **kwargs):
     else:
         gyro.simulated_instrument = simulated_instrument.get('simulated_instrument__sum')
 
-    simulator = Flight.objects.all().filter(cat_class_query).aggregate(Sum('simulator'))
+    simulator = Flight.objects.all().filter(cat_class_query, simulator=True).aggregate(Sum('duration'))
     if simulator.get('duration__sum') is None:
         gyro.simulator = 0
     else:
-        gyro.simulator = simulator.get('simulator__sum')
+        gyro.simulator = simulator.get('duration__sum')
 
     night = Flight.objects.all().filter(cat_class_query).aggregate(Sum('night'))
     if night.get('duration__sum') is None:
