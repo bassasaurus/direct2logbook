@@ -71,7 +71,6 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'picklefield',
     'widget_tweaks',
-    'django_weasyprint',
     'columns',
     'extra_views',
     'anymail',
