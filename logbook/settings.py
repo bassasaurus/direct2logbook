@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.messages',
+    # 'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
 
     #apps
