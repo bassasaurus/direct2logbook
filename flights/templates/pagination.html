@@ -1,6 +1,6 @@
 
 <div class="row">
-      <div style="overflow:scroll; margin-bottom:10px;" class="">
+      <div style="overflow:scroll; margin-bottom:10px; padding:2px;" class="">
         {% if is_paginated %}
           <ul class="pagination">
             {% for i in paginator.page_range %}
@@ -16,29 +16,3 @@
         {% endif %}
   </div>
 </div>
-
-<!-- <div class="row">
-  {% if is_paginated %}
-  <div class="col-6">
-      <ul class="pagination">
-      {% if page_obj.has_previous %}
-          <li class="page-link"><a href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
-      {% endif %}
-      {% for page in page_numbers %}
-          {% if page %}
-              {% ifequal page page_obj.number %}
-                  <li class="page-link active"><a href="#">{{ page }}</a></li>
-              {% else %}
-                  <li class="page-link"><a href="?page={{ page }}">{{ page }}</a></li>
-              {% endifequal %}
-          {% else %}
-              ...
-          {% endif %}
-      {% endfor %}
-      {% if page_obj.has_next %}
-          <li class="page-link"><a href="?page={{ page_obj.next_page_number }}">Next</a></li>
-      {% endif %}
-      </ul>
-  </div>
-  {% endif %}
-</div> -->

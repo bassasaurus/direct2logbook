@@ -288,6 +288,9 @@ class Approach(models.Model):
         ordering =['approach_type']
         verbose_name_plural = "Approaches"
 
+        def __str__(self):
+            return approach_type
+
 class Holding(models.Model):
 
     flight_object = models.ForeignKey('Flight', default=None, null=True, blank=True, verbose_name="Flight", on_delete=models.SET_NULL)
