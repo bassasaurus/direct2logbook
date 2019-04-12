@@ -1,1 +1,1 @@
-web: gunicorn logbook.wsgi:application
+web: gunicorn logbook.wsgi

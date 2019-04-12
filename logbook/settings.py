@@ -55,7 +55,6 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.messages',
-    # 'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
 
     #apps
@@ -146,7 +145,8 @@ DATABASES = {
         'NAME': POSTGRES_DB_NAME,
         'USER': POSTGRES_UN,
         'PASSWORD': POSTGRES_PW,
-        'HOST': 'localhost',
+        'HOST': 'ec2-23-21-129-125.compute-1.amazonaws.com'
+        # 'HOST': 'localhost',
         'PORT': '5432',
     }
 }
