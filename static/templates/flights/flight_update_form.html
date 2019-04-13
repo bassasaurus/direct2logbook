@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+
+<div class="row justify-content-center">
+  <div class="col-12">
+    <form action="" class="" method="post">
+      {% csrf_token %}
+        <div class="form-group">
+          <h4>Update Flight {{ flight.pk }}</h4>
+          <p>Required *</p>
+          {{ form.non_field_errors }}
+        </div>
+        <hr>
+        {% include 'flights/flight_form.html' %}
+        <hr>
+      <button class="btn-shadow btn-shadow-dark btn-block" type="submit">Update</button>
+    </form>
+  </div>
+</div>
+
+{% include 'flights/datepicker.html' %}
+{% include 'flights/flight_form_checkbox_logic.html' %}
+{% include 'flights/route_format.html' %}
+
+{{ form.media }}
+{% endblock %}

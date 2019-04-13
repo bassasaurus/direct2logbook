@@ -1,0 +1,14 @@
+
+
+<table class="table custom-table">
+  <thead class="thead-light">
+    <tr>
+      <th scope="row">Reg</th><th class="text-right">PIC</th><th class="text-right">SIC</th>
+    </tr>
+  </thead>
+  {% for reg in regs %}
+  <tr>
+    <td>{{ reg.reg_type }}</td><td class="text-right">{{ reg.pilot_in_command }}</td><td class="text-right">{{ reg.second_in_command }}</td>
+  </tr>
+  {% endfor %}
+</table>

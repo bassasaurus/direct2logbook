@@ -1,0 +1,80 @@
+{% load static %}
+
+<!-- leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.3.4/dist/leaflet.css" />
+<script type="text/javascript" src="https://unpkg.com/leaflet@1.3.4/dist/leaflet.js"></script>
+<script type="text/javascript" src="{% static 'flights/leaflet/leaflet_config.js' %}"></script>
+<!-- control_loading -->
+<script type="text/javascript" src="{% static 'flights/leaflet/control_loading.js' %}"></script>
+<link rel="stylesheet" type="text/css" href="{% static 'flights/leaflet/control_loading.css' %}">
+
+
+<script type="text/javascript" src="{% static 'flights/leaflet/leaflet-geodesic.js' %}"></script>
+
+
+<script type="text/javascript">
+
+  // map draw airports
+  $.ajax({
+    type: "GET",
+    url: "/geojson/airports/{{ user.pk }}",
+    dataType: 'json',
+    async: true,
+    success: function (latLng) {
+      var airportsLayer = L.geoJSON(latLng, {
+        onEachFeature: function (feature, layer) {
+          layer.bindPopup('<h5>'+feature.properties.icao+'</h5>'+'<h6>'+feature.properties.iata+'</h5>'+'<hr>'+'<p>'+feature.properties.name+'</p>'+'<p>'+feature.properties.city+', '+feature.properties.state+', '+feature.properties.country+'</p>'+'<p>'+feature.properties.elevation+' ft</p>');
+          }
+        }).addTo(mymap);
+        mymap.fitBounds(airportsLayer.getBounds(), {paddingTopLeft: [40, 40]});
+      }
+    });
+
+  function filterSuccessiveDuplicatePositions(latlngs) {
+    var result = [];
+
+    if (latlngs.length > 0) {
+      result.push(latlngs[0]);
+    }
+
+    for (var i = 1; i < latlngs.length; i += 1) {
+      if (!L.latLng(latlngs[i]).equals(latlngs[i - 1])) {
+        result.push(latlngs[i]);
+      }
+    }
+    return result;
+  }
+
+    $.ajax({
+      type: "GET",
+      url: "/geojson/routes/{{ user.pk }}",
+      dataType: 'json',
+      async: true,
+      success: function(latlngs) {
+        if (filterSuccessiveDuplicatePositions(latlngs).length >= 2){
+          // console.log("multiple points")
+          var filtered = filterSuccessiveDuplicatePositions(latlngs);
+          var Geodesic = L.geodesic([filtered], {
+            weight: 1.5,
+            opacity: 1,
+            color: 'navy',
+            steps: 200,
+          }).addTo(mymap);
+        }
+        else{
+          // console.log("single point")
+          var filtered = filterSuccessiveDuplicatePositions(latlngs);
+          var circle = L.circle(filtered[0], {
+            radius: 3000,
+            color: 'navy',
+
+          }).addTo(mymap);
+          // sets zoom to view entire circle
+          var currentDiameter = L.circle(filtered[0], 3000);
+          currentDiameter.addTo(mymap);
+          mymap.fitBounds(currentDiameter.getBounds());
+          }
+        }
+        });
+
+</script>

@@ -148,8 +148,8 @@ DATABASES = {
         'NAME': POSTGRES_DB_NAME,
         'USER': POSTGRES_UN,
         'PASSWORD': POSTGRES_PW,
-        'HOST': 'ec2-23-21-129-125.compute-1.amazonaws.com',
-        # 'HOST': 'localhost',
+        # 'HOST': 'ec2-23-21-129-125.compute-1.amazonaws.com',
+        'HOST': 'localhost',
         'PORT': '5432',
     }
 }

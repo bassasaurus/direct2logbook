@@ -1,0 +1,37 @@
+@page {
+    size: legal landscape;
+}
+
+html {
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.remarks{
+  font-size: auto;
+}
+
+.text{
+  text-align: left;
+}
+
+.number{
+  text-align: right;
+}
+
+table{
+  width: 100%;
+}
+
+th{
+  border-bottom: 2px solid black;
+  width: auto;
+  font-size: 14px;
+}
+
+td {
+  font-size: 14px;
+  padding-left: 2px;
+  padding-right: 2px;
+  border: 1px solid black;
+  border-collapse: collapse;
+}

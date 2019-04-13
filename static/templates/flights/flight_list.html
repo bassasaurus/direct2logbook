@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+  <div class="row">
+    <div style="margin-bottom: 15px;" class="">
+      <a class="btn btn-outline-primary" href="{% url 'flight_create' %}">New Flight</a>
+      <a class="btn btn-outline-secondary" href="{% url 'remarks' %}">Remarks</a>
+    </div>
+  </div>
+
+{% include "pagination.html"%}
+{% include 'flights/logbook.html' %}
+
+{% include 'tablefixer.html' %}
+
+{% endblock %}
