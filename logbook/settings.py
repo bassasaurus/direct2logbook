@@ -45,7 +45,7 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
-    # 'whitenoise.runserver_nostatic',
+    'whitenoise.runserver_nostatic',
     #autocomplete
     'dal',
     'dal_select2',
@@ -198,11 +198,11 @@ STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
 
-STATIC_ROOT = os.path.join(BASE_DIR, '/static/')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'flights/static/'),
-    os.path.join(BASE_DIR, 'pdf_output/static/'),
+    os.path.join(BASE_DIR, 'flights/'),
+    os.path.join(BASE_DIR, 'pdf_output/'),
 ]
 
 MEDIA_ROOT = os.path.join(BASE_DIR, '/media/')
