@@ -137,6 +137,7 @@ WSGI_APPLICATION = 'logbook.wsgi.application'
 POSTGRES_DB_NAME = config('POSTGRES_DB_NAME')
 POSTGRES_UN = config('POSTGRES_UN')
 POSTGRES_PW = config('POSTGRES_PW')
+DB_HOST = config('DB_HOST')
 
 DATABASES = {
     # 'default': {
@@ -148,8 +149,8 @@ DATABASES = {
         'NAME': POSTGRES_DB_NAME,
         'USER': POSTGRES_UN,
         'PASSWORD': POSTGRES_PW,
-        # 'HOST': 'ec2-23-21-129-125.compute-1.amazonaws.com',
-        'HOST': 'localhost',
+        'HOST': DB_HOST,
+        # 'HOST': 'localhost',
         'PORT': '5432',
     }
 }
