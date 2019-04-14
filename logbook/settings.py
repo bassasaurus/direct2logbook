@@ -34,7 +34,7 @@ SITE_ID = 4
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 # APPEND_SLASH = False
@@ -106,7 +106,7 @@ ROOT_URLCONF = 'logbook.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS' : [os.path.join(BASE_DIR, '/flights/templates', '/pdf_output/templates')],
+        'DIRS' : [os.path.join(BASE_DIR, '/django_/direct2/flights/templates', '/django_/direct2/pdf_output/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
