@@ -34,11 +34,8 @@ SITE_ID = 4
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = ["*"]
-
-# DEBUG = True
-# ALLOWED_HOSTS = []
 
 # APPEND_SLASH = False
 
@@ -149,8 +146,8 @@ DATABASES = {
         'NAME': POSTGRES_DB_NAME,
         'USER': POSTGRES_UN,
         'PASSWORD': POSTGRES_PW,
-        'HOST': DB_HOST,
-        # 'HOST': 'localhost',
+        # 'HOST': DB_HOST,
+        'HOST': 'localhost',
         'PORT': '5432',
     }
 }
@@ -201,10 +198,10 @@ STATICFILES_FINDERS = [
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'flights/'),
-    os.path.join(BASE_DIR, 'pdf_output/'),
-]
+# STATICFILES_DIRS = [
+#     os.path.join(BASE_DIR, 'flights/'),
+#     os.path.join(BASE_DIR, 'pdf_output/'),
+# ]
 
 MEDIA_ROOT = os.path.join(BASE_DIR, '/media/')
 MEDIA_URL = '/media/'
