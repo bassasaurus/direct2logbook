@@ -106,7 +106,7 @@ ROOT_URLCONF = 'logbook.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS' : [os.path.join(BASE_DIR, '/django_/direct2/flights/templates', '/django_/direct2/pdf_output/templates')],
+        'DIRS' : [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -146,8 +146,8 @@ DATABASES = {
         'NAME': POSTGRES_DB_NAME,
         'USER': POSTGRES_UN,
         'PASSWORD': POSTGRES_PW,
-        'HOST': DB_HOST,
-        # 'HOST': 'localhost',
+        # 'HOST': DB_HOST,
+        'HOST': 'localhost',
         'PORT': '5432',
     }
 }
