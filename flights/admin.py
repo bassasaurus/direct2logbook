@@ -54,6 +54,9 @@ class ApproachAdmin(admin.ModelAdmin):
 class HoldingAdmin(admin.ModelAdmin):
     list_display = ('flight_object', 'hold')
 
+class UserAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'username', 'email', 'first_name', 'last_name', 'staff_status')
+
 admin.site.register(Flight, FlightAdmin)
 admin.site.register(Aircraft, AircraftAdmin)
 
