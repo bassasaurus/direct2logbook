@@ -222,7 +222,7 @@ REST_FRAMEWORK = {
 #         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
 #         'LOCATION': 'cache_table',
 #     }
-}
+# }
 
 LOGGING = {
     'version': 1,
