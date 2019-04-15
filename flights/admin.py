@@ -63,6 +63,7 @@ admin.site.register(Aircraft, AircraftAdmin)
 admin.site.register(Holding, HoldingAdmin)
 admin.site.register(Approach, ApproachAdmin)
 
+admin.site.register(User, UserAdmin)
 admin.site.register(AircraftCategory)
 admin.site.register(AircraftClass)
 admin.site.register(TailNumber, TailnumberAdmin)
