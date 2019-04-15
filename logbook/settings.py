@@ -218,10 +218,10 @@ REST_FRAMEWORK = {
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' #disable/setup for production
 
 
-CACHES = {'default': {
-        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-        'LOCATION': 'cache_table',
-    }
+# CACHES = {'default': {
+#         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+#         'LOCATION': 'cache_table',
+#     }
 }
 
 LOGGING = {
