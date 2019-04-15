@@ -8,7 +8,9 @@ django-cors-headers==2.1.0
 django-debug-toolbar==1.8
 django-extensions==1.9.6
 django-extra-views==0.12.0
+django-heroku-memcacheify==1.0.0
 django-picklefield==1.0.0
+django-pylibmc==0.6.1
 django-widget-tweaks==1.4.1
 djangorestframework==3.7.1
 drfdocs==0.0.11
@@ -16,6 +18,7 @@ gunicorn==19.9.0
 idna==2.8
 Pillow==5.0.0
 psycopg2-binary==2.8.1
+pylibmc==1.6.0
 python-decouple==3.1
 pytz==2019.1
 reportlab==3.5.12
