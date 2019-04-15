@@ -34,7 +34,7 @@ SITE_ID = 4
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-DEBUG = False
+DEBUG = True
 ALLOWED_HOSTS = ["*"]
 
 # APPEND_SLASH = False
