@@ -34,11 +34,11 @@ class Profile(models.Model):
 
 #FAA data from http://www.faa.gov/airports/airport_safety/airportdata_5010/menu/nfdcfacilitiesexport.cfm?Region=&District=&State=&County=&City=&Use=PU&Certification=
 class MapData(models.Model):
-    name = models.CharField(max_length=50, default='')
-    city = models.CharField(db_index=True, max_length=50, default='')
-    state = models.CharField(db_index=True, max_length=50, default='')
-    country = models.CharField(db_index=True, max_length=50, default='')
-    iata = models.CharField(db_index=True, max_length=3, default='')
+    name = models.CharField(max_length=500, default='')
+    city = models.CharField(db_index=True, max_length=500, default='')
+    state = models.CharField(db_index=True, max_length=500, default='')
+    country = models.CharField(db_index=True, max_length=500, default='')
+    iata = models.CharField(db_index=True, max_length=4, default='')
     icao = models.CharField(db_index=True, max_length=4, default='')
     latitude = models.FloatField(null=True, blank=True, default=0)
     longitude = models.FloatField(null=True, blank=True, default=0)
