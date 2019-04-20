@@ -44,10 +44,10 @@ def get_map_data(queryset, user):
     feature_collection = {"type":"FeatureCollection","features": features }
 
     user_map_cache = 'airports_{}'.format(user.id)
-    cache.set(user_map_cache, feature_collection, 20)
+    cache.set(user_map_cache, feature_collection, 10)
 
     line_json = str(line_json)
     user_map_cache = 'routes_{}'.format(user.id)
-    cache.set(user_map_cache, line_json, 20)
+    cache.set(user_map_cache, line_json, 10)
 
     return feature_collection, line_json
