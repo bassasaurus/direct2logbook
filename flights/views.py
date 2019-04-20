@@ -263,7 +263,6 @@ class FlightArchive(LoginRequiredMixin, UserObjectsMixin, ArchiveIndexView):
         context['months'] = Flight.objects.dates('date', 'month')
         return context
 
-
 class FlightArchiveYear(LoginRequiredMixin, UserObjectsMixin, YearArchiveView):
     model = Flight
     date_field = 'date'
