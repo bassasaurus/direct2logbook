@@ -52,16 +52,18 @@ def geoJSON_airports_view(request, user_id):
     if request.method == 'GET':
         user = request.user
 
-        user_cache = 'airports_{}'.format(user.id)
-        data = cache.get(user_cache)
+        # user_cache = 'airports_{}'.format(user.id)
+        # data = cache.get(user_cache)
+        data = get_map_data[0]
         return JsonResponse(data, content_type='application/json', safe=False)
 
 def geoJSON_routes_view(request, user_id):
     if request.method == 'GET':
         user = request.user
 
-        user_cache = 'routes_{}'.format(user.id)
-        data = cache.get(user_cache)
+        # user_cache = 'routes_{}'.format(user.id)
+        # data = cache.get(user_cache)
+        data = data = get_map_data[1]
         return HttpResponse(data, content_type='text/html')
 
 class AircraftAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
