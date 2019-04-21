@@ -14,39 +14,6 @@
 
 <script type="text/javascript">
 
-  $.ajax({
-    type: "GET",
-    url: "/geojson/routes/{{ user.pk }}",
-    dataType: 'json',
-    async: true,
-    success: function(latlngs) {
-      if (filterSuccessiveDuplicatePositions(latlngs).length >= 2){
-        // console.log("multiple points")
-        var filtered = filterSuccessiveDuplicatePositions(latlngs);
-        var Geodesic = L.geodesic([filtered], {
-          weight: 1.5,
-          opacity: 1,
-          color: 'navy',
-          steps: 200,
-        }).addTo(mymap);
-      }
-      else{
-        // console.log("single point")
-        var filtered = filterSuccessiveDuplicatePositions(latlngs);
-        var circle = L.circle(filtered[0], {
-          radius: 3000,
-          color: 'navy',
-
-        }).addTo(mymap);
-        // sets zoom to view entire circle
-        var currentDiameter = L.circle(filtered[0], 3000);
-        currentDiameter.addTo(mymap);
-        mymap.fitBounds(currentDiameter.getBounds());
-        }
-      }
-      });
-
-
   // map draw airports
   $.ajax({
     type: "GET",
@@ -78,5 +45,36 @@
     return result;
   }
 
+    $.ajax({
+      type: "GET",
+      url: "/geojson/routes/{{ user.pk }}",
+      dataType: 'json',
+      async: true,
+      success: function(latlngs) {
+        if (filterSuccessiveDuplicatePositions(latlngs).length >= 2){
+          // console.log("multiple points")
+          var filtered = filterSuccessiveDuplicatePositions(latlngs);
+          var Geodesic = L.geodesic([filtered], {
+            weight: 1.5,
+            opacity: 1,
+            color: 'navy',
+            steps: 200,
+          }).addTo(mymap);
+        }
+        else{
+          // console.log("single point")
+          var filtered = filterSuccessiveDuplicatePositions(latlngs);
+          var circle = L.circle(filtered[0], {
+            radius: 3000,
+            color: 'navy',
+
+          }).addTo(mymap);
+          // sets zoom to view entire circle
+          var currentDiameter = L.circle(filtered[0], 3000);
+          currentDiameter.addTo(mymap);
+          mymap.fitBounds(currentDiameter.getBounds());
+          }
+        }
+        });
 
 </script>
