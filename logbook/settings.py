@@ -3,6 +3,9 @@ from os.path import abspath, basename, dirname, join, normpath
 from sys import path
 from decouple import config
 
+import os
+from memcacheify import memcacheify
+
 """
 Django settings for logbook project.
 
@@ -15,9 +18,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
-import os
-from memcacheify import memcacheify
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -29,13 +29,17 @@ DJANGO_ROOT = dirname(dirname(abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
+
 SECRET_KEY = config('SECRET_KEY')
 
 SITE_ID = 4
 
+CACHES = memcacheify()
+# MEMCACHEIFY_USE_LOCAL=True
+
 # SECURITY WARNING: don't run with debug turned on in production!
 
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = ["*"]
 
 # APPEND_SLASH = False
@@ -84,7 +88,6 @@ AUTHENTICATION_BACKENDS = (
 
 LOGIN_REDIRECT_URL = '/home'
 LOGOUT_REDIRECT_URL = '/'
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -220,9 +223,6 @@ REST_FRAMEWORK = {
 #         'LOCATION': 'cache_table',
 #     }
 # }
-
-CACHES = memcacheify()
-MEMCACHEIFY_USE_LOCAL=True
 
 LOGGING = {
     'version': 1,
