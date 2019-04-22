@@ -4,7 +4,6 @@ from sys import path
 from decouple import config
 
 import os
-from memcacheify import memcacheify
 
 """
 Django settings for logbook project.
@@ -33,9 +32,6 @@ DJANGO_ROOT = dirname(dirname(abspath(__file__)))
 SECRET_KEY = config('SECRET_KEY')
 
 SITE_ID = 4
-
-CACHES = memcacheify()
-# MEMCACHEIFY_USE_LOCAL=True
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
@@ -218,11 +214,11 @@ REST_FRAMEWORK = {
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' #disable/setup for production
 
 
-# CACHES = {'default': {
-#         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-#         'LOCATION': 'cache_table',
-#     }
-# }
+CACHES = {'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'cache_table',
+    }
+}
 
 LOGGING = {
     'version': 1,
