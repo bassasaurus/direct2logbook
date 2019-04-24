@@ -5,11 +5,6 @@ from django.contrib.auth.models import User
 from flights.fields import *
 from dal import autocomplete
 
-class ProfileForm(forms.ModelForm):
-
-    class Meta:
-        model = Profile
-        fields = ('company',)
 
 class UserForm(forms.ModelForm):
 
