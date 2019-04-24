@@ -11,7 +11,7 @@ def user_directory_path(instance, filename):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     company = models.CharField(max_length=50, default='')
-    signature = models.FileField(upload_to=user_directory_path)
+    # signature = models.FileField(upload_to=user_directory_path, null=True, blank=True)
 
     def __str__(self):
         title = "{} {}".format(self.user, self.pk)
