@@ -44,9 +44,9 @@ class StatAdmin(admin.ModelAdmin):
     list_display = ('user', 'pk', 'aircraft_type', 'total_time')
     empty_value_display = ''
 
-# class ProfileAdmin(admin.ModelAdmin):
-#     list_display = ('user', 'pk', 'company','signature')
-#     empty_value_display = ''
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'pk', 'company','signature')
+    empty_value_display = ''
 
 class ApproachAdmin(admin.ModelAdmin):
     list_display = ('flight_object', 'approach_type', 'number')
