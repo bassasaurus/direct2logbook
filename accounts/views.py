@@ -8,6 +8,12 @@ from django.shortcuts import render, redirect
 
 from accounts.forms import SignUpForm
 
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+class LoginRequiredMixin(LoginRequiredMixin):
+    login_url = '/accounts/login'
+    # redirect_field_name = None
+
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
