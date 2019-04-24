@@ -11,6 +11,8 @@ from accounts.forms import SignUpForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 
+from accounts.models import Profile
+
 class LoginRequiredMixin(LoginRequiredMixin):
     login_url = '/accounts/login'
     # redirect_field_name = None
