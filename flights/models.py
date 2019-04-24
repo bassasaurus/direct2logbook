@@ -6,7 +6,6 @@ from django.urls import reverse
 
 from django.contrib.auth.models import User, Group
 
-
 from picklefield.fields import PickledObjectField
 
 from django.template.defaultfilters import truncatechars  # or truncatewords
@@ -21,6 +20,10 @@ positive_validator = MinValueValidator(0.0, "Must be a positive number > 0.1")
 route_match = r'((?:[A-Z]{3,4}\-?)+)'
 route_validator = RegexValidator(route_match, "Must be UPPERCASE in a combination of ATA-ICAO")
 
+
+def user_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
+    return 'user_{0}/{1}'.format(instance.user.id, filename)
 #FAA data from http://www.faa.gov/airports/airport_safety/airportdata_5010/menu/nfdcfacilitiesexport.cfm?Region=&District=&State=&County=&City=&Use=PU&Certification=
 class MapData(models.Model):
     name = models.CharField(max_length=500, default='')
