@@ -44,10 +44,6 @@ class StatAdmin(admin.ModelAdmin):
     list_display = ('user', 'pk', 'aircraft_type', 'total_time')
     empty_value_display = ''
 
-class ProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'pk', 'company','signature')
-    empty_value_display = ''
-
 class ApproachAdmin(admin.ModelAdmin):
     list_display = ('flight_object', 'approach_type', 'number')
 
@@ -69,4 +65,3 @@ admin.site.register(Regs)
 admin.site.register(Endorsement)
 admin.site.register(Weight)
 admin.site.register(MapData, MapDataAdmin)
-# admin.site.register(Profile, ProfileAdmin)
