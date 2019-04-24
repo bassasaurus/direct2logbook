@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 from accounts.forms import SignUpForm
 
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, UpdateView
 
 from accounts.models import Profile
 
