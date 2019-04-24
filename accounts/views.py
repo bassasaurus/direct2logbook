@@ -21,3 +21,38 @@ def signup(request):
     else:
         form = SignUpForm()
     return render(request, 'registration/signup.html', {'form': form})
+
+# class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
+#     model = Profile
+#     template_name='profile/profile.html'
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(ProfileView, self).get_context_data(**kwargs)
+#
+#         context['title'] = "D-> | Profile"
+#         context['parent_name'] = 'Home'
+#         context['parent_link'] = reverse('home')
+#         context['page_title'] = 'Profile'
+#         return context
+#
+#
+# class ProfileUpdateView(LoginRequiredMixin, UserObjectsMixin, UpdateView):
+#     model = Profile
+#     fields = ()
+#
+#     template_name = 'profile/profile_update.html'
+#     success_url = '/profile/'
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(ProfileUpdateView, self).get_context_data(**kwargs)
+#
+#         profile_form = ProfileForm()
+#         user_form = UserForm()
+#
+#         context['profile_form'] = profile_form
+#         context['user_form'] = user_form
+#         context['title'] = "D-> | Update Profile"
+#         context['parent_name'] = 'Profile'
+#         context['parent_link'] = reverse('profile')
+#         context['page_title'] = 'Update Profile'
+#         return context
