@@ -9,6 +9,7 @@ from django.shortcuts import render, redirect
 from accounts.forms import SignUpForm
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView
 
 class LoginRequiredMixin(LoginRequiredMixin):
     login_url = '/accounts/login'
