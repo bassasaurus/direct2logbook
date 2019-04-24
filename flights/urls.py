@@ -14,8 +14,6 @@ urlpatterns = [
     url(r'^geojson/airports/(?P<user_id>\d+)/$', geoJSON_airports_view, name='geojson_airports'),
     url(r'^geojson/routes/(?P<user_id>\d+)/$', geoJSON_routes_view, name='geojson_routes'),
 
-    
-    url(r'^profile/update/(?P<pk>\d+)/$', ProfileUpdateView.as_view(), name='profile_update'),
     #date view urls
     # Lists all avialable years
     url(r'^flights/by_date/$', FlightArchive.as_view(), name='flight_by_date'),
