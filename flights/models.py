@@ -4,6 +4,8 @@ from django.db import signals
 from django.dispatch import receiver
 from django.urls import reverse
 
+from django.contrib.auth.models import User, Group
+
 
 from picklefield.fields import PickledObjectField
 
