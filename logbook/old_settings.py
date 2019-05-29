@@ -3,8 +3,6 @@ from os.path import abspath, basename, dirname, join, normpath
 from sys import path
 from decouple import config
 
-import os
-
 """
 Django settings for logbook project.
 
