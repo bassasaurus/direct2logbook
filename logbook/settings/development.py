@@ -20,3 +20,6 @@ DATABASES = {
 }
 
 print('development settings')
+
+
+#   python manage.py runserver --settings=logbook.settings.development

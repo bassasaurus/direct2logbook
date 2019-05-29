@@ -43,7 +43,8 @@ ALLOWED_HOSTS = ["*"]
 # Application definition
 
 INSTALLED_APPS = [
-    
+    'whitenoise.runserver_nostatic',
+    'django.contrib.staticfiles',
     #autocomplete
     'dal',
     'dal_select2',
@@ -54,7 +55,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.messages',
-    'django.contrib.staticfiles',
+
 
     #apps
     'accounts',

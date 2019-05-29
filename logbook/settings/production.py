@@ -4,10 +4,6 @@ SECURE_SSL_REDIRECT = True
 
 DEBUG = False
 
-INSTALLED_APPS += [
-    'whitenoise.runserver_nostatic',
-]
-
 DATABASES = {
     # 'default': {
     #     'ENGINE': 'django.db.backends.sqlite3',
