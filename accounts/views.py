@@ -11,6 +11,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView, UpdateView
 
 from accounts.models import Profile
+from accounts.forms import ProfileForm
 
 class LoginRequiredMixin(LoginRequiredMixin):
     login_url = '/accounts/login'
@@ -61,10 +62,10 @@ class ProfileUpdateView(LoginRequiredMixin, UserObjectsMixin, UpdateView):
         context = super(ProfileUpdateView, self).get_context_data(**kwargs)
 
         profile_form = ProfileForm()
-        user_form = UserForm()
+        # user_form = UserForm()
 
         context['profile_form'] = profile_form
-        context['user_form'] = user_form
+        # context['user_form'] = user_form
         context['title'] = "D-> | Update Profile"
         context['parent_name'] = 'Profile'
         context['parent_link'] = reverse('profile')

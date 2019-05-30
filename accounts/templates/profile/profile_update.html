@@ -10,12 +10,31 @@
 
   <div><h5>{{ user.first_name }} {{ user.last_name}}</h5></div>
   <hr>
-
-  <p>
   <div>{{ profile_form.company |attr:"placeholder:Company" |add_class:"form-control"}}</div>
-  </p>
+  <hr>
+  <div class="form-group form-inline">
+    <div class="input-group-sm">
+      <h5>Medical Certificate</h5>
+      {{ profile_form.date |attr:"placeholder:Date *" |add_class:"form-control"}} Issue Date
+      <div class="row">
+        <div class="m-4">
+          {{ profile_form.first_class |add_class:"form-control"}} 1st
+        </div>
+        <div class="m-4">
+          {{ profile_form.second_class |add_class:"form-control"}} 2nd
+        </div>
+        <div class="m-4">
+          {{ profile_form.third_class |add_class:"form-control"}} 3rd
+        </div>
+        <div class="m-4">
+          {{ profile_form.over_40 |add_class:"form-control"}} Over 40
+        </div>
+      </div>
+    </div>
+  </div>
   <hr>
   <button class="btn-shadow btn-shadow-dark btn-block" type="submit">Submit</button>
 </form>
 
+{% include 'profile/datepicker.html' %}
 {% endblock %}
