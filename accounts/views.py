@@ -51,23 +51,38 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         return context
 
 
-class ProfileUpdateView(LoginRequiredMixin, UserObjectsMixin, UpdateView):
-    model = Profile
-    fields = ()
-
-    template_name = 'profile/profile_update.html'
-    success_url = '/profile/'
+class ProfileUpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(ProfileUpdateView, self).get_context_data(**kwargs)
 
-        profile_form = ProfileForm()
-        # user_form = UserForm()
+        user = self.request.user
 
-        context['profile_form'] = profile_form
-        # context['user_form'] = user_form
         context['title'] = "D-> | Update Profile"
         context['parent_name'] = 'Profile'
         context['parent_link'] = reverse('profile')
         context['page_title'] = 'Update Profile'
         return context
+
+    model = Profile
+    form_class = ProfileForm
+    template_name = 'profile/profile_update.html'
+    success_url = '/accounts/profile/'
+
+# class ProfileUpdateView(LoginRequiredMixin, UserObjectsMixin, UpdateView):
+#     model = Profile
+#     fields = ()
+#     template_name = 'profile/profile_update.html'
+#     success_url = '/profile/'
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(ProfileUpdateView, self).get_context_data(**kwargs)
+#
+#         profile_form = ProfileForm()
+#
+#         context['profile_form'] = profile_form
+#         context['title'] = "D-> | Update Profile"
+#         context['parent_name'] = 'Profile'
+#         context['parent_link'] = reverse('profile')
+#         context['page_title'] = 'Update Profile'
+#         return context

@@ -3,7 +3,49 @@
 
 {% block content %}
 
-<form action="{% url 'profile_update' profile.pk %}" method="get">
+<form action="" method="post">{% csrf_token %}
+  <h3>Update Profile</h3>
+  <hr>
+  <h5>{{ user.first_name }} {{ user.last_name}}</h5>
+  <hr>
+  <div>{{ form.company |attr:"placeholder:Company" |add_class:"form-control"}}</div>
+  <hr>
+
+      <h5>Medical Certificate</h5>
+
+      {{ form.date |attr:"placeholder:Date *" |add_class:"form-control"}}
+      <br>
+      <div class="">
+        <div class="form-check form-check-inline">
+        {{ form.first_class |attr:"id:id_first_class" |add_class:"form-control form-check-input"}}
+        <label class="form-check-label" for="id_first_class">1st Class</label>
+      </div>
+
+      <div class="form-check form-check-inline">
+        {{ form.second_class |attr:"id:id_second_class" |add_class:"form-control form-check-input"}}
+        <label class="form-check-label" for="id_second_class">2nd Class</label>
+      </div>
+
+      <div class="form-check form-check-inline">
+        {{ form.third_class |attr:"id:id_third_class" |add_class:"form-control form-check-input"}}
+        <label class="form-check-label" for="id_third_class">3rd Class</label>
+      </div>
+
+      <div class="form-check form-check-inline">
+        {{ form.over_40 |attr:"id:id_over_40" |add_class:"form-control form-check-input"}}
+        <label class="form-check-label" for="id_over_40">Over 40</label>
+      </div>
+      </div>
+      <hr>
+      <button class="btn-shadow btn-shadow-dark btn-block" type="submit">Submit</button>
+</form>
+
+
+
+
+
+
+<!-- <form action="{% url 'profile_update' profile.pk %}" method="get">
   <h3>Update Profile</h3>
   <hr>
   {% csrf_token %}
@@ -12,29 +54,35 @@
   <hr>
   <div>{{ profile_form.company |attr:"placeholder:Company" |add_class:"form-control"}}</div>
   <hr>
-  <div class="form-group form-inline">
-    <div class="input-group-sm">
-      <h5>Medical Certificate</h5>
-      {{ profile_form.date |attr:"placeholder:Date *" |add_class:"form-control"}} Issue Date
-      <div class="row">
-        <div class="m-4">
-          {{ profile_form.first_class |add_class:"form-control"}} 1st
-        </div>
-        <div class="m-4">
-          {{ profile_form.second_class |add_class:"form-control"}} 2nd
-        </div>
-        <div class="m-4">
-          {{ profile_form.third_class |add_class:"form-control"}} 3rd
-        </div>
-        <div class="m-4">
-          {{ profile_form.over_40 |add_class:"form-control"}} Over 40
-        </div>
-      </div>
+
+    <h5>Medical Certificate</h5>
+
+    {{ profile_form.date |attr:"placeholder:Date *" |add_class:"form-control"}}
+    <br>
+    <div class="">
+      <div class="form-check form-check-inline">
+      {{ profile_form.first_class |attr:"id:id_first_class" |add_class:"form-control form-check-input"}}
+      <label class="form-check-label" for="id_first_class">1st Class</label>
     </div>
-  </div>
+
+    <div class="form-check form-check-inline">
+      {{ profile_form.second_class |attr:"id:id_second_class" |add_class:"form-control form-check-input"}}
+      <label class="form-check-label" for="id_second_class">2nd Class</label>
+    </div>
+
+    <div class="form-check form-check-inline">
+      {{ profile_form.third_class |attr:"id:id_third_class" |add_class:"form-control form-check-input"}}
+      <label class="form-check-label" for="id_third_class">3rd Class</label>
+    </div>
+
+    <div class="form-check form-check-inline">
+      {{ profile_form.over_40 |attr:"id:id_over_40" |add_class:"form-control form-check-input"}}
+      <label class="form-check-label" for="id_over_40">Over 40</label>
+    </div>
+    </div>
   <hr>
   <button class="btn-shadow btn-shadow-dark btn-block" type="submit">Submit</button>
-</form>
+</form> -->
 
 {% include 'profile/datepicker.html' %}
 {% endblock %}
