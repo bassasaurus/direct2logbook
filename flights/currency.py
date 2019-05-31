@@ -1,4 +1,5 @@
 from flights.models import Flight
+from accounts.models import User, Profile
 from django.db.models import Sum, Q
 import datetime
 
@@ -146,3 +147,20 @@ def gyro_vfr_night(user):
     else:
         gyro_vfr_night = round(gyro_vfr_night.get('landings_night__sum'), 1)
     return gyro_vfr_night
+
+def medical_duration(user):
+    issue_date = user.profile.date
+    if user.profile.first_class:
+        expiry_date = issue_date + datetime.timedelta(1*365)
+    if user.profile.first_class and user.profile.over_40:
+        expiry_date = issue_date + datetime.timedelta(6*365/12)
+
+    if user.profile.second_class:
+        expiry_date = issue_date + datetime.timedelta(2*365)
+
+    if user.profile.third_class:
+        expiry_date = issue_date + datetime.timedelta(5*365)
+    if user.profile.third_class and user.profile.over_40:
+        expiry_date = issue_date + datetime.timedelta(2*365)
+
+    return str(expiry_date.strftime('%b' + ', ' +'%Y'))
