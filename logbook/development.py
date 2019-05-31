@@ -1,4 +1,11 @@
-from .base import *
+from decouple import config
+# Database
+# https://docs.djangoproject.com/en/1.10/ref/settings/#databases
+
+POSTGRES_DB_NAME = config('POSTGRES_DB_NAME')
+POSTGRES_UN = config('POSTGRES_UN')
+POSTGRES_PW = config('POSTGRES_PW')
+DB_HOST = config('DB_HOST')
 
 SECURE_SSL_REDIRECT = False
 

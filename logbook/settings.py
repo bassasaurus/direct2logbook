@@ -16,9 +16,11 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DJANGO_ROOT = dirname(dirname(abspath(__file__)))
+
+SECURE_SSL_REDIRECT = True
 
 LOGIN_REDIRECT_URL = '/home'
 LOGOUT_REDIRECT_URL = '/'
@@ -29,12 +31,14 @@ LOGOUT_REDIRECT_URL = '/'
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
+
 SECRET_KEY = config('SECRET_KEY')
 
 SITE_ID = 4
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
+DEBUG = False
 ALLOWED_HOSTS = ["*"]
 
 # APPEND_SLASH = False
@@ -43,7 +47,6 @@ ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
-    'django.contrib.staticfiles',
     #autocomplete
     'dal',
     'dal_select2',
@@ -54,7 +57,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'django.contrib.admin',
     'django.contrib.messages',
-
+    'django.contrib.staticfiles',
 
     #apps
     'accounts',
@@ -132,6 +135,22 @@ POSTGRES_UN = config('POSTGRES_UN')
 POSTGRES_PW = config('POSTGRES_PW')
 DB_HOST = config('DB_HOST')
 
+DATABASES = {
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    # }
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': POSTGRES_DB_NAME,
+        'USER': POSTGRES_UN,
+        'PASSWORD': POSTGRES_PW,
+        'HOST': DB_HOST,
+        # 'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
+
 CONN_MAX_AGE = None
 
 
@@ -179,8 +198,9 @@ STATICFILES_FINDERS = [
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = os.path.join(BASE_DIR, '/media/')
 MEDIA_URL = '/media/'
+
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
@@ -227,3 +247,6 @@ EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"  # or sendgrid.EmailBack
 DEFAULT_FROM_EMAIL = "no-reply@direct2logbook.com"  # if you don't already have this in settings
 
 CSRF_USE_SESSIONS = True
+
+if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS') is not None:
+    from .development import *
