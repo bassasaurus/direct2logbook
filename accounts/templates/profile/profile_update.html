@@ -15,26 +15,31 @@
 
       {{ form.date |attr:"placeholder:Date *" |add_class:"form-control"}}
       <br>
-      <div class="">
-        <div class="form-check form-check-inline">
-        {{ form.first_class |attr:"id:id_first_class" |add_class:"form-control form-check-input"}}
-        <label class="form-check-label" for="id_first_class">1st Class</label>
-      </div>
-
-      <div class="form-check form-check-inline">
-        {{ form.second_class |attr:"id:id_second_class" |add_class:"form-control form-check-input"}}
-        <label class="form-check-label" for="id_second_class">2nd Class</label>
-      </div>
-
-      <div class="form-check form-check-inline">
-        {{ form.third_class |attr:"id:id_third_class" |add_class:"form-control form-check-input"}}
-        <label class="form-check-label" for="id_third_class">3rd Class</label>
-      </div>
-
-      <div class="form-check form-check-inline">
-        {{ form.over_40 |attr:"id:id_over_40" |add_class:"form-control form-check-input"}}
-        <label class="form-check-label" for="id_over_40">Over 40</label>
-      </div>
+      <div class="row flex-sm-row">
+        <div class="col-3 flex-sm-column">
+          <div class="form-check form-check-inline">
+            {{ form.first_class |attr:"id:id_first_class" |add_class:"form-check-input" }}
+            <label class="ml-2 form-check-label" for="id_first_class">1st</label>
+          </div>
+        </div>
+        <div class="col-3 flex-sm-column">
+          <div class="form-check form-check-inline">
+            {{ form.second_class |attr:"id:id_second_class" |add_class:"form-check-input" }}
+            <label class="ml-2 form-check-label" for="id_second_class">2nd</label>
+          </div>
+        </div>
+        <div class="col-3 flex-sm-column">
+          <div class="form-check form-check-inline">
+            {{ form.third_class |attr:"id:id_third_class" |add_class:"form-check-input" }}
+            <label class="ml-2 form-check-label" for="id_third_class">3rd</label>
+          </div>
+        </div>
+        <div class="col-3 flex-sm-column">
+          <div class="form-check form-check-inline">
+            {{ form.over_40 |attr:"id:id_over_40" |add_class:"form-check-input" }}
+            <label class="ml-2 form-check-label" for="id_over">40+</label>
+          </div>
+        </div>
       </div>
       <hr>
       <button class="btn-shadow btn-shadow-dark btn-block" type="submit">Submit</button>
