@@ -150,8 +150,11 @@ def gyro_vfr_night(user):
 
 def medical_duration(user):
     issue_date = user.profile.date
+    current_month = datetime.date.today()
+
     if user.profile.first_class:
         expiry_date = issue_date + datetime.timedelta(1*365)
+
     if user.profile.first_class and user.profile.over_40:
         expiry_date = issue_date + datetime.timedelta(6*365/12)
 
@@ -160,7 +163,18 @@ def medical_duration(user):
 
     if user.profile.third_class:
         expiry_date = issue_date + datetime.timedelta(5*365)
+
     if user.profile.third_class and user.profile.over_40:
         expiry_date = issue_date + datetime.timedelta(2*365)
 
-    return str(expiry_date.strftime('%b' + ', ' +'%Y'))
+    if expiry_date == current_month:
+        this_month = True
+    else:
+        this_month = False
+
+    if current_month == expiry_date - datetime.timedelta(60):
+        two_month_warning = True
+    else:
+        two_month_warning = False
+
+    return(expiry_date.strftime('%b' + ', ' + '%Y'), this_month, two_month_warning)

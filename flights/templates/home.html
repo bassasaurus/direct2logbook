@@ -2,11 +2,24 @@
 {% load math_filters %}
 {% block content %}
 
-<div class="row">
-  <div style="padding-top:10px;" class="col-6">
-    <h3><a style="text-decoration: underline;" class="text-dark link" href="{% url 'profile' %}"> {{ user.first_name }} {{ user.last_name }}</a></h3>
-    <p>Medical Expires {{ medical_duration }}</p>
+<div class="row flex-sm-row">
+  <div style="padding-top:10px;" class="col-4 flex-sm-column">
+    <h3><a style="text-decoration: underline;" class="text-dark link" href="{% url 'profile' %}"> {{ user.first_name }}&nbsp{{ user.last_name }}</a></h3>
+    <br>
   </div>
+  <div class="col-8 flex-sm-column">
+    <h5>Medical&nbspCertificate&nbspIssued {{ user.profile.date }}</h5>
+    {% if this_month == True %}
+      <p>Your certificate expires this month - <span class="text-danger">{{ expiry_date }}</span></p>
+    {% elif two_month_warning == True %}
+      <p>Your certificate expires next month - <span class="text-warning">{{ expiry_date }}</span></p>
+    {% else %}
+      <p>Your certificate expires - <span class="text-success">{{ expiry_date }}</span></p>
+    {% endif %}
+  </div>
+
+
+
 </div>
 <hr>
   <div class="row">
