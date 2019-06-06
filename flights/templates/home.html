@@ -8,11 +8,16 @@
     <br>
   </div>
   <div class="col-8 flex-md-column">
-    <h5>Medical Certificate Issued - <span class="text-no-wrap">{{ user.profile.date }}</span></h5>
-    {% if this_month == True %}
-      <p>Your certificate expires this month - <span class="text-danger text-no-wrap">{{ expiry_date }}</span></p>
+    {% if not expiry_date %}
+    <h5><a class="text-dark" style="text-decoration: underline;" href="{% url 'profile' %}">Click here to enter your medical certificate info for an expiration date reminder</a></h5>
+
     {% else %}
-      <p>Your certificate expires - <span class="text-success text-no-wrap">{{ expiry_date }}</span></p>
+      <h5>Medical Certificate Issued - <span class="text-no-wrap">{{ user.profile.date }}</span></h5>
+      {% if this_month == True %}
+        <p>Your certificate expires this month - <span class="text-danger text-no-wrap">{{ expiry_date|date:"M Y" }}</span></p>
+      {% else %}
+        <p>Your certificate expires - <span class="text-success text-no-wrap">{{ expiry_date|date:"M Y" }}</span></p>
+      {% endif %}
     {% endif %}
   </div>
 </div>

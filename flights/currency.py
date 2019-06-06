@@ -185,4 +185,4 @@ def medical_duration(user): #still need to start calculations from next month af
     else:
         this_month = False
 
-    return(expiry_date.strftime('%b' + ', ' + '%Y'), this_month)
+    return(expiry_date, this_month)
