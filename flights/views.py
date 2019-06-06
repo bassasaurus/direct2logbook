@@ -200,7 +200,6 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
 
         context['expiry_date'] = currency.medical_duration(user)[0]
         context['this_month'] = currency.medical_duration(user)[1]
-        context['two_month_warning'] = currency.medical_duration(user)[2]
 
 
         context['totals'] = Total.objects.filter(user=user).exclude(total_time__lte=.1)

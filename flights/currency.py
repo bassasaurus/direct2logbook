@@ -2,6 +2,7 @@ from flights.models import Flight
 from accounts.models import User, Profile
 from django.db.models import Sum, Q
 import datetime
+from dateutil.relativedelta import relativedelta
 
 asel_query = Q(aircraft_type__aircraft_class__aircraft_class__icontains = 'single engine land') & Q(aircraft_type__aircraft_category__aircraft_category__icontains = 'airplane')
 amel_query = Q(aircraft_type__aircraft_class__aircraft_class__icontains = 'multi engine land') & Q(aircraft_type__aircraft_category__aircraft_category__icontains = 'airplane')
@@ -148,33 +149,37 @@ def gyro_vfr_night(user):
         gyro_vfr_night = round(gyro_vfr_night.get('landings_night__sum'), 1)
     return gyro_vfr_night
 
-def medical_duration(user):
+def medical_duration(user): #still need to start calculations from next month after issue
     issue_date = user.profile.date
     current_month = datetime.date.today()
 
     if user.profile.first_class:
-        expiry_date = issue_date + datetime.timedelta(1*365)
+        one_year = relativedelta(months=+12)
+        expiry_date = issue_date + one_year
 
     if user.profile.first_class and user.profile.over_40:
-        expiry_date = issue_date + datetime.timedelta(6*365/12)
+        six_months = relativedelta(months=+6)
+        expiry_date = issue_date + six_months
 
     if user.profile.second_class:
-        expiry_date = issue_date + datetime.timedelta(2*365)
+        two_years = relativedelta(months=+24)
+        expiry_date = issue_date + two_years
+
+    if user.profile.second_class and user.profile.over_40:
+        one_year = relativedelta(months=+12)
+        expiry_date = issue_date + one_year
 
     if user.profile.third_class:
-        expiry_date = issue_date + datetime.timedelta(5*365)
+        five_years = relativedelta(months=+60)
+        expiry_date = issue_date + five_years
 
     if user.profile.third_class and user.profile.over_40:
-        expiry_date = issue_date + datetime.timedelta(2*365)
+        three_years = relativedelta(months=+36)
+        expiry_date = issue_date + three_years
 
-    if expiry_date == current_month:
+    if current_month == expiry_date:
         this_month = True
     else:
         this_month = False
 
-    if current_month == expiry_date - datetime.timedelta(60):
-        two_month_warning = True
-    else:
-        two_month_warning = False
-
-    return(expiry_date.strftime('%b' + ', ' + '%Y'), this_month, two_month_warning)
+    return(expiry_date.strftime('%b' + ', ' + '%Y'), this_month)
