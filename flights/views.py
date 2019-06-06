@@ -198,6 +198,10 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         context['gyro_vfr_day'] = currency.gyro_vfr_day(user)
         context['gyro_vfr_night'] = currency.gyro_vfr_night(user)
 
+        context['expiry_date'] = currency.medical_duration(user)[0]
+        context['this_month'] = currency.medical_duration(user)[1]
+
+
         context['totals'] = Total.objects.filter(user=user).exclude(total_time__lte=.1)
         context['stats'] = Stat.objects.filter(user=user)
         context['regs'] = Regs.objects.filter(user=user).all()

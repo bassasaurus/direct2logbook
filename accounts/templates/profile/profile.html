@@ -8,10 +8,17 @@
 
     <h3>{{ user.first_name }} {{ user.last_name }}</h3>
     <hr>
-    <p>Email: {{ user.email }}<p>
+    <h5>Email</h5> {{ user.email }}
     <hr>
-
-    <p>Company: {{ user.profile.company }}</p>
+    <h5>Company</h5> {{ user.profile.company }}
+    <hr>
+    <h5>Medical Certificate</h5>
+    Issued - {{ user.profile.date }} |
+    Type -
+    {% if user.profile.first_class == True %} 1st Class |{% else %}{% endif %}
+    {% if user.profile.second_class == True %} 2nd Class |{% else %}{% endif %}
+    {% if user.profile.third_class == True %} 3rd Class |{% else %}{% endif %}
+    {% if user.profile.over_40 == True %} Over 40 {% else %}{% endif %}
     <hr>
     <p>Questions or problems with the app? Email us <a target="new" href="mailto:support@direct2logbook.com?subject=Support">here</a></p>
     <p>Include a screenshot if possible, and a description of the error. More info is better</p>

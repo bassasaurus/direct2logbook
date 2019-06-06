@@ -2,13 +2,23 @@
 {% load math_filters %}
 {% block content %}
 
-<div class="row">
-  <div style="padding-top:10px;" class="col-6">
-    <h3><a style="text-decoration: underline;" class="text-dark link" href="{% url 'profile' %}"> {{ user.first_name }} {{ user.last_name }}</a></h3>
+<div class="row flex-md-row">
+  <div class="col-4 flex-md-column" style="padding-top:10px;" >
+    <h3><a class="text-dark link" style="text-decoration: underline;" href="{% url 'profile' %}"> {{ user.first_name }}&nbsp{{ user.last_name }}</a></h3>
+    <br>
+  </div>
+  <div class="col-8 flex-md-column">
+    <h5>Medical Certificate Issued - <span class="text-no-wrap">{{ user.profile.date }}</span></h5>
+    {% if this_month == True %}
+      <p>Your certificate expires this month - <span class="text-danger text-no-wrap">{{ expiry_date }}</span></p>
+    {% else %}
+      <p>Your certificate expires - <span class="text-success text-no-wrap">{{ expiry_date }}</span></p>
+    {% endif %}
   </div>
 </div>
+
 <hr>
-  <div class="row">
+<div class="row">
   <div style="margin-top:10px;" class="col">
     <!-- <button id="pdf" class="btn btn-outline-secondary">Print Logbook</button> -->
     <a target="" id="pdf" class="btn btn-outline-secondary" href="{% url 'pdf' user.pk %}">Print Logbook</a>
@@ -16,8 +26,8 @@
   </div>
 <hr>
 
-<div style="margin-top: 15px;" class="row flex-sm-row">
-  <div class="col flex-sm-column">
+<div style="margin-top: 15px;" class="row flex-md-row">
+  <div class="col flex-md-column">
     <table>
       <thead>
         <th class="text-nowrap">Flight Errors</th>
@@ -32,7 +42,7 @@
       </tbody>
     </table>
   </div>
-  <div class="col flex-sm-column">
+  <div class="col flex-md-column">
     <table>
       <thead>
         <th class="text-nowrap">Aircraft Errors</th>
@@ -48,7 +58,7 @@
         </tbody>
   </table>
   </div>
-    <div class="col flex-sm-column">
+    <div class="col flex-md-column">
       <table>
         <thead>
           <th class="text-nowrap">Tailnumber Errors</th>

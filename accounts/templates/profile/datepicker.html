@@ -1,0 +1,16 @@
+<script type="text/javascript">
+
+  $("#id_date").datepicker({
+    dateFormat: "yy-mm-dd",
+    showButtonPanel: true,
+    closeText: "Close",
+    beforeShow: function (input, inst) {
+        setTimeout(function () {
+            inst.dpDiv.css({
+                top: $("#id_date").offset().top + 35,
+                left: $("#id_date").offset().left
+            });
+        }, 0);
+    },
+  });
+</script>
