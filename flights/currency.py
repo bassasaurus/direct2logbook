@@ -177,9 +177,9 @@ def medical_duration(user): #still need to start calculations from next month af
         three_years = relativedelta(months=+36)
         expiry_date = issue_date + three_years
 
-    if current_month == expiry_date:
-        this_month = True
-    else:
-        this_month = False
+    # if current_month == expiry_date:
+    #     this_month = True
+    # else:
+    #     this_month = False
 
-    return(expiry_date.strftime('%b' + ', ' + '%Y'), this_month)
+    return(expiry_date.strftime('%b' + ', ' + '%Y'))
