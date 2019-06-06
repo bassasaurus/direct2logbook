@@ -153,29 +153,32 @@ def medical_duration(user): #still need to start calculations from next month af
     issue_date = user.profile.date
     current_month = datetime.date.today()
 
-    if user.profile.first_class:
+    if user.profile.first_class and not user.profile.over_40:
         one_year = relativedelta(months=+12)
         expiry_date = issue_date + one_year
 
-    if user.profile.first_class and user.profile.over_40:
+    elif user.profile.first_class and user.profile.over_40:
         six_months = relativedelta(months=+6)
         expiry_date = issue_date + six_months
 
-    if user.profile.second_class:
+    elif user.profile.second_class and not user.profile.over_40:
         two_years = relativedelta(months=+24)
         expiry_date = issue_date + two_years
 
-    if user.profile.second_class and user.profile.over_40:
+    elif user.profile.second_class and user.profile.over_40:
         one_year = relativedelta(months=+12)
         expiry_date = issue_date + one_year
 
-    if user.profile.third_class:
+    elif user.profile.third_class and not user.profile.over_40:
         five_years = relativedelta(months=+60)
         expiry_date = issue_date + five_years
 
-    if user.profile.third_class and user.profile.over_40:
+    elif user.profile.third_class and user.profile.over_40:
         three_years = relativedelta(months=+36)
         expiry_date = issue_date + three_years
+
+    else:
+        expiry_date = None
 
     # if current_month == expiry_date:
     #     this_month = True
