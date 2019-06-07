@@ -116,8 +116,8 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         context['tailnumber_errors'] = TailNumber.objects.filter(user=user).all()
 
         aircraft_list = []
-        for aircraft in Aircraft.objects.all():
-            if TailNumber.objects.filter(aircraft__aircraft_type=aircraft).exists():
+        for aircraft in Aircraft.objects.filter(user=user).all():
+            if TailNumber.objects.filter(user=user).filter(aircraft__aircraft_type=aircraft).exists():
                 pass
             else:
                 aircraft_list.append(aircraft)
@@ -159,26 +159,26 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         today = datetime.date.today()
         last_180 = today - datetime.timedelta(days=180)
 
-        appr_qs = Flight.objects.filter(date__lte=today, date__gte=last_180).filter(approach__number__gte=0).aggregate(Sum(F('approach__number')))
+        appr_qs = Flight.objects.filter(user=user).filter(date__lte=today, date__gte=last_180).filter(approach__number__gte=0).aggregate(Sum(F('approach__number')))
         if not appr_qs:
             context['appr_quantity'] = 0
         else:
             context['appr_quantity'] = appr_qs.get('approach__number__sum') #Model__field__SumFunctionValue
             # context['still_needed'] = 6 - int(appr_qs.get('approach__number__sum'))
 
-        oldest_approach_date = Flight.objects.filter(date__lte=today, date__gte=last_180).filter(approach__number__gte=0).first()
+        oldest_approach_date = Flight.objects.filter(user=user).filter(date__lte=today, date__gte=last_180).filter(approach__number__gte=0).first()
         if not oldest_approach_date:
             context['appr_current_date'] = None
         else:
             context['appr_current_date'] = oldest_approach_date.date + datetime.timedelta(180)
 
-        hold_qs = Flight.objects.filter(date__lte=today, date__gte=last_180).filter(holding__hold=True)
+        hold_qs = Flight.objects.filter(user=user).filter(date__lte=today, date__gte=last_180).filter(holding__hold=True)
         if not hold_qs:
             context['hold_quantity'] = 0
         else:
             context['hold_quantity'] = 1
 
-        hold_date_qs = Flight.objects.filter(date__lte=today, date__gte=last_180).filter(holding__hold=True).last()
+        hold_date_qs = Flight.objects.filter(user=user).filter(date__lte=today, date__gte=last_180).filter(holding__hold=True).last()
         if not hold_date_qs:
             context['hold_current_date'] = None
         else:
@@ -207,7 +207,7 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         context['regs'] = Regs.objects.filter(user=user).all()
         context['weights'] = Weight.objects.filter(user=user).exclude(total__lte=.1)
         context['powers'] = Power.objects.filter(user=user).all()
-        context['endorsements'] = Endorsement.objects.exclude(total__lte=.1)
+        context['endorsements'] = Endorsement.objects.filter(user=user).exclude(total__lte=.1)
         context['title'] = 'D-> | Home'
         context['page_title'] = "Home"
         return context

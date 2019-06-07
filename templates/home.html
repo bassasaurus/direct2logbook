@@ -9,8 +9,7 @@
   </div>
   <div class="col-8 flex-md-column">
     {% if not expiry_date %}
-    <h5><a class="text-dark" style="text-decoration: underline;" href="{% url 'profile' %}">Click here to enter your medical certificate info for an expiration date reminder</a></h5>
-
+    <h5><a class="text-dark" style="text-decoration: underline;" href="{% url 'profile_update' user.profile.pk %}">Click here to enter your medical certificate info for an expiration date reminder</a></h5>
     {% else %}
       <h5>Medical Certificate Issued - <span class="text-no-wrap">{{ user.profile.date }}</span></h5>
       {% if this_month == True %}

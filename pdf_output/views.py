@@ -266,7 +266,7 @@ def PDFView(request, user_id):
     today = datetime.date.today()
     last_5yr = today - datetime.timedelta(days=1825)
     # stat_objects = Stat.objects.filter(last_flown__gte=last_5yr)
-    stat_objects = Stat.objects.all()
+    stat_objects = Stat.objects.filter(user=user).all()
 
     stat_data = []
     for stat in stat_objects:
