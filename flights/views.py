@@ -44,6 +44,7 @@ class UserObjectsMixin():
         user = self.request.user
         return super(UserObjectsMixin, self).get_queryset().filter(user=user)
 
+
 class LoginRequiredMixin(LoginRequiredMixin):
     login_url = '/accounts/login'
     # redirect_field_name = None
@@ -104,7 +105,6 @@ class IndexView(TemplateView):
 
 class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
     template_name='home.html'
-
 
     def get_context_data(self, **kwargs):
         user = self.request.user
@@ -201,6 +201,9 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         context['expiry_date'] = currency.medical_duration(user)[0]
         context['this_month'] = currency.medical_duration(user)[1]
 
+        context['aircraft'] = Aircraft.objects.filter(user=user).all()
+        context['tailnumber'] = TailNumber.objects.filter(user=user).all()
+        context['flight'] = Flight.objects.filter(user=user).all()
 
         context['totals'] = Total.objects.filter(user=user).exclude(total_time__lte=.1)
         context['stats'] = Stat.objects.filter(user=user)
@@ -313,6 +316,11 @@ class FlightCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
     model = Flight
     form_class = FlightForm
     template_name = 'flights/flight_create_form.html'
+
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.user = self.request.user
+        object.save()
 
     def get_context_data(self, **kwargs):
         context = super(FlightCreate, self).get_context_data(**kwargs)
@@ -442,7 +450,14 @@ class AircraftCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
     template_name = "aircraft/aircraft_create_form.html"
     success_url = "/aircraft/"
 
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.user = self.request.user
+        object.save()
+
     def get_context_data(self, **kwargs):
+        user = self.request.user
+
         context = super(AircraftCreate, self).get_context_data(**kwargs)
         context['title'] = "D-> | New Aircraft"
 
@@ -520,9 +535,11 @@ class TailNumberList(LoginRequiredMixin, UserObjectsMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(TailNumberList, self).get_context_data(**kwargs)
 
+        user = self.request.user
+
         aircraft_list = []
-        for aircraft in Aircraft.objects.all():
-            if TailNumber.objects.filter(aircraft__aircraft_type=aircraft).exists():
+        for aircraft in Aircraft.objects.filter(user=user).all():
+            if TailNumber.objects.filter(user=user).filter(aircraft__aircraft_type=aircraft).exists():
                 pass
             else:
                 aircraft_list.append(aircraft)
@@ -539,6 +556,10 @@ class TailNumberCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
     form_class = TailNumberForm
     template_name = "tailnumbers/tailnumber_create_form.html"
 
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.user = self.request.user
+        object.save()
 
     def get_context_data(self, **kwargs):
         context = super(TailNumberCreate, self).get_context_data(**kwargs)
