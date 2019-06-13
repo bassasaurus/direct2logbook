@@ -321,6 +321,7 @@ class FlightCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
         object = form.save(commit=False)
         object.user = self.request.user
         object.save()
+        return super(FlightCreate, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super(FlightCreate, self).get_context_data(**kwargs)
@@ -454,6 +455,7 @@ class AircraftCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
         object = form.save(commit=False)
         object.user = self.request.user
         object.save()
+        return super(AircraftCreate, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
         user = self.request.user
@@ -560,6 +562,7 @@ class TailNumberCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
         object = form.save(commit=False)
         object.user = self.request.user
         object.save()
+        return super(TailNumberCreate, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super(TailNumberCreate, self).get_context_data(**kwargs)

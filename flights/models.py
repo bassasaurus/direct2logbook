@@ -42,7 +42,7 @@ class MapData(models.Model):
         index_together = ['iata', 'icao']
 
 class Stat(models.Model):
-    user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User)
     aircraft_type = models.CharField(max_length=10)
     total_time = models.DecimalField(decimal_places=1, max_digits=6,null=False, blank=True, default=0, verbose_name="Time")
     pilot_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="PIC")
@@ -75,7 +75,7 @@ class Stat(models.Model):
         return title
 
 class Total(models.Model):
-    user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User)
     total = models.CharField(max_length=20, default='')
     total_time = models.DecimalField(decimal_places=1, max_digits=6, db_index=True, null=True, blank=True, default=0, verbose_name="Time")
     pilot_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="PIC")
@@ -108,7 +108,7 @@ class Total(models.Model):
         return title
 
 class Power(models.Model):
-    user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User)
     role = models.CharField(db_index=True, max_length=5, default='')
     turbine = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0)
     piston = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0)
@@ -122,7 +122,7 @@ class Power(models.Model):
         return title
 
 class Regs(models.Model):
-    user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User)
     reg_type = models.CharField(db_index=True, max_length=5, default='', verbose_name="Reg")
     pilot_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="PIC")
     second_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="SIC")
@@ -135,7 +135,7 @@ class Regs(models.Model):
         return title
 
 class Endorsement(models.Model):
-    user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User)
     endorsement = models.CharField(max_length=30, default='')
     total = models.DecimalField(decimal_places=1, max_digits=6,db_index=True, null=True, blank=True, default=0)
 
@@ -147,7 +147,7 @@ class Endorsement(models.Model):
         return title
 
 class Weight(models.Model):
-    user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User)
     weight = models.CharField(max_length=20, default='')
     total = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0)
 
@@ -159,7 +159,7 @@ class Weight(models.Model):
         return title
 
 class Aircraft(models.Model):
-    user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User)
     aircraft_type = models.CharField(db_index=True, max_length=10, unique=True)
     turbine = models.NullBooleanField()
     piston = models.NullBooleanField()
@@ -193,7 +193,7 @@ class Aircraft(models.Model):
         return aircraft_type
 
 class Flight(models.Model):
-    user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User)
     date = models.DateField(db_index=True)
     aircraft_type = models.ForeignKey('Aircraft', default=None, null=True, blank=True, on_delete=models.SET_NULL)
     registration = models.ForeignKey('TailNumber', default=None, null=True, blank=True, on_delete=models.SET_NULL)
@@ -232,7 +232,7 @@ class Flight(models.Model):
         return "{} | {}".format(self.date, self.route)
 
 class TailNumber(models.Model):
-    user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User)
     registration = models.CharField(db_index=True, max_length=10, unique=True)
     aircraft = models.ForeignKey('Aircraft', default=None, blank=False)
     is_121 = models.NullBooleanField(null=True, blank=True)

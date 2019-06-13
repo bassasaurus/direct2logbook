@@ -3,19 +3,61 @@ from django.db.models.signals import pre_save, post_save, post_delete
 from django.db.models import Sum, Q
 import datetime
 from math import floor
+import inspect, os
+
+@receiver(pre_save, sender=Flight)
+def create_instances(sender, instance, **kwargs):
+    user = instance.user
+
+    total = Total.objects.get_or_create(
+        user = user,
+        total = 'All',
+    )
+
+    amel = Total.objects.get_or_create(
+        user = user,
+        total = 'AMEL',
+    )
+
+    asel = Total.objects.get_or_create(
+        user = user,
+        total = 'ASEL',
+    )
+
+    ames = Total.objects.get_or_create(
+        user = user,
+        total = 'AMES',
+    )
+
+    ases = Total.objects.get_or_create(
+        user = user,
+        total = 'ASES',
+    )
+
+    helo = Total.objects.get_or_create(
+        user = user,
+        total = 'HELO',
+    )
+
+    gyro = Total.objects.get_or_create(
+        user = user,
+        total = 'GYRO',
+    )
 
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
-def total_update(sender, **kwargs):
+def total_update(sender, instance, **kwargs):
     today = datetime.date.today()
-    total = Total.objects.get(total='All')
 
-    amel = Total.objects.get(total='AMEL')
-    asel = Total.objects.get(total='ASEL')
-    ames = Total.objects.get(total='AMES')
-    ases = Total.objects.get(total='ASES')
-    helo = Total.objects.get(total='HELO')
-    gyro = Total.objects.get(total='GYRO')
+    user = instance.user
+
+    total = Total.objects.filter(user=user).get(total='All')
+    amel = Total.objects.filter(user=user).get(total='AMEL')
+    asel = Total.objects.filter(user=user).get(total='ASEL')
+    ames = Total.objects.filter(user=user).get(total='AMES')
+    ases = Total.objects.filter(user=user).get(total='ASES')
+    helo = Total.objects.filter(user=user).get(total='HELO')
+    gyro = Total.objects.filter(user=user).get(total='GYRO')
 
     total.total_time = amel.total_time + asel.total_time + ames.total_time + ases.total_time + helo.total_time + gyro.total_time
 
