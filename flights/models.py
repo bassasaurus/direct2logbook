@@ -68,7 +68,7 @@ class Stat(models.Model):
 
 
     class Meta:
-        ordering = ["-last_flown"]
+        ordering = ['user', '-last_flown']
 
     def __str__(self):
         title = str(self.aircraft_type)
@@ -101,7 +101,7 @@ class Total(models.Model):
     ytd = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, verbose_name='YDT')
 
     class Meta:
-        ordering = ['-total_time']
+        ordering = ['user', '-total_time']
 
     def __str__(self):
         title = str(self.total) + ' ' + str(self.total_time)
@@ -115,7 +115,7 @@ class Power(models.Model):
 
     class Meta:
         verbose_name_plural = "Power"
-        ordering = ['-role']
+        ordering = ['user', '-role']
 
     def __str__(self):
         title = str(self.role)
@@ -129,6 +129,7 @@ class Regs(models.Model):
 
     class Meta:
         verbose_name_plural = "Regs"
+        ordering = ['user']
 
     def __str__(self):
         title = str(self.reg_type)
@@ -140,7 +141,7 @@ class Endorsement(models.Model):
     total = models.DecimalField(decimal_places=1, max_digits=6,db_index=True, null=True, blank=True, default=0)
 
     class Meta:
-        ordering = ['-total']
+        ordering = ['user', '-total']
 
     def __str__(self):
         title = str(self.endorsement) + ' ' + str(self.total)
@@ -153,6 +154,7 @@ class Weight(models.Model):
 
     class Meta:
         verbose_name_plural = "Weight"
+        odering = ordering = ['user']
 
     def __str__(self):
         title = str(self.weight) + ' ' + str(self.total)
@@ -185,7 +187,7 @@ class Aircraft(models.Model):
     class_error = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
-        ordering = ["aircraft_type"]
+        ordering = ['user', 'aircraft_type']
         verbose_name_plural = "Aircraft"
 
     def __str__(self):
@@ -222,7 +224,7 @@ class Flight(models.Model):
     crew_error = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
-        ordering = ["-date"]
+        ordering = ['user', '-date']
         index_together = ['route', 'date', 'duration']
 
     def get_absolute_url(self):
@@ -242,8 +244,8 @@ class TailNumber(models.Model):
     reg_error = models.CharField(null=True, blank=True, max_length=50)
 
     class Meta:
-        ordering =['aircraft', 'registration']
         verbose_name_plural = "Tailnumbers"
+        ordering =['user', 'aircraft', 'registration']
 
     def __str__(self):
         registration = str(self.registration)
@@ -276,8 +278,8 @@ class Approach(models.Model):
     number = models.PositiveIntegerField(null=True, blank=True, verbose_name="Number")
 
     class Meta:
-        ordering =['approach_type']
         verbose_name_plural = "Approaches"
+        ordering =['approach_type']
 
         def __str__(self):
             return approach_type
