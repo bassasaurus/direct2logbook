@@ -13,7 +13,7 @@ def helo_update(sender, instance, **kwargs):
 
     user = instance.user
 
-    helo = Total.objects.get(total='HELO')
+    helo = Total.objects.filter(user=user).get(total='HELO')
     cat_class_query = Q(aircraft_type__aircraft_class__aircraft_class__icontains='helicopter') & Q(
         aircraft_type__aircraft_category__aircraft_category__icontains='rotorcraft')
 
@@ -186,7 +186,7 @@ def asel_updater(sender, instance, **kwargs):
 
     user = instance.user
 
-    gyro = Total.objects.get(total='GYRO')
+    gyro = Total.objects.filter(user=user).get(total='GYRO')
     cat_class_query = Q(aircraft_type__aircraft_class__aircraft_class__icontains='gyroplane') & Q(
         aircraft_type__aircraft_category__aircraft_category__icontains='rotorcraft')
 

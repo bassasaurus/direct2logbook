@@ -31,6 +31,8 @@ def map_error(sender, instance, **kwargs):
 @receiver(post_save, sender=Flight)
 def duplicate_error(sender, instance, **kwargs):
 
+    user = instance.user
+
     errors = ''
 
     #search against tuple
@@ -52,6 +54,8 @@ def duplicate_error(sender, instance, **kwargs):
 
 @receiver(post_save, sender=Flight)
 def flight_misc_error(sender, instance, **kwargs):
+
+    user = instance.user
 
     if not instance.aircraft_type:
         aircraft_type_error = "Please select an aircraft type"

@@ -13,7 +13,7 @@ def ames_update(sender, instance, **kwargs):
 
     user = instance.user
 
-    ames = Total.objects.get(total='AMES')
+    ames = Total.objects.filter(user=user).get(total='AMES')
     cat_class_query = Q(aircraft_type__aircraft_class__aircraft_class__icontains='multi engine sea') & Q(
         aircraft_type__aircraft_category__aircraft_category__icontains='airplane')
 
@@ -181,9 +181,12 @@ def ames_update(sender, instance, **kwargs):
 @receiver(post_delete, sender=Aircraft)
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
-def asel_update(sender, **kwargs):
+def asel_update(sender, instance, **kwargs):
     today = datetime.date.today()
-    ases = Total.objects.get(total='ASES')
+
+    user = instance.user
+
+    ases = Total.objects.filter(user=user).get(total='ASES')
     cat_class_query = Q(aircraft_type__aircraft_class__aircraft_class__icontains='single engine sea') & Q(
         aircraft_type__aircraft_category__aircraft_category__icontains='airplane')
 

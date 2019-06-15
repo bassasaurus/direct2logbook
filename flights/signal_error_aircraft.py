@@ -37,4 +37,4 @@ def aircraft_error(sender, instance, **kwargs):
         class_error = "Please select an aircraft class"
         Aircraft.objects.filter(user=user).filter(pk=instance.pk).update(class_error=class_error)
     else:
-        Aircraft.objects.filter(user=user)w.filter(pk=instance.pk).update(class_error='')
+        Aircraft.objects.filter(user=user).filter(pk=instance.pk).update(class_error='')
