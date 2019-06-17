@@ -154,7 +154,7 @@ class Weight(models.Model):
 
     class Meta:
         verbose_name_plural = "Weight"
-        odering = ordering = ['user']
+        ordering = ['user']
 
     def __str__(self):
         title = str(self.weight) + ' ' + str(self.total)

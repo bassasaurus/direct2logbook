@@ -88,55 +88,55 @@ def total_update(sender, instance, **kwargs):
     total.landings_total = total.landings_day + total.landings_night
 
     try:
-        last_flown = Flight.objects.filter().latest('date')
+        last_flown = Flight.objects.filter(user=user).filter().latest('date')
         total.last_flown = last_flown.date
     except:
         total.last_flown = None
 
     last_30 = today - datetime.timedelta(days=30)
-    last_30 = Flight.objects.filter(date__lte=today,date__gte=last_30).aggregate(Sum('duration'))
+    last_30 = Flight.objects.filter(user=user).filter(date__lte=today,date__gte=last_30).aggregate(Sum('duration'))
     if not last_30.get('duration__sum'):
         total.last_30 = 0
     else:
         total.last_30 = last_30.get('duration__sum')
 
     last_60 = today - datetime.timedelta(days=60)
-    last_60 = Flight.objects.filter(date__lte=today,date__gte=last_60).aggregate(Sum('duration'))
+    last_60 = Flight.objects.filter(user=user).filter(date__lte=today,date__gte=last_60).aggregate(Sum('duration'))
     if not last_60.get('duration__sum'):
         total.last_60 = 0
     else:
         total.last_60 = last_60.get('duration__sum')
 
     last_90 = today - datetime.timedelta(days=90)
-    last_90 = Flight.objects.filter(date__lte=today,date__gte=last_90).aggregate(Sum('duration'))
+    last_90 = Flight.objects.filter(user=user).filter(date__lte=today,date__gte=last_90).aggregate(Sum('duration'))
     if not last_90.get('duration__sum'):
         total.last_90 = 0
     else:
         total.last_90 = last_90.get('duration__sum')
 
     last_180 = today - datetime.timedelta(days=180)
-    last_180 = Flight.objects.filter(date__lte=today,date__gte=last_180).aggregate(Sum('duration'))
+    last_180 = Flight.objects.filter(user=user).filter(date__lte=today,date__gte=last_180).aggregate(Sum('duration'))
     if not last_180.get('duration__sum'):
         total.last_180 = 0
     else:
         total.last_180 = last_180.get('duration__sum')
 
     last_yr = today - datetime.timedelta(days=365)
-    last_yr = Flight.objects.filter(date__lte=today,date__gte=last_yr).aggregate(Sum('duration'))
+    last_yr = Flight.objects.filter(user=user).filter(date__lte=today,date__gte=last_yr).aggregate(Sum('duration'))
     if not last_yr.get('duration__sum'):
         total.last_yr = 0
     else:
         total.last_yr = last_yr.get('duration__sum')
 
     last_2yr = today - datetime.timedelta(days=730)
-    last_2yr = Flight.objects.filter(date__lte=today,date__gte=last_2yr).aggregate(Sum('duration'))
+    last_2yr = Flight.objects.filter(user=user).filter(date__lte=today,date__gte=last_2yr).aggregate(Sum('duration'))
     if not last_2yr.get('duration__sum'):
         total.last_2yr = 0
     else:
         total.last_2yr = last_2yr.get('duration__sum')
 
     ydt = datetime.date(today.year, 1, 1)
-    ydt = Flight.objects.filter(date__lte=today,date__gte=ydt).aggregate(Sum('duration'))
+    ydt = Flight.objects.filter(user=user).filter(date__lte=today,date__gte=ydt).aggregate(Sum('duration'))
     if not ydt.get('duration__sum'):
         total.ytd = 0
     else:

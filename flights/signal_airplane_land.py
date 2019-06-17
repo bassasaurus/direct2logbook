@@ -111,7 +111,6 @@ def amel_update(sender, instance, **kwargs):
     else:
         amel.landings_night = landings_night.get('landings_night__sum')
 
-    print(amel.landings_day, amel.landings_night)
     amel.landings_total = amel.landings_day + amel.landings_night
 
     try:

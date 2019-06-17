@@ -10,7 +10,11 @@
   </div>
 
 {% include "pagination.html"%}
-{% include 'flights/logbook.html' %}
+{% if flights|length == 0 %}
+  <h1>No Data</h1>
+{% else %}
+  {% include 'flights/logbook.html' %}
+{% endif %}
 
 {% include 'tablefixer.html' %}
 
