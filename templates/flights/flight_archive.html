@@ -8,9 +8,13 @@
 <hr>
 <div class="row">
   <div class="col">
-    {% for year in years reversed %}
-      <a href="/flights/by_date/{{ year|date:'Y' }}">{{ year|date:"Y" }}</a>
-    {% endfor %}
+    {% if not years %}
+      <h1 class="text-center">No Data</h1>
+    {% else %}
+        {% for year in years reversed %}
+          <a href="/flights/by_date/{{ year|date:'Y' }}">{{ year|date:"Y" }}</a>
+        {% endfor %}
+    {% endif %}
   </div>
 </div>
 <hr>

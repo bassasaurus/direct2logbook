@@ -25,11 +25,15 @@
     <h4>Routes</h4>
     </div>
     <div class="col-12">
-      <div class="list-inline">
-        {% for flight in flights %}
-          <span class="list-inline-item"><a href ="{% url 'flight_detail' flight.pk %}" class="">{{ flight.date }} {{ flight.route }} </a><br></span>
-        {% endfor %}
-      </div>
+      {% if flights|length == 0 %}
+        <h1>No Data</h1>
+      {% else %}
+        <div class="list-inline">
+          {% for flight in flights %}
+            <span class="list-inline-item"><a href ="{% url 'flight_detail' flight.pk %}" class="">{{ flight.date }} {{ flight.route }} </a><br></span>
+          {% endfor %}
+        </div>
+      {% endif %}
   </div>
 </div>
 <hr>

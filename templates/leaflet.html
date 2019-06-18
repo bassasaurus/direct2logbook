@@ -14,6 +14,21 @@
 
 <script type="text/javascript">
 
+  function filterSuccessiveDuplicatePositions(latlngs) {
+    var result = [];
+
+    if (latlngs.length > 0) {
+      result.push(latlngs[0]);
+    }
+
+    for (var i = 1; i < latlngs.length; i += 1) {
+      if (!L.latLng(latlngs[i]).equals(latlngs[i - 1])) {
+        result.push(latlngs[i]);
+      }
+    }
+    return result;
+  }
+
   // map draw airports
   $.ajax({
     type: "GET",
@@ -29,21 +44,6 @@
         mymap.fitBounds(airportsLayer.getBounds(), {paddingTopLeft: [40, 40]});
       }
     });
-
-  function filterSuccessiveDuplicatePositions(latlngs) {
-    var result = [];
-
-    if (latlngs.length > 0) {
-      result.push(latlngs[0]);
-    }
-
-    for (var i = 1; i < latlngs.length; i += 1) {
-      if (!L.latLng(latlngs[i]).equals(latlngs[i - 1])) {
-        result.push(latlngs[i]);
-      }
-    }
-    return result;
-  }
 
     $.ajax({
       type: "GET",
