@@ -9,8 +9,7 @@ def tainumber_error(sender, instance, **kwargs):
     user = instance.user
 
     if not instance.is_91 and not instance.is_135 and not instance.is_121:
-        print('reg error')
         reg_error = "Please indicate if FAR 91, FAR 135, or FAR 121"
-        TailNumber.filter(user=user).objects.filter(pk=instance.pk).update(reg_error=reg_error)
+        TailNumber.objects.filter(user=user).filter(pk=instance.pk).update(reg_error=reg_error)
     else:
-        TailNumber.filter(user=user).objects.filter(pk=instance.pk).update(reg_error='')
+        TailNumber.objects.filter(user=user).filter(pk=instance.pk).update(reg_error='')
