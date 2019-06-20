@@ -65,23 +65,23 @@
         </div>
         <div class="modal-body">
           {% if aircraft.power_error %}
-            <p class"text-danger">{{ aircraft.power_error }}</p>
+            <p class="text-danger">{{ aircraft.power_error }}</p>
             <hr>
           {% endif %}
           {% if aircraft.config_error %}
-            <p class"text-danger">{{ aircraft.config_error }}<p>
+            <p class="text-danger">{{ aircraft.config_error }}<p>
           <hr>
           {% endif %}
           {% if aircraft.weight_error %}
-            <p class"text-danger">{{ aircraft.weight_error }}<p>
+            <p class="text-danger">{{ aircraft.weight_error }}<p>
           <hr>
           {% endif %}
           {% if aircraft.weight_error %}
-            <p class"text-danger">{{ aircraft.category_error }}<p>
+            <p class="text-danger">{{ aircraft.category_error }}<p>
           <hr>
           {% endif %}
           {% if aircraft.weight_error %}
-            <p class"text-danger">{{ aircraft.class_error }}<p>
+            <p class="text-danger">{{ aircraft.class_error }}<p>
           <hr>
           {% endif %}
           <a href ="{% url 'aircraft_update' aircraft.pk %}" class="btn btn-outline-secondary">Update</a>
