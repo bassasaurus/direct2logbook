@@ -597,11 +597,11 @@ class TailNumberDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         tailnumber = self.object
-        flights = Flight.objects.all().filter(registration = self.object)
         user = self.request.user
+        flights = Flight.objects.filter(user=user).filter(registration = self.object)
         get_map_data(flights, user)
-        context = super(TailNumberDetail, self).get_context_data(**kwargs)
 
+        context = super(TailNumberDetail, self).get_context_data(**kwargs)
         context['title'] = "D-> | " + str(self.object)
         context['page_title'] = str(self.object)
         context['home_link'] = reverse('home')
