@@ -31,23 +31,25 @@
 <hr>
 
 <div style="margin-top: 15px;" class="row flex-md-row">
-  <div class="col flex-md-column">
-    <table>
-      <thead>
-        <th class="text-nowrap">Flight Errors</th>
-      </thead>
-      <tbody>
-        {% for flight in flight_errors %}
-          {% if flight.map_error or flight.duplicate_error or flight.aircraft_type_error or flight.registration_error or flight.crew_error or flight.duration < .1 %}
+  {% if flight_errors %}
+    <div class="col flex-md-column">
+      <table>
+        <thead>
+          <th class="text-nowrap">Flight Errors</th>
+        </thead>
+        <tbody>
+          {% for flight in flight_errors %}
           <tr>
             <td><a href="{% url 'flight_detail' flight.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ flight.date }} | {{ flight.route }}</a></td>
           </tr>
-          {% else %}
-          {% endif %}
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+  {% endif %}
+
+{% if aircraft_errors %}
   <div class="col flex-md-column">
     <table>
       <thead>
@@ -55,17 +57,17 @@
       </thead>
       <tbody>
         {% for aircraft in aircraft_errors %}
-        {% if aircraft.config_error or aircraft.power_error or aircraft.category_error or aircraft.class_error or aircraft.weight_error %}
         <tr>
           <td><a href="{% url 'aircraft_detail' aircraft.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ aircraft }}</a></td>
         </tr>
-        {% else %}
-
-        {% endif %}
         {% endfor %}
       </tbody>
     </table>
   </div>
+{% else %}
+{% endif %}
+
+{% if tailnumber_errors or aircraft_needs_tailnumber %}
   <div class="col flex-md-column">
     <table>
       <thead>
@@ -78,15 +80,14 @@
         </tr>
         {% endfor %}
         {% for tailnumber in tailnumber_errors %}
-        {% if tailnumber.reg_error %}
         <tr>
           <td><a href="{% url 'tailnumber_detail' tailnumber.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ tailnumber }}</a></td>
         </tr>
-        {% else %}
-        {% endif %}
         {% endfor %}
     </table>
   </div>
+{% else %}
+{% endif %}
 </div>
 <hr>
 
@@ -99,11 +100,11 @@
             <small>Currency based on UTC</small></th>
         </thead>
         {% if flight|length == 0 %}
-          <tr>
-            <td>
-              <h1 class="text-center">No Data</h1>
-            </td>
-          </tr>
+        <tr>
+          <td>
+            <h1 class="text-center">No Data</h1>
+          </td>
+        </tr>
         {% else %}
         {% endif %}
         {% if not asel_total.total_time or asel_total.total_time < .1 %}
@@ -187,40 +188,40 @@
           <small>Currency based on UTC</small></th>
       </thead>
       {% if flight|length == 0 %}
-        <tr>
-          <td>
-            <h1 class="text-center">No Data</h1>
-          </td>
-        </tr>
+      <tr>
+        <td>
+          <h1 class="text-center">No Data</h1>
+        </td>
+      </tr>
       {% else %}
 
-        {% if appr_quantity < 6 %}
-        <tr>
-          <td>Approaches</td>
-          <td class="text-danger text-nowrap">{{ appr_quantity }}/6 - {{ still_needed }} Still needed by {{ appr_current_date }}</td>
-        </tr>
-        {% elif appr_quantity >= 6 %}
-        <tr>
-          <td>Approaches</td>
-          <td class="text-success text-nowrap">{{ appr_quantity }}/6 - Current until {{ appr_current_date }}</td>
-        </tr>
-        {% else %}
-        <tr>
-          <td>Approaches</td>
-          <td class="text-danger text-nowrap">No approaches in last 6 months</td>
-        </tr>
-        {% endif %}
-        {% if not hold_quantity or hold_quantity == 0 %}
-        <tr>
-          <td>Holding</td>
-          <td class="text-danger text-nowrap">No holds in last 6 months</td>
-        </tr>
-        {% else %}
-        <tr>
-          <td>Holding</td>
-          <td class="text-success text-nowrap">{{ hold_quantity }}/1 - Holding current until {{ hold_current_date }}</td>
-        </tr>
-        {% endif %}
+      {% if appr_quantity < 6 %}
+      <tr>
+        <td>Approaches</td>
+        <td class="text-danger text-nowrap">{{ appr_quantity }}/6 - {{ still_needed }} Still needed by {{ appr_current_date }}</td>
+      </tr>
+      {% elif appr_quantity >= 6 %}
+      <tr>
+        <td>Approaches</td>
+        <td class="text-success text-nowrap">{{ appr_quantity }}/6 - Current until {{ appr_current_date }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td>Approaches</td>
+        <td class="text-danger text-nowrap">No approaches in last 6 months</td>
+      </tr>
+      {% endif %}
+      {% if not hold_quantity or hold_quantity == 0 %}
+      <tr>
+        <td>Holding</td>
+        <td class="text-danger text-nowrap">No holds in last 6 months</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td>Holding</td>
+        <td class="text-success text-nowrap">{{ hold_quantity }}/1 - Holding current until {{ hold_current_date }}</td>
+      </tr>
+      {% endif %}
       {% endif %}
     </table>
   </div>

@@ -3,6 +3,9 @@ from django.contrib.auth.models import User, Group
 
 from flights.forms import *
 from django.db.models import Sum, Q, F
+from django.db.models.functions import Length
+from django.db.models import CharField
+
 from django.db import transaction
 from django.forms import inlineformset_factory
 
@@ -23,6 +26,8 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from flights.get_map_data import get_map_data
 import flights.currency as currency
+
+CharField.register_lookup(Length, 'length')
 
 zulu_time = datetime.datetime.now().strftime('%Y %b %d %H:%M') + " UTC"
 
@@ -110,12 +115,17 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         user = self.request.user
         context = super(HomeView, self).get_context_data(**kwargs)
 
-        ## Change these queries to refelct .error ##
 
         context['recent'] = Flight.objects.filter(user=user).order_by('-id')[:8]
-        context['flight_errors'] = Flight.objects.filter(user=user).all()
-        context['aircraft_errors'] = Aircraft.objects.filter(user=user).all()
-        context['tailnumber_errors'] = TailNumber.objects.filter(user=user).all()
+
+        flight_error_query = Q(map_error__length__gt=0) | Q(duplicate_error__length__gt=0) | Q(aircraft_type_error__length__gt=0) | Q(registration_error__length__gt=0) | Q(crew_error__length__gt=0)
+        context['flight_errors'] = Flight.objects.filter(user=user).filter(flight_error_query)
+
+        aircraft_error_query = Q(config_error__length__gte=0) | Q(power_error__length__gte=0) | Q(weight_error__length__gte=0) | Q(category_error__length__gte=0) | Q(class_error__length__gte=0)
+        context['aircraft_errors'] = Aircraft.objects.filter(user=user).filter(aircraft_error_query)
+
+        tailnumber_error_query = Q(reg_error__length__gte=0)
+        context['tailnumber_errors'] = TailNumber.objects.filter(user=user).filter(tailnumber_error_query)
 
         aircraft_list = []
         for aircraft in Aircraft.objects.filter(user=user).all():
