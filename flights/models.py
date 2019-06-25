@@ -150,7 +150,7 @@ class Endorsement(models.Model):
 class Weight(models.Model):
     user = models.ForeignKey(User)
     weight = models.CharField(max_length=20, default='')
-    total = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0)
+    total = models.DecimalField(decimal_places=1, max_digits=6, null=True, blank=True, default=0)
 
     class Meta:
         verbose_name_plural = "Weight"

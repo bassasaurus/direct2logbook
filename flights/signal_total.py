@@ -60,7 +60,7 @@ def total_update(sender, instance, **kwargs):
     gyro = Total.objects.filter(user=user).get(total='GYRO')
 
     total.total_time = amel.total_time + asel.total_time + ames.total_time + ases.total_time + helo.total_time + gyro.total_time
-    
+
     total.pilot_in_command = amel.pilot_in_command + asel.pilot_in_command + ames.pilot_in_command + ases.pilot_in_command + helo.pilot_in_command + gyro.pilot_in_command
 
     total.second_in_command = amel.second_in_command + asel.second_in_command + ames.second_in_command + ases.second_in_command + helo.second_in_command + gyro.second_in_command

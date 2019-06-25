@@ -10,11 +10,17 @@ def weight_update(sender, instance, **kwargs):
 
     user = instance.user
 
-    superr = Weight.objects.get(weight="Super")
-    heavy = Weight.objects.get(weight="Heavy")
-    large = Weight.objects.get(weight="Large")
-    medium = Weight.objects.get(weight="Medium")
-    small = Weight.objects.get(weight="Small")
+    superr = Weight.objects.get_or_create(user=user, weight="Super")
+    heavy = Weight.objects.get_or_create(user=user, weight="Heavy")
+    large = Weight.objects.get_or_create(user=user, weight="Large")
+    medium = Weight.objects.get_or_create(user=user, weight="Medium")
+    small = Weight.objects.get_or_create(user=user, weight="Small")
+
+    superr = Weight.objects.filter(user=user).get(weight="Super")
+    heavy = Weight.objects.filter(user=user).get(weight="Heavy")
+    large = Weight.objects.filter(user=user).get(weight="Large")
+    medium = Weight.objects.filter(user=user).get(weight="Medium")
+    small = Weight.objects.filter(user=user).get(weight="Small")
 
     superr_query = Q(aircraft_type__superr=True)
     heavy_query = Q(aircraft_type__heavy=True)

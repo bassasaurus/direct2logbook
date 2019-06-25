@@ -7,29 +7,37 @@ import datetime
 
 @receiver(pre_delete, sender=Aircraft)
 def stat_delete(sender, instance, **kwargs):
+
+    user = instance.user
+
     kwargs = {'aircraft_type': instance.aircraft_type}
-    stat = Stat.objects.get(**kwargs)
+    stat = Stat.objects.filter(user=user).get(**kwargs)
     stat.delete()
 
 
 @receiver(pre_save, sender=Aircraft)
 def stat_pre_save(sender, instance, **kwargs):
-    Stat.objects.get_or_create(aircraft_type = instance.aircraft_type)
+
+    user = instance.user
+
+    Stat.objects.get_or_create(user=user, defaults={'aircraft_type': instance.aircraft_type})
 
 
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
 def stat_update(sender, instance, **kwargs):
 
-    stat = Stat()
+    user = instance.user
+
+    stat = Stat.objects.filter(user=user)
     if not instance.aircraft_type:
         pass
     else:
-        stat = Stat.objects.get_or_create(aircraft_type = instance.aircraft_type)
+        stat = Stat.objects.get_or_create(user=user, defaults={'aircraft_type': instance.aircraft_type})
 
     aircraft_type = instance.aircraft_type
 
-    Stat.objects.filter(aircraft_type = aircraft_type).update(
+    Stat.objects.filter(user=user).filter(aircraft_type = aircraft_type).update(
         aircraft_type = str(aircraft_type),
         total_time = querys.aircraft_total_time(aircraft_type),
         pilot_in_command = querys.pilot_in_command_total(aircraft_type),
