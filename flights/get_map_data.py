@@ -23,7 +23,6 @@ def get_map_data(queryset, user):
                 unique_values.add(map_obj)
 
     for map_obj in unique_values:
-
         if not map_obj:
             pass
 
@@ -49,5 +48,4 @@ def get_map_data(queryset, user):
     line_json = str(line_json)
     user_map_cache = 'routes_{}'.format(user.id)
     cache.set(user_map_cache, line_json, 1*60)
-
     return feature_collection, line_json
