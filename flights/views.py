@@ -196,19 +196,35 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         else:
             context['hold_current_date'] = hold_date_qs.date + datetime.timedelta(180)
 
+        context['amel_vfr_day'] = currency.amel_vfr_day(user)[0]
+        context['amel_vfr_day_current'] = currency.amel_vfr_day(user)[1]
+        context['amel_vfr_night'] = currency.amel_vfr_night(user)[0]
+        context['amel_vfr_night_current'] = currency.amel_vfr_night(user)[1]
 
-        context['amel_vfr_night'] = currency.amel_vfr_night(user)
-        context['amel_vfr_day'] = currency.amel_vfr_day(user)
-        context['asel_vfr_night'] = currency.asel_vfr_night(user)
-        context['asel_vfr_day'] = currency.asel_vfr_day(user)
-        context['ases_vfr_day'] = currency.ases_vfr_day(user)
-        context['ases_vfr_night'] = currency.ases_vfr_night(user)
-        context['ames_vfr_day'] = currency.ames_vfr_day(user)
-        context['ames_vfr_night'] = currency.ames_vfr_night(user)
-        context['helo_vfr_day'] = currency.asel_vfr_day(user)
-        context['helo_vfr_night'] = currency.helo_vfr_night(user)
-        context['gyro_vfr_day'] = currency.gyro_vfr_day(user)
-        context['gyro_vfr_night'] = currency.gyro_vfr_night(user)
+        context['asel_vfr_day'] = currency.asel_vfr_day(user)[0]
+        context['asel_vfr_day_current'] = currency.asel_vfr_day(user)[1]
+        context['asel_vfr_night'] = currency.asel_vfr_night(user)[0]
+        context['asel_vfr_night_current'] = currency.asel_vfr_night(user)[1]
+
+        context['ases_vfr_day'] = currency.ases_vfr_day(user)[0]
+        context['ases_vfr_day_current'] = currency.ases_vfr_day(user)[1]
+        context['ases_vfr_night'] = currency.ases_vfr_night(user)[0]
+        context['ases_vfr_night_current'] = currency.ases_vfr_night(user)[1]
+
+        context['ames_vfr_day'] = currency.ames_vfr_day(user)[0]
+        context['ames_vfr_day_current'] = currency.ames_vfr_day(user)[1]
+        context['ames_vfr_night'] = currency.ames_vfr_night(user)[0]
+        context['ames_vfr_night_current'] = currency.ames_vfr_night(user)[1]
+
+        context['helo_vfr_day'] = currency.helo_vfr_day(user)[0]
+        context['helo_vfr_day_current'] = currency.helo_vfr_day(user)[1]
+        context['helo_vfr_night'] = currency.helo_vfr_night(user)[0]
+        context['helo_vfr_night_current'] = currency.helo_vfr_night(user)[1]
+
+        context['gyro_vfr_day'] = currency.gyro_vfr_day(user)[0]
+        context['gyro_vfr_day_current'] = currency.gyro_vfr_day(user)[1]
+        context['gyro_vfr_night'] = currency.gyro_vfr_night(user)[0]
+        context['gyro_vfr_night_current'] = currency.gyro_vfr_night(user)[1]
 
         context['expiry_date'] = currency.medical_duration(user)[0]
         context['this_month'] = currency.medical_duration(user)[1]

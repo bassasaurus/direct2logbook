@@ -6,43 +6,16 @@ from math import floor
 import inspect, os
 
 @receiver(pre_save, sender=Flight)
-def create_instances(sender, instance, **kwargs):
+def create_total_instances(sender, instance, **kwargs):
     user = instance.user
 
-    total = Total.objects.get_or_create(
-        user = user,
-        total = 'All',
-    )
-
-    amel = Total.objects.get_or_create(
-        user = user,
-        total = 'AMEL',
-    )
-
-    asel = Total.objects.get_or_create(
-        user = user,
-        total = 'ASEL',
-    )
-
-    ames = Total.objects.get_or_create(
-        user = user,
-        total = 'AMES',
-    )
-
-    ases = Total.objects.get_or_create(
-        user = user,
-        total = 'ASES',
-    )
-
-    helo = Total.objects.get_or_create(
-        user = user,
-        total = 'HELO',
-    )
-
-    gyro = Total.objects.get_or_create(
-        user = user,
-        total = 'GYRO',
-    )
+    total = Total.objects.get_or_create(user = user, total = 'All',)
+    amel = Total.objects.get_or_create(user = user, total = 'AMEL',)
+    asel = Total.objects.get_or_create(user = user, total = 'ASEL',)
+    ames = Total.objects.get_or_create(user = user, total = 'AMES',)
+    ases = Total.objects.get_or_create(user = user, total = 'ASES',)
+    helo = Total.objects.get_or_create(user = user, total = 'HELO',)
+    gyro = Total.objects.get_or_create(user = user, total = 'GYRO',)
 
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)

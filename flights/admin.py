@@ -56,6 +56,9 @@ class RegAdmin(admin.ModelAdmin):
 class WeightAdmin(admin.ModelAdmin):
     list_display = ('user', 'weight', 'total')
 
+class PowerAdmin(admin.ModelAdmin):
+    list_display = ('user', 'role', 'turbine', 'piston')
+
 admin.site.register(Flight, FlightAdmin)
 admin.site.register(Aircraft, AircraftAdmin)
 
@@ -68,7 +71,7 @@ admin.site.register(TailNumber, TailnumberAdmin)
 
 admin.site.register(Total, TotalAdmin)
 admin.site.register(Stat, StatAdmin)
-admin.site.register(Power)
+admin.site.register(Power, PowerAdmin)
 admin.site.register(Regs, RegAdmin)
 admin.site.register(Endorsement)
 admin.site.register(Weight, WeightAdmin)

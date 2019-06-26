@@ -1,6 +1,19 @@
 from flights.models import *
+from accounts.models import Profile
 from django.db.models.signals import pre_save, post_save, post_delete
 from django.db.models import Sum, Q
+
+@receiver(post_save, sender=Flight)
+@receiver(pre_save, sender=Aircraft)
+def create_weight_instances(sender, instance, **kwargs):
+
+    user = instance.user
+
+    Weight.objects.get_or_create(user=user, weight="Super")
+    Weight.objects.get_or_create(user=user, weight="Heavy")
+    Weight.objects.get_or_create(user=user, weight="Large")
+    Weight.objects.get_or_create(user=user, weight="Medium")
+    Weight.objects.get_or_create(user=user, weight="Small")
 
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
@@ -10,17 +23,11 @@ def weight_update(sender, instance, **kwargs):
 
     user = instance.user
 
-    superr = Weight.objects.get_or_create(user=user, weight="Super")
-    heavy = Weight.objects.get_or_create(user=user, weight="Heavy")
-    large = Weight.objects.get_or_create(user=user, weight="Large")
-    medium = Weight.objects.get_or_create(user=user, weight="Medium")
-    small = Weight.objects.get_or_create(user=user, weight="Small")
-
-    superr = Weight.objects.filter(user=user).get(weight="Super")
-    heavy = Weight.objects.filter(user=user).get(weight="Heavy")
-    large = Weight.objects.filter(user=user).get(weight="Large")
-    medium = Weight.objects.filter(user=user).get(weight="Medium")
-    small = Weight.objects.filter(user=user).get(weight="Small")
+    superr = Weight.objects.get(user=user, weight="Super")
+    heavy = Weight.objects.get(user=user, weight="Heavy")
+    large = Weight.objects.get(user=user, weight="Large")
+    medium = Weight.objects.get(user=user, weight="Medium")
+    small = Weight.objects.get(user=user, weight="Small")
 
     superr_query = Q(aircraft_type__superr=True)
     heavy_query = Q(aircraft_type__heavy=True)
@@ -68,6 +75,19 @@ def weight_update(sender, instance, **kwargs):
     small.total = small_total
     small.save()
 
+
+@receiver(post_save, sender=TailNumber)
+@receiver(post_delete, sender=TailNumber)
+@receiver(post_save, sender=Flight)
+@receiver(post_delete, sender=Flight)
+def create_reg_instances(sender, instance, **kwargs):
+
+    user = instance.user
+
+    Regs.objects.get_or_create(user=user, reg_type='121')
+    Regs.objects.get_or_create(user=user, reg_type='135')
+    Regs.objects.get_or_create(user=user, reg_type='91')
+
 @receiver(post_save, sender=TailNumber)
 @receiver(post_delete, sender=TailNumber)
 @receiver(post_save, sender=Flight)
@@ -76,9 +96,9 @@ def regs_update(sender, instance, **kwargs):
 
     user = instance.user
 
-    airline = Regs.objects.get(reg_type='121')
-    charter = Regs.objects.get(reg_type='135')
-    private = Regs.objects.get(reg_type='91')
+    airline = Regs.objects.get(user=user, reg_type='121')
+    charter = Regs.objects.get(user=user, reg_type='135')
+    private = Regs.objects.get(user=user, reg_type='91')
 
     airline_query = Q(registration__is_121=True)
     charter_query = Q(registration__is_135=True)
@@ -138,13 +158,27 @@ def regs_update(sender, instance, **kwargs):
 @receiver(post_delete, sender=Flight)
 @receiver(post_save, sender=Aircraft)
 @receiver(post_delete, sender=Aircraft)
+def create_power_instances(sender, instance, **kwargs):
+
+    user = instance.user
+
+    Power.objects.get_or_create(user=user, role='PIC')
+    Power.objects.get_or_create(user=user, role='SIC')
+    Power.objects.get_or_create(user=user, role='Total')
+
+@receiver(post_save, sender=TailNumber)
+@receiver(post_delete, sender=TailNumber)
+@receiver(post_save, sender=Flight)
+@receiver(post_delete, sender=Flight)
+@receiver(post_save, sender=Aircraft)
+@receiver(post_delete, sender=Aircraft)
 def power_update(sender, instance, **kwargs):
 
     user = instance.user
 
-    pic = Power.objects.get(role='PIC')
-    sic = Power.objects.get(role='SIC')
-    total = Power.objects.get(role='Total')
+    pic = Power.objects.get(user=user, role='PIC')
+    sic = Power.objects.get(user=user, role='SIC')
+    total = Power.objects.get(user=user, role='Total')
 
     turbine_query = Q(aircraft_type__turbine=True)
     piston_query = Q(aircraft_type__piston=True)
@@ -191,15 +225,29 @@ def power_update(sender, instance, **kwargs):
 @receiver(post_delete, sender=Flight)
 @receiver(post_save, sender=Aircraft)
 @receiver(post_delete, sender=Aircraft)
+def create_endorsement_instances(sender, instance, **kwargs):
+
+    user = instance.user
+
+    Endorsement.objects.get_or_create(user=user, endorsement="Simple")
+    Endorsement.objects.get_or_create(user=user, endorsement="Complex")
+    Endorsement.objects.get_or_create(user=user, endorsement='High Performance')
+    Endorsement.objects.get_or_create(user=user, endorsement='Tailwheel')
+    Endorsement.objects.get_or_create(user=user, endorsement='Type Rating')
+
+@receiver(post_save, sender=Flight)
+@receiver(post_delete, sender=Flight)
+@receiver(post_save, sender=Aircraft)
+@receiver(post_delete, sender=Aircraft)
 def endorsement_update(sender, instance, **kwargs):
 
     user = instance.user
 
-    simple = Endorsement.objects.get(endorsement="Simple")
-    compleks = Endorsement.objects.get(endorsement="Complex")
-    high_performance = Endorsement.objects.get(endorsement='High Performance')
-    tailwheel = Endorsement.objects.get(endorsement='Tailwheel')
-    type_rating = Endorsement.objects.get(endorsement='Type Rating')
+    simple = Endorsement.objects.get(user=user, endorsement="Simple")
+    compleks = Endorsement.objects.get(user=user, endorsement="Complex")
+    high_performance = Endorsement.objects.get(user=user, endorsement='High Performance')
+    tailwheel = Endorsement.objects.get(user=user, endorsement='Tailwheel')
+    type_rating = Endorsement.objects.get(user=user, endorsement='Type Rating')
 
     simple_query = Q(aircraft_type__simple=True)
     compleks_query = Q(aircraft_type__compleks=True)
