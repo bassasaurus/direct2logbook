@@ -49,7 +49,6 @@ class UserObjectsMixin():
         user = self.request.user
         return super(UserObjectsMixin, self).get_queryset().filter(user=user)
 
-
 class LoginRequiredMixin(LoginRequiredMixin):
     login_url = '/accounts/login'
     # redirect_field_name = None
@@ -114,7 +113,6 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
     def get_context_data(self, **kwargs):
         user = self.request.user
         context = super(HomeView, self).get_context_data(**kwargs)
-
 
         context['recent'] = Flight.objects.filter(user=user).order_by('-id')[:8]
 

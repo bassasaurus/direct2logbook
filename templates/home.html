@@ -93,6 +93,12 @@
 
 <div style="margin-top: 15px;" class="row flex-md-row">
   <div class="col flex-md-column">
+    <h5>Recent flights</h5>
+    {% for flight in recent %}
+      <a href ="{% url 'flight_detail' flight.pk %}">{{flight.date}} | {{flight.route}}</a><br>
+    {% endfor %}
+  </div>
+  <div class="col flex-md-column">
     <div>
       <table class="table table-bordered table-sm">
         <thead class="thead-light">
