@@ -3,6 +3,9 @@ from django.contrib.auth.models import User, Group
 
 from flights.forms import *
 from django.db.models import Sum, Q, F
+from django.db.models.functions import Length
+from django.db.models import CharField
+
 from django.db import transaction
 from django.forms import inlineformset_factory
 
@@ -23,6 +26,8 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from flights.get_map_data import get_map_data
 import flights.currency as currency
+
+CharField.register_lookup(Length, 'length')
 
 zulu_time = datetime.datetime.now().strftime('%Y %b %d %H:%M') + " UTC"
 
@@ -105,19 +110,24 @@ class IndexView(TemplateView):
 class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
     template_name='home.html'
 
-
     def get_context_data(self, **kwargs):
         user = self.request.user
         context = super(HomeView, self).get_context_data(**kwargs)
 
         context['recent'] = Flight.objects.filter(user=user).order_by('-id')[:8]
-        context['flight_errors'] = Flight.objects.filter(user=user).all()
-        context['aircraft_errors'] = Aircraft.objects.filter(user=user).all()
-        context['tailnumber_errors'] = TailNumber.objects.filter(user=user).all()
+
+        flight_error_query = Q(map_error__length__gt=0) | Q(duplicate_error__length__gt=0) | Q(aircraft_type_error__length__gt=0) | Q(registration_error__length__gt=0) | Q(crew_error__length__gt=0)
+        context['flight_errors'] = Flight.objects.filter(user=user).filter(flight_error_query)
+
+        aircraft_error_query = Q(config_error__length__gte=0) | Q(power_error__length__gte=0) | Q(weight_error__length__gte=0) | Q(category_error__length__gte=0) | Q(class_error__length__gte=0)
+        context['aircraft_errors'] = Aircraft.objects.filter(user=user).filter(aircraft_error_query)
+
+        tailnumber_error_query = Q(reg_error__length__gte=0)
+        context['tailnumber_errors'] = TailNumber.objects.filter(user=user).filter(tailnumber_error_query)
 
         aircraft_list = []
-        for aircraft in Aircraft.objects.all():
-            if TailNumber.objects.filter(aircraft__aircraft_type=aircraft).exists():
+        for aircraft in Aircraft.objects.filter(user=user).all():
+            if TailNumber.objects.filter(user=user).filter(aircraft__aircraft_type=aircraft).exists():
                 pass
             else:
                 aircraft_list.append(aircraft)
@@ -159,55 +169,74 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         today = datetime.date.today()
         last_180 = today - datetime.timedelta(days=180)
 
-        appr_qs = Flight.objects.filter(date__lte=today, date__gte=last_180).filter(approach__number__gte=0).aggregate(Sum(F('approach__number')))
+        appr_qs = Flight.objects.filter(user=user).filter(date__lte=today, date__gte=last_180).filter(approach__number__gte=0).aggregate(Sum(F('approach__number')))
         if not appr_qs:
             context['appr_quantity'] = 0
         else:
             context['appr_quantity'] = appr_qs.get('approach__number__sum') #Model__field__SumFunctionValue
             # context['still_needed'] = 6 - int(appr_qs.get('approach__number__sum'))
 
-        oldest_approach_date = Flight.objects.filter(date__lte=today, date__gte=last_180).filter(approach__number__gte=0).first()
+        oldest_approach_date = Flight.objects.filter(user=user).filter(date__lte=today, date__gte=last_180).filter(approach__number__gte=0).first()
         if not oldest_approach_date:
             context['appr_current_date'] = None
         else:
             context['appr_current_date'] = oldest_approach_date.date + datetime.timedelta(180)
 
-        hold_qs = Flight.objects.filter(date__lte=today, date__gte=last_180).filter(holding__hold=True)
+        hold_qs = Flight.objects.filter(user=user).filter(date__lte=today, date__gte=last_180).filter(holding__hold=True)
         if not hold_qs:
             context['hold_quantity'] = 0
         else:
             context['hold_quantity'] = 1
 
-        hold_date_qs = Flight.objects.filter(date__lte=today, date__gte=last_180).filter(holding__hold=True).last()
+        hold_date_qs = Flight.objects.filter(user=user).filter(date__lte=today, date__gte=last_180).filter(holding__hold=True).last()
         if not hold_date_qs:
             context['hold_current_date'] = None
         else:
             context['hold_current_date'] = hold_date_qs.date + datetime.timedelta(180)
 
+        context['amel_vfr_day'] = currency.amel_vfr_day(user)[0]
+        context['amel_vfr_day_current'] = currency.amel_vfr_day(user)[1]
+        context['amel_vfr_night'] = currency.amel_vfr_night(user)[0]
+        context['amel_vfr_night_current'] = currency.amel_vfr_night(user)[1]
 
-        context['amel_vfr_night'] = currency.amel_vfr_night(user)
-        context['amel_vfr_day'] = currency.amel_vfr_day(user)
-        context['asel_vfr_night'] = currency.asel_vfr_night(user)
-        context['asel_vfr_day'] = currency.asel_vfr_day(user)
-        context['ases_vfr_day'] = currency.ases_vfr_day(user)
-        context['ases_vfr_night'] = currency.ases_vfr_night(user)
-        context['ames_vfr_day'] = currency.ames_vfr_day(user)
-        context['ames_vfr_night'] = currency.ames_vfr_night(user)
-        context['helo_vfr_day'] = currency.asel_vfr_day(user)
-        context['helo_vfr_night'] = currency.helo_vfr_night(user)
-        context['gyro_vfr_day'] = currency.gyro_vfr_day(user)
-        context['gyro_vfr_night'] = currency.gyro_vfr_night(user)
+        context['asel_vfr_day'] = currency.asel_vfr_day(user)[0]
+        context['asel_vfr_day_current'] = currency.asel_vfr_day(user)[1]
+        context['asel_vfr_night'] = currency.asel_vfr_night(user)[0]
+        context['asel_vfr_night_current'] = currency.asel_vfr_night(user)[1]
+
+        context['ases_vfr_day'] = currency.ases_vfr_day(user)[0]
+        context['ases_vfr_day_current'] = currency.ases_vfr_day(user)[1]
+        context['ases_vfr_night'] = currency.ases_vfr_night(user)[0]
+        context['ases_vfr_night_current'] = currency.ases_vfr_night(user)[1]
+
+        context['ames_vfr_day'] = currency.ames_vfr_day(user)[0]
+        context['ames_vfr_day_current'] = currency.ames_vfr_day(user)[1]
+        context['ames_vfr_night'] = currency.ames_vfr_night(user)[0]
+        context['ames_vfr_night_current'] = currency.ames_vfr_night(user)[1]
+
+        context['helo_vfr_day'] = currency.helo_vfr_day(user)[0]
+        context['helo_vfr_day_current'] = currency.helo_vfr_day(user)[1]
+        context['helo_vfr_night'] = currency.helo_vfr_night(user)[0]
+        context['helo_vfr_night_current'] = currency.helo_vfr_night(user)[1]
+
+        context['gyro_vfr_day'] = currency.gyro_vfr_day(user)[0]
+        context['gyro_vfr_day_current'] = currency.gyro_vfr_day(user)[1]
+        context['gyro_vfr_night'] = currency.gyro_vfr_night(user)[0]
+        context['gyro_vfr_night_current'] = currency.gyro_vfr_night(user)[1]
 
         context['expiry_date'] = currency.medical_duration(user)[0]
         context['this_month'] = currency.medical_duration(user)[1]
 
+        context['aircraft'] = Aircraft.objects.filter(user=user).all()
+        context['tailnumber'] = TailNumber.objects.filter(user=user).all()
+        context['flight'] = Flight.objects.filter(user=user).all()
 
         context['totals'] = Total.objects.filter(user=user).exclude(total_time__lte=.1)
         context['stats'] = Stat.objects.filter(user=user)
         context['regs'] = Regs.objects.filter(user=user).all()
         context['weights'] = Weight.objects.filter(user=user).exclude(total__lte=.1)
         context['powers'] = Power.objects.filter(user=user).all()
-        context['endorsements'] = Endorsement.objects.exclude(total__lte=.1)
+        context['endorsements'] = Endorsement.objects.filter(user=user).exclude(total__lte=.1)
         context['title'] = 'D-> | Home'
         context['page_title'] = "Home"
         return context
@@ -228,8 +257,8 @@ class FlightArchive(LoginRequiredMixin, UserObjectsMixin, ArchiveIndexView):
         context['parent_name'] = 'Home'
         context['parent_link'] = reverse('home')
         context['page_title'] = 'Map'
-        context['years'] = Flight.objects.dates('date', 'year')
-        context['months'] = Flight.objects.dates('date', 'month')
+        context['years'] = Flight.objects.filter(user=user).dates('date', 'year')
+        context['months'] = Flight.objects.filter(user=user).dates('date', 'month')
         return context
 
 class FlightArchiveYear(LoginRequiredMixin, UserObjectsMixin, YearArchiveView):
@@ -249,7 +278,7 @@ class FlightArchiveYear(LoginRequiredMixin, UserObjectsMixin, YearArchiveView):
         context['parent_name'] = 'Map'
         context['parent_link'] = reverse('flight_by_date')
         context['page_title'] = "Flights by Year"
-        context['years'] = Flight.objects.dates('date', 'year')
+        context['years'] = Flight.objects.filter(user=user).dates('date', 'year')
         return context
 
 class FlightArchiveMonth(LoginRequiredMixin, UserObjectsMixin, MonthArchiveView):
@@ -269,8 +298,8 @@ class FlightArchiveMonth(LoginRequiredMixin, UserObjectsMixin, MonthArchiveView)
         context['parent_name'] = 'Map'
         context['parent_link'] = reverse('flight_by_date')
         context['page_title'] = "Flights by Month"
-        context['years'] = Flight.objects.dates('date', 'year')
-        context['months'] = Flight.objects.dates('date', 'month')
+        context['years'] = Flight.objects.filter(user=user).dates('date', 'year')
+        context['months'] = Flight.objects.filter(user=user).dates('date', 'month')
         return context
 
 # class FlightArchiveDay(LoginRequiredMixin, UserObjectsMixin, DayArchiveView):
@@ -313,6 +342,12 @@ class FlightCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
     model = Flight
     form_class = FlightForm
     template_name = 'flights/flight_create_form.html'
+
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.user = self.request.user
+        object.save()
+        return super(FlightCreate, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super(FlightCreate, self).get_context_data(**kwargs)
@@ -442,7 +477,15 @@ class AircraftCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
     template_name = "aircraft/aircraft_create_form.html"
     success_url = "/aircraft/"
 
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.user = self.request.user
+        object.save()
+        return super(AircraftCreate, self).form_valid(form)
+
     def get_context_data(self, **kwargs):
+        user = self.request.user
+
         context = super(AircraftCreate, self).get_context_data(**kwargs)
         context['title'] = "D-> | New Aircraft"
 
@@ -520,9 +563,11 @@ class TailNumberList(LoginRequiredMixin, UserObjectsMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(TailNumberList, self).get_context_data(**kwargs)
 
+        user = self.request.user
+
         aircraft_list = []
-        for aircraft in Aircraft.objects.all():
-            if TailNumber.objects.filter(aircraft__aircraft_type=aircraft).exists():
+        for aircraft in Aircraft.objects.filter(user=user).all():
+            if TailNumber.objects.filter(user=user).filter(aircraft__aircraft_type=aircraft).exists():
                 pass
             else:
                 aircraft_list.append(aircraft)
@@ -539,6 +584,11 @@ class TailNumberCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
     form_class = TailNumberForm
     template_name = "tailnumbers/tailnumber_create_form.html"
 
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.user = self.request.user
+        object.save()
+        return super(TailNumberCreate, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
         context = super(TailNumberCreate, self).get_context_data(**kwargs)
@@ -571,11 +621,11 @@ class TailNumberDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         tailnumber = self.object
-        flights = Flight.objects.all().filter(registration = self.object)
         user = self.request.user
+        flights = Flight.objects.filter(user=user).filter(registration = self.object)
         get_map_data(flights, user)
-        context = super(TailNumberDetail, self).get_context_data(**kwargs)
 
+        context = super(TailNumberDetail, self).get_context_data(**kwargs)
         context['title'] = "D-> | " + str(self.object)
         context['page_title'] = str(self.object)
         context['home_link'] = reverse('home')

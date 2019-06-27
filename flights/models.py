@@ -42,7 +42,7 @@ class MapData(models.Model):
         index_together = ['iata', 'icao']
 
 class Stat(models.Model):
-    user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User)
     aircraft_type = models.CharField(max_length=10)
     total_time = models.DecimalField(decimal_places=1, max_digits=6,null=False, blank=True, default=0, verbose_name="Time")
     pilot_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="PIC")
@@ -68,14 +68,14 @@ class Stat(models.Model):
 
 
     class Meta:
-        ordering = ["-last_flown"]
+        ordering = ['user', '-last_flown']
 
     def __str__(self):
         title = str(self.aircraft_type)
         return title
 
 class Total(models.Model):
-    user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User)
     total = models.CharField(max_length=20, default='')
     total_time = models.DecimalField(decimal_places=1, max_digits=6, db_index=True, null=True, blank=True, default=0, verbose_name="Time")
     pilot_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="PIC")
@@ -101,65 +101,67 @@ class Total(models.Model):
     ytd = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, verbose_name='YDT')
 
     class Meta:
-        ordering = ['-total_time']
+        ordering = ['user', '-total_time']
 
     def __str__(self):
         title = str(self.total) + ' ' + str(self.total_time)
         return title
 
 class Power(models.Model):
-    user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User)
     role = models.CharField(db_index=True, max_length=5, default='')
     turbine = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0)
     piston = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0)
 
     class Meta:
         verbose_name_plural = "Power"
-        ordering = ['-role']
+        ordering = ['user', '-role']
 
     def __str__(self):
         title = str(self.role)
         return title
 
 class Regs(models.Model):
-    user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User)
     reg_type = models.CharField(db_index=True, max_length=5, default='', verbose_name="Reg")
     pilot_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="PIC")
     second_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="SIC")
 
     class Meta:
         verbose_name_plural = "Regs"
+        ordering = ['user']
 
     def __str__(self):
         title = str(self.reg_type)
         return title
 
 class Endorsement(models.Model):
-    user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User)
     endorsement = models.CharField(max_length=30, default='')
     total = models.DecimalField(decimal_places=1, max_digits=6,db_index=True, null=True, blank=True, default=0)
 
     class Meta:
-        ordering = ['-total']
+        ordering = ['user', '-total']
 
     def __str__(self):
         title = str(self.endorsement) + ' ' + str(self.total)
         return title
 
 class Weight(models.Model):
-    user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User)
     weight = models.CharField(max_length=20, default='')
-    total = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0)
+    total = models.DecimalField(decimal_places=1, max_digits=6, null=True, blank=True, default=0)
 
     class Meta:
         verbose_name_plural = "Weight"
+        ordering = ['user']
 
     def __str__(self):
         title = str(self.weight) + ' ' + str(self.total)
         return title
 
 class Aircraft(models.Model):
-    user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User)
     aircraft_type = models.CharField(db_index=True, max_length=10, unique=True)
     turbine = models.NullBooleanField()
     piston = models.NullBooleanField()
@@ -185,16 +187,15 @@ class Aircraft(models.Model):
     class_error = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
-        ordering = ["aircraft_type"]
+        ordering = ['user', 'aircraft_type']
         verbose_name_plural = "Aircraft"
 
     def __str__(self):
         aircraft_type = str(self.aircraft_type)
         return aircraft_type
 
-
 class Flight(models.Model):
-    user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User)
     date = models.DateField(db_index=True)
     aircraft_type = models.ForeignKey('Aircraft', default=None, null=True, blank=True, on_delete=models.SET_NULL)
     registration = models.ForeignKey('TailNumber', default=None, null=True, blank=True, on_delete=models.SET_NULL)
@@ -223,7 +224,7 @@ class Flight(models.Model):
     crew_error = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
-        ordering = ["-date"]
+        ordering = ['user', '-date']
         index_together = ['route', 'date', 'duration']
 
     def get_absolute_url(self):
@@ -233,7 +234,7 @@ class Flight(models.Model):
         return "{} | {}".format(self.date, self.route)
 
 class TailNumber(models.Model):
-    user = models.ForeignKey(User, default=1)
+    user = models.ForeignKey(User)
     registration = models.CharField(db_index=True, max_length=10, unique=True)
     aircraft = models.ForeignKey('Aircraft', default=None, blank=False)
     is_121 = models.NullBooleanField(null=True, blank=True)
@@ -243,8 +244,8 @@ class TailNumber(models.Model):
     reg_error = models.CharField(null=True, blank=True, max_length=50)
 
     class Meta:
-        ordering =['aircraft', 'registration']
         verbose_name_plural = "Tailnumbers"
+        ordering =['user', 'aircraft', 'registration']
 
     def __str__(self):
         registration = str(self.registration)
@@ -277,8 +278,8 @@ class Approach(models.Model):
     number = models.PositiveIntegerField(null=True, blank=True, verbose_name="Number")
 
     class Meta:
-        ordering =['approach_type']
         verbose_name_plural = "Approaches"
+        ordering =['approach_type']
 
         def __str__(self):
             return approach_type

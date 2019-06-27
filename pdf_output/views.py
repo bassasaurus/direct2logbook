@@ -117,7 +117,7 @@ def PDFView(request, user_id):
 
     total_data = []
     for total in totals_that_exist:
-        total = Total.objects.get(total=total)
+        total = Total.objects.filter(user=user).get(total=total)
         row = [str(total.total), str(total.total_time), str(total.pilot_in_command), str(total.second_in_command), str(total.cross_country),
                 str(total.instructor), str(total.dual), str(total.solo), str(total.instrument), str(total.night), str(total.simulated_instrument),
                 str(total.simulator), str(total.landings_day), str(total.landings_night), str(total.landings_day + total.landings_night),
@@ -266,7 +266,7 @@ def PDFView(request, user_id):
     today = datetime.date.today()
     last_5yr = today - datetime.timedelta(days=1825)
     # stat_objects = Stat.objects.filter(last_flown__gte=last_5yr)
-    stat_objects = Stat.objects.all()
+    stat_objects = Stat.objects.filter(user=user).all()
 
     stat_data = []
     for stat in stat_objects:

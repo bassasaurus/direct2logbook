@@ -1,5 +1,30 @@
 <script>
-    $(document).on('click', '#delete-confirm', function(){
-        return confirm('Are you sure you want to delete this?');
-    })
+  $('#delete-form').submit(function (e, params) {
+        var localParams = params || {};
+
+        if (!localParams.send) {
+            e.preventDefault();
+        }
+
+           //additional input validations can be done hear
+
+    swal({
+                title: "Confirm Entry",
+                text: "Are you sure you want to delete this?",
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#BD4242",
+                confirmButtonText: "Delete",
+                cancelButtonText: "Cancel",
+                closeOnConfirm: true
+            }, function (isConfirm) {
+                if (isConfirm) {
+                    $(e.currentTarget).trigger(e.type, { 'send': true });
+                } else {
+
+              //additional run on cancel  functions can be done hear
+
+            }
+        });
+});
 </script>

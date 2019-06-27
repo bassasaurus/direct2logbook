@@ -7,6 +7,8 @@ from itertools import chain
 @receiver(post_save, sender=Flight)
 def map_error(sender, instance, **kwargs):
 
+    user = instance.user
+
     errors = ''
     message = ''
 
@@ -23,11 +25,13 @@ def map_error(sender, instance, **kwargs):
         else:
             mesage = ''
 
-    Flight.objects.filter(pk=instance.pk).update(map_error=message)
+    Flight.objects.filter(user=user).filter(pk=instance.pk).update(map_error=message)
 
 
 @receiver(post_save, sender=Flight)
 def duplicate_error(sender, instance, **kwargs):
+
+    user = instance.user
 
     errors = ''
 
@@ -45,27 +49,29 @@ def duplicate_error(sender, instance, **kwargs):
         else:
             message = ''
 
-    Flight.objects.filter(pk=instance.pk).update(duplicate_error=message)
+    Flight.objects.filter(user=user).filter(pk=instance.pk).update(duplicate_error=message)
 
 
 @receiver(post_save, sender=Flight)
 def flight_misc_error(sender, instance, **kwargs):
 
+    user = instance.user
+
     if not instance.aircraft_type:
         aircraft_type_error = "Please select an aircraft type"
-        Flight.objects.filter(pk=instance.pk).update(aircraft_type_error=aircraft_type_error)
+        Flight.objects.filter(user=user).filter(pk=instance.pk).update(aircraft_type_error=aircraft_type_error)
     else:
-        Flight.objects.filter(pk=instance.pk).update(aircraft_type_error='')
+        Flight.objects.filter(user=user).filter(pk=instance.pk).update(aircraft_type_error='')
 
     if not instance.registration:
         registration_error = "Please select a tailnumber"
-        Flight.objects.filter(pk=instance.pk).update(registration_error=registration_error)
+        Flight.objects.filter(user=user).filter(pk=instance.pk).update(registration_error=registration_error)
     else:
-        Flight.objects.filter(pk=instance.pk).update(registration_error='')
+        Flight.objects.filter(user=user).filter(pk=instance.pk).update(registration_error='')
 
     data = (instance.pilot_in_command, instance.second_in_command, instance.dual, instance.instructor, instance.solo)
     if not any(data):
         crew_error = "Please select a crew position"
-        Flight.objects.filter(pk=instance.pk).update(crew_error=crew_error)
+        Flight.objects.filter(user=user).filter(pk=instance.pk).update(crew_error=crew_error)
     else:
-        Flight.objects.filter(pk=instance.pk).update(crew_error='')
+        Flight.objects.filter(user=user).filter(pk=instance.pk).update(crew_error='')

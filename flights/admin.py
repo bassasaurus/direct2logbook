@@ -50,18 +50,29 @@ class ApproachAdmin(admin.ModelAdmin):
 class HoldingAdmin(admin.ModelAdmin):
     list_display = ('flight_object', 'hold')
 
+class RegAdmin(admin.ModelAdmin):
+    list_display = ('user', 'reg_type', 'pilot_in_command', 'second_in_command')
+
+class WeightAdmin(admin.ModelAdmin):
+    list_display = ('user', 'weight', 'total')
+
+class PowerAdmin(admin.ModelAdmin):
+    list_display = ('user', 'role', 'turbine', 'piston')
+
 admin.site.register(Flight, FlightAdmin)
 admin.site.register(Aircraft, AircraftAdmin)
 
 admin.site.register(Holding, HoldingAdmin)
 admin.site.register(Approach, ApproachAdmin)
+
 admin.site.register(AircraftCategory)
 admin.site.register(AircraftClass)
 admin.site.register(TailNumber, TailnumberAdmin)
+
 admin.site.register(Total, TotalAdmin)
 admin.site.register(Stat, StatAdmin)
-admin.site.register(Power)
-admin.site.register(Regs)
+admin.site.register(Power, PowerAdmin)
+admin.site.register(Regs, RegAdmin)
 admin.site.register(Endorsement)
-admin.site.register(Weight)
+admin.site.register(Weight, WeightAdmin)
 admin.site.register(MapData, MapDataAdmin)

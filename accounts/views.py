@@ -57,6 +57,7 @@ class ProfileUpdateView(UpdateView):
         context = super(ProfileUpdateView, self).get_context_data(**kwargs)
 
         user = self.request.user
+        pk = str(user.profile.pk)
 
         context['title'] = "D-> | Update Profile"
         context['parent_name'] = 'Profile'

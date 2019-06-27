@@ -2,13 +2,13 @@
 
 {% block content %}
 
-<form action="" method="post">{% csrf_token %}
+<form action="" class="form" id="delete-form" method="post">{% csrf_token %}
   <p>Are you sure you want to delete "{{ object }}"?</p>
   <p>This cannot be undone and may affect entries in other data models. If you need to change it, please <a href="{% url 'tailnumber_update' object.pk %}">update</a> the entry instead.</p>
    <hr>
-   <input id="delete-confirm" type="submit" class = "btn-shadow btn-shadow-danger btn-block" value="Delete" />
+   <input id="confirm" type="submit" class = "btn-shadow btn-shadow-danger btn-block" value="Delete" />
 </form>
 
-{% include "confirm_delete.html" %}
+<!-- {% include "confirm_delete.html" %} -->
 
 {% endblock %}

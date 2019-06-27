@@ -1,23 +1,22 @@
 {% extends 'base.html' %}
-{% load math_filters %}
+
 {% block content %}
 
 <div class="row flex-md-row">
-  <div class="col-4 flex-md-column" style="padding-top:10px;" >
+  <div class="col-4 flex-md-column" style="padding-top:10px;">
     <h3><a class="text-dark link" style="text-decoration: underline;" href="{% url 'profile' %}"> {{ user.first_name }}&nbsp{{ user.last_name }}</a></h3>
     <br>
   </div>
   <div class="col-8 flex-md-column">
     {% if not expiry_date %}
-    <h5><a class="text-dark" style="text-decoration: underline;" href="{% url 'profile' %}">Click here to enter your medical certificate info for an expiration date reminder</a></h5>
-
+    <h5><a class="text-dark" style="text-decoration: underline;" href="{% url 'profile_update' user.profile.pk %}">Click here to enter your medical certificate info for an expiration date reminder</a></h5>
     {% else %}
-      <h5>Medical Certificate Issued - <span class="text-no-wrap">{{ user.profile.date }}</span></h5>
-      {% if this_month == True %}
-        <p>Your certificate expires this month - <span class="text-danger text-no-wrap">{{ expiry_date|date:"M Y" }}</span></p>
-      {% else %}
-        <p>Your certificate expires - <span class="text-success text-no-wrap">{{ expiry_date|date:"M Y" }}</span></p>
-      {% endif %}
+    <h5>Medical Certificate Issued - <span class="text-no-wrap">{{ user.profile.date }}</span></h5>
+    {% if this_month == True %}
+    <p>Your certificate expires this month - <span class="text-danger text-no-wrap">{{ expiry_date|date:"M Y" }}</span></p>
+    {% else %}
+    <p>Your certificate expires - <span class="text-success text-no-wrap">{{ expiry_date|date:"M Y" }}</span></p>
+    {% endif %}
     {% endif %}
   </div>
 </div>
@@ -28,233 +27,272 @@
     <!-- <button id="pdf" class="btn btn-outline-secondary">Print Logbook</button> -->
     <a target="" id="pdf" class="btn btn-outline-secondary" href="{% url 'pdf' user.pk %}">Print Logbook</a>
   </div>
-  </div>
+</div>
 <hr>
 
 <div style="margin-top: 15px;" class="row flex-md-row">
-  <div class="col flex-md-column">
-    <table>
-      <thead>
-        <th class="text-nowrap">Flight Errors</th>
-      </thead>
-      <tbody>
+  {% if flight_errors %}
+    <div class="col flex-md-column">
+      <table>
+        <thead>
+          <th class="text-nowrap">Flight Errors</th>
+        </thead>
+        <tbody>
           {% for flight in flight_errors %}
-            {% if flight.map_error or flight.duplicate_error or flight.aircraft_type_error or flight.registration_error or flight.crew_error or flight.duration < .1 %}
-              <tr><td><a href ="{% url 'flight_detail' flight.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ flight.date }} | {{ flight.route }}</a></td></tr>
-            {% else %}
-            {% endif %}
+          <tr>
+            <td><a href="{% url 'flight_detail' flight.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ flight.date }} | {{ flight.route }}</a></td>
+          </tr>
           {% endfor %}
-      </tbody>
-    </table>
-  </div>
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+  {% endif %}
+
+{% if aircraft_errors %}
   <div class="col flex-md-column">
     <table>
       <thead>
         <th class="text-nowrap">Aircraft Errors</th>
       </thead>
-        <tbody>
-            {% for aircraft in aircraft_errors %}
-              {% if aircraft.config_error or aircraft.power_error or aircraft.category_error or aircraft.class_error or aircraft.weight_error %}
-              <tr><td><a href ="{% url 'aircraft_detail' aircraft.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ aircraft }}</a></td></tr>
-              {% else %}
-
-              {% endif %}
-            {% endfor %}
-        </tbody>
-  </table>
+      <tbody>
+        {% for aircraft in aircraft_errors %}
+        <tr>
+          <td><a href="{% url 'aircraft_detail' aircraft.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ aircraft }}</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
-    <div class="col flex-md-column">
-      <table>
-        <thead>
-          <th class="text-nowrap">Tailnumber Errors</th>
+{% else %}
+{% endif %}
+
+{% if tailnumber_errors or aircraft_needs_tailnumber %}
+  <div class="col flex-md-column">
+    <table>
+      <thead>
+        <th class="text-nowrap">Tailnumber Errors</th>
+      </thead>
+      <tbody>
+        {% for aircraft in aircraft_needs_tailnumber %}
+        <tr>
+          <td><a href="{% url 'aircraft_detail' aircraft.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ aircraft }}</a></td>
+        </tr>
+        {% endfor %}
+        {% for tailnumber in tailnumber_errors %}
+        <tr>
+          <td><a href="{% url 'tailnumber_detail' tailnumber.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ tailnumber }}</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+  </div>
+{% else %}
+{% endif %}
+</div>
+<hr>
+
+<div style="margin-top: 15px;" class="row flex-md-row">
+  <div class="col flex-md-column">
+    <h5>Recent flights</h5>
+    {% for flight in recent %}
+      <a href ="{% url 'flight_detail' flight.pk %}">{{flight.date}} | {{flight.route}}</a><br>
+    {% endfor %}
+  </div>
+  <div class="col flex-md-column">
+    <div>
+      <table class="table table-bordered table-sm">
+        <thead class="thead-light">
+          <th colspan="3" class="text-center text-nowrap" style="width:120px;">VFR Currency<br>
+            <small>Currency based on UTC</small></th>
         </thead>
-        <tbody>
-            {% for aircraft in aircraft_needs_tailnumber %}
-              <tr><td><a href ="{% url 'aircraft_detail' aircraft.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ aircraft }}</a></td></tr>
-            {% endfor %}
-            {% for tailnumber in tailnumber_errors %}
-              {% if tailnumber.reg_error %}
-                <tr><td><a href ="{% url 'tailnumber_detail' tailnumber.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ tailnumber }}</a></td></tr>
-              {% else %}
-              {% endif %}
-            {% endfor %}
+        <tr>
+          <td>ASEL</td>
+            {% if asel_vfr_day_current %}
+              <td class="text-success">{{ asel_vfr_day }}/3 Day</td>
+            {% else %}
+              <td class="text-danger">{{ asel_vfr_day }}/3 Day</td>
+            {% endif %}
+            {% if asel_vfr_night_current %}
+              <td class="text-success">{{ asel_vfr_night }}/3  Night</td>
+            {% else %}
+              <td class="text-danger">{{ asel_vfr_night }}/3 Night</td>
+            {% endif %}
+        </tr>
+        <tr>
+          <td>AMEL</td>
+            {% if amel_vfr_day_current %}
+              <td class="text-success">{{ amel_vfr_day }}/3 Day</td>
+            {% else %}
+              <td class="text-danger">{{ amel_vfr_day }}/3 Day</td>
+            {% endif %}
+            {% if amel_vfr_night_current %}
+              <td class="text-success">{{ amel_vfr_night }}/3  Night</td>
+            {% else %}
+              <td class="text-danger">{{ amel_vfr_night }}/3 Night</td>
+            {% endif %}
+        </tr>
+        <tr>
+          <td>ASES</td>
+            {% if ases_vfr_day_current %}
+              <td class="text-success">{{ ases_vfr_day }}/3 Day</td>
+            {% else %}
+              <td class="text-danger">{{ ases_vfr_day }}/3 Day</td>
+            {% endif %}
+            {% if ases_vfr_night_current %}
+              <td class="text-success">{{ ases_vfr_night }}/3  Night</td>
+            {% else %}
+              <td class="text-danger">{{ ases_vfr_night }}/3 Night</td>
+            {% endif %}
+        </tr>
+        <tr>
+          <td>AMES</td>
+            {% if ames_vfr_day_current %}
+              <td class="text-success">{{ ames_vfr_day }}/3 Day</td>
+            {% else %}
+              <td class="text-danger">{{ ames_vfr_day }}/3 Day</td>
+            {% endif %}
+            {% if ames_vfr_night_current %}
+              <td class="text-success">{{ ames_vfr_night }}/3  Night</td>
+            {% else %}
+              <td class="text-danger">{{ ames_vfr_night }}/3 Night</td>
+            {% endif %}
+        </tr>
+        <tr>
+          <td>HELO</td>
+            {% if helo_vfr_day_current %}
+              <td class="text-success">{{ helo_vfr_day }}/3 Day</td>
+            {% else %}
+              <td class="text-danger">{{ helo_vfr_day }}/3 Day</td>
+            {% endif %}
+            {% if helo_vfr_night_current %}
+              <td class="text-success">{{ helo_vfr_night }}/3  Night</td>
+            {% else %}
+              <td class="text-danger">{{ helo_vfr_night }}/3 Night</td>
+            {% endif %}
+        </tr>
+        <tr>
+          <td>GYRO</td>
+            {% if gyro_vfr_day_current %}
+              <td class="text-success">{{ gyro_vfr_day }}/3 Day</td>
+            {% else %}
+              <td class="text-danger">{{ gyro_vfr_day }}/3 Day</td>
+            {% endif %}
+            {% if gyro_vfr_night_current %}
+              <td class="text-success">{{ gyro_vfr_night }}/3  Night</td>
+            {% else %}
+              <td class="text-danger">{{ gyro_vfr_night }}/3 Night</td>
+            {% endif %}
+        </tr>
+      </table>
+    </div>
+  </div>
+  <div class="col flex-md-column">
+    <table class="table table-bordered table-sm">
+      <thead class="thead-light">
+        <th colspan=2 class="text-center text-nowrap">IFR Currency<br>
+          <small>Currency based on UTC</small></th>
+      </thead>
+
+      {% if appr_quantity < 6 %}
+      <tr>
+        <td>Approaches</td>
+        <td class="text-danger text-nowrap">{{ appr_quantity }}/6 - {{ still_needed }} Still needed by {{ appr_current_date }}</td>
+      </tr>
+      {% elif appr_quantity >= 6 %}
+      <tr>
+        <td>Approaches</td>
+        <td class="text-success text-nowrap">{{ appr_quantity }}/6 - Current until {{ appr_current_date }}</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td>Approaches</td>
+        <td class="text-danger text-nowrap">No approaches in last 6 months</td>
+      </tr>
+      {% endif %}
+      {% if not hold_quantity or hold_quantity == 0 %}
+      <tr>
+        <td>Holding</td>
+        <td class="text-danger text-nowrap">No holds in last 6 months</td>
+      </tr>
+      {% else %}
+      <tr>
+        <td>Holding</td>
+        <td class="text-success text-nowrap">{{ hold_quantity }}/1 - Holding current until {{ hold_current_date }}</td>
+      </tr>
+      {% endif %}
     </table>
   </div>
 </div>
 <hr>
+<div class="row">
+  <div class="col-12">
+    <ul id="clothing-nav" class="nav nav-tabs" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" href="#totals" id="totals-tab" role="tab" data-toggle="tab" aria-controls="totals" aria-expanded="true">Totals</a>
+      </li>
 
-    <div style="margin-top: 15px;" class="row flex-md-row">
-      <div class="col flex-md-column">
-        <div>
-          <table class="table table-bordered table-sm">
-            <thead class="thead-light">
-              <th colspan="3" class="text-center text-nowrap" style="width:120px;">VFR Currency<br>
-              <small>Currency based on UTC</small></th>
-            </thead>
-                {% if not asel_total.total_time or asel_total.total_time < .1 %}
-                {% else %}
-                <tr>
-                  <td>ASEL</td>{% if asel_vfr_day >= 3 %}<td class="font-weight-bold text-success">Day</td>
-                               {% elif asel_vfr_day < 3 %}<td class="text-danger">Day</td>
-                               {% endif %}
-                               {% if asel_vfr_night >= 3 %}<td class="text-success">Night</td>
-                               {% elif asel_vfr_night < 3 %}<td class="text-danger">Night</td>
-                               {% endif %}
-                </tr>
-                {% endif %}
+      <li class="nav-item">
+        <a class="nav-link" href="#stats" role="tab" id="stats-tab" data-toggle="tab" aria-controls="stats">Stats</a>
+      </li>
 
-                {% if not amel_total.total_time or amel_total.total_time < .1 %}
-                {% else %}
-                <tr>
-                  <td>AMEL</td>{% if amel_vfr_day >= 3 %}<td class="text-success">Day</td>
-                               {% elif amel_vfr_day < 3 %}<td class="text-danger">Day</td>
-                               {% endif %}
-                               {% if amel_vfr_night >= 3 %}<td class="text-success">Night</td>
-                               {% elif amel_vfr_night < 3 %}<td class="text-danger">Night</td>
-                               {% endif %}
-                </tr>
-                {% endif %}
+      <li class="nav-item">
+        <a class="nav-link" href="#misc" role="tab" id="misc-tab" data-toggle="tab" aria-controls="misc">Misc</a>
+      </li>
+    </ul>
 
-                {% if not ases_total.total_time or ases_total.total_time < .1 %}
-                {% else %}
-                <tr>
-                  <td>ASES</td>{% if ases_vfr_day >= 3 %}<td class="text-success">Day</td>
-                               {% elif ases_vfr_day < 3 %}<td class="text-danger">Day</td>
-                               {% endif %}
-                               {% if ases_vfr_night >= 3 %}<td class="text-success">Night</td>
-                               {% elif ases_vfr_night < 3 %}<td class="text-danger">Night</td>
-                               {% endif %}
-                </tr>
-                {% endif %}
-
-                {% if not ames_total.total_time or ames_total.total_time < .1 %}
-                {% else %}
-                <tr>
-                  <td>AMES</td>{% if ames_vfr_day >= 3 %}<td class="text-success">Day</td>
-                               {% elif ames_vfr_day < 3 %}<td class="text-danger">Day</td>
-                               {% endif %}
-                               {% if ames_vfr_night >= 3 %}<td class="text-success">Night</td>
-                               {% elif ames_vfr_night < 3 %}<td class="text-danger">Night</td>
-                               {% endif %}
-                </tr>
-                {% endif %}
-
-                {% if not helo_total.total_time or helo_total.total_time < .1 %}
-                {% else %}
-                <tr>
-                  <td>HELO</td>{% if helo_vfr_day >= 3 %}<td class="text-success">Day</td>
-                               {% elif helo_vfr_day < 3 %}<td class="text-danger">Day</td>
-                               {% endif %}
-                               {% if helo_vfr_night >= 3 %}<td class="text-success">Night</td>
-                               {% elif helo_vfr_night < 3 %}<td class="text-danger">Night</td>
-                               {% endif %}
-                </tr>
-                {% endif %}
-
-                {% if not gyro_total.total_time or gyro_total.total_time < .1 %}
-                {% else %}
-                <tr>
-                  <td>GYRO</td>{% if gyro_vfr_day >= 3 %}<td class="text-success">Day</td>
-                               {% elif gyro_vfr_day < 3 %}<td class="text-danger">Day</td>
-                               {% endif %}
-                               {% if gyro_vfr_night >= 3 %}<td class="text-success">Night</td>
-                               {% elif gyro_vfr_night < 3 %}<td class="text-danger">Night</td>
-                               {% endif %}
-                </tr>
-                {% endif %}
-          </table>
-        </div>
+    <!-- Content Panel -->
+    <div id="" class="tab-content">
+      <div role="tabpanel" class="tab-pane fade show active" id="totals" aria-labelledby="totals-tab">
+        {% include 'table_totals.html' %}
       </div>
-      <div class="col flex-md-column">
-        <table class="table table-bordered table-sm">
-          <thead class="thead-light">
-            <th colspan=2 class="text-center text-nowrap">IFR Currency<br>
-            <small>Currency based on UTC</small></th>
-          </thead>
-          {% if appr_quantity < 6 %}
-              <tr><td>Approaches</td><td class="text-danger text-nowrap">{{ appr_quantity }}/6 - {{ still_needed }} Still needed by {{ appr_current_date }}</td></tr>
-            {% elif appr_quantity >= 6 %}
-              <tr><td>Approaches</td><td class="text-success text-nowrap">{{ appr_quantity }}/6 - Current until {{ appr_current_date }}</td></tr>
-            {% else %}
-              <tr><td>Approaches</td><td class="text-danger text-nowrap">No approaches in last 6 months</td></tr>
-          {% endif %}
-          {% if not hold_quantity or hold_quantity == 0 %}
-              <tr><td>Holding</td><td class="text-danger text-nowrap">No holds in last 6 months</td></tr>
-            {% else %}
-              <tr><td>Holding</td><td class="text-success text-nowrap">{{ hold_quantity }}/1 - Holding current until {{ hold_current_date }}</td></tr>
-          {% endif %}
-        </table>
+
+      <div role="tabpanel" class="tab-pane fade" id="stats" aria-labelledby="stats-tab">
+        {% include 'table_stats.html' %}
+      </div>
+
+      <div role="tabpanel" class="tab-pane fade" id="misc" aria-labelledby="misc-tab">
+        <div class="row flex-md-row">
+          <div class="col flex-md-column" style="">
+            {% include 'table_operation.html' %}
+          </div>
+          <div class="col flex-md-column2" style="">
+            {% include 'table_weights.html' %}
+          </div>
+        </div>
+        <div class="row flex-md-row">
+          <div class="col flex-md-column" style="">
+            {% include 'table_power.html' %}
+          </div>
+          <div class="col flex-md-column" style="">
+            {% include 'table_endorsements.html' %}
+          </div>
+        </div>
       </div>
     </div>
-    <hr>
-    <div class="row">
-      <div class="col-12">
-        <ul id="clothing-nav" class="nav nav-tabs" role="tablist">
-          <li class="nav-item">
-          <a class="nav-link active" href="#totals" id="totals-tab" role="tab" data-toggle="tab" aria-controls="totals" aria-expanded="true">Totals</a>
-          </li>
-
-          <li class="nav-item">
-          <a class="nav-link" href="#stats" role="tab" id="stats-tab" data-toggle="tab" aria-controls="stats">Stats</a>
-          </li>
-
-          <li class="nav-item">
-          <a class="nav-link" href="#misc" role="tab" id="misc-tab" data-toggle="tab" aria-controls="misc">Misc</a>
-          </li>
+  </div>
 
 
-          </ul>
+  {% include 'tablefixer.html' %}
 
-          <!-- Content Panel -->
-          <div id="" class="tab-content">
+  <script>
+    $('#pdf').click(function(e) {
+      swal({
+        type: 'info',
+        title: 'Preparing your logbook.',
+        text: 'Please be patient, This might take several minutes.',
+        footer: 'Dont leave this page.',
+        toast: true,
+        position: 'top',
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        // timer: 50000,
+      })
+    });
+  </script>
 
-          <div role="tabpanel" class="tab-pane fade show active" id="totals" aria-labelledby="totals-tab">
-          {% include 'table_totals.html' %}
-          </div>
+  <script>
+    $('#myModal').modal('show');
+  </script>
 
-          <div role="tabpanel" class="tab-pane fade" id="stats" aria-labelledby="stats-tab">
-            {% include 'table_stats.html' %}
-          </div>
 
-          <div role="tabpanel" class="tab-pane fade" id="misc" aria-labelledby="misc-tab">
-            <div class="row flex-md-row">
-              <div class="col flex-md-column" style="">
-                {% include 'table_operation.html' %}
-              </div>
-              <div class="col flex-md-column2" style="">
-                {% include 'table_weights.html' %}
-              </div>
-            </div>
-            <div class="row flex-md-row">
-              <div class="col flex-md-column" style="">
-                {% include 'table_power.html' %}
-              </div>
-              <div class="col flex-md-column" style="">
-                {% include 'table_endorsements.html' %}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-{% include 'tablefixer.html' %}
-
-<script>
-
-  $('#pdf').click(function(e) {
-    swal({
-    type: 'info',
-    title: 'Preparing your logbook.',
-    text: 'Please be patient, This might take several minutes.',
-    footer: 'Dont leave this page.',
-    toast: true,
-    position: 'top',
-    showConfirmButton: false,
-    allowOutsideClick: false,
-    // timer: 50000,
-  })
-});
-
-</script>
-
-{% endblock %}
+  {% endblock %}

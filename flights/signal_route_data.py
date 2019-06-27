@@ -6,6 +6,8 @@ from django.dispatch import receiver
 @receiver(post_save, sender=Flight)
 def save_route_data(sender, instance, **kwargs):
 
+    user = instance.user
+
     route_data = []
     route = re.split('\W+', instance.route) #separate individual codes
 
@@ -23,6 +25,6 @@ def save_route_data(sender, instance, **kwargs):
     # print(route_data, " compiled")
 
     #gets object through a queryset to avoid infinite loop casued by save() method
-    Flight.objects.filter(pk=instance.pk).update(route_data=route_data)
+    Flight.objects.filter(user=user).filter(pk=instance.pk).update(route_data=route_data)
 
     # print(instance.pk, " updated")
