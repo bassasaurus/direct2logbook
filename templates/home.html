@@ -95,7 +95,7 @@
   <div class="col flex-md-column">
     <h5>Recent flights</h5>
     {% for flight in recent %}
-      <a href ="{% url 'flight_detail' flight.pk %}">{{flight.date}} | {{flight.route}}</a><br>
+      <a class="text-nowrap" href ="{% url 'flight_detail' flight.pk %}">{{flight.date}} | {{flight.route}}</a><br>
     {% endfor %}
   </div>
   <div class="col flex-md-column">

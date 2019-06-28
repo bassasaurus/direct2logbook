@@ -14,15 +14,6 @@ def stat_delete(sender, instance, **kwargs):
     stat = Stat.objects.filter(user=user).get(**kwargs)
     stat.delete()
 
-
-@receiver(pre_save, sender=Aircraft)
-def stat_pre_save(sender, instance, **kwargs):
-
-    user = instance.user
-
-    Stat.objects.get_or_create(user=user, defaults={'aircraft_type': instance.aircraft_type})
-
-
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
 def stat_update(sender, instance, **kwargs):
