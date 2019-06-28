@@ -127,7 +127,6 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         for tail in  TailNumber.objects.filter(user=user).filter(tailnumber_error_query):
             print(tail, len(tail.reg_error))
 
-
         aircraft_list = []
         for aircraft in Aircraft.objects.filter(user=user).all():
             if TailNumber.objects.filter(user=user).filter(aircraft__aircraft_type=aircraft).exists():
@@ -141,12 +140,12 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
             context['asel_total'] = 0
         else:
             context['asel_total'] = Total.objects.filter(user=user).get(total="ASEL")
+            asel_total = Total.objects.filter(user=user).get(total="ASEL")
 
         if not Total.objects.filter(user=user):
             context['amel_total'] = 0
         else:
             context['amel_total'] = Total.objects.filter(user=user).get(total="AMEL")
-            amel = Total.objects.filter(user=user).get(total="AMEL")
 
         if not Total.objects.filter(user=user):
             context['ases_total'] = 0
