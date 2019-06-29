@@ -32,6 +32,7 @@ def total_update(sender, instance, **kwargs):
     helo = Total.objects.filter(user=user).get(total='HELO')
     gyro = Total.objects.filter(user=user).get(total='GYRO')
 
+    #update total(ALL) to remove duration when deleting a flight
     total.total_time = amel.total_time + asel.total_time + ames.total_time + ases.total_time + helo.total_time + gyro.total_time
 
     total.pilot_in_command = amel.pilot_in_command + asel.pilot_in_command + ames.pilot_in_command + ases.pilot_in_command + helo.pilot_in_command + gyro.pilot_in_command

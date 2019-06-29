@@ -341,12 +341,12 @@ def asel_update(sender, instance, **kwargs):
     else:
         asel.last_2yr = last_2yr.get('duration__sum')
 
-    ydt = datetime.date(today.year, 1, 1)
-    ydt = Flight.objects.filter(user=user).filter(cat_class_query).filter(
-        date__lte=today, date__gte=ydt).aggregate(Sum('duration'))
-    if not ydt.get('duration__sum'):
-        asel.ydt = 0
+    ytd = datetime.date(today.year, 1, 1)
+    ytd = Flight.objects.filter(user=user).filter(cat_class_query).filter(
+        date__lte=today, date__gte=ytd).aggregate(Sum('duration'))
+    if not ytd.get('duration__sum'):
+        asel.ytd = 0
     else:
-        asel.ydt = ydt.get('duration__sum')
+        asel.ytd = ytd.get('duration__sum')
 
     asel.save()

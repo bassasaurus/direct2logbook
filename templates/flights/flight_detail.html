@@ -27,7 +27,7 @@
           {{ approach.approach_type }}-{{ approach.number }}
         {% endfor %}
       {% endif %}
-      
+
       {% for holding in flight.holding_set.all %}
         {% if holding.hold %}| Hold-{{ holding.hold_number }} {% endif %}
       {% endfor %}
@@ -35,7 +35,7 @@
       {% if flight.landings_day %}| {{flight.landings_day}} D{% endif %}
       {% if flight.landings_night %}| {{flight.landings_night}} N{% endif %}
       {% if flight.simulated_instrument %}Hood |{{flight.simulated_instrument}}{% endif %}
-      {% if flight.instructor %}| CFI{{flight.instructor}}{% endif %}
+      {% if flight.instructor %}| CFI{% endif %}
       {% if flight.dual %}| Dual{% endif %}
       {% if flight.solo %}| Solo{% endif %}
     </h6>
