@@ -20,11 +20,7 @@ def stat_update(sender, instance, **kwargs):
 
     user = instance.user
 
-    stat = Stat.objects.filter(user=user)
-    if not instance.aircraft_type:
-        pass
-    else:
-        stat = Stat.objects.get_or_create(user=user, defaults={'aircraft_type': instance.aircraft_type})
+    stat = Stat.objects.get_or_create(user=user, aircraft_type = instance.aircraft_type)
 
     aircraft_type = instance.aircraft_type
 

@@ -1,11 +1,12 @@
 from flights.models import *
+from accounts.models import Profile
 from django.db.models.signals import pre_save, post_save, post_delete
 from django.db.models import Sum, Q
 import datetime
 from math import floor
 import inspect, os
 
-@receiver(pre_save, sender=Flight)
+@receiver(pre_save, sender=Profile)
 def create_total_instances(sender, instance, **kwargs):
     user = instance.user
 
@@ -16,6 +17,13 @@ def create_total_instances(sender, instance, **kwargs):
     ases = Total.objects.get_or_create(user = user, total = 'ASES',)
     helo = Total.objects.get_or_create(user = user, total = 'HELO',)
     gyro = Total.objects.get_or_create(user = user, total = 'GYRO',)
+
+@receiver(post_delete, sender=Profile)
+def delete_total_instances(sender, instance, **kwargs):
+    user = instance.user
+
+    totals = Total.objects.filter(user=user)
+    # totals.delete()
 
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
@@ -32,7 +40,6 @@ def total_update(sender, instance, **kwargs):
     helo = Total.objects.filter(user=user).get(total='HELO')
     gyro = Total.objects.filter(user=user).get(total='GYRO')
 
-    #update total(ALL) to remove duration when deleting a flight
     total.total_time = amel.total_time + asel.total_time + ames.total_time + ases.total_time + helo.total_time + gyro.total_time
 
     total.pilot_in_command = amel.pilot_in_command + asel.pilot_in_command + ames.pilot_in_command + ases.pilot_in_command + helo.pilot_in_command + gyro.pilot_in_command

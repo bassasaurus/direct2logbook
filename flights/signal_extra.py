@@ -3,8 +3,9 @@ from accounts.models import Profile
 from django.db.models.signals import pre_save, post_save, post_delete
 from django.db.models import Sum, Q
 
-@receiver(post_save, sender=Flight)
-@receiver(pre_save, sender=Aircraft)
+
+
+@receiver(pre_save, sender=Profile)
 def create_weight_instances(sender, instance, **kwargs):
 
     user = instance.user
@@ -14,6 +15,13 @@ def create_weight_instances(sender, instance, **kwargs):
     Weight.objects.get_or_create(user=user, weight="Large")
     Weight.objects.get_or_create(user=user, weight="Medium")
     Weight.objects.get_or_create(user=user, weight="Small")
+
+@receiver(post_delete, sender=Profile)
+def delete_weight_instances(sender, instance, **kwargs):
+    user = instance.user
+
+    weights = Weight.objects.filter(user=user)
+    # weights.delete()
 
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
@@ -76,10 +84,7 @@ def weight_update(sender, instance, **kwargs):
     small.save()
 
 
-@receiver(post_save, sender=TailNumber)
-@receiver(post_delete, sender=TailNumber)
-@receiver(post_save, sender=Flight)
-@receiver(post_delete, sender=Flight)
+@receiver(pre_save, sender=Profile)
 def create_reg_instances(sender, instance, **kwargs):
 
     user = instance.user
@@ -87,6 +92,13 @@ def create_reg_instances(sender, instance, **kwargs):
     Regs.objects.get_or_create(user=user, reg_type='121')
     Regs.objects.get_or_create(user=user, reg_type='135')
     Regs.objects.get_or_create(user=user, reg_type='91')
+
+@receiver(post_delete, sender=Profile)
+def delete_reg_instances(sender, instance, **kwargs):
+    user = instance.user
+
+    regs = Reg.objects.filter(user=user)
+    # regs.delete()
 
 @receiver(post_save, sender=TailNumber)
 @receiver(post_delete, sender=TailNumber)
@@ -152,12 +164,7 @@ def regs_update(sender, instance, **kwargs):
 
     private.save()
 
-@receiver(post_save, sender=TailNumber)
-@receiver(post_delete, sender=TailNumber)
-@receiver(post_save, sender=Flight)
-@receiver(post_delete, sender=Flight)
-@receiver(post_save, sender=Aircraft)
-@receiver(post_delete, sender=Aircraft)
+@receiver(pre_save, sender=Profile)
 def create_power_instances(sender, instance, **kwargs):
 
     user = instance.user
@@ -165,6 +172,13 @@ def create_power_instances(sender, instance, **kwargs):
     Power.objects.get_or_create(user=user, role='PIC')
     Power.objects.get_or_create(user=user, role='SIC')
     Power.objects.get_or_create(user=user, role='Total')
+
+@receiver(post_delete, sender=Profile)
+def delete_power_instances(sender, instance, **kwargs):
+    user = instance.user
+
+    powers = Power.objects.filter(user=user)
+    # powers.delete()
 
 @receiver(post_save, sender=TailNumber)
 @receiver(post_delete, sender=TailNumber)
@@ -221,10 +235,7 @@ def power_update(sender, instance, **kwargs):
 
     total.save()
 
-@receiver(post_save, sender=Flight)
-@receiver(post_delete, sender=Flight)
-@receiver(post_save, sender=Aircraft)
-@receiver(post_delete, sender=Aircraft)
+@receiver(pre_save, sender=Profile)
 def create_endorsement_instances(sender, instance, **kwargs):
 
     user = instance.user
@@ -234,6 +245,13 @@ def create_endorsement_instances(sender, instance, **kwargs):
     Endorsement.objects.get_or_create(user=user, endorsement='High Performance')
     Endorsement.objects.get_or_create(user=user, endorsement='Tailwheel')
     Endorsement.objects.get_or_create(user=user, endorsement='Type Rating')
+
+@receiver(post_delete, sender=Profile)
+def delete_endorsement_instances(sender, instance, **kwargs):
+    user = instance.user
+
+    endorsements = Endorsement.objects.filter(user=user)
+    # endorsements.delete()
 
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
