@@ -1,8 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from accounts.models import Profile
+from flights.models import Flight, Aircraft, TailNumber, Weight, Power, Endorsement, Regs, Regs, Stat, Total
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
