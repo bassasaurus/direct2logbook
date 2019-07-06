@@ -123,7 +123,7 @@ class Power(models.Model):
 
 class Regs(models.Model):
     user = models.ForeignKey(User)
-    reg_type = models.CharField(db_index=True, max_length=5, default='', verbose_name="Reg")
+    reg_type = models.CharField(db_index=True, max_length=5, default='')
     pilot_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="PIC")
     second_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="SIC")
 

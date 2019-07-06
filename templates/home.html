@@ -40,7 +40,7 @@
         <tbody>
           {% for flight in flight_errors %}
           <tr>
-            <td><a href="{% url 'flight_detail' flight.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ flight.date }} | {{ flight.route }}</a></td>
+            <td><a href="{% url 'flight_detail' flight.pk %}" style="margin-top: 5px;" class="text-danger text-no-wrap">{{ flight.date }} | {{ flight.route }}</a></td><br />
           </tr>
           {% endfor %}
         </tbody>
@@ -58,7 +58,7 @@
       <tbody>
         {% for aircraft in aircraft_errors %}
         <tr>
-          <td><a href="{% url 'aircraft_detail' aircraft.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ aircraft }}</a></td>
+          <td><a href="{% url 'aircraft_detail' aircraft.pk %}" style="margin-top: 5px;" class="text-danger text-no-wrap">{{ aircraft }}</a></td><br />
         </tr>
         {% endfor %}
       </tbody>
@@ -76,12 +76,12 @@
       <tbody>
         {% for aircraft in aircraft_needs_tailnumber %}
         <tr>
-          <td><a href="{% url 'aircraft_detail' aircraft.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ aircraft }}</a></td>
+          <td><a href="{% url 'aircraft_detail' aircraft.pk %}" style="margin-top: 5px;" class="text-danger text-no-wrap">{{ aircraft }}</a></td><br />
         </tr>
         {% endfor %}
         {% for tailnumber in tailnumber_errors %}
         <tr>
-          <td><a href="{% url 'tailnumber_detail' tailnumber.pk %}" style="margin-top: 5px;" class="btn btn-sm btn-outline-danger">{{ tailnumber }}</a></td>
+          <td><a href="{% url 'tailnumber_detail' tailnumber.pk %}" style="margin-top: 5px;" class="text-danger text-no-wrap">{{ tailnumber }}</a></td><br />
         </tr>
         {% endfor %}
     </table>
@@ -306,10 +306,6 @@
         // timer: 50000,
       })
     });
-  </script>
-
-  <script>
-    $('#myModal').modal('show');
   </script>
 
 
