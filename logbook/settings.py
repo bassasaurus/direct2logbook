@@ -20,7 +20,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DJANGO_ROOT = dirname(dirname(abspath(__file__)))
 
-SECURE_SSL_REDIRECT = True
+SECURE_SSL_REDIRECT = False
 
 LOGIN_REDIRECT_URL = '/home'
 LOGOUT_REDIRECT_URL = '/'
