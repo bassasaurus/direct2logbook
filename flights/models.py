@@ -273,7 +273,7 @@ class Approach(models.Model):
         ('MLS', 'MLS'),
         )
 
-    flight_object = models.ForeignKey('Flight', default=None, null=True, blank=True, verbose_name="Flight", on_delete=models.SET_NULL)
+    flight_object = models.ForeignKey('Flight', default=None, null=True, blank=True, verbose_name="Flight", on_delete=models.CASCADE)
     approach_type = models.CharField(max_length=15, choices=APPR_CHOICES, verbose_name="Approach Type")
     number = models.PositiveIntegerField(null=True, blank=True, verbose_name="Number")
 
