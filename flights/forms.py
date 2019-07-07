@@ -27,8 +27,11 @@ class FlightForm(forms.ModelForm):
             'dual': forms.CheckboxInput(),
             'simulator': forms.CheckboxInput(),
             'solo': forms.CheckboxInput(),
-            'holding': forms.CheckboxInput(),
         }
+
+ApproachFormSet = inlineformset_factory(Flight, Approach, fields=('approach_type', 'number'), max_num=4, extra=1)
+HoldingFormSet = inlineformset_factory(Flight, Holding, fields=('hold',), max_num=1, extra=1)
+
 
 class AircraftForm(forms.ModelForm):
 
