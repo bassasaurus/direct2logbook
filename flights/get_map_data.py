@@ -17,13 +17,10 @@ def get_map_data(queryset, user):
     unique_values = set()
 
     for flight in queryset:
-        if not flight.route_data:
-            pass
-        else:
-            for map_obj in flight.route_data:
-                line_json.append([map_obj.latitude, map_obj.longitude]) #assemble polyline
-                if map_obj not in unique_values:
-                    unique_values.add(map_obj)
+        for map_obj in flight.route_data:
+            line_json.append([map_obj.latitude, map_obj.longitude]) #assemble polyline
+            if map_obj not in unique_values:
+                unique_values.add(map_obj)
 
     for map_obj in unique_values:
         if not map_obj:

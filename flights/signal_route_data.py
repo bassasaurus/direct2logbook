@@ -11,12 +11,9 @@ def save_route_data(sender, instance, **kwargs):
     route_data = []
     route = re.split('\W+', instance.route) #separate individual codes
 
-    icao = MapData.objects.values_list('icao', flat=True)
-    iata = MapData.objects.values_list('iata', flat=True)
-
     for code in route: #XXXX, XXXX, XXXX
         code = code.upper()
-        if code not in icao and code not in iata or code == '':
+        if code == '':
             pass
         else:
             # print("code to match ", code)
