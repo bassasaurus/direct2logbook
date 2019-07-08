@@ -6,8 +6,23 @@ from django.dispatch import receiver
 import datetime
 from django.core.exceptions import ObjectDoesNotExist
 
+@receiver(post_delete, sender=Flight)
+def no_flight_stat_delete(sender, instance, **kwargs):
+
+    user = instance.user
+    aircraft_type = instance.aircraft_type
+
+    aircraft_total_time = Flight.objects.filter(aircraft_type=aircraft_type).aggregate(Sum('duration'))
+
+    if not aircraft_total_time.get('duration__sum'):
+        kwargs = {'aircraft_type': instance.aircraft_type}
+        stat = Stat.objects.filter(user=user).get(**kwargs)
+        stat.delete()
+    else:
+        pass
+
 @receiver(pre_delete, sender=Aircraft)
-def stat_delete(sender, instance, **kwargs):
+def no_aircraft_stat_delete(sender, instance, **kwargs):
 
     user = instance.user
 
