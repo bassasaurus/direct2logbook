@@ -26,6 +26,8 @@ DATABASES = {
     }
 }
 
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' #disable/setup for production
+
 print('development settings')
 
 
