@@ -22,7 +22,6 @@ from django.conf.urls import handler404, handler500
 from flights.views import error_404, error_500
 
 urlpatterns = [
-    # url(r'^accounts/', include('django.contrib.auth.urls')),
     url(r'^accounts/', include('allauth.urls')),
     url(r'^', include('accounts.urls')),
     url(r'^admin/', admin.site.urls),

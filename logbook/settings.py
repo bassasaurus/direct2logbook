@@ -22,9 +22,6 @@ DJANGO_ROOT = dirname(dirname(abspath(__file__)))
 
 SECURE_SSL_REDIRECT = False
 
-LOGIN_REDIRECT_URL = '/home'
-LOGOUT_REDIRECT_URL = '/'
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
@@ -89,6 +86,15 @@ AUTHENTICATION_BACKENDS = (
     # needed for all_auth
     'allauth.account.auth_backends.AuthenticationBackend',
 )
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS=7
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "optional"
+ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5
+ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 43200 # .5 day in seconds
+
+LOGIN_REDIRECT_URL = '/home'
+LOGOUT_REDIRECT_URL = '/'
+
 
 
 MIDDLEWARE = [

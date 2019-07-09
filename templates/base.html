@@ -16,6 +16,7 @@
     <script src="{% static 'theme/jqueryui/jquery-ui.js' %}"></script>
     <link rel="stylesheet" type="text/css" href="{% static 'theme/jqueryui/jquery-ui.css' %}" />
 
+    <link rel="stylesheet" href="{% static 'account/Css/Custom-Account-Styles.css' %}" type = "text/css"/>
     <!-- Bootstrap CSS file -->
     <link rel="stylesheet" type="text/css" href="{% static 'theme/dist/bootstrap/bootstrap.css' %}" />
     <!-- Theme CSS file -->
@@ -49,6 +50,20 @@
       {% include 'blocks/footer.html' %}
     {% else %}
       {% include 'blocks/navbar.html' %}
+      <div style="margin-top:100px;">
+        {% block account_content%}
+
+  	      {% block messages %}
+          {% endblock %}
+
+        {% endblock %}
+
+        {% block content_extra %}
+        {% endblock %}
+
+        {% block extra_body %}
+        {% endblock %}
+      </div>
       {% include 'blocks/footer.html' %}
     {% endif %}
 
