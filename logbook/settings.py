@@ -53,6 +53,11 @@ INSTALLED_APPS = [
 
     'django.contrib.contenttypes',
     'django.contrib.auth',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.google',
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.admin',
@@ -81,6 +86,8 @@ INSTALLED_APPS = [
 AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
     'django.contrib.auth.backends.ModelBackend',
+    # needed for all_auth
+    'allauth.account.auth_backends.AuthenticationBackend',
 )
 
 
@@ -114,10 +121,10 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                # `allauth` needs this from django
-                'django.template.context_processors.request',
                 # needed for {% media url %}
-                'django.template.context_processors.media'
+                'django.template.context_processors.media',
+                # needed for allauth
+                'django.template.context_processors.request',
             ],
         },
     },
