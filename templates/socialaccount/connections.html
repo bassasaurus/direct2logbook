@@ -6,6 +6,7 @@
 
 {% block content %}
 <h1>{% trans "Account Connections" %}</h1>
+<hr>
 
 {% if form.accounts %}
 <p>{% blocktrans %}You can sign in to your account using any of the following third party accounts:{% endblocktrans %}</p>
@@ -30,10 +31,11 @@
 </div>
 {% endwith %}
 {% endfor %}
-
+<hr>
 <div>
-<button type="submit">{% trans 'Remove' %}</button>
+<button class="btn btn-danger" type="submit">{% trans 'Remove' %}</button>
 </div>
+<hr>
 
 </fieldset>
 
