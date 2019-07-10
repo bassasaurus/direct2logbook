@@ -98,6 +98,7 @@
       <a class="text-nowrap" href ="{% url 'flight_detail' flight.pk %}">{{flight.date}} | {{flight.route}}</a><br>
     {% endfor %}
   </div>
+<hr>
   <div class="col flex-md-column">
     <div>
       <table class="table table-bordered table-sm">
@@ -109,14 +110,14 @@
         <tr>
           <td>ASEL</td>
             {% if asel_vfr_day_current %}
-              <td class="text-success">{{ asel_vfr_day }}/3 Day</td>
+              <td class="text-success text-nowrap">{{ asel_vfr_day }}/3 Day</td>
             {% else %}
-              <td class="text-danger">{{ asel_vfr_day }}/3 Day</td>
+              <td class="text-danger text-nowrap">{{ asel_vfr_day }}/3 Day</td>
             {% endif %}
             {% if asel_vfr_night_current %}
-              <td class="text-success">{{ asel_vfr_night }}/3  Night</td>
+              <td class="text-success text-nowrap">{{ asel_vfr_night }}/3  Night</td>
             {% else %}
-              <td class="text-danger">{{ asel_vfr_night }}/3 Night</td>
+              <td class="text-danger text-nowrap">{{ asel_vfr_night }}/3 Night</td>
             {% endif %}
         </tr>
         {% else %}
@@ -125,14 +126,14 @@
         <tr>
           <td>AMEL</td>
             {% if amel_vfr_day_current %}
-              <td class="text-success">{{ amel_vfr_day }}/3 Day</td>
+              <td class="text-success text-nowrap">{{ amel_vfr_day }}/3 Day</td>
             {% else %}
-              <td class="text-danger">{{ amel_vfr_day }}/3 Day</td>
+              <td class="text-danger text-nowrap">{{ amel_vfr_day }}/3 Day</td>
             {% endif %}
             {% if amel_vfr_night_current %}
-              <td class="text-success">{{ amel_vfr_night }}/3  Night</td>
+              <td class="text-success text-nowrap">{{ amel_vfr_night }}/3  Night</td>
             {% else %}
-              <td class="text-danger">{{ amel_vfr_night }}/3 Night</td>
+              <td class="text-danger text-nowrap">{{ amel_vfr_night }}/3 Night</td>
             {% endif %}
         </tr>
         {% else %}
@@ -141,14 +142,14 @@
         <tr>
           <td>ASES</td>
             {% if ases_vfr_day_current %}
-              <td class="text-success">{{ ases_vfr_day }}/3 Day</td>
+              <td class="text-success text-nowrap">{{ ases_vfr_day }}/3 Day</td>
             {% else %}
-              <td class="text-danger">{{ ases_vfr_day }}/3 Day</td>
+              <td class="text-danger text-nowrap">{{ ases_vfr_day }}/3 Day</td>
             {% endif %}
             {% if ases_vfr_night_current %}
-              <td class="text-success">{{ ases_vfr_night }}/3  Night</td>
+              <td class="text-success text-nowrap">{{ ases_vfr_night }}/3  Night</td>
             {% else %}
-              <td class="text-danger">{{ ases_vfr_night }}/3 Night</td>
+              <td class="text-danger text-nowrap">{{ ases_vfr_night }}/3 Night</td>
             {% endif %}
         </tr>
         {% else %}
@@ -157,14 +158,14 @@
         <tr>
           <td>AMES</td>
             {% if ames_vfr_day_current %}
-              <td class="text-success">{{ ames_vfr_day }}/3 Day</td>
+              <td class="text-success text-nowrap">{{ ames_vfr_day }}/3 Day</td>
             {% else %}
-              <td class="text-danger">{{ ames_vfr_day }}/3 Day</td>
+              <td class="text-danger text-nowrap">{{ ames_vfr_day }}/3 Day</td>
             {% endif %}
             {% if ames_vfr_night_current %}
-              <td class="text-success">{{ ames_vfr_night }}/3  Night</td>
+              <td class="text-success text-nowrap">{{ ames_vfr_night }}/3  Night</td>
             {% else %}
-              <td class="text-danger">{{ ames_vfr_night }}/3 Night</td>
+              <td class="text-danger text-nowrap">{{ ames_vfr_night }}/3 Night</td>
             {% endif %}
         </tr>
         {% else %}
@@ -173,14 +174,14 @@
         <tr>
           <td>HELO</td>
             {% if helo_vfr_day_current %}
-              <td class="text-success">{{ helo_vfr_day }}/3 Day</td>
+              <td class="text-success text-nowrap">{{ helo_vfr_day }}/3 Day</td>
             {% else %}
-              <td class="text-danger">{{ helo_vfr_day }}/3 Day</td>
+              <td class="text-danger text-nowrap">{{ helo_vfr_day }}/3 Day</td>
             {% endif %}
             {% if helo_vfr_night_current %}
-              <td class="text-success">{{ helo_vfr_night }}/3  Night</td>
+              <td class="text-success text-nowrap">{{ helo_vfr_night }}/3  Night</td>
             {% else %}
-              <td class="text-danger">{{ helo_vfr_night }}/3 Night</td>
+              <td class="text-danger text-nowrap">{{ helo_vfr_night }}/3 Night</td>
             {% endif %}
         </tr>
         {% else %}
@@ -189,14 +190,14 @@
         <tr>
           <td>GYRO</td>
             {% if gyro_vfr_day_current %}
-              <td class="text-success">{{ gyro_vfr_day }}/3 Day</td>
+              <td class="text-success text-nowrap">{{ gyro_vfr_day }}/3 Day</td>
             {% else %}
-              <td class="text-danger">{{ gyro_vfr_day }}/3 Day</td>
+              <td class="text-danger text-nowrap">{{ gyro_vfr_day }}/3 Day</td>
             {% endif %}
             {% if gyro_vfr_night_current %}
-              <td class="text-success">{{ gyro_vfr_night }}/3  Night</td>
+              <td class="text-success text-nowrap">{{ gyro_vfr_night }}/3  Night</td>
             {% else %}
-              <td class="text-danger">{{ gyro_vfr_night }}/3 Night</td>
+              <td class="text-danger text-nowrap">{{ gyro_vfr_night }}/3 Night</td>
             {% endif %}
         </tr>
         {% else %}

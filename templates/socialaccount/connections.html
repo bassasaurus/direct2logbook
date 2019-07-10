@@ -31,7 +31,7 @@
 </div>
 {% endwith %}
 {% endfor %}
-<hr>
+<br>
 <div>
 <button class="btn btn-danger" type="submit">{% trans 'Remove' %}</button>
 </div>
@@ -43,10 +43,12 @@
 
 {% else %}
 <p>{% trans 'You currently have no social network accounts connected to this account.' %}</p>
+<hr>
 {% endif %}
 
 <h2>{% trans 'Add a 3rd Party Account' %}</h2>
-
+<hr>
+<br>
 <ul class="socialaccount_providers">
 {% include "socialaccount/snippets/provider_list.html" with process="connect" %}
 </ul>
