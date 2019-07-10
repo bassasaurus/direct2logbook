@@ -9,7 +9,7 @@
 
     <h1>{% trans "Sign In" %}</h1>
     <hr>
-    <!-- {% get_providers as socialaccount_providers %}
+    {% get_providers as socialaccount_providers %}
 
     {% if socialaccount_providers %}
     <p>{% blocktrans with site.name as site_name %}Please sign in with one
@@ -29,7 +29,7 @@
 
     </div>
     <hr>
-    {% include "socialaccount/snippets/login_extra.html" %} -->
+    {% include "socialaccount/snippets/login_extra.html" %}
 
     {% else %}
     <p>{% blocktrans %}If you have not created an account yet, then please
