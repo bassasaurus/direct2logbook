@@ -22,9 +22,6 @@ DJANGO_ROOT = dirname(dirname(abspath(__file__)))
 
 SECURE_SSL_REDIRECT = False
 
-LOGIN_REDIRECT_URL = '/home'
-LOGOUT_REDIRECT_URL = '/'
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
@@ -53,6 +50,11 @@ INSTALLED_APPS = [
 
     'django.contrib.contenttypes',
     'django.contrib.auth',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.google',
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.admin',
@@ -81,7 +83,28 @@ INSTALLED_APPS = [
 AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
     'django.contrib.auth.backends.ModelBackend',
+    # needed for all_auth
+    'allauth.account.auth_backends.AuthenticationBackend',
 )
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS=3
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION = "optional"
+ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5
+ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 43200 # .5 day in seconds
+ACCOUNT_LOGOUT_ON_GET = True
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_ADAPTER='allauth.account.adapter.DefaultAccountAdapter'
+
+ACCOUNT_SIGNUP_EMAIL_ENTER_TWICE=True
+ACCOUNT_USERNAME_BLACKLIST=['admin', 'pigarkle', 'test']
+ACCOUNT_UNIQUE_EMAIL=True
+
+SOCIALACCOUNT_EMAIL_VERIFICATION=ACCOUNT_EMAIL_VERIFICATION
+SOCIALACCOUNT_EMAIL_REQUIRED=ACCOUNT_EMAIL_REQUIRED
+
+LOGIN_REDIRECT_URL = '/home'
+ACCOUNT_LOGOUT_REDIRECT_URL = '/'
+
 
 
 MIDDLEWARE = [
@@ -114,10 +137,10 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                # `allauth` needs this from django
-                'django.template.context_processors.request',
                 # needed for {% media url %}
-                'django.template.context_processors.media'
+                'django.template.context_processors.media',
+                # needed for allauth
+                'django.template.context_processors.request',
             ],
         },
     },
