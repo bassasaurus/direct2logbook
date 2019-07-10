@@ -51,18 +51,22 @@
     {% else %}
       {% include 'blocks/navbar.html' %}
       <div style="margin-top:100px;">
-        {% block account_content %}
+        <div class="row justify-content-center align-items-center">
+          <div class="col-6">
+            {% block account_content %}
 
-  	      {% block messages %}
-          {% endblock %}
+      	      {% block messages %}
+              {% endblock %}
 
-        {% endblock %}
+            {% endblock %}
 
-        {% block content_extra %}
-        {% endblock %}
+            {% block content_extra %}
+            {% endblock %}
 
-        {% block extra_body %}
-        {% endblock %}
+            {% block extra_body %}
+            {% endblock %}
+          </div>
+        </div>
       </div>
       {% include 'blocks/footer.html' %}
     {% endif %}
