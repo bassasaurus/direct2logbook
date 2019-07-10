@@ -105,19 +105,22 @@
         <thead class="thead-light">
           <th colspan="3" class="text-center text-nowrap" style="width:120px;">VFR Currency<br>
             <small>Currency based on UTC</small></th>
+            <tr><td></td><td>Day</td><td>Night</td></tr>
+
+
         </thead>
         {% if asel_total.total_time > 0 %}
         <tr>
           <td>ASEL</td>
             {% if asel_vfr_day_current %}
-              <td class="text-success text-nowrap">{{ asel_vfr_day }}/3 Day</td>
+              <td class="text-success">{{ asel_vfr_day }}/3</td>
             {% else %}
-              <td class="text-danger text-nowrap">{{ asel_vfr_day }}/3 Day</td>
+              <td class="text-danger">{{ asel_vfr_day }}/3</td>
             {% endif %}
             {% if asel_vfr_night_current %}
-              <td class="text-success text-nowrap">{{ asel_vfr_night }}/3  Night</td>
+              <td class="text-success">{{ asel_vfr_night }}/3</td>
             {% else %}
-              <td class="text-danger text-nowrap">{{ asel_vfr_night }}/3 Night</td>
+              <td class="text-danger">{{ asel_vfr_night }}/3</td>
             {% endif %}
         </tr>
         {% else %}
@@ -126,14 +129,14 @@
         <tr>
           <td>AMEL</td>
             {% if amel_vfr_day_current %}
-              <td class="text-success text-nowrap">{{ amel_vfr_day }}/3 Day</td>
+              <td class="text-success">{{ amel_vfr_day }}/3</td>
             {% else %}
-              <td class="text-danger text-nowrap">{{ amel_vfr_day }}/3 Day</td>
+              <td class="text-danger">{{ amel_vfr_day }}/3</td>
             {% endif %}
             {% if amel_vfr_night_current %}
-              <td class="text-success text-nowrap">{{ amel_vfr_night }}/3  Night</td>
+              <td class="text-success">{{ amel_vfr_night }}/3</td>
             {% else %}
-              <td class="text-danger text-nowrap">{{ amel_vfr_night }}/3 Night</td>
+              <td class="text-danger">{{ amel_vfr_night }}/3</td>
             {% endif %}
         </tr>
         {% else %}
@@ -142,14 +145,14 @@
         <tr>
           <td>ASES</td>
             {% if ases_vfr_day_current %}
-              <td class="text-success text-nowrap">{{ ases_vfr_day }}/3 Day</td>
+              <td class="text-success">{{ ases_vfr_day }}/3</td>
             {% else %}
-              <td class="text-danger text-nowrap">{{ ases_vfr_day }}/3 Day</td>
+              <td class="text-danger">{{ ases_vfr_day }}/3</td>
             {% endif %}
             {% if ases_vfr_night_current %}
-              <td class="text-success text-nowrap">{{ ases_vfr_night }}/3  Night</td>
+              <td class="text-success">{{ ases_vfr_night }}/3</td>
             {% else %}
-              <td class="text-danger text-nowrap">{{ ases_vfr_night }}/3 Night</td>
+              <td class="text-danger">{{ ases_vfr_night }}/3</td>
             {% endif %}
         </tr>
         {% else %}
@@ -158,14 +161,14 @@
         <tr>
           <td>AMES</td>
             {% if ames_vfr_day_current %}
-              <td class="text-success text-nowrap">{{ ames_vfr_day }}/3 Day</td>
+              <td class="text-success">{{ ames_vfr_day }}/3</td>
             {% else %}
-              <td class="text-danger text-nowrap">{{ ames_vfr_day }}/3 Day</td>
+              <td class="text-danger">{{ ames_vfr_day }}/3</td>
             {% endif %}
             {% if ames_vfr_night_current %}
-              <td class="text-success text-nowrap">{{ ames_vfr_night }}/3  Night</td>
+              <td class="text-success">{{ ames_vfr_night }}/3</td>
             {% else %}
-              <td class="text-danger text-nowrap">{{ ames_vfr_night }}/3 Night</td>
+              <td class="text-danger">{{ ames_vfr_night }}/3</td>
             {% endif %}
         </tr>
         {% else %}
