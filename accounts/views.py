@@ -86,10 +86,10 @@ class EmailView(EmailView):
         context['page_title'] = 'Update Email'
         return context
 
-class ConnectionsView(EmailView):
+class ConnectionsView(ConnectionsView):
 
     def get_context_data(self, **kwargs):
-        context = super(EmailView, self).get_context_data(**kwargs)
+        context = super(ConnectionsView, self).get_context_data(**kwargs)
 
         context['title'] = "D-> | Update Social Accounts"
         context['parent_name'] = 'Profile'
