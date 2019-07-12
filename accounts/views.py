@@ -13,6 +13,9 @@ from django.views.generic import TemplateView, UpdateView
 from accounts.models import Profile
 from accounts.forms import ProfileForm
 
+from allauth.account.views import EmailView
+from allauth.socialaccount.views import ConnectionsView
+
 class LoginRequiredMixin(LoginRequiredMixin):
     login_url = '/accounts/login'
     # redirect_field_name = None
@@ -70,20 +73,26 @@ class ProfileUpdateView(UpdateView):
     template_name = 'profile/profile_update.html'
     success_url = '/accounts/profile/'
 
-# class ProfileUpdateView(LoginRequiredMixin, UserObjectsMixin, UpdateView):
-#     model = Profile
-#     fields = ()
-#     template_name = 'profile/profile_update.html'
-#     success_url = '/profile/'
-#
-#     def get_context_data(self, **kwargs):
-#         context = super(ProfileUpdateView, self).get_context_data(**kwargs)
-#
-#         profile_form = ProfileForm()
-#
-#         context['profile_form'] = profile_form
-#         context['title'] = "D-> | Update Profile"
-#         context['parent_name'] = 'Profile'
-#         context['parent_link'] = reverse('profile')
-#         context['page_title'] = 'Update Profile'
-#         return context
+
+# Views from allauth
+class EmailView(EmailView):
+
+    def get_context_data(self, **kwargs):
+        context = super(EmailView, self).get_context_data(**kwargs)
+
+        context['title'] = "D-> | Update Email"
+        context['parent_name'] = 'Profile'
+        context['parent_link'] = reverse('profile')
+        context['page_title'] = 'Update Email'
+        return context
+
+class ConnectionsView(EmailView):
+
+    def get_context_data(self, **kwargs):
+        context = super(EmailView, self).get_context_data(**kwargs)
+
+        context['title'] = "D-> | Update Social Accounts"
+        context['parent_name'] = 'Profile'
+        context['parent_link'] = reverse('profile')
+        context['page_title'] = 'Update Social Accounts'
+        return context
