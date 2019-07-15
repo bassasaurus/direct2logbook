@@ -47,7 +47,7 @@ class UserUpdateView(UpdateView):
         user = self.request.user
         pk = str(user.profile.pk)
 
-        context['title'] = "D-> | Update Profile"
+        context['title'] = "D-> | Update Name"
         context['parent_name'] = 'Profile'
         context['parent_link'] = reverse('profile')
         context['page_title'] = 'Update Name'
