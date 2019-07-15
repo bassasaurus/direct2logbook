@@ -54,7 +54,7 @@
                   {% endfor %}
 
                   {% for holding in flight.holding_set.all %}
-                    <small>{% if holding.hold %}| Hold-{{ holding.hold_number }} {% endif %}</small>
+                    <small>{% if holding.hold %}| Hold {% endif %}</small>
                   {% endfor %}
                 </td>
                 <td class="text-right">{{flight.landings_day|default:"-"}}</td>

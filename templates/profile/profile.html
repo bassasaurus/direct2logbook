@@ -7,11 +7,14 @@
   <div class="col-12">
 
     <h3>{{ user.first_name }} {{ user.last_name }}</h3>
+    <a href="{% url 'user_update' user.pk %}">Update name</a><br>
+    <a href="{% url 'account_change_password' %}">Change password</a><br>
+    <hr>
     Date Joined - {{ user.date_joined }}
     <hr>
     <h5>Email</h5> {{ user.email }}<br>
     <a href="{% url 'account_email' %}">Update email</a><br>
-    <a href="{% url 'account_change_password' %}">Change password</a><br>
+
     <hr>
     <h5>Company</h5> {{ user.profile.company }}
     <hr>
