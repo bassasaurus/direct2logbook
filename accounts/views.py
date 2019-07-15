@@ -4,14 +4,13 @@ from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect, reverse
 
 from django.contrib.auth import login, authenticate
-
-from accounts.forms import SignUpForm
+from django.contrib.auth.models import User
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView, UpdateView
 
 from accounts.models import Profile
-from accounts.forms import ProfileForm
+from accounts.forms import ProfileForm, UserForm
 
 from allauth.account.views import EmailView, PasswordSetView, PasswordChangeView, PasswordResetView, PasswordResetDoneView, PasswordResetFromKeyView, PasswordResetFromKeyDoneView
 from allauth.socialaccount.views import ConnectionsView
@@ -26,19 +25,6 @@ class UserObjectsMixin():
         user = self.request.user
         return super(UserObjectsMixin, self).get_queryset().filter(user=user)
 
-# def signup(request):
-#     if request.method == 'POST':
-#         form = SignUpForm(request.POST)
-#         if form.is_valid():
-#             form.save()
-#             username = form.cleaned_data.get('username')
-#             raw_password = form.cleaned_data.get('password1')
-#             user = authenticate(username=username, password=raw_password)
-#             login(request, user)
-#             return redirect('home')
-#     else:
-#         form = SignUpForm()
-#     return render(request, 'registration/signup.html', {'form': form})
 
 class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
     model = Profile
@@ -52,6 +38,25 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         context['parent_link'] = reverse('home')
         context['page_title'] = 'Profile'
         return context
+
+class UserUpdateView(UpdateView):
+
+    def get_context_data(self, **kwargs):
+        context = super(UserUpdateView, self).get_context_data(**kwargs)
+
+        user = self.request.user
+        pk = str(user.profile.pk)
+
+        context['title'] = "D-> | Update Profile"
+        context['parent_name'] = 'Profile'
+        context['parent_link'] = reverse('profile')
+        context['page_title'] = 'Update Name'
+        return context
+
+    model = User
+    form_class = UserForm
+    template_name = 'profile/user_update.html'
+    success_url = '/accounts/profile/'
 
 
 class ProfileUpdateView(UpdateView):

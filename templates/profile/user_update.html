@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+
+{% block content %}
+<form action="" method="post">{% csrf_token %}
+  <p>{{ form.first_name |attr:"placeholder:First Name" |add_class:"form-control" }}</p>
+
+  <p>{{ form.last_name |attr:"placeholder:Last Name" |add_class:"form-control" }}</p>
+<button class="btn-shadow btn-shadow-dark btn-block" type="submit">Submit</button>
+</form>
+{% endblock %}
