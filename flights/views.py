@@ -81,7 +81,6 @@ class AircraftAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView)
 
         if self.q:
             qs = qs.filter(aircraft_type__istartswith=self.q)
-
         return qs
 
 class TailNumberAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):

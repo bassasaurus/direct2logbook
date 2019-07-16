@@ -65,7 +65,7 @@ class TailNumberForm(forms.ModelForm):
         model = TailNumber
         fields = tailnumber_fields()
         widgets = {
-            'aircraft_type': autocomplete.ModelSelect2(url='aircraft-autocomplete', attrs={'data-placeholder': 'Aircraft*'}),
+            'aircraft_type': autocomplete.ModelSelect2(url='aircraft-autocomplete', attrs={'data-placeholder': 'Aircraft *'}),
             'is_121': forms.CheckboxInput(),
             'is_135': forms.CheckboxInput(),
             'is_91': forms.CheckboxInput(),
@@ -75,12 +75,3 @@ class TailNumberForm(forms.ModelForm):
             'is_135': '135',
             'is_91': '91',
         }
-
-# class ApproachForm(forms.ModelForm):
-#
-#     class Meta:
-#         model = Approach
-#         fields = ['approach_type', 'number']
-#
-# ApproachFormSet = inlineformset_factory(Flight, Approach,
-#                                             form=ApproachForm, extra=4)
