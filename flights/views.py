@@ -805,4 +805,9 @@ class IacraView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         else:
             context['rotorcraft_night_ldg_sic'] = round(night_ldg_sic.get('landings_night__sum'), 1)
 
+        context['title'] = "D-> | Iacra"
+        context['page_title'] = "Iacra"
+        context['parent_link'] = reverse('home')
+        context['parent_name'] = 'Home'
+
         return context
