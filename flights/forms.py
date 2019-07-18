@@ -65,7 +65,7 @@ class TailNumberForm(forms.ModelForm):
         model = TailNumber
         fields = tailnumber_fields()
         widgets = {
-            'aircraft_type': autocomplete.ModelSelect2(url='aircraft-autocomplete', attrs={'data-placeholder': 'Aircraft *'}),
+            'aircraft': autocomplete.ModelSelect2(url='aircraft-autocomplete', attrs={'data-placeholder': 'Aircraft *'}),
             'is_121': forms.CheckboxInput(),
             'is_135': forms.CheckboxInput(),
             'is_91': forms.CheckboxInput(),
