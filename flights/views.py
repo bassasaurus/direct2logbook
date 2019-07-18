@@ -228,9 +228,20 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         context['expiry_date'] = currency.medical_duration(user)[0]
         context['this_month'] = currency.medical_duration(user)[1]
 
-        context['aircraft'] = Aircraft.objects.filter(user=user).all()
-        context['tailnumber'] = TailNumber.objects.filter(user=user).all()
-        context['flight'] = Flight.objects.filter(user=user).all()
+        if len(Aircraft.objects.filter(user=user).all()) == 0:
+            context['new_user_aircraft'] = True
+        else:
+            context['new_user_aircraft'] = False
+
+        if len(TailNumber.objects.filter(user=user).all()) == 0:
+            context['new_user_tailnumber'] = True
+        else:
+            context['new_user_tailnumber'] = False
+
+        if len(Flight.objects.filter(user=user).all()) == 0:
+            context['new_user_flight'] = True
+        else:
+            context['new_user_flight'] = False
 
         context['totals'] = Total.objects.filter(user=user).exclude(total_time__lte=.1)
         context['stats'] = Stat.objects.filter(user=user)

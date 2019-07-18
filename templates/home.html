@@ -295,6 +295,10 @@
 
 
   {% include 'tablefixer.html' %}
+  {% if new_user_flight or new_user_aircraft or new_user_tailnumber is True %}
+      {% include 'new_user_modal.html' %}
+  {% else %}
+  {% endif %}
 
   <script>
     $('#pdf').click(function(e) {
