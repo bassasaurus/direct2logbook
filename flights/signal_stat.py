@@ -25,10 +25,13 @@ def no_flight_stat_delete(sender, instance, **kwargs):
 def no_aircraft_stat_delete(sender, instance, **kwargs):
 
     user = instance.user
-
-    kwargs = {'aircraft_type': instance.aircraft_type}
-    stat = Stat.objects.filter(user=user).get(**kwargs)
-    stat.delete()
+    try:
+        kwargs = {'aircraft_type': instance.aircraft_type}
+        stat = Stat.objects.filter(user=user).get(**kwargs)
+        stat.delete()
+        
+    except ObjectDoesNotExist:
+        pass
 
 @receiver(post_save, sender=Flight)
 @receiver(pre_delete, sender=Flight)

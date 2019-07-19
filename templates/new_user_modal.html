@@ -16,7 +16,7 @@
           <p>2. <a href="{% url 'tailnumber_create' %}">Then, assign a tailnumber to the new aircraft.</a></p><hr>
           <p>3. <a href="{% url 'flight_create' %}">Finally, log your first flight!</a></p>
 
-        {% elif new_user_flight and new_user_aircraft is True and new_user_tailnumber is False %}
+        {% elif new_user_flight or new_user_aircraft is True or new_user_tailnumber is False %}
           <p>2. <a href="{% url 'tailnumber_create' %}">Assign a tailnumber to the new aircraft.</a></p><hr>
           <p>3. <a href="{% url 'flight_create' %}">Finally, log your first flight!</a></p>
 
