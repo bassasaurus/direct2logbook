@@ -43,7 +43,7 @@ def duplicate_error(sender, instance, **kwargs):
 
     for code in route:
         if iata.count(code) > 1:
-            print(code, iata.count(code))
+            # print(code, iata.count(code))
             errors = errors + code +', '
             message = errors + " Duplicate in database"
         else:
