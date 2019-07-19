@@ -1,7 +1,4 @@
-<!-- Button trigger modal -->
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#myModal">
-  Launch demo modal
-</button>
+
 <!-- Modal -->
 <div class="modal fade" id="new_user_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
@@ -14,9 +11,19 @@
       </div>
       <div class="modal-body">
         <h2>Get started in 3 easy steps:</h2><hr>
-        {% if new_user_aircraft %}<p>1. <a href="{% url 'aircraft_create' %}">Start by entering a new aircraft type.</a></p><hr>{% endif %}
-        {% if new_user_tailnumber %}<p>2. <a href="{% url 'tailnumber_create' %}">Then, assign a tailnumber to the new aircraft.</a></p><hr>{% endif %}
-        {% if new_user_flight %}<p>3. <a href="{% url 'flight_create' %}">Finally, log your first flight!</a></p>{% endif %}
+        {% if new_user_flight and new_user_aircraft and new_user_tailnumber is True %}
+          <p>1. <a href="{% url 'aircraft_create' %}">Start by entering a new aircraft type.</a></p><hr>
+          <p>2. <a href="{% url 'tailnumber_create' %}">Then, assign a tailnumber to the new aircraft.</a></p><hr>
+          <p>3. <a href="{% url 'flight_create' %}">Finally, log your first flight!</a></p>
+
+        {% elif new_user_flight and new_user_aircraft is True and new_user_tailnumber is False %}
+          <p>2. <a href="{% url 'tailnumber_create' %}">Assign a tailnumber to the new aircraft.</a></p><hr>
+          <p>3. <a href="{% url 'flight_create' %}">Finally, log your first flight!</a></p>
+
+        {% elif new_user_flight is True and new_user_aircraft is False and new_user_tailnumber is False %}
+          <p>3. <a href="{% url 'flight_create' %}">Finally, log your first flight!</a></p>
+        {% else %}
+        {% endif %}
       </div>
       <div class="modal-footer">
         <p>
