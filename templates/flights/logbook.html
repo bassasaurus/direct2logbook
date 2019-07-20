@@ -23,7 +23,7 @@
             <th class="pl-3 text-right">Dual</th>
             <th class="pl-3 text-right">Solo</th>
             <th class="pl-3 text-right">Sim</th>
-            <th class="pl-3 text-left">Remarks</th>
+            <th class="pl-3 text-center">Remarks</th>
         </thead>
         <tbody>
 
@@ -64,7 +64,7 @@
                 <td class="text-right">{{flight.dual|iconbool}}</td>
                 <td class="text-right">{{flight.solo|iconbool}}</td>
                 <td class="text-right">{{flight.simulator|iconbool}}</td>
-                <td class="pl-3 text-left">{{flight.remarks|default:"-"}}</td>
+                <td class="pl-3 text-center">{{flight.remarks|default:"-"}}</td>
             </tr>
           {% endfor %}
         </tbody>
