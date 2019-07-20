@@ -1,0 +1,42 @@
+
+<!-- Modal -->
+<div class="modal fade" id="new_user_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Welcome to Direct2Logbook!</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <h2>Get started in 3 easy steps:</h2><hr>
+        {% if new_user_aircraft and new_user_flight and new_user_tailnumber is True %}
+          <p>1. <a href="{% url 'aircraft_create' %}">Start by entering a new aircraft type.</a></p><hr>
+          <p>2. <a href="{% url 'tailnumber_create' %}">Then, assign a tailnumber to the new aircraft.</a></p><hr>
+          <p>3. <a href="{% url 'flight_create' %}">Finally, log your first flight!</a></p>
+
+        {% elif new_user_aircraft is False and new_user_tailnumber is True and new_user_flight is True %}
+          <p class="text-secondary"><i class="material-icons">check</i> Start by entering a new aircraft type.</p><hr>
+          <p>2. <a href="{% url 'tailnumber_create' %}">Assign a tailnumber to the new aircraft.</a></p><hr>
+          <p>3. <a href="{% url 'flight_create' %}">Finally, log your first flight!</a></p>
+
+        {% elif new_user_flight is True and new_user_aircraft is False and new_user_tailnumber is False %}
+          <p class="text-secondary"><i class="material-icons">check</i> Start by entering a new aircraft type.</p><hr>
+          <p class="text-secondary"><i class="material-icons">check</i> Assign a tailnumber to the new aircraft.<p/><hr>
+          <p>3. <a href="{% url 'flight_create' %}">Finally, log your first flight!</a></p>
+        {% else %}
+        {% endif %}
+      </div>
+      <div class="modal-footer">
+        <p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+  $(document).ready(function(){
+    $("#new_user_modal").modal('show');
+  });
+</script>
