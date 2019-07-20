@@ -25,9 +25,9 @@
 
             {{ emailaddress.email }}
             {% if emailaddress.verified %}
-            <span class="verified">{% trans "Verified" %}</span>
+            <span class="verified">| {% trans "Verified" %} - </span>
             {% else %}
-            <span class="unverified">{% trans "Unverified" %}</span>
+            <span class="unverified">| {% trans "Unverified" %} - </span>
             {% endif %}
             {% if emailaddress.primary %}<span class="primary">{% trans "Primary" %}</span>{% endif %}
           </label>
