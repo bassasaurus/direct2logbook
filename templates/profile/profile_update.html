@@ -3,51 +3,54 @@
 
 {% block content %}
 
-<form action="" method="post">{% csrf_token %}
-  <h3>Update Profile</h3>
-  <hr>
-  <h5>{{ user.first_name }} {{ user.last_name}}</h5>
-  <hr>
-  <div>{{ form.company |attr:"placeholder:Company" |add_class:"form-control"}}</div>
-  <hr>
 
-      <h5>Medical Certificate</h5>
+    <form action="" method="post">{% csrf_token %}
 
-      {{ form.date |attr:"placeholder:Date *" |add_class:"form-control"}}
+      <h3>Update Profile</h3>
+      <hr>
+      <h5>{{ user.first_name }} {{ user.last_name}}</h5>
+      <hr>
+      <div>{{ form.company |attr:"placeholder:Company" |add_class:"form-control"}}</div>
+      <hr>
+
+      <h5>Medical</h5>
+
+      {{ form.date |attr:"placeholder:Issue date *" |add_class:"form-control"}}
       <br>
-      {{ form.profile.user.first_name }}<br
-      <div class="row">
-        <div class="col-2">
-          <p>Class</p>
-        </div>
-        <div class="col-2">
-          <div class="form-check form-check-inline">
-            {{ form.first_class |attr:"id:id_first_class" |add_class:"form-check-input" }}
-            <label class="ml-2 form-check-label" for="id_first_class">1st</label>
-          </div>
-        </div>
-        <div class="col-2">
-          <div class="form-check form-check-inline">
-            {{ form.second_class |attr:"id:id_second_class" |add_class:"form-check-input" }}
-            <label class="ml-2 form-check-label" for="id_second_class">2nd</label>
-          </div>
-        </div>
-        <div class="col-2">
-          <div class="form-check form-check-inline">
-            {{ form.third_class |attr:"id:id_third_class" |add_class:"form-check-input" }}
-            <label class="ml-2 form-check-label" for="id_third_class">3rd</label>
-          </div>
-        </div>
-        <div class="col-2">
-          <div class="form-check form-check-inline">
-            {{ form.over_40 |attr:"id:id_over_40" |add_class:"form-check-input" }}
-            <label class="ml-2 form-check-label" for="id_over">40+</label>
-          </div>
+      {{ form.profile.user.first_name }}<br <div class="row">
+      <div class="col-2">
+        <p>Class</p>
+      </div>
+      <div class="col-2">
+        <div class="form-check form-check-inline">
+          {{ form.first_class |attr:"id:id_first_class" |add_class:"form-check-input" }}
+          <label class="ml-2 form-check-label" for="id_first_class">1st</label>
         </div>
       </div>
-      <hr>
-      <button class="btn-shadow btn-shadow-dark btn-block" type="submit">Submit</button>
-</form>
+      <div class="col-2">
+        <div class="form-check form-check-inline">
+          {{ form.second_class |attr:"id:id_second_class" |add_class:"form-check-input" }}
+          <label class="ml-2 form-check-label" for="id_second_class">2nd</label>
+        </div>
+      </div>
+      <div class="col-2">
+        <div class="form-check form-check-inline">
+          {{ form.third_class |attr:"id:id_third_class" |add_class:"form-check-input" }}
+          <label class="ml-2 form-check-label" for="id_third_class">3rd</label>
+        </div>
+      </div>
+      <div class="col-2">
+        <div class="form-check form-check-inline">
+          {{ form.over_40 |attr:"id:id_over_40" |add_class:"form-check-input" }}
+          <label class="ml-2 form-check-label" for="id_over">40+</label>
+        </div>
+      </div>
+  </div>
+  <hr><br>
+  <button class="btn-shadow btn-shadow-dark btn-block" type="submit">Submit</button>
+  </form>
+
+
 
 {% include 'profile/datepicker.html' %}
 {% endblock %}
