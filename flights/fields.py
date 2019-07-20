@@ -4,7 +4,6 @@ def flight_fields():
 			'aircraft_type',
 			'registration',
 			'route',
-			'legs',
 			'duration',
 			'landings_day',
 			'landings_night',

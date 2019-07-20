@@ -200,7 +200,6 @@ class Flight(models.Model):
     aircraft_type = models.ForeignKey('Aircraft', default=None, null=True, blank=True, on_delete=models.SET_NULL)
     registration = models.ForeignKey('TailNumber', default=None, null=True, blank=True, on_delete=models.SET_NULL)
     route = models.CharField(max_length=50, )
-    legs = models.PositiveIntegerField(null=True)
     duration = models.DecimalField(decimal_places=1, max_digits=3, null=True, validators=[positive_validator])
     landings_day = models.PositiveIntegerField(null=True, blank=True, verbose_name="Day Ldg")
     landings_night = models.PositiveIntegerField(null=True, blank=True, verbose_name="Night Ldg")
