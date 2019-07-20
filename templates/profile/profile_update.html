@@ -10,12 +10,13 @@
       <hr>
       <h5>{{ user.first_name }} {{ user.last_name}}</h5>
       <hr>
+      <h5>Company</h5>
       <div>{{ form.company |attr:"placeholder:Company" |add_class:"form-control"}}</div>
       <hr>
 
       <h5>Medical</h5>
 
-      {{ form.date |attr:"placeholder:Issue date *" |add_class:"form-control"}}
+      <label>Issue Date</label>{{ form.date |attr:"placeholder:Issue date *" |add_class:"form-control"}}
       <br>
       {{ form.profile.user.first_name }}<br <div class="row">
       <div class="col-2">
