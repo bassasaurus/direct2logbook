@@ -17,10 +17,13 @@
           <p>3. <a href="{% url 'flight_create' %}">Finally, log your first flight!</a></p>
 
         {% elif new_user_aircraft is False and new_user_tailnumber is True and new_user_flight is True %}
+          <p class="text-secondary"><i class="material-icons">check</i> Start by entering a new aircraft type.</p><hr>
           <p>2. <a href="{% url 'tailnumber_create' %}">Assign a tailnumber to the new aircraft.</a></p><hr>
           <p>3. <a href="{% url 'flight_create' %}">Finally, log your first flight!</a></p>
 
         {% elif new_user_flight is True and new_user_aircraft is False and new_user_tailnumber is False %}
+          <p class="text-secondary"><i class="material-icons">check</i> Start by entering a new aircraft type.</p><hr>
+          <p class="text-secondary"><i class="material-icons">check</i> Assign a tailnumber to the new aircraft.<p/><hr>
           <p>3. <a href="{% url 'flight_create' %}">Finally, log your first flight!</a></p>
         {% else %}
         {% endif %}
