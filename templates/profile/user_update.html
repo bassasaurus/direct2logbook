@@ -2,13 +2,17 @@
 {% load widget_tweaks %}
 
 {% block content %}
-<form action="" method="post">{% csrf_token %}
-  <h3>Update Name</h3>
-  <hr>
-  <p>{{ form.first_name |attr:"placeholder:First Name" |add_class:"form-control" }}</p>
+<div class="row justify-content-center">
+  <div class="col-6">
+    <form action="" method="post">{% csrf_token %}
+      <h3>Update Name</h3>
+      <hr>
+      <p>{{ form.first_name |attr:"placeholder:First Name" |add_class:"form-control" }}</p>
 
-  <p>{{ form.last_name |attr:"placeholder:Last Name" |add_class:"form-control" }}</p>
-  <hr>
-<button class="btn-shadow btn-shadow-dark btn-block" type="submit">Submit</button>
-</form>
+      <p>{{ form.last_name |attr:"placeholder:Last Name" |add_class:"form-control" }}</p>
+      <hr>
+      <button class="btn-shadow btn-shadow-dark btn-block" type="submit">Submit</button>
+    </form>
+  </div>
+</div>
 {% endblock %}
