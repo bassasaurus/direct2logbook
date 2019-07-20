@@ -1,4 +1,5 @@
 {% extends "account/base.html" %}
+{% load widget_tweaks %}
 
 {% load i18n %}
 
@@ -12,11 +13,15 @@
 
 <form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
   {% csrf_token %}
-  {{ form.as_p }}
+  <p>{{ form.email |add_class:"form-control" }}</p>
+  <p>{{ form.email2 |add_class:"form-control" }}</p>
+  <p>{{ form.username |add_class:"form-control" }}</p>
+  <p>{{ form.password |add_class:"form-control" }}</p>
+  <p>{{ form.password2 |add_class:"form-control" }}</p>
   {% if redirect_field_value %}
   <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
   {% endif %}
-  <button class="btn-block btn-dark" type="submit">{% trans "Sign Up" %}</button>
+  <button class="btn-block btn-shadow btn-dark" type="submit">{% trans "Sign Up" %}</button>
 </form>
 
 {% endblock %}
