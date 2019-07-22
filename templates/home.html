@@ -228,18 +228,18 @@
       {% else %}
       <tr>
         <td>Approaches</td>
-        <td class="text-danger text-nowrap">No approaches in last 6 months</td>
+        <td class="text-danger text-nowrap">None in last 6 months</td>
       </tr>
       {% endif %}
       {% if not hold_quantity or hold_quantity == 0 %}
       <tr>
         <td>Holding</td>
-        <td class="text-danger text-nowrap">No holds in last 6 months</td>
+        <td class="text-danger text-nowrap">None in last 6 months</td>
       </tr>
       {% else %}
       <tr>
         <td>Holding</td>
-        <td class="text-success text-nowrap">{{ hold_quantity }}/1 - Holding current until {{ hold_current_date }}</td>
+        <td class="text-success text-nowrap">{{ hold_quantity }}/1 - Current until {{ hold_current_date }}</td>
       </tr>
       {% endif %}
     </table>
