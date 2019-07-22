@@ -14,11 +14,12 @@ def no_flight_stat_delete(sender, instance, **kwargs):
 
     aircraft_total_time = Flight.objects.filter(aircraft_type=aircraft_type).aggregate(Sum('duration'))
 
-    if not aircraft_total_time.get('duration__sum'):
-        kwargs = {'aircraft_type': instance.aircraft_type}
-        stat = Stat.objects.filter(user=user).get(**kwargs)
-        stat.delete()
-    else:
+    try:
+        if not aircraft_total_time.get('duration__sum'):
+            kwargs = {'aircraft_type': instance.aircraft_type}
+            stat = Stat.objects.filter(user=user).get(**kwargs)
+            stat.delete()
+    except ObjectDoesNotExist:
         pass
 
 @receiver(pre_delete, sender=Aircraft)
@@ -29,7 +30,7 @@ def no_aircraft_stat_delete(sender, instance, **kwargs):
         kwargs = {'aircraft_type': instance.aircraft_type}
         stat = Stat.objects.filter(user=user).get(**kwargs)
         stat.delete()
-        
+
     except ObjectDoesNotExist:
         pass
 
