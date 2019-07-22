@@ -313,7 +313,7 @@ def PDFView(request, user_id):
 
     # logbook starts here
 
-    flight_objects = Flight.objects.filter(user=user).order_by('date')
+    flight_objects = Flight.objects.filter(user=user).order_by('-date')
     # flight_objects = Flight.objects.filter(user=user).order_by('-date')[:200]
 
     logbook_data = []
