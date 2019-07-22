@@ -7,6 +7,10 @@ from django.db.models.functions import Length
 from django.db.models import CharField
 
 from django.db import transaction
+from django.contrib.admin.utils import NestedObjects
+from django.utils.text import capfirst
+from django.utils.encoding import force_text
+
 from django.forms import inlineformset_factory
 
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DetailView, DeleteView
@@ -30,6 +34,22 @@ import flights.currency as currency
 CharField.register_lookup(Length, 'length')
 
 zulu_time = datetime.datetime.now().strftime('%Y %b %d %H:%M') + " UTC"
+
+def get_deleted_objects(objs):
+    collector = NestedObjects(using='default')
+    collector.collect(objs)
+
+    def format_callback(obj):
+        opts = obj._meta
+        no_edit_link = '%s: %s' % (capfirst(opts.verbose_name),
+                                   force_text(obj))
+        return no_edit_link
+
+    to_delete = collector.nested(format_callback)[1:]
+    protected = [format_callback(obj) for obj in collector.protected]
+    model_count = {model._meta.verbose_name_plural: len(objs) for model, objs in collector.model_objs.items()}
+
+    return to_delete, model_count, protected
 
 def error_404(request):
         data = {}
@@ -605,6 +625,12 @@ class AircraftDelete(LoginRequiredMixin, UserObjectsMixin, DeleteView):
     def get_context_data(self, **kwargs):
         context = super(AircraftDelete, self).get_context_data(**kwargs)
 
+        deletable_objects, model_count, protected = get_deleted_objects([self.object])
+
+        context['deletable_objects'] = deletable_objects
+        context['model_count'] = dict(model_count).items()
+        context['protected'] = protected
+
         context['title'] = "D-> | " + str(self.object)
         context['page_title'] = "Delete " + str(self.object)
         context['home_link'] = reverse('home')
@@ -716,7 +742,7 @@ class TailNumberDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
             context['new_user_flight'] = True
         else:
             context['new_user_flight'] = False
-            
+
         context['title'] = "D-> | " + str(self.object)
         context['page_title'] = str(self.object)
         context['home_link'] = reverse('home')

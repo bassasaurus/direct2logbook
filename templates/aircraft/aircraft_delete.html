@@ -3,8 +3,13 @@
 
 <form action="" method="post">{% csrf_token %}
   <p>Are you sure you want to delete "{{ object }}"?</p>
-  <p>This cannot be undone and may affect entries in other data models. If you need to change it, please <a href="{% url 'aircraft_update' object.pk %}">update</a> the entry instead.</p>
-
+  <p>If you need to change it, please <a href="{% url 'aircraft_update' object.pk %}">update</a> the entry instead.</p>
+  <p>This cannot be undone and will delete the following entries.</p>
+    {% for object in deletable_objects %}
+      {% for item in object %}
+        <span class="text-danger">{{ item }}</span><br>
+      {% endfor %}
+    {% endfor %}
    <hr>
    <input id="delete-confirm" class="btn-shadow btn-shadow-danger btn-block" type="submit" value="Delete" />
 
