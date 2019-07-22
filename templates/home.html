@@ -3,11 +3,11 @@
 {% block content %}
 
 <div class="row flex-md-row">
-  <div class="col-4 flex-md-column" style="padding-top:10px;">
+  <div class="flex-md-column" style="padding-top:10px;">
     <h3><a class="text-dark link" style="text-decoration: underline;" href="{% url 'profile' %}"> {{ user.first_name }}&nbsp{{ user.last_name }}</a></h3>
     <br>
   </div>
-  <div class="col-8 flex-md-column">
+  <div class="flex-md-column">
     {% if not expiry_date %}
     <h5><a class="text-dark" style="text-decoration: underline;" href="{% url 'profile_update' user.profile.pk %}">Click here to enter your medical certificate info for an expiration date reminder</a></h5>
     {% else %}
