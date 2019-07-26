@@ -162,7 +162,7 @@ class Weight(models.Model):
 
 class Aircraft(models.Model):
     user = models.ForeignKey(User)
-    aircraft_type = models.CharField(db_index=True, max_length=10, unique=True)
+    aircraft_type = models.CharField(db_index=True, max_length=10)
     turbine = models.NullBooleanField()
     piston = models.NullBooleanField()
     requires_type = models.NullBooleanField()
@@ -189,6 +189,7 @@ class Aircraft(models.Model):
     class Meta:
         ordering = ['user', 'aircraft_type']
         verbose_name_plural = "Aircraft"
+        unique_together = ('user', 'aircraft_type')
 
     def __str__(self):
         aircraft_type = str(self.aircraft_type)
@@ -234,7 +235,7 @@ class Flight(models.Model):
 
 class TailNumber(models.Model):
     user = models.ForeignKey(User)
-    registration = models.CharField(db_index=True, max_length=10, unique=True)
+    registration = models.CharField(db_index=True, max_length=10)
     aircraft = models.ForeignKey('Aircraft', default=None)
     is_121 = models.NullBooleanField(null=True, blank=True)
     is_135 = models.NullBooleanField(null=True, blank=True)
@@ -245,6 +246,7 @@ class TailNumber(models.Model):
     class Meta:
         verbose_name_plural = "Tailnumbers"
         ordering =['user', 'aircraft', 'registration']
+        unique_together = ('user', 'registration')
 
     def __str__(self):
         registration = str(self.registration)

@@ -4,7 +4,13 @@
 
 <div class="flex-md-row">
   <div class="flex-md-column" style="padding-top:10px; padding-right:40px;">
-    <h3><a class="text-dark link" style="text-decoration: underline;" href="{% url 'profile' %}"> {{ user.first_name }}&nbsp{{ user.last_name }}</a></h3>
+    {% if user.first_name|length == 0 and user.last_name|length == 0 %}
+    <h3 class=""><a class="text-danger link" style="text-decoration: underline;" href="{% url 'profile' %}">Update Your Name</a></h3>
+
+    {% else %}
+    <h3><a class="text-nowrap text-dark link" style="text-decoration: underline;" href="{% url 'profile' %}"> {{ user.first_name }} {{ user.last_name }}</a></h3>
+
+    {% endif %}
     <br>
   </div>
   <div class="flex-md-column">
