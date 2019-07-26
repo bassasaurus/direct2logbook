@@ -1,7 +1,7 @@
 from flights.models import *
 from django.contrib.auth.models import User, Group
 
-from flights.forms import FlightForm, AircraftForm, TailNumberForm , HoldingFormSet, ApproachFormSet
+from flights.forms import FlightForm, AircraftForm, TailNumberForm , HoldingFormSet, ApproachFormSet, BulkEntryForm
 from django.db.models import Sum, Q, F
 from django.db.models.functions import Length
 from django.db.models import CharField
@@ -879,3 +879,25 @@ class IacraView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         context['parent_name'] = 'Home'
 
         return context
+
+class BulkEntryListView(LoginRequiredMixin, UserObjectsMixin, ListView):
+    model = BulkEntry
+    template_name = 'bulk_entry/bulk_entry_list.html'
+
+class BulkEntryCreateView(LoginRequiredMixin, UserObjectsMixin, CreateView):
+    model = BulkEntry
+    template_name = 'bulk_entry/bulk_entry_create.html'
+    form_class = BulkEntryForm
+
+class BulkEntryUpdateView(LoginRequiredMixin, UserObjectsMixin, UpdateView):
+    model = BulkEntry
+    template_name = 'bulk_entry/bulk_entry_update.html'
+    form_class = BulkEntryForm
+
+class BulkEntryDeleteView(LoginRequiredMixin, UserObjectsMixin, DeleteView):
+    model = BulkEntry
+    template_name = 'bulk_entry/bulk_entry_delete.html'
+
+class BulkEntryDetailView(LoginRequiredMixin, UserObjectsMixin, DetailView):
+    model = BulkEntry
+    template_name = 'bulk_entry/bulk_entry_detail.html'

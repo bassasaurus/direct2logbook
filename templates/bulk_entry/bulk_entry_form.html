@@ -1,0 +1,119 @@
+{% load widget_tweaks %}
+
+<div class="form-group">
+  <div class="input-group-sm">
+    <label class="control-label text-muted" for="id_aircraft_type">Aircraft Type</label>
+    {{ form.aircraft_type.errors }}
+    {{ form.aircraft_type }}
+  </div>
+  <div class="input-group-sm">
+    <label class="control-label text-muted" for="id_total_time">Total Time</label>
+    {{ form.total_time.errors }}
+    {{ form.total_time |add_class:"form-control" }}
+  </div>
+  <div class="input-group-sm">
+    <label class="text-muted">Pilot in Command</label>
+    {{ form.pilot_in_command.errors }}
+    {{ form.pilot_in_command |add_class:"form-control" }}
+  </div>
+  <div class="input-group-sm">
+    <label class="control-label text-muted">Second in Command</label>
+    {{ form.second_in_command.errors }}
+    {{ form.second_in_command |add_class:"form-control" }}
+  </div>
+  <div class="input-group-sm">
+    <label class="control-label text-muted">Cross Country</label>
+    {{ form.cross_country.errors }}
+    {{ form.cross_country |add_class:"form-control" }}
+  </div>
+  <div class="input-group-sm">
+    <label class="control-label text-muted">Instructor</label>
+    {{ form.instructor.errors }}
+    {{ form.instructor |add_class:"form-control" }}
+  </div>
+  <div class="input-group-sm">
+    <label class="control-label text-muted">Dual</label>
+    {{ form.dual.errors }}
+    {{ form.dual |add_class:"form-control" }}
+  </div>
+  <div class="input-group-sm">
+    <label class="control-label text-muted">Solo</label>
+    {{ form.solo.errors }}
+    {{ form.solo |add_class:"form-control" }}
+  </div>
+  <div class="input-group-sm">
+    <label class="control-label text-muted">Instrument</label>
+    {{ form.instrument.errors }}
+    {{ form.instrument |add_class:"form-control" }}
+  </div>
+  <div class="input-group-sm">
+    <label class="control-label text-muted">Night</label>
+    {{ form.night.errors }}
+    {{ form.night |add_class:"form-control" }}
+  </div>
+  <div class="input-group-sm">
+    <label class="control-label text-muted">Simulated Instrument</label>
+    {{ form.simulated_instrument.errors }}
+    {{ form.simulated_instrument |add_class:"form-control" }}
+  </div>
+  <div class="input-group-sm">
+    <label class="control-label text-muted">Simulator</label>
+    {{ form.simulator.errors }}
+    {{ form.simulator |add_class:"form-control" }}
+  </div>
+  <div class="input-group-sm">
+    <label class="control-label text-muted">Day Landings</label>
+    {{ form.landings_day.errors }}
+    {{ form.landings_day |add_class:"form-control" }}
+  </div>
+  <div class="input-group-sm">
+    <label class="control-label text-muted">Night Landings</label>
+    {{ form.landings_night.errors }}
+    {{ form.landings_night |add_class:"form-control" }}
+  </div>
+  <div class="input-group-sm">
+    <label class="control-label text-muted">Total Landings</label>
+    {{ form.landings_total.errors }}
+    {{ form.landings_total |add_class:"form-control" }}
+  </div>
+  <div class="input-group-sm">
+    <label class="control-label text-muted">Last Flown</label>
+    {{ form.last_flown.errors }}
+    {{ form.last_flown |attr:"id:date" |attr:"autocomplete:off" |attr:"placeholder:Date *" |add_class:"form-control"}}
+  </div>
+  <div class="input-group-sm">
+    <label class="control-label text-muted">Last 30 days</label>
+    {{ form.last_30.errors }}
+    {{ form.last_30 |add_class:"form-control" }}
+  </div>
+  <div class="input-group-sm">
+    <label class="control-label text-muted">Last 60 days</label>
+    {{ form.last_60.errors }}
+    {{ form.last_60 |add_class:"form-control" }}
+  </div>
+  <div class="input-group-sm">
+    <label class="control-label text-muted">Last 90 days</label>
+    {{ form.last_90.errors |add_class:"form-control"}}
+    {{ form.last_90 |add_class:"form-control" }}
+  </div>
+  <div class="input-group-sm">
+    <label class="control-label text-muted">Last 6 months</label>
+    {{ form.last_180.errors }}
+    {{ form.last_180 |add_class:"form-control" }}
+  </div>
+  <div class="input-group-sm">
+    <label class="control-label text-muted">Last year</label>
+    {{ form.last_yr.errors }}
+    {{ form.last_yr |add_class:"form-control" }}
+  </div>
+  <div class="input-group-sm">
+    <label class="control-label text-muted">Last 2 years</label>
+    {{ form.last_2yr.errors }}
+    {{ form.last_2yr |add_class:"form-control" }}
+  </div>
+  <div class="input-group-sm">
+    <label class="control-label text-muted">Year to date</label>
+    {{ form.ytd.errors }}
+    {{ form.ytd |add_class:"form-control" }}
+  </div>
+</div>

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="row justify-content-center">
+  <div class="col-12">
+    <form action="" class="" method="post">
+      {% csrf_token %}
+        <div class="form-group">
+          <h4>Update Bulk Entry for {{ obj.aircraft_type }}</h4>
+          <p>Required *</p>
+          {{ form.non_field_errors }}
+        </div>
+        <hr>
+          {% include 'bulk_entry/bulk_entry_form.html' %}
+        <hr>
+      <button class="btn-shadow btn-shadow-dark btn-block" type="submit">Submit</button>
+    </form>
+  </div>
+</div>
+
+{% include 'flights/datepicker.html' %}
+{{ form.media }}
+{% endblock %}

@@ -120,14 +120,14 @@
 </div>
 <hr>
 <div class="form-group">
-  <div class="input-group-sm">
+  <div class="input-group">
     <p class="text-danger">{{ inlines.non_form_errors }}</p>
       {{ holding.management_form }}
         {% for form in holding %}
           {{ form.id }}
             <div class="row">
-              <div class="col-1 align-bottom text-muted">Holding</div>
-              <div class="col-1 align-bottom"> {{ form.hold |add_class:"form-control exclcb" }}</div>
+              <div class="col-1 align-bottom text-muted">Holding {{ form.hold |add_class:"" }}</div>
+
             </div>
         {% endfor %}
     </div>

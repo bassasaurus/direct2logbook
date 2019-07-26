@@ -51,3 +51,30 @@ def tailnumber_fields():
 			'is_135',
 			'is_91',
 			]
+
+def bulk_entry_fields():
+	return[
+			'aircraft_type',
+			'total_time',
+			'pilot_in_command',
+			'second_in_command',
+			'cross_country',
+			'instructor',
+			'dual',
+			'solo',
+			'instrument',
+			'night',
+			'simulated_instrument',
+			'simulator',
+			'landings_day',
+			'landings_night',
+			'landings_total',
+			'last_flown',
+			'last_30',
+			'last_60',
+			'last_90',
+			'last_180',
+			'last_yr',
+			'last_2yr',
+			'ytd'
+	]
