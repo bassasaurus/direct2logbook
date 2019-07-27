@@ -54,7 +54,6 @@ def tailnumber_fields():
 
 def bulk_entry_fields():
 	return[
-			'aircraft_type',
 			'total_time',
 			'pilot_in_command',
 			'second_in_command',

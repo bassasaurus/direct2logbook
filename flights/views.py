@@ -888,19 +888,19 @@ class BulkEntryListView(LoginRequiredMixin, UserObjectsMixin, ListView):
 class BulkEntryCreateView(LoginRequiredMixin, UserObjectsMixin, CreateView):
     model = BulkEntry
     template_name = 'bulk_entry/bulk_entry_create.html'
-    form_class = BulkEntryForm
     success_url = '/bulk_entry/'
-
-    def form_valid(self, form):
-        object = form.save(commit=False)
-        object.user = self.request.user
-        object.save()
-        return super(BulkEntryCreateView, self).form_valid(form)
+    # form_class = BulkEntryForm
+    #
+    # def form_valid(self, form):
+    #     object = form.save(commit=False)
+    #     object.user = self.request.user
+    #     object.save()
+    #     return super(BulkEntryCreateView, self).form_valid(form)
 
 class BulkEntryUpdateView(LoginRequiredMixin, UserObjectsMixin, UpdateView):
     model = BulkEntry
     template_name = 'bulk_entry/bulk_entry_update.html'
-    form_class = BulkEntryForm
+    # form_class = BulkEntryForm
 
 class BulkEntryDeleteView(LoginRequiredMixin, UserObjectsMixin, DeleteView):
     model = BulkEntry
