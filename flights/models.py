@@ -310,7 +310,8 @@ class AircraftClass(models.Model):
 
 class BulkEntry(models.Model):
     user = models.ForeignKey(User)
-    
+    aircraft_category = models.ForeignKey('AircraftCategory', default=None)
+    aircraft_class = models.ForeignKey('AircraftClass', default=None)
     total_time = models.DecimalField(decimal_places=1, max_digits=6, db_index=True, null=True, blank=True, default=0, verbose_name="Time")
     pilot_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="PIC")
     second_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="SIC")
