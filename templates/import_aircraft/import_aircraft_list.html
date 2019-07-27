@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+{% for entry in import_aircraft %}
+  <a href="{% url 'import_aircraft_detail' entry.pk %}">{{ entry }}</a>
+{% endfor %}
+{% endblock %}

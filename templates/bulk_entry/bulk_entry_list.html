@@ -1,7 +1,0 @@
-{% extends 'base.html' %}
-{% load static %}
-{% block content %}
-{% for entry in bulk_entry %}
-  <a href="{% url 'bulk_entry_detail' entry.pk %}">{{ entry }}</a>
-{% endfor %}
-{% endblock %}

@@ -335,3 +335,7 @@ class BulkEntry(models.Model):
     last_yr = models.DecimalField(decimal_places=1, max_digits=6, null=True, blank=True, verbose_name='12mo')
     last_2yr = models.DecimalField(decimal_places=1, max_digits=6, null=True, blank=True, verbose_name='24')
     ytd = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, verbose_name='YDT')
+
+    def __str__(self):
+        title = str(self.aircraft_type)
+        return title
