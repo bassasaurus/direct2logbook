@@ -922,13 +922,45 @@ class ImportAircraftUpdateView(LoginRequiredMixin, UserObjectsMixin, UpdateView)
     template_name = 'import_aircraft/import_aircraft_update.html'
     form_class = ImportAircraftForm
 
+    def get_context_data(self, **kwargs):
+        context = super(ImportAircraftUpdateView, self).get_context_data(**kwargs)
+
+        context['title'] = "D-> | New Import Aircraft "
+        context['page_title'] = "New Import Aircraft "
+        context['home_link'] = reverse('home')
+        context['parent_link'] = reverse('import_aircraft_list')
+        context['parent_name'] = 'Import Aircraft'
+        return context
+
 class ImportAircraftDeleteView(LoginRequiredMixin, UserObjectsMixin, DeleteView):
     model = BulkEntry
     template_name = 'import_aircraft/import_aircraft_delete.html'
+    success_url = '/import_aircraft/'
+
+    def get_context_data(self, **kwargs):
+        context = super(ImportAircraftDeleteView, self).get_context_data(**kwargs)
+
+        context['title'] = "D-> | New Import Aircraft "
+        context['page_title'] = "New Import Aircraft "
+        context['home_link'] = reverse('home')
+        context['parent_link'] = reverse('import_aircraft_list')
+        context['parent_name'] = 'Import Aircraft'
+        return context
 
 class ImportAircraftDetailView(LoginRequiredMixin, UserObjectsMixin, DetailView):
     model = BulkEntry
     template_name = 'import_aircraft/import_aircraft_detail.html'
+    context_object_name = 'import_aircraft'
+
+    def get_context_data(self, **kwargs):
+        context = super(ImportAircraftDetailView, self).get_context_data(**kwargs)
+
+        context['title'] = "D-> | New Import Aircraft "
+        context['page_title'] = "New Import Aircraft "
+        context['home_link'] = reverse('home')
+        context['parent_link'] = reverse('import_aircraft_list')
+        context['parent_name'] = 'Import Aircraft'
+        return context
 
     # def get_context_data(self, **kwargs):
     #     context = super(BulkEntryDetailView, self).get_context_data(**kwargs)
