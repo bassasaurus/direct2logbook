@@ -60,7 +60,7 @@ class PowerAdmin(admin.ModelAdmin):
     list_display = ('user', 'role', 'turbine', 'piston')
 
 class BulkEntryAdmin(admin.ModelAdmin):
-    list_display = ['user', 'total_time', 'pilot_in_command', 'second_in_command', 'cross_country', 'instructor', 'dual', 'solo', 'instrument', 'night', 'simulated_instrument', 'simulator', 'landings_day', 'landings_night', 'landings_total', 'last_flown', 'last_30', 'last_60', 'last_90', 'last_yr', 'last_2yr', 'ytd']
+    list_display = ['user', 'aircraft_type', 'aircraft_category', 'aircraft_class', 'total_time', 'pilot_in_command', 'second_in_command', 'cross_country', 'instructor', 'dual', 'solo', 'instrument', 'night', 'simulated_instrument', 'simulator', 'landings_day', 'landings_night', 'landings_total', 'last_flown', 'last_30', 'last_60', 'last_90', 'last_yr', 'last_2yr', 'ytd']
 
 admin.site.register(Flight, FlightAdmin)
 admin.site.register(Aircraft, AircraftAdmin)
