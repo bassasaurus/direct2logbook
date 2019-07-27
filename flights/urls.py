@@ -38,11 +38,11 @@ urlpatterns = [
     url(r'^aircraft/detail/(?P<pk>\d+)/$', AircraftDetail.as_view(), name='aircraft_detail'),
     url(r'^aircraft/delete/(?P<pk>\d+)/$', AircraftDelete.as_view(), name='aircraft_delete'),
 
-    url(r'^bulk_entry/$', BulkEntryListView.as_view(), name='bulk_entry_list'),
-    url(r'^bulk_entry/create/$', BulkEntryCreateView.as_view(), name='bulk_entry_create'),
-    url(r'^bulk_entry/update/(?P<pk>\d+)/$', BulkEntryUpdateView.as_view(), name='bulk_entry_update'),
-    url(r'^bulk_entry/delete/(?P<pk>\d+)/$', BulkEntryDeleteView.as_view(), name='bulk_entry_delete'),
-    url(r'^bulk_entry/detail/(?P<pk>\d+)/$', BulkEntryDetailView.as_view(), name='bulk_entry_detail'),
+    url(r'^import_aircraft/$', ImportAircraftListView.as_view(), name='import_aircraft_list'),
+    url(r'^import_aircraft/create/$', ImportAircraftCreateView.as_view(), name='import_aircraft_create'),
+    url(r'^import_aircraft/update/(?P<pk>\d+)/$', ImportAircraftUpdateView.as_view(), name='import_aircraft_update'),
+    url(r'^import_aircraft/delete/(?P<pk>\d+)/$', ImportAircraftDeleteView.as_view(), name='import_aircraft_delete'),
+    url(r'^import_aircraft/detail/(?P<pk>\d+)/$', ImportAircraftDetailView.as_view(), name='import_aircraft_detail'),
 
     # url(r'^approaches/$', ApproachList.as_view(), name='approach_list'),
     # url(r'^approaches/create/$', ApproachCreate.as_view(), name='approach_create'),

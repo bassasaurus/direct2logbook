@@ -52,9 +52,11 @@ def tailnumber_fields():
 			'is_91',
 			]
 
-def bulk_entry_fields():
+def import_aircraft_fields():
 	return[
 			'aircraft_type',
+			'aircraft_category',
+			'aircraft_class',
 			'total_time',
 			'pilot_in_command',
 			'second_in_command',

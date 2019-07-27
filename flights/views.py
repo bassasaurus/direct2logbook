@@ -1,7 +1,7 @@
 from flights.models import *
 from django.contrib.auth.models import User, Group
 
-from flights.forms import FlightForm, AircraftForm, TailNumberForm , HoldingFormSet, ApproachFormSet, BulkEntryForm
+from flights.forms import FlightForm, AircraftForm, TailNumberForm , HoldingFormSet, ApproachFormSet, ImportAircraftForm
 from django.db.models import Sum, Q, F
 from django.db.models.functions import Length
 from django.db.models import CharField
@@ -880,32 +880,94 @@ class IacraView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
 
         return context
 
-class BulkEntryListView(LoginRequiredMixin, UserObjectsMixin, ListView):
+class ImportAircraftListView(LoginRequiredMixin, UserObjectsMixin, ListView):
     model = BulkEntry
-    template_name = 'bulk_entry/bulk_entry_list.html'
-    context_object_name = 'bulk_entry'
+    template_name = 'import_aircraft/import_aircraft_list.html'
+    context_object_name = 'import_aircraft'
 
-class BulkEntryCreateView(LoginRequiredMixin, UserObjectsMixin, CreateView):
+    def get_context_data(self, **kwargs):
+        context = super(ImportAircraftListView, self).get_context_data(**kwargs)
+
+        context['title'] = "D-> | Import Aircraft "
+        context['page_title'] = "Import Aircraft "
+        context['home_link'] = reverse('home')
+        context['parent_link'] = reverse('flight_list')
+        context['parent_name'] = 'Logbook'
+        return context
+
+class ImportAircraftCreateView(LoginRequiredMixin, UserObjectsMixin, CreateView):
     model = BulkEntry
-    template_name = 'bulk_entry/bulk_entry_create.html'
-    form_class = BulkEntryForm
-    success_url = '/bulk_entry/'
+    template_name = 'import_aircraft/import_aircraft_create.html'
+    success_url = '/import_aircraft/'
+    form_class = ImportAircraftForm
 
     def form_valid(self, form):
         object = form.save(commit=False)
         object.user = self.request.user
         object.save()
-        return super(BulkEntryCreateView, self).form_valid(form)
+        return super(ImportAircraftCreateView, self).form_valid(form)
 
-class BulkEntryUpdateView(LoginRequiredMixin, UserObjectsMixin, UpdateView):
-    model = BulkEntry
-    template_name = 'bulk_entry/bulk_entry_update.html'
-    form_class = BulkEntryForm
+    def get_context_data(self, **kwargs):
+        context = super(ImportAircraftCreateView, self).get_context_data(**kwargs)
 
-class BulkEntryDeleteView(LoginRequiredMixin, UserObjectsMixin, DeleteView):
-    model = BulkEntry
-    template_name = 'bulk_entry/bulk_entry_delete.html'
+        context['title'] = "D-> | New Import Aircraft "
+        context['page_title'] = "New Import Aircraft "
+        context['home_link'] = reverse('home')
+        context['parent_link'] = reverse('import_aircraft_list')
+        context['parent_name'] = 'Import Aircraft'
+        return context
 
-class BulkEntryDetailView(LoginRequiredMixin, UserObjectsMixin, DetailView):
+class ImportAircraftUpdateView(LoginRequiredMixin, UserObjectsMixin, UpdateView):
     model = BulkEntry
-    template_name = 'bulk_entry/bulk_entry_detail.html'
+    template_name = 'import_aircraft/import_aircraft_update.html'
+    form_class = ImportAircraftForm
+
+    def get_context_data(self, **kwargs):
+        context = super(ImportAircraftUpdateView, self).get_context_data(**kwargs)
+
+        context['title'] = "D-> | New Import Aircraft "
+        context['page_title'] = "New Import Aircraft "
+        context['home_link'] = reverse('home')
+        context['parent_link'] = reverse('import_aircraft_list')
+        context['parent_name'] = 'Import Aircraft'
+        return context
+
+class ImportAircraftDeleteView(LoginRequiredMixin, UserObjectsMixin, DeleteView):
+    model = BulkEntry
+    template_name = 'import_aircraft/import_aircraft_delete.html'
+    success_url = '/import_aircraft/'
+
+    def get_context_data(self, **kwargs):
+        context = super(ImportAircraftDeleteView, self).get_context_data(**kwargs)
+
+        context['title'] = "D-> | New Import Aircraft "
+        context['page_title'] = "New Import Aircraft "
+        context['home_link'] = reverse('home')
+        context['parent_link'] = reverse('import_aircraft_list')
+        context['parent_name'] = 'Import Aircraft'
+        return context
+
+class ImportAircraftDetailView(LoginRequiredMixin, UserObjectsMixin, DetailView):
+    model = BulkEntry
+    template_name = 'import_aircraft/import_aircraft_detail.html'
+    context_object_name = 'import_aircraft'
+
+    def get_context_data(self, **kwargs):
+        context = super(ImportAircraftDetailView, self).get_context_data(**kwargs)
+
+        context['title'] = "D-> | New Import Aircraft "
+        context['page_title'] = "New Import Aircraft "
+        context['home_link'] = reverse('home')
+        context['parent_link'] = reverse('import_aircraft_list')
+        context['parent_name'] = 'Import Aircraft'
+        return context
+
+    # def get_context_data(self, **kwargs):
+    #     context = super(BulkEntryDetailView, self).get_context_data(**kwargs)
+    #
+    #     context['title'] = "D-> | str(self.object)
+    #     context['page_title'] = str(self.object)
+    #     context['home_link'] = reverse('home')
+    #     context['parent_link'] = reverse('bulk_entry_list')
+    #     context['parent_name'] = 'Bulk Entry'
+    #     return context

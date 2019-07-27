@@ -76,11 +76,8 @@ class TailNumberForm(forms.ModelForm):
             'is_91': '91',
         }
 
-class BulkEntryForm(forms.ModelForm):
+class ImportAircraftForm(forms.ModelForm):
 
     class Meta:
         model = BulkEntry
-        fields = bulk_entry_fields()
-        widgets = {
-            'aircraft_type': autocomplete.ModelSelect2(url='aircraft-autocomplete', attrs={'data-placeholder': 'Aircraft *'}),
-            }
+        fields = import_aircraft_fields()

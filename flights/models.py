@@ -310,7 +310,9 @@ class AircraftClass(models.Model):
 
 class BulkEntry(models.Model):
     user = models.ForeignKey(User)
-    aircraft_type = models.ForeignKey('Aircraft', default=None, on_delete=models.CASCADE)
+    aircraft_type = models.CharField(max_length=10, default=None)
+    aircraft_category = models.ForeignKey('AircraftCategory', default=None)
+    aircraft_class = models.ForeignKey('AircraftClass', default=None)
     total_time = models.DecimalField(decimal_places=1, max_digits=6, db_index=True, null=True, blank=True, default=0, verbose_name="Time")
     pilot_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="PIC")
     second_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="SIC")
@@ -333,3 +335,7 @@ class BulkEntry(models.Model):
     last_yr = models.DecimalField(decimal_places=1, max_digits=6, null=True, blank=True, verbose_name='12mo')
     last_2yr = models.DecimalField(decimal_places=1, max_digits=6, null=True, blank=True, verbose_name='24')
     ytd = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, verbose_name='YDT')
+
+    def __str__(self):
+        title = str(self.aircraft_type)
+        return title
