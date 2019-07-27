@@ -42,8 +42,8 @@ urlpatterns = [
     url(r'^bulk_entry/create/$', BulkEntryCreateView.as_view(), name='bulk_entry_create'),
     url(r'^bulk_entry/update/(?P<pk>\d+)/$', BulkEntryUpdateView.as_view(), name='bulk_entry_update'),
     url(r'^bulk_entry/delete/(?P<pk>\d+)/$', BulkEntryDeleteView.as_view(), name='bulk_entry_delete'),
-    url(r'^bulk_entry/detail/(?P<pk>\d+)/$', BulkEntryCreateView.as_view(), name='bulk_entry_detail'),
-    
+    url(r'^bulk_entry/detail/(?P<pk>\d+)/$', BulkEntryDetailView.as_view(), name='bulk_entry_detail'),
+
     # url(r'^approaches/$', ApproachList.as_view(), name='approach_list'),
     # url(r'^approaches/create/$', ApproachCreate.as_view(), name='approach_create'),
     # url(r'^approaches/update/(?P<pk>\d+)/$', ApproachUpdate.as_view(), name='approach_update'),
