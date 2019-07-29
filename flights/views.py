@@ -9,7 +9,6 @@ from django.db.models import CharField
 from django.db import transaction
 from django.contrib.admin.utils import NestedObjects
 from django.utils.text import capfirst
-from django.utils.encoding import force_text
 
 from django.forms import inlineformset_factory
 
