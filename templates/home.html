@@ -25,9 +25,11 @@
     {% endif %}
     {% endif %}
   </div>
+  <a id="pdf" href="{% url 'pdf' user.pk %}">Print Logbook</a>
 </div>
 
 <hr>
+{% if flight_errors or aircraft_errors or tailnumber_errors or aircraft_needs_tailnumber %}
 <div style="margin-top: 15px;" class="row flex-md-row">
   {% if flight_errors %}
   <div class="col flex-md-column">
@@ -45,9 +47,7 @@
     </table>
   </div>
   {% else %}
-  <div class="col flex-md-column">
-    <p class="text-success">No Flight Errors</p>
-  </div>
+
   {% endif %}
 
   {% if aircraft_errors %}
@@ -66,9 +66,7 @@
     </table>
   </div>
   {% else %}
-  <div class="col flex-md-column">
-    <p class="text-success">No Aircraft Errors</p>
-  </div>
+
   {% endif %}
 
   {% if tailnumber_errors or aircraft_needs_tailnumber %}
@@ -91,11 +89,11 @@
     </table>
   </div>
   {% else %}
-  <div class="col flex-md-column">
-    <p class="text-success">No Registration Errors</p>
-  </div>
   {% endif %}
 </div>
+{% else %}
+<p class="text-success">No Errors</p>
+{% endif %}
 <hr>
 
 <div style="margin-top: 15px;" class="row flex-md-row">
