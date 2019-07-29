@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
+<hr>
 <form action="" class="form" id="delete-form" method="post">{% csrf_token %}
   <p>Are you sure you want to delete "{{ object }}"?</p>
   <p>This cannot be undone and may affect entries in other data models. If you need to change it, please <a href="{% url 'tailnumber_update' object.pk %}">update</a> the entry instead.</p>

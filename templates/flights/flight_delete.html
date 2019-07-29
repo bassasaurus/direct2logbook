@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 
-
+<hr>
 <h3>{{ flight.date }} | {{ flight.aircraft_type }} | {{ flight.registration }} | {{ flight.route }}</h3>
 <hr>
 <form  action="" method="post">{% csrf_token %}
