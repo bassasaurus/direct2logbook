@@ -28,12 +28,26 @@
 </div>
 
 <hr>
-<div class="row">
-  <div style="margin-top:10px;" class="col">
-    <!-- <button id="pdf" class="btn btn-outline-secondary">Print Logbook</button> -->
-    <a target="" id="pdf" class="btn btn-outline-secondary" href="{% url 'pdf' user.pk %}">Print Logbook</a>
-  </div>
-</div>
+<ul class="nav">
+  <li class="nav-item">
+    <a class="nav-link active" href="{% url 'flight_create' %}">New Flight</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link active" href="{% url 'flight_list' %}">Logbook</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link active" href="{% url 'flight_by_date' %}">Maps</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link active" href="{% url 'aircraft_list' %}">Aircraft</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link active" id="pdf" href="{% url 'pdf' user.pk %}">Print Logbook</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link active" id="pdf" href="{% url 'iacra' %}">IACRA / 8710 Format</a>
+  </li>
+</ul>
 <hr>
 
 <div style="margin-top: 15px;" class="row flex-md-row">
