@@ -117,13 +117,14 @@ class TailNumberAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetVie
 
         return qs
 
-class IndexView(TemplateView):
-    template_name='index.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(IndexView, self).get_context_data(**kwargs)
-        context['title'] = 'D-> | Direct2Logbook'
-        return context
+def index_view(request):
+    context = {
+        'title': 'D-> | Direct2Logbook'
+    }
+    if request.user.is_authenticated:
+        return redirect('home')
+    else:
+        return render(request, 'index.html', context)
 
 class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
     template_name='home.html'
@@ -960,13 +961,3 @@ class ImportAircraftDetailView(LoginRequiredMixin, UserObjectsMixin, DetailView)
         context['parent_link'] = reverse('import_aircraft_list')
         context['parent_name'] = 'Import Aircraft'
         return context
-
-    # def get_context_data(self, **kwargs):
-    #     context = super(BulkEntryDetailView, self).get_context_data(**kwargs)
-    #
-    #     context['title'] = "D-> | str(self.object)
-    #     context['page_title'] = str(self.object)
-    #     context['home_link'] = reverse('home')
-    #     context['parent_link'] = reverse('bulk_entry_list')
-    #     context['parent_name'] = 'Bulk Entry'
-    #     return context
