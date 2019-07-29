@@ -1,6 +1,21 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<ul class="nav">
+  <li class="nav-item">
+    <a class="nav-link active" href="{% url 'flight_create' %}">New Flight</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link active" href="{% url 'flight_list' %}">Logbook</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link active" href="{% url 'flight_by_date' %}">Maps</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link active" id="pdf" href="{% url 'pdf' user.pk %}">Print Logbook</a>
+  </li>
+</ul>
+<hr>
 
 <div class="flex-md-row">
   <div class="flex-md-column" style="padding-top:10px; padding-right:40px;">
@@ -27,27 +42,6 @@
   </div>
 </div>
 
-<hr>
-<ul class="nav">
-  <li class="nav-item">
-    <a class="nav-link active" href="{% url 'flight_create' %}">New Flight</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link active" href="{% url 'flight_list' %}">Logbook</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link active" href="{% url 'flight_by_date' %}">Maps</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link active" href="{% url 'aircraft_list' %}">Aircraft</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link active" id="pdf" href="{% url 'pdf' user.pk %}">Print Logbook</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link active" id="pdf" href="{% url 'iacra' %}">IACRA / 8710 Format</a>
-  </li>
-</ul>
 <hr>
 
 <div style="margin-top: 15px;" class="row flex-md-row">
