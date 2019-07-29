@@ -437,6 +437,7 @@ class FlightCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
         context['title'] = "D-> | New Flight"
         context['parent_name'] = 'Logbook'
         context['parent_link'] = reverse('flight_list')
+        context['home_link'] = reverse('home')
         context['page_title'] = "New Flight"
         return context
 
@@ -873,8 +874,8 @@ class IacraView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         else:
             context['rotorcraft_night_ldg_sic'] = round(night_ldg_sic.get('landings_night__sum'), 1)
 
-        context['title'] = "D-> | Iacra"
-        context['page_title'] = "Iacra"
+        context['title'] = "D-> | IACRA - 8710"
+        context['page_title'] = "IACRA - 8710"
         context['parent_link'] = reverse('home')
         context['parent_name'] = 'Home'
 
