@@ -14,6 +14,7 @@ from accounts.forms import ProfileForm, UserForm
 
 from allauth.account.views import EmailView, PasswordSetView, PasswordChangeView, PasswordResetView, PasswordResetDoneView, PasswordResetFromKeyView, PasswordResetFromKeyDoneView
 from allauth.socialaccount.views import ConnectionsView
+from decouple import config
 
 class LoginRequiredMixin(LoginRequiredMixin):
     login_url = '/accounts/login'
@@ -32,7 +33,9 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
-
+        user = self.request.user
+        context['user_email'] = str(user.email)
+        context['STRIPE_PUBLISHABLE_KEY'] = config('STRIPE_TEST_PUBLISHABLE_KEY')
         context['title'] = "D-> | Profile"
         context['parent_name'] = 'Home'
         context['parent_link'] = reverse('home')
