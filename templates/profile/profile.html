@@ -12,6 +12,16 @@
     <hr>
     Date Joined - {{ user.date_joined }}
     <hr>
+    <h5>Subscribe</h5>
+    <button class="btn btn-secondary" id="checkout-button-plan_FZhtfxftM44uHz" role="link">
+      Monthly
+    </button>
+    <span>- or -</span>
+    <button class="btn btn-secondary" id="checkout-button-plan_FaRGVsApeXu8bS" role="link">
+      Yearly
+    </button>
+
+    <hr>
     <h5>Email</h5> {{ user.email }}<br>
     <a href="{% url 'account_email' %}">Update email</a><br>
 
@@ -32,4 +42,82 @@
     <p><a class="btn-shadow btn-shadow-dark btn-block" href="{% url 'profile_update' user.profile.pk %}">Update Profile</a></p>
   </div>
 </div>
+
+<script src="https://js.stripe.com/v3/"></script>
+
+<!-- Load Stripe.js on your website. -->
+<script src="https://js.stripe.com/v3"></script>
+
+<!-- Create a button that your customers click to complete their purchase. Customize the styling to suit your branding. -->
+
+
+<div id="error-message"></div>
+
+<script>
+  var stripe = Stripe('pk_test_Z9KJ4TxX7nY9hcXA297CV7QK002fT3EcFo');
+
+  var checkoutButton = document.getElementById('checkout-button-plan_FZhtfxftM44uHz');
+  checkoutButton.addEventListener('click', function () {
+    // When the customer clicks on the button, redirect
+    // them to Checkout.
+    stripe.redirectToCheckout({
+      items: [{plan: 'plan_FZhtfxftM44uHz', quantity: 1}],
+
+      // Do not rely on the redirect to the successUrl for fulfilling
+      // purchases, customers may not always reach the success_url after
+      // a successful payment.
+      // Instead use one of the strategies described in
+      // https://stripe.com/docs/payments/checkout/fulfillment
+      successUrl: window.location.protocol + '//www.direct2logbook.com/payments/success',
+      cancelUrl: window.location.protocol + '//www.direct2logbook.com/payments/canceled',
+      customerEmail: '{{ user.email }}',
+    })
+    .then(function (result) {
+      if (result.error) {
+        // If `redirectToCheckout` fails due to a browser or network
+        // error, display the localized error message to your customer.
+        var displayError = document.getElementById('error-message');
+        displayError.textContent = result.error.message;
+      }
+    });
+  });
+</script>
+<!-- Load Stripe.js on your website. -->
+<script src="https://js.stripe.com/v3"></script>
+
+<!-- Create a button that your customers click to complete their purchase. Customize the styling to suit your branding. -->
+
+
+<div id="error-message"></div>
+
+<script>
+  var stripe = Stripe('pk_test_Z9KJ4TxX7nY9hcXA297CV7QK002fT3EcFo');
+
+  var checkoutButton = document.getElementById('checkout-button-plan_FaRGVsApeXu8bS');
+  checkoutButton.addEventListener('click', function () {
+    // When the customer clicks on the button, redirect
+    // them to Checkout.
+    stripe.redirectToCheckout({
+      items: [{plan: 'plan_FaRGVsApeXu8bS', quantity: 1}],
+
+      // Do not rely on the redirect to the successUrl for fulfilling
+      // purchases, customers may not always reach the success_url after
+      // a successful payment.
+      // Instead use one of the strategies described in
+      // https://stripe.com/docs/payments/checkout/fulfillment
+      successUrl: window.location.protocol + '//www.direct2logbook.com/payments/success',
+      cancelUrl: window.location.protocol + '//www.direct2logbook.com/payments/canceled',
+      customerEmail: '{{ user.email }}'
+    })
+    .then(function (result) {
+      if (result.error) {
+        // If `redirectToCheckout` fails due to a browser or network
+        // error, display the localized error message to your customer.
+        var displayError = document.getElementById('error-message');
+        displayError.textContent = result.error.message;
+      }
+    });
+  });
+</script>
+
 {% endblock %}

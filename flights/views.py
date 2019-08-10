@@ -51,16 +51,25 @@ def get_deleted_objects(objs):
     return to_delete, model_count, protected
 
 def error_404(request):
-        data = {}
-        return render(request,'error_404.html', data)
+        context = {
+        'title': '404',
+        'home_link': reverse('home')
+        }
+        return render(request,'error_404.html', context)
 
 def error_500(request):
-        data = {}
-        return render(request,'error_500.html', data)
+        context = {
+        'title': '500',
+        'home_link': reverse('home')
+        }
+        return render(request,'error_500.html', context)
 
 def error_403(request):
-        data = {}
-        return render(request,'error_403.html', data)
+        context = {
+        'title': '403',
+        'home_link': reverse('home')
+        }
+        return render(request,'error_403.html', context)
 
 class UserObjectsMixin():
 
