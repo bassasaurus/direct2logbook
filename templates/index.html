@@ -7,9 +7,9 @@
   <title>{{ title }}</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
+  <link href="https://fonts.googleapis.com/css?family=Lexend+Exa&display=swap" rel="stylesheet">
   <!-- Place favicon.ico and apple-touch-icon(s) in the root directory -->
-  <link rel="shortcut icon" href="theme/images/favicon.ico">
+  <link rel="shortcut icon" type="image/png" href="{% static 'theme/images/favicon.ico' %}"/>
 
   <!-- stylesheets -->
   <link rel="stylesheet" type="text/css" href="{% static 'theme/dist/theme.css' %}" />
@@ -47,11 +47,11 @@
   <div class="index-app-hero">
       <div class="container">
         <h2 class="customFadeInUp">
-          Direct2Logbook
+          <img class="img-fluid" width="600" src="{% static 'theme/images/D2LB_LOGO_White_horiz.png'%}"></img>
           <br>
         </h2>
         <p class="customFadeInUp">
-          <h5 class="text-white">No memory items, no limitations.</h5>
+          <h5 style="font-family: Lexend Exa;" class="text-white">No memory items, no limitations.</h5>
           <p class="text-white">OS independent online pilot's logbook.</p>
 
         </p>
