@@ -29,8 +29,8 @@ urlpatterns = [
     url(r'^', include('flights.urls')),
     url(r'^', include('pdf_output.urls')),
     url(r'^', include('payments.urls')),
-    url(r'^api/', include('api.urls')),
-    url(r'^api/docs/', include('rest_framework_docs.urls')),
+    # url(r'^api/', include('api.urls')),
+    # url(r'^api/docs/', include('rest_framework_docs.urls')),
     ]
 
 handler404 = error_404

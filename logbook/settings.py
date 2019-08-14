@@ -65,7 +65,7 @@ INSTALLED_APPS = [
     #installed
     'rest_framework',
     'rest_framework_docs',
-    'api',
+    # 'api',
     'django_extensions',
     'corsheaders',
     'debug_toolbar',
