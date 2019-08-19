@@ -224,7 +224,7 @@ class Flight(models.Model):
     crew_error = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
-        ordering = ['user', '-date']
+        ordering = ['pk', 'user', '-date']
         index_together = ['route', 'date', 'duration']
 
     def get_absolute_url(self):
