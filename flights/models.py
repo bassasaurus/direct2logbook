@@ -236,7 +236,7 @@ class Flight(models.Model):
 class TailNumber(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     registration = models.CharField(db_index=True, max_length=10)
-    aircraft = models.ForeignKey('Aircraft', default=None)
+    aircraft = models.ForeignKey('Aircraft', on_delete=models.CASCADE, default=None)
     is_121 = models.NullBooleanField(null=True, blank=True)
     is_135 = models.NullBooleanField(null=True, blank=True)
     is_91 = models.NullBooleanField(null=True, blank=True)
@@ -311,8 +311,8 @@ class AircraftClass(models.Model):
 class BulkEntry(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     aircraft_type = models.CharField(max_length=10, default=None)
-    aircraft_category = models.ForeignKey('AircraftCategory', default=None)
-    aircraft_class = models.ForeignKey('AircraftClass', default=None)
+    aircraft_category = models.ForeignKey('AircraftCategory', on_delete=models.CASCADE, default=None)
+    aircraft_class = models.ForeignKey('AircraftClass', on_delete=models.CASCADE, default=None)
     total_time = models.DecimalField(decimal_places=1, max_digits=6, db_index=True, null=True, blank=True, default=0, verbose_name="Time")
     pilot_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="PIC")
     second_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="SIC")

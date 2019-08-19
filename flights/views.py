@@ -50,7 +50,7 @@ def get_deleted_objects(objs):
 
     return to_delete, model_count, protected
 
-def error_404(request):
+def error_404(request, exception):
         context = {
         'title': '404',
         'home_link': reverse('home')
@@ -64,7 +64,7 @@ def error_500(request):
         }
         return render(request,'error_500.html', context)
 
-def error_403(request):
+def error_403(request, exception):
         context = {
         'title': '403',
         'home_link': reverse('home')
