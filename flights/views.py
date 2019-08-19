@@ -101,7 +101,7 @@ class AircraftAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView)
 
     def get_queryset(self):
         # Don't forget to filter out results depending on the visitor !
-        if not self.request.user.is_authenticated():
+        if not self.request.user.is_authenticated:
             return Aircraft.objects.none()
 
         user = self.request.user
@@ -115,7 +115,7 @@ class TailNumberAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetVie
 
     def get_queryset(self):
         # Don't forget to filter out results depending on the visitor !
-        if not self.request.user.is_authenticated():
+        if not self.request.user.is_authenticated:
             return TailNumber.objects.none()
 
         user = self.request.user
