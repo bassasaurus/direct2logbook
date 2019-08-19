@@ -10,14 +10,14 @@
 <div class="form-group">
   <div class="input-group-sm">
   {{ form.aircraft_type.errors }}
-  {{ form.aircraft_type |add_class:"form-control"}}
+  {{ form.aircraft_type }}
   <div><a target="new" href="{% url 'aircraft_create' %}"> New Aircraft</a></div>
 </div>
 </div>
   <div class="form-group">
   <div class="input-group-sm">
     {{ form.registration.errors }}
-    {{ form.registration |add_class:"form-control"}}
+    {{ form.registration }}
     <div><a target="new" href="{% url 'tailnumber_create' %}"> New Tailnumber</a></div>
   </div>
 </div>
