@@ -42,7 +42,7 @@ class MapData(models.Model):
         index_together = ['iata', 'icao']
 
 class Stat(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     aircraft_type = models.CharField(max_length=10)
     total_time = models.DecimalField(decimal_places=1, max_digits=6,null=False, blank=True, default=0, verbose_name="Time")
     pilot_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="PIC")
@@ -75,7 +75,7 @@ class Stat(models.Model):
         return title
 
 class Total(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     total = models.CharField(max_length=20, default='')
     total_time = models.DecimalField(decimal_places=1, max_digits=6, db_index=True, null=True, blank=True, default=0, verbose_name="Time")
     pilot_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="PIC")
@@ -108,7 +108,7 @@ class Total(models.Model):
         return title
 
 class Power(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     role = models.CharField(db_index=True, max_length=5, default='')
     turbine = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0)
     piston = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0)
@@ -122,7 +122,7 @@ class Power(models.Model):
         return title
 
 class Regs(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     reg_type = models.CharField(db_index=True, max_length=5, default='')
     pilot_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="PIC")
     second_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="SIC")
@@ -136,7 +136,7 @@ class Regs(models.Model):
         return title
 
 class Endorsement(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     endorsement = models.CharField(max_length=30, default='')
     total = models.DecimalField(decimal_places=1, max_digits=6,db_index=True, null=True, blank=True, default=0)
 
@@ -148,7 +148,7 @@ class Endorsement(models.Model):
         return title
 
 class Weight(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     weight = models.CharField(max_length=20, default='')
     total = models.DecimalField(decimal_places=1, max_digits=6, null=True, blank=True, default=0)
 
@@ -161,7 +161,7 @@ class Weight(models.Model):
         return title
 
 class Aircraft(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     aircraft_type = models.CharField(db_index=True, max_length=10)
     turbine = models.NullBooleanField()
     piston = models.NullBooleanField()
@@ -170,8 +170,8 @@ class Aircraft(models.Model):
     simple = models.NullBooleanField()
     compleks = models.NullBooleanField(verbose_name='Complex')
     high_performance = models.NullBooleanField()
-    aircraft_category = models.ForeignKey('AircraftCategory', default=None)
-    aircraft_class = models.ForeignKey('AircraftClass', default=None)
+    aircraft_category = models.ForeignKey('AircraftCategory', on_delete=models.PROTECT, default=None)
+    aircraft_class = models.ForeignKey('AircraftClass', on_delete=models.PROTECT, default=None)
     superr = models.NullBooleanField(verbose_name = 'Super')
     heavy = models.NullBooleanField(verbose_name = 'Heavy >300k lbs')
     large = models.NullBooleanField(verbose_name = 'Large 41k-300k lbs')
@@ -196,7 +196,7 @@ class Aircraft(models.Model):
         return aircraft_type
 
 class Flight(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateField(db_index=True)
     aircraft_type = models.ForeignKey('Aircraft', default=None, on_delete=models.CASCADE)
     registration = models.ForeignKey('TailNumber', default=None, on_delete=models.CASCADE)
@@ -234,7 +234,7 @@ class Flight(models.Model):
         return "{} | {}".format(self.date, self.route)
 
 class TailNumber(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     registration = models.CharField(db_index=True, max_length=10)
     aircraft = models.ForeignKey('Aircraft', default=None)
     is_121 = models.NullBooleanField(null=True, blank=True)
@@ -309,7 +309,7 @@ class AircraftClass(models.Model):
         return self.aircraft_class
 
 class BulkEntry(models.Model):
-    user = models.ForeignKey(User)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     aircraft_type = models.CharField(max_length=10, default=None)
     aircraft_category = models.ForeignKey('AircraftCategory', default=None)
     aircraft_class = models.ForeignKey('AircraftClass', default=None)
