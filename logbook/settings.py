@@ -6,10 +6,11 @@ from decouple import config
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
-sentry_sdk.init(
-    dsn="https://e3f79fa21e484fe6b58a2e227a5bbce5@sentry.io/1515848",
-    integrations=[DjangoIntegration()]
-)
+if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS') is None:
+    sentry_sdk.init(
+        dsn="https://e3f79fa21e484fe6b58a2e227a5bbce5@sentry.io/1515848",
+        integrations=[DjangoIntegration()]
+    )
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -235,9 +236,6 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 20
 }
 
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' #disable/setup for production
-
-
 CACHES = {'default': {
         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
         'LOCATION': 'cache_table',
@@ -263,11 +261,14 @@ LOGGING = {
     },
 }
 
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' #disable/setup for production
+
 ANYMAIL = {
     # (exact settings here depend on your ESP...)
     "MAILGUN_API_KEY": config('MAILGUN_API_KEY'),
     "MAILGUN_SENDER_DOMAIN": 'mg.direct2logbook.com',  # your Mailgun domain, if needed
 }
+
 EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"  # or sendgrid.EmailBackend, or...
 DEFAULT_FROM_EMAIL = "no-reply@direct2logbook.com"  # if you don't already have this in settings
 
