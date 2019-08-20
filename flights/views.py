@@ -370,6 +370,9 @@ class FlightList(LoginRequiredMixin, UserObjectsMixin, ListView):
     template_name = "flight_list.html"
     paginate_by = 40
 
+    def get_queryset(self):
+        return Flight.objects.filter(user=self.request.user).order_by('-date')
+
     def get_context_data(self, **kwargs):
         context = super(FlightList, self).get_context_data(**kwargs)
 
@@ -507,8 +510,8 @@ class FlightDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
         user = self.request.user
         get_map_data(queryset, user)
 
-        flight = Flight.objects.get(pk=self.object.pk)
-        earliest = Flight.objects.earliest('date')
+        flight = Flight.objects.filter(user=user).get(pk=self.object.pk)
+        earliest = Flight.objects.filter(user=user).earliest('date')
         try:
             next_flight = flight.get_next_by_date()
         except ObjectDoesNotExist:
