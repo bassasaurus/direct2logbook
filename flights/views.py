@@ -505,19 +505,19 @@ class FlightDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(FlightDetail, self).get_context_data(**kwargs)
-
-        queryset = Flight.objects.filter(pk=self.object.pk)
         user = self.request.user
+        queryset = Flight.objects.filter(user=user).filter(pk=self.object.pk)
+
         get_map_data(queryset, user)
 
         flight = Flight.objects.filter(user=user).get(pk=self.object.pk)
         earliest = Flight.objects.filter(user=user).earliest('date')
         try:
-            next_flight = flight.get_next_by_date()
+            next_flight = flight.get_next_by_date(user=user)
         except ObjectDoesNotExist:
             next_flight = flight
         try:
-            previous_flight = flight.get_previous_by_date()
+            previous_flight = flight.get_previous_by_date(user=user)
         except ObjectDoesNotExist:
             previous_flight = earliest
 
