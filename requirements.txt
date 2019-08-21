@@ -1,6 +1,9 @@
+asn1crypto==0.24.0
 autopep8==1.4.4
 certifi==2019.3.9
+cffi==1.12.3
 chardet==3.0.4
+cryptography==2.7
 defusedxml==0.6.0
 Django==2.2.4
 django-allauth==0.39.1
@@ -19,11 +22,15 @@ djangorestframework==3.7.1
 drfdocs==0.0.11
 gunicorn==19.9.0
 idna==2.8
+jsonfield==2.0.2
 oauthlib==3.0.2
+paypalrestsdk==1.13.1
 Pillow==5.0.0
 psycopg2-binary==2.8.1
 pycodestyle==2.5.0
+pycparser==2.19
 pylibmc==1.6.0
+pyOpenSSL==19.0.0
 python-dateutil==2.8.0
 python-decouple==3.1
 python3-openid==3.1.0
