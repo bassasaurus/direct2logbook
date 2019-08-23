@@ -14,6 +14,10 @@
 <form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
   {% csrf_token %}
   {{ form.non_field_errors }}
+  <p>{{ form.first_name |add_class:"form-control" |attr:"placeholder:First Name"}}</p>
+  <p>{{ form.first_name.errors }}</p>
+  <p>{{ form.last_name |add_class:"form-control" |attr:"placeholder:Last Name"}}</p>
+  <p>{{ form.last_name.errors }}</p>
   <p>{{ form.email |add_class:"form-control" |attr:"placeholder:example@email.com"}}</p>
   <p>{{ form.email.errors }}</p>
   <p>{{ form.email2 |add_class:"form-control" |attr:"placeholder:email again" }}</p>
