@@ -10,11 +10,19 @@ from decouple import config
 def create_customer(sender, instance, created, **kwargs):
     name = '{} {}'.format(instance.first_name, instance.last_name )
 
+    user = instance.pk
+
+    profile = Profile.objects.get(user=user)
+
     stripe.api_key = config('STRIPE_TEST_SECRET_KEY')
 
-    api_response = stripe.Customer.create(
-        description=name,
+    response = stripe.Customer.create(
+        description="New Customer",
         name=name,
-        )
+        email=instance.email
+    )
 
-    print(api_response)
+    customer_id = response.id
+    print(customer_id)
+    profile.customer_id = customer_id
+    profile.save()

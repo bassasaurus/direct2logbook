@@ -12,7 +12,8 @@ def user_directory_path(instance, filename):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     company = models.CharField(max_length=50, default='')
-    
+    customer_id = models.CharField(max_length=50, blank=True)
+
     date = models.DateField(default=None, null=True)
     first_class = models.BooleanField(default=False)
     second_class = models.BooleanField(default=False)
