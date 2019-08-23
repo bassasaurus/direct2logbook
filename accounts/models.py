@@ -13,7 +13,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     company = models.CharField(max_length=50, default='')
 
-    date = models.DateField(default=None, null=True)
+    medical_issue_date = models.DateField(default=None, null=True)
     first_class = models.BooleanField(default=False)
     second_class = models.BooleanField(default=False)
     third_class = models.BooleanField(default=False)

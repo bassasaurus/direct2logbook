@@ -19,7 +19,7 @@ class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        fields = ('company', 'date', 'first_class', 'second_class', 'third_class', 'over_40')
+        fields = ('company', 'medical_issue_date', 'first_class', 'second_class', 'third_class', 'over_40')
 
 class UserForm(forms.ModelForm):
 
