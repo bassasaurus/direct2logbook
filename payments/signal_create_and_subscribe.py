@@ -5,6 +5,7 @@ from django.dispatch import receiver
 from accounts.models import Profile
 import stripe
 from decouple import config
+from datetime import date
 
 @receiver(post_save, sender=User)
 def create_customer(sender, instance, created, **kwargs):
@@ -16,13 +17,24 @@ def create_customer(sender, instance, created, **kwargs):
 
     stripe.api_key = config('STRIPE_TEST_SECRET_KEY')
 
-    response = stripe.Customer.create(
+    customer_response = stripe.Customer.create(
         description="New Customer",
         name=name,
         email=instance.email
     )
 
-    customer_id = response.id
-    print(customer_id)
+    customer_id = customer_response.id
+
+    subscription_response = stripe.Subscription.create(
+        customer=customer_id,
+        collection_method="send_invoice",
+        days_until_due=14,
+        trial_from_plan=True,
+        plan="plan_FZhtfxftM44uHz",
+        cancel_at_period_end=True,
+    )
+    timestamp = subscription_response.trial_end
+    print(subscription_response)
+    print(date.fromtimestamp(timestamp))
     profile.customer_id = customer_id
     profile.save()
