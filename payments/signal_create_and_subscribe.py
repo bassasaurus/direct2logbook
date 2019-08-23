@@ -33,8 +33,9 @@ def create_customer(sender, instance, created, **kwargs):
         plan="plan_FZhtfxftM44uHz",
         cancel_at_period_end=True,
     )
-    timestamp = subscription_response.trial_end
     print(subscription_response)
-    print(date.fromtimestamp(timestamp))
+
+    timestamp = subscription_response.trial_end
+    profile.trial_end = date.fromtimestamp(timestamp)
     profile.customer_id = customer_id
     profile.save()

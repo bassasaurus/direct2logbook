@@ -12,7 +12,6 @@ def user_directory_path(instance, filename):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     company = models.CharField(max_length=50, default='')
-    customer_id = models.CharField(max_length=50, blank=True)
 
     date = models.DateField(default=None, null=True)
     first_class = models.BooleanField(default=False)
@@ -20,6 +19,11 @@ class Profile(models.Model):
     third_class = models.BooleanField(default=False)
     over_40 = models.BooleanField(default=False)
     # signature = models.FileField(upload_to=user_directory_path, null=True, blank=True)
+
+    # stripe api response fields
+    customer_id = models.CharField(max_length=50, blank=True)
+    today = datetime.date.today()
+    trial_end = models.DateField(default=today, null=True)
 
     def __str__(self):
         title = "{} {}".format(self.user, self.pk)
