@@ -8,12 +8,13 @@ from decouple import config
 
 @receiver(post_save, sender=User)
 def create_customer(sender, instance, created, **kwargs):
-    name = '{}{}'.format(instance.first_name, instance.last_name )
+    name = '{} {}'.format(instance.first_name, instance.last_name )
 
     stripe.api_key = config('STRIPE_TEST_SECRET_KEY')
 
     api_response = stripe.Customer.create(
         description=name,
+        name=name,
         )
 
     print(api_response)
