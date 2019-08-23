@@ -36,6 +36,7 @@ def create_customer(sender, instance, created, **kwargs):
     print(subscription_response)
 
     timestamp = subscription_response.trial_end
+    profile.status = subscription_response.status
     profile.trial_end = date.fromtimestamp(timestamp)
     profile.customer_id = customer_id
     profile.save()

@@ -4,6 +4,7 @@ from django.contrib.auth.models import User, Group
 from django.dispatch import receiver
 from django.db import signals
 import datetime
+from django.utils import timezone
 
 def user_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
@@ -22,7 +23,8 @@ class Profile(models.Model):
 
     # stripe api response fields
     customer_id = models.CharField(max_length=50, blank=True)
-    today = datetime.date.today()
+    status = models.CharField(max_length=50, default='')
+    today = timezone.now()
     trial_end = models.DateField(default=today, null=True)
 
     def __str__(self):
