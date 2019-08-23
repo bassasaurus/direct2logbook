@@ -29,34 +29,34 @@ def stripe_webhook_view(request):
     #   payment_method = event.data.object # contains a stripe.PaymentMethod
     #   handle_payment_method_attached(payment_method)
     # ... handle other event types
-    if event.type == 'customer.created':
-        print(event.type)
+    elif event.type == 'customer.created':
+        print(event.data.object.id)
         #add customer id to profile
-    if event.type == 'customer.source.created':
+    elif event.type == 'customer.source.created':
         print(event.type)
-    if event.type == 'customer.subscription.created':
+    elif event.type == 'customer.subscription.created':
         print(event.type)
-    if event.typee == 'customer.subscription.deleted':
+    elif event.type == 'customer.subscription.deleted':
         print(event.type)
         #make account/user inactive
-    if event.type == 'invoice.created':
+    elif event.type == 'invoice.created':
         print(event.type)
         #send email receipt
-    if event.type == 'customer.subscription.trial_will_end':
+    elif event.type == 'customer.subscription.trial_will_end':
         print(event.type)
         #send email warning and make warning on login with link to profile
     #happens again in webhook flow -- not sure how to handle
-    if event.type == 'invoice.created':
+    elif event.type == 'invoice.created':
         print(event.type)
         #send email receipt
-    if event.type == 'invoice.payment_succeeded':
+    elif event.type == 'invoice.payment_succeeded':
         print(event.type)
-    if event.type == 'charge.succeeded':
+    elif event.type == 'charge.succeeded':
         print(event.type)
-
 
     else:
         # Unexpected event type
+        print("unexpected ", event.type)
         return HttpResponse(status=400)
 
     return HttpResponse(status=200)
@@ -78,3 +78,8 @@ def canceled_view(request):
     'parent_name': 'Profile'
     }
     return render(request,'payments/canceled.html', context)
+
+def debug_view(request):
+    context = {
+    }
+    return render(request,'payments/debug.html', context)
