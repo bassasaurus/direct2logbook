@@ -13,10 +13,10 @@
     <hr>
     <h5>Subscription</h5>
     <p>Trial ends on {{ profile.trial_end }}</p>
-    <a href="{% url 'subscribe' %}">Subscribe</a
+    <button id="monthly">Monthly</button>
+    <button id="yearly">Yearly</button>
     <hr>
 
-    <hr>
     <h5>Email</h5> {{ user.email }}<br>
     <a href="{% url 'account_email' %}">Update email</a><br>
 
@@ -37,5 +37,38 @@
     <p><a class="btn-shadow btn-shadow-dark btn-block" href="{% url 'profile_update' user.profile.pk %}">Update Profile</a></p>
   </div>
 </div>
+
+<script src="https://js.stripe.com/v3/"></script>
+<script type="text/javascript">
+  var stripe = Stripe('{{STRIPE_TEST_PUBLISHABLE_KEY}}');
+  $( "#monthly" ).click(function() {
+    stripe.redirectToCheckout({
+      // Make the id field from the Checkout Session creation API response
+      // available to this file, so you can provide it as parameter here
+      // instead of the {{CHECKOUT_SESSION_ID}} placeholder.
+      sessionId: '{{CHECKOUT_SESSION_ID_MONTHLY}}'
+    }).then(function (result) {
+      // If `redirectToCheckout` fails due to a browser or network
+      // error, display the localized error message to your customer
+      // using `result.error.message`.
+    });
+  });
+</script>
+
+<script type="text/javascript">
+  var stripe = Stripe('{{STRIPE_TEST_PUBLISHABLE_KEY}}');
+  $( "#yearly" ).click(function() {
+    stripe.redirectToCheckout({
+      // Make the id field from the Checkout Session creation API response
+      // available to this file, so you can provide it as parameter here
+      // instead of the {{CHECKOUT_SESSION_ID}} placeholder.
+      sessionId: '{{CHECKOUT_SESSION_ID_YEARLY}}'
+    }).then(function (result) {
+      // If `redirectToCheckout` fails due to a browser or network
+      // error, display the localized error message to your customer
+      // using `result.error.message`.
+    });
+  });
+</script>
 
 {% endblock %}
