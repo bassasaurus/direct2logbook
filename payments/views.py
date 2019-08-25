@@ -5,8 +5,33 @@ from decouple import config
 from django.views.decorators.csrf import csrf_exempt
 import stripe
 from django.urls import reverse
+from accounts.models import Profile
 
 stripe.api_key = config('STRIPE_TEST_SECRET_KEY')
+
+def subscribe_view(request):
+    user = request.user
+
+    customer_id = Profile.objects.get(user=user).customer_id
+
+    session = stripe.checkout.Session.create(
+        customer=customer_id,
+        payment_method_types=['card'],
+        subscription_data={
+            'items': [{
+            'plan': 'plan_FZhtfxftM44uHz',
+            }],
+        },
+    success_url='https://www.direct2logbook.com/payments/success',
+    cancel_url='https://www.direct2logbook.com/payments/cancel',
+    )
+    context = {
+        'CHECKOUT_SESSION_ID': session.id,
+        'STRIPE_TEST_PUBLISHABLE_KEY': config('STRIPE_TEST_PUBLISHABLE_KEY')
+    }
+
+    print(session.id)
+    return render(request, 'payments/subscribe.html', context)
 
 @csrf_exempt
 def stripe_webhook_view(request):
@@ -63,19 +88,19 @@ def stripe_webhook_view(request):
 
 def success_view(request):
     context = {
-    'title': 'Success',
-    'home_link': reverse('home'),
-    'parent_link': reverse('profile'),
-    'parent_name': 'Profile'
+        'title': 'Success',
+        'home_link': reverse('home'),
+        'parent_link': reverse('profile'),
+        'parent_name': 'Profile'
     }
     return render(request,'payments/success.html', context)
 
 def canceled_view(request):
     context = {
-    'title': 'Canceled',
-    'home_link': reverse('home'),
-    'parent_link': reverse('profile'),
-    'parent_name': 'Profile'
+        'title': 'Canceled',
+        'home_link': reverse('home'),
+        'parent_link': reverse('profile'),
+        'parent_name': 'Profile'
     }
     return render(request,'payments/canceled.html', context)
 

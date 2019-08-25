@@ -35,6 +35,7 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         context = super(ProfileView, self).get_context_data(**kwargs)
         user = self.request.user
         context['profile'] = Profile.objects.get(user=user)
+        context['customer_id'] = Profile.objects.get(user=user).customer_id
         context['user_email'] = str(user.email)
         context['STRIPE_PUBLISHABLE_KEY'] = config('STRIPE_TEST_PUBLISHABLE_KEY')
         context['title'] = "D-> | Profile"
