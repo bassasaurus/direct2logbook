@@ -5,7 +5,7 @@ from django.dispatch import receiver
 from accounts.models import Profile
 import stripe
 from decouple import config
-from datetime import timedelta
+from datetime import date
 
 @receiver(post_save, sender=User)
 def create_customer(sender, instance, created, **kwargs):
@@ -25,8 +25,18 @@ def create_customer(sender, instance, created, **kwargs):
         email=instance.email
     )
 
-    customer_id = customer_response.id
-    # set trial period
-    profile.trial_end = user.date_joined + timedelta(days=14)
-    profile.customer_id = customer_id
+    subscription_response = stripe.Subscription.create(
+        customer=customer_response.id,
+        trial_from_plan=True,
+        items=[
+            {
+                "plan": "plan_FZhtfxftM44uHz",
+            },
+        ]
+    )
+
+    timestamp = subscription_response.trial_end
+    
+    profile.trial_end = date.fromtimestamp(timestamp)
+    profile.customer_id = customer_response.id
     profile.save()

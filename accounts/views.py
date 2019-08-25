@@ -27,7 +27,6 @@ class UserObjectsMixin():
         user = self.request.user
         return super(UserObjectsMixin, self).get_queryset().filter(user=user)
 
-
 class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
     model = Profile
     template_name='profile/profile.html'
@@ -44,7 +43,7 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         success_url='https://www.direct2logbook.com/payments/success',
         cancel_url='https://www.direct2logbook.com/payments/cancel',
         )
-        print(session_monthly.id)
+
         return session_monthly.id
 
     def session_yearly(self, customer_id):

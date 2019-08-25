@@ -30,11 +30,12 @@
     {% if user.profile.second_class == True %} 2nd Class |{% else %}{% endif %}
     {% if user.profile.third_class == True %} 3rd Class |{% else %}{% endif %}
     {% if user.profile.over_40 == True %} Over 40 {% else %}{% endif %}
+    <p><a class="" href="{% url 'profile_update' user.profile.pk %}">Update medical info</a></p>
+
     <hr>
     <p>Questions or problems with the app? Email us <a target="new" href="mailto:support@direct2logbook.com?subject=Support">here</a></p>
     <p>Include a screenshot if possible, and a description of the error. More info is better</p>
     <hr>
-    <p><a class="btn-shadow btn-shadow-dark btn-block" href="{% url 'profile_update' user.profile.pk %}">Update Profile</a></p>
   </div>
 </div>
 

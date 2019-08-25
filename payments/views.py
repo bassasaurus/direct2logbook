@@ -9,50 +9,6 @@ from accounts.models import Profile
 
 stripe.api_key = config('STRIPE_TEST_SECRET_KEY')
 
-def session_monthly(customer_id):
-    session_monthly = stripe.checkout.Session.create(
-        customer=customer_id,
-        payment_method_types=['card'],
-        subscription_data={
-            'items': [{
-            'plan': 'plan_FZhtfxftM44uHz',
-            }],
-        },
-    success_url='https://www.direct2logbook.com/payments/success',
-    cancel_url='https://www.direct2logbook.com/payments/cancel',
-    )
-
-    return(session_monthly.id)
-
-def session_yearly(customer_id):
-    session_yearly = stripe.checkout.Session.create(
-        customer=customer_id,
-        payment_method_types=['card'],
-        subscription_data={
-            'items': [{
-            'plan': 'plan_FaRGVsApeXu8bS',
-            }],
-        },
-    success_url='https://www.direct2logbook.com/payments/success',
-    cancel_url='https://www.direct2logbook.com/payments/cancel',
-    )
-
-    return(session_yearly.id)
-
-def subscribe_view(request):
-    user = request.user
-
-    customer_id = Profile.objects.get(user=user).customer_id
-
-    context = {
-        'CHECKOUT_SESSION_ID_MONTHLY': session_monthly(customer_id),
-        'CHECKOUT_SESSION_ID_YEARLY': session_yearly(customer_id),
-
-        'STRIPE_TEST_PUBLISHABLE_KEY': config('STRIPE_TEST_PUBLISHABLE_KEY')
-    }
-
-    return render(request, 'payments/subscribe.html', context)
-
 @csrf_exempt
 def stripe_webhook_view(request):
     payload = request.body

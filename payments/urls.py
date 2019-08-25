@@ -5,7 +5,7 @@ from payments.views import *
 urlpatterns = [
 
     url(r'^stripe_webhook/$', stripe_webhook_view, name='stripe_webhook'),
-    url(r'^payments/subscribe$', subscribe_view, name='subscribe'),
+    
 
     url(r'^debug_view/$', debug_view, name='debug_view'),
     url(r'^payments/success$', success_view, name='payment_success'),
