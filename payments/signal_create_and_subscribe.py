@@ -27,7 +27,7 @@ def create_and_subscribe(sender, instance, created, **kwargs):
     print(end_date, timestamp)
 
     customer_response = stripe.Customer.create(
-        description="New Customer",
+        description="{} {}".format(instance.first_name, instance.last_name),
         name=name,
         email=instance.email
     )
@@ -46,11 +46,11 @@ def create_and_subscribe(sender, instance, created, **kwargs):
     )
 
     timestamp = subscription_response.trial_end
-    if created == True:
+
+    if kwargs.get('created', True):
         profile.customer_id = customer_response.id
         profile.subscription_id = subscription_response.id
         profile.trial_end = datetime.fromtimestamp(subscription_response.trial_end)
         profile.save()
-        print("created = True")
     else:
         None
