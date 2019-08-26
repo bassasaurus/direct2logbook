@@ -3,7 +3,7 @@
 <head>
   <meta http-equiv="content-type" content="text/html; charset=utf-8">
   <meta name="robots" content="NONE,NOARCHIVE">
-  <title>AttributeError
+  <title>TypeError
           at /stripe_webhook/</title>
   <style type="text/css">
     html * { padding:0; margin:0; }
@@ -104,9 +104,9 @@
 </head>
 <body>
 <div id="summary">
-  <h1>AttributeError
+  <h1>TypeError
        at /stripe_webhook/</h1>
-  <pre class="exception_value">tye</pre>
+  <pre class="exception_value">&#39;AnonymousUser&#39; object is not iterable</pre>
   <table class="meta">
 
     <tr>
@@ -115,7 +115,7 @@
     </tr>
     <tr>
       <th>Request URL:</th>
-      <td>http://4064e3c0.ngrok.io/stripe_webhook/</td>
+      <td>http://2cfe92cf.ngrok.io/stripe_webhook/</td>
     </tr>
 
     <tr>
@@ -125,19 +125,19 @@
 
     <tr>
       <th>Exception Type:</th>
-      <td>AttributeError</td>
+      <td>TypeError</td>
     </tr>
 
 
     <tr>
       <th>Exception Value:</th>
-      <td><pre>tye</pre></td>
+      <td><pre>&#39;AnonymousUser&#39; object is not iterable</pre></td>
     </tr>
 
 
     <tr>
       <th>Exception Location:</th>
-      <td>/Users/blakepowell/_django/venv/lib/python3.6/site-packages/stripe/stripe_object.py in __getattr__, line 92</td>
+      <td>/Users/blakepowell/_django/venv/lib/python3.6/site-packages/django/utils/functional.py in inner, line 257</td>
     </tr>
 
     <tr>
@@ -159,7 +159,7 @@
     </tr>
     <tr>
       <th>Server time:</th>
-      <td>Thu, 22 Aug 2019 23:45:39 +0000</td>
+      <td>Sun, 25 Aug 2019 22:57:44 +0000</td>
     </tr>
   </table>
 </div>
@@ -175,402 +175,47 @@
     <ul class="traceback">
 
 
-        <li class="frame user">
-          <code>/Users/blakepowell/_django/venv/lib/python3.6/site-packages/stripe/stripe_object.py</code> in <code>__getattr__</code>
-
-
-            <div class="context" id="c4488120712">
-
-                <ol start="83" class="pre-context" id="pre4488120712">
-
-                  <li onclick="toggle('pre4488120712', 'post4488120712')"><pre>        return None</pre></li>
-
-                  <li onclick="toggle('pre4488120712', 'post4488120712')"><pre></pre></li>
-
-                  <li onclick="toggle('pre4488120712', 'post4488120712')"><pre>    def __getattr__(self, k):</pre></li>
-
-                  <li onclick="toggle('pre4488120712', 'post4488120712')"><pre>        if k[0] == &quot;_&quot;:</pre></li>
-
-                  <li onclick="toggle('pre4488120712', 'post4488120712')"><pre>            raise AttributeError(k)</pre></li>
-
-                  <li onclick="toggle('pre4488120712', 'post4488120712')"><pre></pre></li>
-
-                  <li onclick="toggle('pre4488120712', 'post4488120712')"><pre>        try:</pre></li>
-
-                </ol>
-
-              <ol start="90" class="context-line">
-                <li onclick="toggle('pre4488120712', 'post4488120712')"><pre>            return self[k]</pre> <span>…</span></li>
-              </ol>
-
-                <ol start='91' class="post-context" id="post4488120712">
-
-                  <li onclick="toggle('pre4488120712', 'post4488120712')"><pre>        except KeyError as err:</pre></li>
-
-                  <li onclick="toggle('pre4488120712', 'post4488120712')"><pre>            raise AttributeError(*err.args)</pre></li>
-
-                  <li onclick="toggle('pre4488120712', 'post4488120712')"><pre></pre></li>
-
-                  <li onclick="toggle('pre4488120712', 'post4488120712')"><pre>    def __delattr__(self, k):</pre></li>
-
-                  <li onclick="toggle('pre4488120712', 'post4488120712')"><pre>        if k[0] == &quot;_&quot; or k in self.__dict__:</pre></li>
-
-                  <li onclick="toggle('pre4488120712', 'post4488120712')"><pre>            return super(StripeObject, self).__delattr__(k)</pre></li>
-
-              </ol>
-
-            </div>
-
-
-
-            <div class="commands">
-
-                    <a href="#" onclick="return varToggle(this, '4488120712')"><span>&#x25b6;</span> Local vars</a>
-
-            </div>
-            <table class="vars" id="v4488120712">
-              <thead>
-                <tr>
-                  <th>Variable</th>
-                  <th>Value</th>
-                </tr>
-              </thead>
-              <tbody>
-
-                  <tr>
-                    <td>k</td>
-                    <td class="code"><pre>&#39;tye&#39;</pre></td>
-                  </tr>
-
-                  <tr>
-                    <td>self</td>
-                    <td class="code"><pre>{&#39;api_version&#39;: &#39;2019-05-16&#39;,
- &#39;created&#39;: 1326853478,
- &#39;data&#39;: {&#39;object&#39;: {&#39;account_balance&#39;: 0,
-                     &#39;address&#39;: None,
-                     &#39;balance&#39;: 0,
-                     &#39;created&#39;: 1566517539,
-                     &#39;currency&#39;: &#39;usd&#39;,
-                     &#39;default_source&#39;: None,
-                     &#39;delinquent&#39;: False,
-                     &#39;description&#39;: None,
-                     &#39;discount&#39;: None,
-                     &#39;email&#39;: None,
-                     &#39;id&#39;: &#39;cus_00000000000000&#39;,
-                     &#39;invoice_prefix&#39;: &#39;1EC31AF&#39;,
-                     &#39;invoice_settings&#39;: {&#39;custom_fields&#39;: None,
-                                          &#39;default_payment_method&#39;: None,
-                                          &#39;footer&#39;: None},
-                     &#39;livemode&#39;: False,
-                     &#39;metadata&#39;: &lt;StripeObject at 0x10b6de830&gt; JSON: {},
-                     &#39;name&#39;: None,
-                     &#39;object&#39;: &#39;customer&#39;,
-                     &#39;phone&#39;: None,
-                     &#39;preferred_locales&#39;: [],
-                     &#39;shipping&#39;: None,
-                     &#39;sources&#39;: {},
-                     &#39;subscriptions&#39;: {},
-                     &#39;tax_exempt&#39;: &#39;none&#39;,
-                     &#39;tax_ids&#39;: {},
-                     &#39;tax_info&#39;: None,
-                     &#39;tax_info_verification&#39;: None}},
- &#39;id&#39;: &#39;evt_00000000000000&#39;,
- &#39;livemode&#39;: False,
- &#39;object&#39;: &#39;event&#39;,
- &#39;pending_webhooks&#39;: 1,
- &#39;request&#39;: None,
- &#39;type&#39;: &#39;customer.created&#39;}</pre></td>
-                  </tr>
-
-              </tbody>
-            </table>
-
-        </li>
-
-
-        <li class="frame user">
-          <code>/Users/blakepowell/_django/venv/lib/python3.6/site-packages/stripe/stripe_object.py</code> in <code>__getitem__</code>
-
-
-            <div class="context" id="c4488119048">
-
-                <ol start="124" class="pre-context" id="pre4488119048">
-
-                  <li onclick="toggle('pre4488119048', 'post4488119048')"><pre>                    &quot;It was then wiped when refreshing the object with &quot;</pre></li>
-
-                  <li onclick="toggle('pre4488119048', 'post4488119048')"><pre>                    &quot;the result returned by Stripe&#39;s API, probably as a &quot;</pre></li>
-
-                  <li onclick="toggle('pre4488119048', 'post4488119048')"><pre>                    &quot;result of a save().  The attributes currently &quot;</pre></li>
-
-                  <li onclick="toggle('pre4488119048', 'post4488119048')"><pre>                    &quot;available on this object are: %s&quot;</pre></li>
-
-                  <li onclick="toggle('pre4488119048', 'post4488119048')"><pre>                    % (k, k, &quot;, &quot;.join(list(self.keys())))</pre></li>
-
-                  <li onclick="toggle('pre4488119048', 'post4488119048')"><pre>                )</pre></li>
-
-                  <li onclick="toggle('pre4488119048', 'post4488119048')"><pre>            else:</pre></li>
-
-                </ol>
-
-              <ol start="131" class="context-line">
-                <li onclick="toggle('pre4488119048', 'post4488119048')"><pre>                raise err</pre> <span>…</span></li>
-              </ol>
-
-                <ol start='132' class="post-context" id="post4488119048">
-
-                  <li onclick="toggle('pre4488119048', 'post4488119048')"><pre></pre></li>
-
-                  <li onclick="toggle('pre4488119048', 'post4488119048')"><pre>    def __delitem__(self, k):</pre></li>
-
-                  <li onclick="toggle('pre4488119048', 'post4488119048')"><pre>        super(StripeObject, self).__delitem__(k)</pre></li>
-
-                  <li onclick="toggle('pre4488119048', 'post4488119048')"><pre></pre></li>
-
-                  <li onclick="toggle('pre4488119048', 'post4488119048')"><pre>        # Allows for unpickling in Python 3.x</pre></li>
-
-                  <li onclick="toggle('pre4488119048', 'post4488119048')"><pre>        if hasattr(self, &quot;_unsaved_values&quot;) and k in self._unsaved_values:</pre></li>
-
-              </ol>
-
-            </div>
-
-
-
-            <div class="commands">
-
-                    <a href="#" onclick="return varToggle(this, '4488119048')"><span>&#x25b6;</span> Local vars</a>
-
-            </div>
-            <table class="vars" id="v4488119048">
-              <thead>
-                <tr>
-                  <th>Variable</th>
-                  <th>Value</th>
-                </tr>
-              </thead>
-              <tbody>
-
-                  <tr>
-                    <td>__class__</td>
-                    <td class="code"><pre>&lt;class &#39;stripe.stripe_object.StripeObject&#39;&gt;</pre></td>
-                  </tr>
-
-                  <tr>
-                    <td>k</td>
-                    <td class="code"><pre>&#39;tye&#39;</pre></td>
-                  </tr>
-
-                  <tr>
-                    <td>self</td>
-                    <td class="code"><pre>{&#39;api_version&#39;: &#39;2019-05-16&#39;,
- &#39;created&#39;: 1326853478,
- &#39;data&#39;: {&#39;object&#39;: {&#39;account_balance&#39;: 0,
-                     &#39;address&#39;: None,
-                     &#39;balance&#39;: 0,
-                     &#39;created&#39;: 1566517539,
-                     &#39;currency&#39;: &#39;usd&#39;,
-                     &#39;default_source&#39;: None,
-                     &#39;delinquent&#39;: False,
-                     &#39;description&#39;: None,
-                     &#39;discount&#39;: None,
-                     &#39;email&#39;: None,
-                     &#39;id&#39;: &#39;cus_00000000000000&#39;,
-                     &#39;invoice_prefix&#39;: &#39;1EC31AF&#39;,
-                     &#39;invoice_settings&#39;: {&#39;custom_fields&#39;: None,
-                                          &#39;default_payment_method&#39;: None,
-                                          &#39;footer&#39;: None},
-                     &#39;livemode&#39;: False,
-                     &#39;metadata&#39;: &lt;StripeObject at 0x10b6de830&gt; JSON: {},
-                     &#39;name&#39;: None,
-                     &#39;object&#39;: &#39;customer&#39;,
-                     &#39;phone&#39;: None,
-                     &#39;preferred_locales&#39;: [],
-                     &#39;shipping&#39;: None,
-                     &#39;sources&#39;: {},
-                     &#39;subscriptions&#39;: {},
-                     &#39;tax_exempt&#39;: &#39;none&#39;,
-                     &#39;tax_ids&#39;: {},
-                     &#39;tax_info&#39;: None,
-                     &#39;tax_info_verification&#39;: None}},
- &#39;id&#39;: &#39;evt_00000000000000&#39;,
- &#39;livemode&#39;: False,
- &#39;object&#39;: &#39;event&#39;,
- &#39;pending_webhooks&#39;: 1,
- &#39;request&#39;: None,
- &#39;type&#39;: &#39;customer.created&#39;}</pre></td>
-                  </tr>
-
-              </tbody>
-            </table>
-
-        </li>
-
-
-        <li class="frame user">
-          <code>/Users/blakepowell/_django/venv/lib/python3.6/site-packages/stripe/stripe_object.py</code> in <code>__getitem__</code>
-
-
-            <div class="context" id="c4488122184">
-
-                <ol start="112" class="pre-context" id="pre4488122184">
-
-                  <li onclick="toggle('pre4488122184', 'post4488122184')"><pre></pre></li>
-
-                  <li onclick="toggle('pre4488122184', 'post4488122184')"><pre>        self._unsaved_values.add(k)</pre></li>
-
-                  <li onclick="toggle('pre4488122184', 'post4488122184')"><pre></pre></li>
-
-                  <li onclick="toggle('pre4488122184', 'post4488122184')"><pre>        super(StripeObject, self).__setitem__(k, v)</pre></li>
-
-                  <li onclick="toggle('pre4488122184', 'post4488122184')"><pre></pre></li>
-
-                  <li onclick="toggle('pre4488122184', 'post4488122184')"><pre>    def __getitem__(self, k):</pre></li>
-
-                  <li onclick="toggle('pre4488122184', 'post4488122184')"><pre>        try:</pre></li>
-
-                </ol>
-
-              <ol start="119" class="context-line">
-                <li onclick="toggle('pre4488122184', 'post4488122184')"><pre>            return super(StripeObject, self).__getitem__(k)</pre> <span>…</span></li>
-              </ol>
-
-                <ol start='120' class="post-context" id="post4488122184">
-
-                  <li onclick="toggle('pre4488122184', 'post4488122184')"><pre>        except KeyError as err:</pre></li>
-
-                  <li onclick="toggle('pre4488122184', 'post4488122184')"><pre>            if k in self._transient_values:</pre></li>
-
-                  <li onclick="toggle('pre4488122184', 'post4488122184')"><pre>                raise KeyError(</pre></li>
-
-                  <li onclick="toggle('pre4488122184', 'post4488122184')"><pre>                    &quot;%r.  HINT: The %r attribute was set in the past.&quot;</pre></li>
-
-                  <li onclick="toggle('pre4488122184', 'post4488122184')"><pre>                    &quot;It was then wiped when refreshing the object with &quot;</pre></li>
-
-                  <li onclick="toggle('pre4488122184', 'post4488122184')"><pre>                    &quot;the result returned by Stripe&#39;s API, probably as a &quot;</pre></li>
-
-              </ol>
-
-            </div>
-
-
-
-            <div class="commands">
-
-                    <a href="#" onclick="return varToggle(this, '4488122184')"><span>&#x25b6;</span> Local vars</a>
-
-            </div>
-            <table class="vars" id="v4488122184">
-              <thead>
-                <tr>
-                  <th>Variable</th>
-                  <th>Value</th>
-                </tr>
-              </thead>
-              <tbody>
-
-                  <tr>
-                    <td>__class__</td>
-                    <td class="code"><pre>&lt;class &#39;stripe.stripe_object.StripeObject&#39;&gt;</pre></td>
-                  </tr>
-
-                  <tr>
-                    <td>k</td>
-                    <td class="code"><pre>&#39;tye&#39;</pre></td>
-                  </tr>
-
-                  <tr>
-                    <td>self</td>
-                    <td class="code"><pre>{&#39;api_version&#39;: &#39;2019-05-16&#39;,
- &#39;created&#39;: 1326853478,
- &#39;data&#39;: {&#39;object&#39;: {&#39;account_balance&#39;: 0,
-                     &#39;address&#39;: None,
-                     &#39;balance&#39;: 0,
-                     &#39;created&#39;: 1566517539,
-                     &#39;currency&#39;: &#39;usd&#39;,
-                     &#39;default_source&#39;: None,
-                     &#39;delinquent&#39;: False,
-                     &#39;description&#39;: None,
-                     &#39;discount&#39;: None,
-                     &#39;email&#39;: None,
-                     &#39;id&#39;: &#39;cus_00000000000000&#39;,
-                     &#39;invoice_prefix&#39;: &#39;1EC31AF&#39;,
-                     &#39;invoice_settings&#39;: {&#39;custom_fields&#39;: None,
-                                          &#39;default_payment_method&#39;: None,
-                                          &#39;footer&#39;: None},
-                     &#39;livemode&#39;: False,
-                     &#39;metadata&#39;: &lt;StripeObject at 0x10b6de830&gt; JSON: {},
-                     &#39;name&#39;: None,
-                     &#39;object&#39;: &#39;customer&#39;,
-                     &#39;phone&#39;: None,
-                     &#39;preferred_locales&#39;: [],
-                     &#39;shipping&#39;: None,
-                     &#39;sources&#39;: {},
-                     &#39;subscriptions&#39;: {},
-                     &#39;tax_exempt&#39;: &#39;none&#39;,
-                     &#39;tax_ids&#39;: {},
-                     &#39;tax_info&#39;: None,
-                     &#39;tax_info_verification&#39;: None}},
- &#39;id&#39;: &#39;evt_00000000000000&#39;,
- &#39;livemode&#39;: False,
- &#39;object&#39;: &#39;event&#39;,
- &#39;pending_webhooks&#39;: 1,
- &#39;request&#39;: None,
- &#39;type&#39;: &#39;customer.created&#39;}</pre></td>
-                  </tr>
-
-              </tbody>
-            </table>
-
-        </li>
-
-
-          <li><h3>
-
-            During handling of the above exception (&#39;tye&#39;), another exception occurred:
-
-        </h3></li>
-
         <li class="frame django">
           <code>/Users/blakepowell/_django/venv/lib/python3.6/site-packages/django/core/handlers/exception.py</code> in <code>inner</code>
 
 
-            <div class="context" id="c4488119304">
+            <div class="context" id="c4423996744">
 
-                <ol start="27" class="pre-context" id="pre4488119304">
+                <ol start="27" class="pre-context" id="pre4423996744">
 
-                  <li onclick="toggle('pre4488119304', 'post4488119304')"><pre>    This decorator is automatically applied to all middleware to ensure that</pre></li>
+                  <li onclick="toggle('pre4423996744', 'post4423996744')"><pre>    This decorator is automatically applied to all middleware to ensure that</pre></li>
 
-                  <li onclick="toggle('pre4488119304', 'post4488119304')"><pre>    no middleware leaks an exception and that the next middleware in the stack</pre></li>
+                  <li onclick="toggle('pre4423996744', 'post4423996744')"><pre>    no middleware leaks an exception and that the next middleware in the stack</pre></li>
 
-                  <li onclick="toggle('pre4488119304', 'post4488119304')"><pre>    can rely on getting a response instead of an exception.</pre></li>
+                  <li onclick="toggle('pre4423996744', 'post4423996744')"><pre>    can rely on getting a response instead of an exception.</pre></li>
 
-                  <li onclick="toggle('pre4488119304', 'post4488119304')"><pre>    &quot;&quot;&quot;</pre></li>
+                  <li onclick="toggle('pre4423996744', 'post4423996744')"><pre>    &quot;&quot;&quot;</pre></li>
 
-                  <li onclick="toggle('pre4488119304', 'post4488119304')"><pre>    @wraps(get_response)</pre></li>
+                  <li onclick="toggle('pre4423996744', 'post4423996744')"><pre>    @wraps(get_response)</pre></li>
 
-                  <li onclick="toggle('pre4488119304', 'post4488119304')"><pre>    def inner(request):</pre></li>
+                  <li onclick="toggle('pre4423996744', 'post4423996744')"><pre>    def inner(request):</pre></li>
 
-                  <li onclick="toggle('pre4488119304', 'post4488119304')"><pre>        try:</pre></li>
+                  <li onclick="toggle('pre4423996744', 'post4423996744')"><pre>        try:</pre></li>
 
                 </ol>
 
               <ol start="34" class="context-line">
-                <li onclick="toggle('pre4488119304', 'post4488119304')"><pre>            response = get_response(request)</pre> <span>…</span></li>
+                <li onclick="toggle('pre4423996744', 'post4423996744')"><pre>            response = get_response(request)</pre> <span>…</span></li>
               </ol>
 
-                <ol start='35' class="post-context" id="post4488119304">
+                <ol start='35' class="post-context" id="post4423996744">
 
-                  <li onclick="toggle('pre4488119304', 'post4488119304')"><pre>        except Exception as exc:</pre></li>
+                  <li onclick="toggle('pre4423996744', 'post4423996744')"><pre>        except Exception as exc:</pre></li>
 
-                  <li onclick="toggle('pre4488119304', 'post4488119304')"><pre>            response = response_for_exception(request, exc)</pre></li>
+                  <li onclick="toggle('pre4423996744', 'post4423996744')"><pre>            response = response_for_exception(request, exc)</pre></li>
 
-                  <li onclick="toggle('pre4488119304', 'post4488119304')"><pre>        return response</pre></li>
+                  <li onclick="toggle('pre4423996744', 'post4423996744')"><pre>        return response</pre></li>
 
-                  <li onclick="toggle('pre4488119304', 'post4488119304')"><pre>    return inner</pre></li>
+                  <li onclick="toggle('pre4423996744', 'post4423996744')"><pre>    return inner</pre></li>
 
-                  <li onclick="toggle('pre4488119304', 'post4488119304')"><pre></pre></li>
+                  <li onclick="toggle('pre4423996744', 'post4423996744')"><pre></pre></li>
 
-                  <li onclick="toggle('pre4488119304', 'post4488119304')"><pre></pre></li>
+                  <li onclick="toggle('pre4423996744', 'post4423996744')"><pre></pre></li>
 
               </ol>
 
@@ -580,10 +225,10 @@
 
             <div class="commands">
 
-                    <a href="#" onclick="return varToggle(this, '4488119304')"><span>&#x25b6;</span> Local vars</a>
+                    <a href="#" onclick="return varToggle(this, '4423996744')"><span>&#x25b6;</span> Local vars</a>
 
             </div>
-            <table class="vars" id="v4488119304">
+            <table class="vars" id="v4423996744">
               <thead>
                 <tr>
                   <th>Variable</th>
@@ -594,12 +239,12 @@
 
                   <tr>
                     <td>exc</td>
-                    <td class="code"><pre>AttributeError(&#39;tye&#39;,)</pre></td>
+                    <td class="code"><pre>TypeError(&quot;&#39;AnonymousUser&#39; object is not iterable&quot;,)</pre></td>
                   </tr>
 
                   <tr>
                     <td>get_response</td>
-                    <td class="code"><pre>&lt;bound method BaseHandler._get_response of &lt;django.core.handlers.wsgi.WSGIHandler object at 0x1092b8080&gt;&gt;</pre></td>
+                    <td class="code"><pre>&lt;bound method BaseHandler._get_response of &lt;django.core.handlers.wsgi.WSGIHandler object at 0x104f900b8&gt;&gt;</pre></td>
                   </tr>
 
                   <tr>
@@ -617,43 +262,43 @@
           <code>/Users/blakepowell/_django/venv/lib/python3.6/site-packages/django/core/handlers/base.py</code> in <code>_get_response</code>
 
 
-            <div class="context" id="c4488118472">
+            <div class="context" id="c4423997128">
 
-                <ol start="108" class="pre-context" id="pre4488118472">
+                <ol start="108" class="pre-context" id="pre4423997128">
 
-                  <li onclick="toggle('pre4488118472', 'post4488118472')"><pre>                break</pre></li>
+                  <li onclick="toggle('pre4423997128', 'post4423997128')"><pre>                break</pre></li>
 
-                  <li onclick="toggle('pre4488118472', 'post4488118472')"><pre></pre></li>
+                  <li onclick="toggle('pre4423997128', 'post4423997128')"><pre></pre></li>
 
-                  <li onclick="toggle('pre4488118472', 'post4488118472')"><pre>        if response is None:</pre></li>
+                  <li onclick="toggle('pre4423997128', 'post4423997128')"><pre>        if response is None:</pre></li>
 
-                  <li onclick="toggle('pre4488118472', 'post4488118472')"><pre>            wrapped_callback = self.make_view_atomic(callback)</pre></li>
+                  <li onclick="toggle('pre4423997128', 'post4423997128')"><pre>            wrapped_callback = self.make_view_atomic(callback)</pre></li>
 
-                  <li onclick="toggle('pre4488118472', 'post4488118472')"><pre>            try:</pre></li>
+                  <li onclick="toggle('pre4423997128', 'post4423997128')"><pre>            try:</pre></li>
 
-                  <li onclick="toggle('pre4488118472', 'post4488118472')"><pre>                response = wrapped_callback(request, *callback_args, **callback_kwargs)</pre></li>
+                  <li onclick="toggle('pre4423997128', 'post4423997128')"><pre>                response = wrapped_callback(request, *callback_args, **callback_kwargs)</pre></li>
 
-                  <li onclick="toggle('pre4488118472', 'post4488118472')"><pre>            except Exception as e:</pre></li>
+                  <li onclick="toggle('pre4423997128', 'post4423997128')"><pre>            except Exception as e:</pre></li>
 
                 </ol>
 
               <ol start="115" class="context-line">
-                <li onclick="toggle('pre4488118472', 'post4488118472')"><pre>                response = self.process_exception_by_middleware(e, request)</pre> <span>…</span></li>
+                <li onclick="toggle('pre4423997128', 'post4423997128')"><pre>                response = self.process_exception_by_middleware(e, request)</pre> <span>…</span></li>
               </ol>
 
-                <ol start='116' class="post-context" id="post4488118472">
+                <ol start='116' class="post-context" id="post4423997128">
 
-                  <li onclick="toggle('pre4488118472', 'post4488118472')"><pre></pre></li>
+                  <li onclick="toggle('pre4423997128', 'post4423997128')"><pre></pre></li>
 
-                  <li onclick="toggle('pre4488118472', 'post4488118472')"><pre>        # Complain if the view returned None (a common error).</pre></li>
+                  <li onclick="toggle('pre4423997128', 'post4423997128')"><pre>        # Complain if the view returned None (a common error).</pre></li>
 
-                  <li onclick="toggle('pre4488118472', 'post4488118472')"><pre>        if response is None:</pre></li>
+                  <li onclick="toggle('pre4423997128', 'post4423997128')"><pre>        if response is None:</pre></li>
 
-                  <li onclick="toggle('pre4488118472', 'post4488118472')"><pre>            if isinstance(callback, types.FunctionType):    # FBV</pre></li>
+                  <li onclick="toggle('pre4423997128', 'post4423997128')"><pre>            if isinstance(callback, types.FunctionType):    # FBV</pre></li>
 
-                  <li onclick="toggle('pre4488118472', 'post4488118472')"><pre>                view_name = callback.__name__</pre></li>
+                  <li onclick="toggle('pre4423997128', 'post4423997128')"><pre>                view_name = callback.__name__</pre></li>
 
-                  <li onclick="toggle('pre4488118472', 'post4488118472')"><pre>            else:                                           # CBV</pre></li>
+                  <li onclick="toggle('pre4423997128', 'post4423997128')"><pre>            else:                                           # CBV</pre></li>
 
               </ol>
 
@@ -663,10 +308,10 @@
 
             <div class="commands">
 
-                    <a href="#" onclick="return varToggle(this, '4488118472')"><span>&#x25b6;</span> Local vars</a>
+                    <a href="#" onclick="return varToggle(this, '4423997128')"><span>&#x25b6;</span> Local vars</a>
 
             </div>
-            <table class="vars" id="v4488118472">
+            <table class="vars" id="v4423997128">
               <thead>
                 <tr>
                   <th>Variable</th>
@@ -677,7 +322,7 @@
 
                   <tr>
                     <td>callback</td>
-                    <td class="code"><pre>&lt;function stripe_webhook_view at 0x10aff1e18&gt;</pre></td>
+                    <td class="code"><pre>&lt;function stripe_webhook_view at 0x106f54048&gt;</pre></td>
                   </tr>
 
                   <tr>
@@ -692,7 +337,7 @@
 
                   <tr>
                     <td>middleware_method</td>
-                    <td class="code"><pre>&lt;bound method DebugToolbarMiddleware.process_view of &lt;debug_toolbar.middleware.DebugToolbarMiddleware object at 0x10b325b00&gt;&gt;</pre></td>
+                    <td class="code"><pre>&lt;bound method DebugToolbarMiddleware.process_view of &lt;debug_toolbar.middleware.DebugToolbarMiddleware object at 0x107104358&gt;&gt;</pre></td>
                   </tr>
 
                   <tr>
@@ -717,12 +362,12 @@
 
                   <tr>
                     <td>self</td>
-                    <td class="code"><pre>&lt;django.core.handlers.wsgi.WSGIHandler object at 0x1092b8080&gt;</pre></td>
+                    <td class="code"><pre>&lt;django.core.handlers.wsgi.WSGIHandler object at 0x104f900b8&gt;</pre></td>
                   </tr>
 
                   <tr>
                     <td>wrapped_callback</td>
-                    <td class="code"><pre>&lt;function stripe_webhook_view at 0x10aff1e18&gt;</pre></td>
+                    <td class="code"><pre>&lt;function stripe_webhook_view at 0x106f54048&gt;</pre></td>
                   </tr>
 
               </tbody>
@@ -735,43 +380,43 @@
           <code>/Users/blakepowell/_django/venv/lib/python3.6/site-packages/django/core/handlers/base.py</code> in <code>_get_response</code>
 
 
-            <div class="context" id="c4488122312">
+            <div class="context" id="c4423996296">
 
-                <ol start="106" class="pre-context" id="pre4488122312">
+                <ol start="106" class="pre-context" id="pre4423996296">
 
-                  <li onclick="toggle('pre4488122312', 'post4488122312')"><pre>            response = middleware_method(request, callback, callback_args, callback_kwargs)</pre></li>
+                  <li onclick="toggle('pre4423996296', 'post4423996296')"><pre>            response = middleware_method(request, callback, callback_args, callback_kwargs)</pre></li>
 
-                  <li onclick="toggle('pre4488122312', 'post4488122312')"><pre>            if response:</pre></li>
+                  <li onclick="toggle('pre4423996296', 'post4423996296')"><pre>            if response:</pre></li>
 
-                  <li onclick="toggle('pre4488122312', 'post4488122312')"><pre>                break</pre></li>
+                  <li onclick="toggle('pre4423996296', 'post4423996296')"><pre>                break</pre></li>
 
-                  <li onclick="toggle('pre4488122312', 'post4488122312')"><pre></pre></li>
+                  <li onclick="toggle('pre4423996296', 'post4423996296')"><pre></pre></li>
 
-                  <li onclick="toggle('pre4488122312', 'post4488122312')"><pre>        if response is None:</pre></li>
+                  <li onclick="toggle('pre4423996296', 'post4423996296')"><pre>        if response is None:</pre></li>
 
-                  <li onclick="toggle('pre4488122312', 'post4488122312')"><pre>            wrapped_callback = self.make_view_atomic(callback)</pre></li>
+                  <li onclick="toggle('pre4423996296', 'post4423996296')"><pre>            wrapped_callback = self.make_view_atomic(callback)</pre></li>
 
-                  <li onclick="toggle('pre4488122312', 'post4488122312')"><pre>            try:</pre></li>
+                  <li onclick="toggle('pre4423996296', 'post4423996296')"><pre>            try:</pre></li>
 
                 </ol>
 
               <ol start="113" class="context-line">
-                <li onclick="toggle('pre4488122312', 'post4488122312')"><pre>                response = wrapped_callback(request, *callback_args, **callback_kwargs)</pre> <span>…</span></li>
+                <li onclick="toggle('pre4423996296', 'post4423996296')"><pre>                response = wrapped_callback(request, *callback_args, **callback_kwargs)</pre> <span>…</span></li>
               </ol>
 
-                <ol start='114' class="post-context" id="post4488122312">
+                <ol start='114' class="post-context" id="post4423996296">
 
-                  <li onclick="toggle('pre4488122312', 'post4488122312')"><pre>            except Exception as e:</pre></li>
+                  <li onclick="toggle('pre4423996296', 'post4423996296')"><pre>            except Exception as e:</pre></li>
 
-                  <li onclick="toggle('pre4488122312', 'post4488122312')"><pre>                response = self.process_exception_by_middleware(e, request)</pre></li>
+                  <li onclick="toggle('pre4423996296', 'post4423996296')"><pre>                response = self.process_exception_by_middleware(e, request)</pre></li>
 
-                  <li onclick="toggle('pre4488122312', 'post4488122312')"><pre></pre></li>
+                  <li onclick="toggle('pre4423996296', 'post4423996296')"><pre></pre></li>
 
-                  <li onclick="toggle('pre4488122312', 'post4488122312')"><pre>        # Complain if the view returned None (a common error).</pre></li>
+                  <li onclick="toggle('pre4423996296', 'post4423996296')"><pre>        # Complain if the view returned None (a common error).</pre></li>
 
-                  <li onclick="toggle('pre4488122312', 'post4488122312')"><pre>        if response is None:</pre></li>
+                  <li onclick="toggle('pre4423996296', 'post4423996296')"><pre>        if response is None:</pre></li>
 
-                  <li onclick="toggle('pre4488122312', 'post4488122312')"><pre>            if isinstance(callback, types.FunctionType):    # FBV</pre></li>
+                  <li onclick="toggle('pre4423996296', 'post4423996296')"><pre>            if isinstance(callback, types.FunctionType):    # FBV</pre></li>
 
               </ol>
 
@@ -781,10 +426,10 @@
 
             <div class="commands">
 
-                    <a href="#" onclick="return varToggle(this, '4488122312')"><span>&#x25b6;</span> Local vars</a>
+                    <a href="#" onclick="return varToggle(this, '4423996296')"><span>&#x25b6;</span> Local vars</a>
 
             </div>
-            <table class="vars" id="v4488122312">
+            <table class="vars" id="v4423996296">
               <thead>
                 <tr>
                   <th>Variable</th>
@@ -795,7 +440,7 @@
 
                   <tr>
                     <td>callback</td>
-                    <td class="code"><pre>&lt;function stripe_webhook_view at 0x10aff1e18&gt;</pre></td>
+                    <td class="code"><pre>&lt;function stripe_webhook_view at 0x106f54048&gt;</pre></td>
                   </tr>
 
                   <tr>
@@ -810,7 +455,7 @@
 
                   <tr>
                     <td>middleware_method</td>
-                    <td class="code"><pre>&lt;bound method DebugToolbarMiddleware.process_view of &lt;debug_toolbar.middleware.DebugToolbarMiddleware object at 0x10b325b00&gt;&gt;</pre></td>
+                    <td class="code"><pre>&lt;bound method DebugToolbarMiddleware.process_view of &lt;debug_toolbar.middleware.DebugToolbarMiddleware object at 0x107104358&gt;&gt;</pre></td>
                   </tr>
 
                   <tr>
@@ -835,12 +480,12 @@
 
                   <tr>
                     <td>self</td>
-                    <td class="code"><pre>&lt;django.core.handlers.wsgi.WSGIHandler object at 0x1092b8080&gt;</pre></td>
+                    <td class="code"><pre>&lt;django.core.handlers.wsgi.WSGIHandler object at 0x104f900b8&gt;</pre></td>
                   </tr>
 
                   <tr>
                     <td>wrapped_callback</td>
-                    <td class="code"><pre>&lt;function stripe_webhook_view at 0x10aff1e18&gt;</pre></td>
+                    <td class="code"><pre>&lt;function stripe_webhook_view at 0x106f54048&gt;</pre></td>
                   </tr>
 
               </tbody>
@@ -853,35 +498,35 @@
           <code>/Users/blakepowell/_django/venv/lib/python3.6/site-packages/django/views/decorators/csrf.py</code> in <code>wrapped_view</code>
 
 
-            <div class="context" id="c4488118728">
+            <div class="context" id="c4423998088">
 
-                <ol start="47" class="pre-context" id="pre4488118728">
+                <ol start="47" class="pre-context" id="pre4423998088">
 
-                  <li onclick="toggle('pre4488118728', 'post4488118728')"><pre></pre></li>
+                  <li onclick="toggle('pre4423998088', 'post4423998088')"><pre></pre></li>
 
-                  <li onclick="toggle('pre4488118728', 'post4488118728')"><pre></pre></li>
+                  <li onclick="toggle('pre4423998088', 'post4423998088')"><pre></pre></li>
 
-                  <li onclick="toggle('pre4488118728', 'post4488118728')"><pre>def csrf_exempt(view_func):</pre></li>
+                  <li onclick="toggle('pre4423998088', 'post4423998088')"><pre>def csrf_exempt(view_func):</pre></li>
 
-                  <li onclick="toggle('pre4488118728', 'post4488118728')"><pre>    &quot;&quot;&quot;Mark a view function as being exempt from the CSRF view protection.&quot;&quot;&quot;</pre></li>
+                  <li onclick="toggle('pre4423998088', 'post4423998088')"><pre>    &quot;&quot;&quot;Mark a view function as being exempt from the CSRF view protection.&quot;&quot;&quot;</pre></li>
 
-                  <li onclick="toggle('pre4488118728', 'post4488118728')"><pre>    # view_func.csrf_exempt = True would also work, but decorators are nicer</pre></li>
+                  <li onclick="toggle('pre4423998088', 'post4423998088')"><pre>    # view_func.csrf_exempt = True would also work, but decorators are nicer</pre></li>
 
-                  <li onclick="toggle('pre4488118728', 'post4488118728')"><pre>    # if they don&#39;t have side effects, so return a new function.</pre></li>
+                  <li onclick="toggle('pre4423998088', 'post4423998088')"><pre>    # if they don&#39;t have side effects, so return a new function.</pre></li>
 
-                  <li onclick="toggle('pre4488118728', 'post4488118728')"><pre>    def wrapped_view(*args, **kwargs):</pre></li>
+                  <li onclick="toggle('pre4423998088', 'post4423998088')"><pre>    def wrapped_view(*args, **kwargs):</pre></li>
 
                 </ol>
 
               <ol start="54" class="context-line">
-                <li onclick="toggle('pre4488118728', 'post4488118728')"><pre>        return view_func(*args, **kwargs)</pre> <span>…</span></li>
+                <li onclick="toggle('pre4423998088', 'post4423998088')"><pre>        return view_func(*args, **kwargs)</pre> <span>…</span></li>
               </ol>
 
-                <ol start='55' class="post-context" id="post4488118728">
+                <ol start='55' class="post-context" id="post4423998088">
 
-                  <li onclick="toggle('pre4488118728', 'post4488118728')"><pre>    wrapped_view.csrf_exempt = True</pre></li>
+                  <li onclick="toggle('pre4423998088', 'post4423998088')"><pre>    wrapped_view.csrf_exempt = True</pre></li>
 
-                  <li onclick="toggle('pre4488118728', 'post4488118728')"><pre>    return wraps(view_func)(wrapped_view)</pre></li>
+                  <li onclick="toggle('pre4423998088', 'post4423998088')"><pre>    return wraps(view_func)(wrapped_view)</pre></li>
 
               </ol>
 
@@ -891,10 +536,10 @@
 
             <div class="commands">
 
-                    <a href="#" onclick="return varToggle(this, '4488118728')"><span>&#x25b6;</span> Local vars</a>
+                    <a href="#" onclick="return varToggle(this, '4423998088')"><span>&#x25b6;</span> Local vars</a>
 
             </div>
-            <table class="vars" id="v4488118728">
+            <table class="vars" id="v4423998088">
               <thead>
                 <tr>
                   <th>Variable</th>
@@ -915,7 +560,7 @@
 
                   <tr>
                     <td>view_func</td>
-                    <td class="code"><pre>&lt;function stripe_webhook_view at 0x10aff1c80&gt;</pre></td>
+                    <td class="code"><pre>&lt;function stripe_webhook_view at 0x106f4bf28&gt;</pre></td>
                   </tr>
 
               </tbody>
@@ -928,43 +573,43 @@
           <code>/Users/blakepowell/_django/direct2logbook/payments/views.py</code> in <code>stripe_webhook_view</code>
 
 
-            <div class="context" id="c4488120584">
+            <div class="context" id="c4423997384">
 
-                <ol start="26" class="pre-context" id="pre4488120584">
+                <ol start="9" class="pre-context" id="pre4423997384">
 
-                  <li onclick="toggle('pre4488120584', 'post4488120584')"><pre>        payment_intent = event.data.object # contains a stripe.PaymentIntent</pre></li>
+                  <li onclick="toggle('pre4423997384', 'post4423997384')"><pre>from datetime import date</pre></li>
 
-                  <li onclick="toggle('pre4488120584', 'post4488120584')"><pre>    # handle_payment_intent_succeeded(payment_intent)</pre></li>
+                  <li onclick="toggle('pre4423997384', 'post4423997384')"><pre></pre></li>
 
-                  <li onclick="toggle('pre4488120584', 'post4488120584')"><pre>    # elif event.type == &#39;payment_method.attached&#39;:</pre></li>
+                  <li onclick="toggle('pre4423997384', 'post4423997384')"><pre>stripe.api_key = config(&#39;STRIPE_TEST_SECRET_KEY&#39;)</pre></li>
 
-                  <li onclick="toggle('pre4488120584', 'post4488120584')"><pre>    #   payment_method = event.data.object # contains a stripe.PaymentMethod</pre></li>
+                  <li onclick="toggle('pre4423997384', 'post4423997384')"><pre></pre></li>
 
-                  <li onclick="toggle('pre4488120584', 'post4488120584')"><pre>    #   handle_payment_method_attached(payment_method)</pre></li>
+                  <li onclick="toggle('pre4423997384', 'post4423997384')"><pre>@csrf_exempt</pre></li>
 
-                  <li onclick="toggle('pre4488120584', 'post4488120584')"><pre>    # ... handle other event types</pre></li>
+                  <li onclick="toggle('pre4423997384', 'post4423997384')"><pre>def stripe_webhook_view(request):</pre></li>
 
-                  <li onclick="toggle('pre4488120584', 'post4488120584')"><pre>    if event.type == &#39;customer.created&#39;:</pre></li>
+                  <li onclick="toggle('pre4423997384', 'post4423997384')"><pre>    user = request.user</pre></li>
 
                 </ol>
 
-              <ol start="33" class="context-line">
-                <li onclick="toggle('pre4488120584', 'post4488120584')"><pre>        print(event.type)</pre> <span>…</span></li>
+              <ol start="16" class="context-line">
+                <li onclick="toggle('pre4423997384', 'post4423997384')"><pre>    profile = Profile.objects.get(user=user)</pre> <span>…</span></li>
               </ol>
 
-                <ol start='34' class="post-context" id="post4488120584">
+                <ol start='17' class="post-context" id="post4423997384">
 
-                  <li onclick="toggle('pre4488120584', 'post4488120584')"><pre>        #add customer id to profile</pre></li>
+                  <li onclick="toggle('pre4423997384', 'post4423997384')"><pre></pre></li>
 
-                  <li onclick="toggle('pre4488120584', 'post4488120584')"><pre>    if event.type == &#39;customer.source.created&#39;:</pre></li>
+                  <li onclick="toggle('pre4423997384', 'post4423997384')"><pre>    payload = request.body</pre></li>
 
-                  <li onclick="toggle('pre4488120584', 'post4488120584')"><pre>        print(event.type)</pre></li>
+                  <li onclick="toggle('pre4423997384', 'post4423997384')"><pre>    event = None</pre></li>
 
-                  <li onclick="toggle('pre4488120584', 'post4488120584')"><pre>    if event.type == &#39;customer.subscription.created&#39;:</pre></li>
+                  <li onclick="toggle('pre4423997384', 'post4423997384')"><pre></pre></li>
 
-                  <li onclick="toggle('pre4488120584', 'post4488120584')"><pre>        print(event.type)</pre></li>
+                  <li onclick="toggle('pre4423997384', 'post4423997384')"><pre>    try:</pre></li>
 
-                  <li onclick="toggle('pre4488120584', 'post4488120584')"><pre>    if event.type == &#39;customer.subscription.deleted&#39;:</pre></li>
+                  <li onclick="toggle('pre4423997384', 'post4423997384')"><pre>        event = stripe.Event.construct_from(</pre></li>
 
               </ol>
 
@@ -974,10 +619,10 @@
 
             <div class="commands">
 
-                    <a href="#" onclick="return varToggle(this, '4488120584')"><span>&#x25b6;</span> Local vars</a>
+                    <a href="#" onclick="return varToggle(this, '4423997384')"><span>&#x25b6;</span> Local vars</a>
 
             </div>
-            <table class="vars" id="v4488120584">
+            <table class="vars" id="v4423997384">
               <thead>
                 <tr>
                   <th>Variable</th>
@@ -987,74 +632,13 @@
               <tbody>
 
                   <tr>
-                    <td>event</td>
-                    <td class="code"><pre>{&#39;api_version&#39;: &#39;2019-05-16&#39;,
- &#39;created&#39;: 1326853478,
- &#39;data&#39;: {&#39;object&#39;: {&#39;account_balance&#39;: 0,
-                     &#39;address&#39;: None,
-                     &#39;balance&#39;: 0,
-                     &#39;created&#39;: 1566517539,
-                     &#39;currency&#39;: &#39;usd&#39;,
-                     &#39;default_source&#39;: None,
-                     &#39;delinquent&#39;: False,
-                     &#39;description&#39;: None,
-                     &#39;discount&#39;: None,
-                     &#39;email&#39;: None,
-                     &#39;id&#39;: &#39;cus_00000000000000&#39;,
-                     &#39;invoice_prefix&#39;: &#39;1EC31AF&#39;,
-                     &#39;invoice_settings&#39;: {&#39;custom_fields&#39;: None,
-                                          &#39;default_payment_method&#39;: None,
-                                          &#39;footer&#39;: None},
-                     &#39;livemode&#39;: False,
-                     &#39;metadata&#39;: &lt;StripeObject at 0x10b6de830&gt; JSON: {},
-                     &#39;name&#39;: None,
-                     &#39;object&#39;: &#39;customer&#39;,
-                     &#39;phone&#39;: None,
-                     &#39;preferred_locales&#39;: [],
-                     &#39;shipping&#39;: None,
-                     &#39;sources&#39;: {},
-                     &#39;subscriptions&#39;: {},
-                     &#39;tax_exempt&#39;: &#39;none&#39;,
-                     &#39;tax_ids&#39;: {},
-                     &#39;tax_info&#39;: None,
-                     &#39;tax_info_verification&#39;: None}},
- &#39;id&#39;: &#39;evt_00000000000000&#39;,
- &#39;livemode&#39;: False,
- &#39;object&#39;: &#39;event&#39;,
- &#39;pending_webhooks&#39;: 1,
- &#39;request&#39;: None,
- &#39;type&#39;: &#39;customer.created&#39;}</pre></td>
-                  </tr>
-
-                  <tr>
-                    <td>payload</td>
-                    <td class="code"><pre>(b&#39;{\n  &quot;created&quot;: 1326853478,\n  &quot;livemode&quot;: false,\n  &quot;id&quot;: &quot;evt_00000000000&#39;
- b&#39;000&quot;,\n  &quot;type&quot;: &quot;customer.created&quot;,\n  &quot;object&quot;: &quot;event&quot;,\n  &quot;request&quot;: nu&#39;
- b&#39;ll,\n  &quot;pending_webhooks&quot;: 1,\n  &quot;api_version&quot;: &quot;2019-05-16&quot;,\n  &quot;data&quot;: {\n&#39;
- b&#39;    &quot;object&quot;: {\n      &quot;id&quot;: &quot;cus_00000000000000&quot;,\n      &quot;object&quot;: &quot;custo&#39;
- b&#39;mer&quot;,\n      &quot;account_balance&quot;: 0,\n      &quot;address&quot;: null,\n      &quot;balance&quot;&#39;
- b&#39;: 0,\n      &quot;created&quot;: 1566517539,\n      &quot;currency&quot;: &quot;usd&quot;,\n      &quot;defaul&#39;
- b&#39;t_source&quot;: null,\n      &quot;delinquent&quot;: false,\n      &quot;description&quot;: null,\n &#39;
- b&#39;     &quot;discount&quot;: null,\n      &quot;email&quot;: null,\n      &quot;invoice_prefix&quot;: &quot;1EC&#39;
- b&#39;31AF&quot;,\n      &quot;invoice_settings&quot;: {\n        &quot;custom_fields&quot;: null,\n      &#39;
- b&#39;  &quot;default_payment_method&quot;: null,\n        &quot;footer&quot;: null\n      },\n      &#39;
- b&#39;&quot;livemode&quot;: false,\n      &quot;metadata&quot;: {\n      },\n      &quot;name&quot;: null,\n    &#39;
- b&#39;  &quot;phone&quot;: null,\n      &quot;preferred_locales&quot;: [\n\n      ],\n      &quot;shipping&quot;&#39;
- b&#39;: null,\n      &quot;sources&quot;: {\n        &quot;object&quot;: &quot;list&quot;,\n        &quot;data&quot;:&#39;
- b&#39; [\n\n        ],\n        &quot;has_more&quot;: false,\n        &quot;total_count&quot;: 0,\n&#39;
- b&#39;        &quot;url&quot;: &quot;/v1/customers/cus_FflVotxPSqyFPH/sources&quot;\n      },\n     &#39;
- b&#39; &quot;subscriptions&quot;: {\n        &quot;object&quot;: &quot;list&quot;,\n        &quot;data&quot;: [\n\n       &#39;
- b&#39; ],\n        &quot;has_more&quot;: false,\n        &quot;total_count&quot;: 0,\n        &quot;url&quot;: &#39;
- b&#39;&quot;/v1/customers/cus_FflVotxPSqyFPH/subscriptions&quot;\n      },\n      &quot;tax_exe&#39;
- b&#39;mpt&quot;: &quot;none&quot;,\n      &quot;tax_ids&quot;: {\n        &quot;object&quot;: &quot;list&quot;,\n        &quot;data&#39;
- b&#39;&quot;: [\n\n        ],\n        &quot;has_more&quot;: false,\n        &quot;total_count&quot;: 0&#39;
- b&#39;,\n        &quot;url&quot;: &quot;/v1/customers/cus_FflVotxPSqyFPH/tax_ids&quot;\n      },\n   &#39;
- b&#39;   &quot;tax_info&quot;: null,\n      &quot;tax_info_verification&quot;: null\n    }\n  }\n}&#39;)</pre></td>
-                  </tr>
-
-                  <tr>
                     <td>request</td>
                     <td class="code"><pre>&lt;WSGIRequest: POST &#39;/stripe_webhook/&#39;&gt;</pre></td>
+                  </tr>
+
+                  <tr>
+                    <td>user</td>
+                    <td class="code"><pre>&lt;SimpleLazyObject: &lt;django.contrib.auth.models.AnonymousUser object at 0x107bbd048&gt;&gt;</pre></td>
                   </tr>
 
               </tbody>
@@ -1063,40 +647,486 @@
         </li>
 
 
-        <li class="frame user">
-          <code>/Users/blakepowell/_django/venv/lib/python3.6/site-packages/stripe/stripe_object.py</code> in <code>__getattr__</code>
+        <li class="frame django">
+          <code>/Users/blakepowell/_django/venv/lib/python3.6/site-packages/django/db/models/manager.py</code> in <code>manager_method</code>
 
 
-            <div class="context" id="c4488119496">
+            <div class="context" id="c4423996360">
 
-                <ol start="85" class="pre-context" id="pre4488119496">
+                <ol start="75" class="pre-context" id="pre4423996360">
 
-                  <li onclick="toggle('pre4488119496', 'post4488119496')"><pre>    def __getattr__(self, k):</pre></li>
+                  <li onclick="toggle('pre4423996360', 'post4423996360')"><pre>    def check(self, **kwargs):</pre></li>
 
-                  <li onclick="toggle('pre4488119496', 'post4488119496')"><pre>        if k[0] == &quot;_&quot;:</pre></li>
+                  <li onclick="toggle('pre4423996360', 'post4423996360')"><pre>        return []</pre></li>
 
-                  <li onclick="toggle('pre4488119496', 'post4488119496')"><pre>            raise AttributeError(k)</pre></li>
+                  <li onclick="toggle('pre4423996360', 'post4423996360')"><pre></pre></li>
 
-                  <li onclick="toggle('pre4488119496', 'post4488119496')"><pre></pre></li>
+                  <li onclick="toggle('pre4423996360', 'post4423996360')"><pre>    @classmethod</pre></li>
 
-                  <li onclick="toggle('pre4488119496', 'post4488119496')"><pre>        try:</pre></li>
+                  <li onclick="toggle('pre4423996360', 'post4423996360')"><pre>    def _get_queryset_methods(cls, queryset_class):</pre></li>
 
-                  <li onclick="toggle('pre4488119496', 'post4488119496')"><pre>            return self[k]</pre></li>
+                  <li onclick="toggle('pre4423996360', 'post4423996360')"><pre>        def create_method(name, method):</pre></li>
 
-                  <li onclick="toggle('pre4488119496', 'post4488119496')"><pre>        except KeyError as err:</pre></li>
+                  <li onclick="toggle('pre4423996360', 'post4423996360')"><pre>            def manager_method(self, *args, **kwargs):</pre></li>
 
                 </ol>
 
-              <ol start="92" class="context-line">
-                <li onclick="toggle('pre4488119496', 'post4488119496')"><pre>            raise AttributeError(*err.args)</pre> <span>…</span></li>
+              <ol start="82" class="context-line">
+                <li onclick="toggle('pre4423996360', 'post4423996360')"><pre>                return getattr(self.get_queryset(), name)(*args, **kwargs)</pre> <span>…</span></li>
               </ol>
 
-                <ol start='93' class="post-context" id="post4488119496">
+                <ol start='83' class="post-context" id="post4423996360">
 
-                  <li onclick="toggle('pre4488119496', 'post4488119496')"><pre></pre></li>
+                  <li onclick="toggle('pre4423996360', 'post4423996360')"><pre>            manager_method.__name__ = method.__name__</pre></li>
 
-                  <li onclick="toggle('pre4488119496', 'post4488119496')"><pre>    def __delattr__(self, k):</pre></li>
+                  <li onclick="toggle('pre4423996360', 'post4423996360')"><pre>            manager_method.__doc__ = method.__doc__</pre></li>
 
-                 ...
-Cancel
-Send test webhook
+                  <li onclick="toggle('pre4423996360', 'post4423996360')"><pre>            return manager_method</pre></li>
+
+                  <li onclick="toggle('pre4423996360', 'post4423996360')"><pre></pre></li>
+
+                  <li onclick="toggle('pre4423996360', 'post4423996360')"><pre>        new_methods = {}</pre></li>
+
+                  <li onclick="toggle('pre4423996360', 'post4423996360')"><pre>        for name, method in inspect.getmembers(queryset_class, predicate=inspect.isfunction):</pre></li>
+
+              </ol>
+
+            </div>
+
+
+
+            <div class="commands">
+
+                    <a href="#" onclick="return varToggle(this, '4423996360')"><span>&#x25b6;</span> Local vars</a>
+
+            </div>
+            <table class="vars" id="v4423996360">
+              <thead>
+                <tr>
+                  <th>Variable</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+
+                  <tr>
+                    <td>args</td>
+                    <td class="code"><pre>()</pre></td>
+                  </tr>
+
+                  <tr>
+                    <td>kwargs</td>
+                    <td class="code"><pre>{&#39;user&#39;: &lt;SimpleLazyObject: &lt;django.contrib.auth.models.AnonymousUser object at 0x107bbd048&gt;&gt;}</pre></td>
+                  </tr>
+
+                  <tr>
+                    <td>name</td>
+                    <td class="code"><pre>&#39;get&#39;</pre></td>
+                  </tr>
+
+                  <tr>
+                    <td>self</td>
+                    <td class="code"><pre>&lt;django.db.models.manager.Manager object at 0x10663f438&gt;</pre></td>
+                  </tr>
+
+              </tbody>
+            </table>
+
+        </li>
+
+
+        <li class="frame django">
+          <code>/Users/blakepowell/_django/venv/lib/python3.6/site-packages/django/db/models/query.py</code> in <code>get</code>
+
+
+            <div class="context" id="c4423996168">
+
+                <ol start="392" class="pre-context" id="pre4423996168">
+
+                  <li onclick="toggle('pre4423996168', 'post4423996168')"><pre>        return self.query.get_count(using=self.db)</pre></li>
+
+                  <li onclick="toggle('pre4423996168', 'post4423996168')"><pre></pre></li>
+
+                  <li onclick="toggle('pre4423996168', 'post4423996168')"><pre>    def get(self, *args, **kwargs):</pre></li>
+
+                  <li onclick="toggle('pre4423996168', 'post4423996168')"><pre>        &quot;&quot;&quot;</pre></li>
+
+                  <li onclick="toggle('pre4423996168', 'post4423996168')"><pre>        Perform the query and return a single object matching the given</pre></li>
+
+                  <li onclick="toggle('pre4423996168', 'post4423996168')"><pre>        keyword arguments.</pre></li>
+
+                  <li onclick="toggle('pre4423996168', 'post4423996168')"><pre>        &quot;&quot;&quot;</pre></li>
+
+                </ol>
+
+              <ol start="399" class="context-line">
+                <li onclick="toggle('pre4423996168', 'post4423996168')"><pre>        clone = self.filter(*args, **kwargs)</pre> <span>…</span></li>
+              </ol>
+
+                <ol start='400' class="post-context" id="post4423996168">
+
+                  <li onclick="toggle('pre4423996168', 'post4423996168')"><pre>        if self.query.can_filter() and not self.query.distinct_fields:</pre></li>
+
+                  <li onclick="toggle('pre4423996168', 'post4423996168')"><pre>            clone = clone.order_by()</pre></li>
+
+                  <li onclick="toggle('pre4423996168', 'post4423996168')"><pre>        num = len(clone)</pre></li>
+
+                  <li onclick="toggle('pre4423996168', 'post4423996168')"><pre>        if num == 1:</pre></li>
+
+                  <li onclick="toggle('pre4423996168', 'post4423996168')"><pre>            return clone._result_cache[0]</pre></li>
+
+                  <li onclick="toggle('pre4423996168', 'post4423996168')"><pre>        if not num:</pre></li>
+
+              </ol>
+
+            </div>
+
+
+
+            <div class="commands">
+
+                    <a href="#" onclick="return varToggle(this, '4423996168')"><span>&#x25b6;</span> Local vars</a>
+
+            </div>
+            <table class="vars" id="v4423996168">
+              <thead>
+                <tr>
+                  <th>Variable</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+
+                  <tr>
+                    <td>args</td>
+                    <td class="code"><pre>()</pre></td>
+                  </tr>
+
+                  <tr>
+                    <td>kwargs</td>
+                    <td class="code"><pre>{&#39;user&#39;: &lt;SimpleLazyObject: &lt;django.contrib.auth.models.AnonymousUser object at 0x107bbd048&gt;&gt;}</pre></td>
+                  </tr>
+
+                  <tr>
+                    <td>self</td>
+                    <td class="code"><pre>&lt;QuerySet [&lt;Profile: lsowers1 6&gt;, &lt;Profile: trapier 5&gt;, &lt;Profile: admin 1&gt;, &lt;Profile: pigarkle 2&gt;, &lt;Profile: fake 13&gt;]&gt;</pre></td>
+                  </tr>
+
+              </tbody>
+            </table>
+
+        </li>
+
+
+        <li class="frame django">
+          <code>/Users/blakepowell/_django/venv/lib/python3.6/site-packages/django/db/models/query.py</code> in <code>filter</code>
+
+
+            <div class="context" id="c4423999112">
+
+                <ol start="885" class="pre-context" id="pre4423999112">
+
+                  <li onclick="toggle('pre4423999112', 'post4423999112')"><pre>        return self._chain()</pre></li>
+
+                  <li onclick="toggle('pre4423999112', 'post4423999112')"><pre></pre></li>
+
+                  <li onclick="toggle('pre4423999112', 'post4423999112')"><pre>    def filter(self, *args, **kwargs):</pre></li>
+
+                  <li onclick="toggle('pre4423999112', 'post4423999112')"><pre>        &quot;&quot;&quot;</pre></li>
+
+                  <li onclick="toggle('pre4423999112', 'post4423999112')"><pre>        Return a new QuerySet instance with the args ANDed to the existing</pre></li>
+
+                  <li onclick="toggle('pre4423999112', 'post4423999112')"><pre>        set.</pre></li>
+
+                  <li onclick="toggle('pre4423999112', 'post4423999112')"><pre>        &quot;&quot;&quot;</pre></li>
+
+                </ol>
+
+              <ol start="892" class="context-line">
+                <li onclick="toggle('pre4423999112', 'post4423999112')"><pre>        return self._filter_or_exclude(False, *args, **kwargs)</pre> <span>…</span></li>
+              </ol>
+
+                <ol start='893' class="post-context" id="post4423999112">
+
+                  <li onclick="toggle('pre4423999112', 'post4423999112')"><pre></pre></li>
+
+                  <li onclick="toggle('pre4423999112', 'post4423999112')"><pre>    def exclude(self, *args, **kwargs):</pre></li>
+
+                  <li onclick="toggle('pre4423999112', 'post4423999112')"><pre>        &quot;&quot;&quot;</pre></li>
+
+                  <li onclick="toggle('pre4423999112', 'post4423999112')"><pre>        Return a new QuerySet instance with NOT (args) ANDed to the existing</pre></li>
+
+                  <li onclick="toggle('pre4423999112', 'post4423999112')"><pre>        set.</pre></li>
+
+                  <li onclick="toggle('pre4423999112', 'post4423999112')"><pre>        &quot;&quot;&quot;</pre></li>
+
+              </ol>
+
+            </div>
+
+
+
+            <div class="commands">
+
+                    <a href="#" onclick="return varToggle(this, '4423999112')"><span>&#x25b6;</span> Local vars</a>
+
+            </div>
+            <table class="vars" id="v4423999112">
+              <thead>
+                <tr>
+                  <th>Variable</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+
+                  <tr>
+                    <td>args</td>
+                    <td class="code"><pre>()</pre></td>
+                  </tr>
+
+                  <tr>
+                    <td>kwargs</td>
+                    <td class="code"><pre>{&#39;user&#39;: &lt;SimpleLazyObject: &lt;django.contrib.auth.models.AnonymousUser object at 0x107bbd048&gt;&gt;}</pre></td>
+                  </tr>
+
+                  <tr>
+                    <td>self</td>
+                    <td class="code"><pre>&lt;QuerySet [&lt;Profile: lsowers1 6&gt;, &lt;Profile: trapier 5&gt;, &lt;Profile: admin 1&gt;, &lt;Profile: pigarkle 2&gt;, &lt;Profile: fake 13&gt;]&gt;</pre></td>
+                  </tr>
+
+              </tbody>
+            </table>
+
+        </li>
+
+
+        <li class="frame django">
+          <code>/Users/blakepowell/_django/venv/lib/python3.6/site-packages/django/db/models/query.py</code> in <code>_filter_or_exclude</code>
+
+
+            <div class="context" id="c4423998920">
+
+                <ol start="903" class="pre-context" id="pre4423998920">
+
+                  <li onclick="toggle('pre4423998920', 'post4423998920')"><pre>            assert self.query.can_filter(), \</pre></li>
+
+                  <li onclick="toggle('pre4423998920', 'post4423998920')"><pre>                &quot;Cannot filter a query once a slice has been taken.&quot;</pre></li>
+
+                  <li onclick="toggle('pre4423998920', 'post4423998920')"><pre></pre></li>
+
+                  <li onclick="toggle('pre4423998920', 'post4423998920')"><pre>        clone = self._chain()</pre></li>
+
+                  <li onclick="toggle('pre4423998920', 'post4423998920')"><pre>        if negate:</pre></li>
+
+                  <li onclick="toggle('pre4423998920', 'post4423998920')"><pre>            clone.query.add_q(~Q(*args, **kwargs))</pre></li>
+
+                  <li onclick="toggle('pre4423998920', 'post4423998920')"><pre>        else:</pre></li>
+
+                </ol>
+
+              <ol start="910" class="context-line">
+                <li onclick="toggle('pre4423998920', 'post4423998920')"><pre>            clone.query.add_q(Q(*args, **kwargs))</pre> <span>…</span></li>
+              </ol>
+
+                <ol start='911' class="post-context" id="post4423998920">
+
+                  <li onclick="toggle('pre4423998920', 'post4423998920')"><pre>        return clone</pre></li>
+
+                  <li onclick="toggle('pre4423998920', 'post4423998920')"><pre></pre></li>
+
+                  <li onclick="toggle('pre4423998920', 'post4423998920')"><pre>    def complex_filter(self, filter_obj):</pre></li>
+
+                  <li onclick="toggle('pre4423998920', 'post4423998920')"><pre>        &quot;&quot;&quot;</pre></li>
+
+                  <li onclick="toggle('pre4423998920', 'post4423998920')"><pre>        Return a new QuerySet instance with filter_obj added to the filters.</pre></li>
+
+                  <li onclick="toggle('pre4423998920', 'post4423998920')"><pre></pre></li>
+
+              </ol>
+
+            </div>
+
+
+
+            <div class="commands">
+
+                    <a href="#" onclick="return varToggle(this, '4423998920')"><span>&#x25b6;</span> Local vars</a>
+
+            </div>
+            <table class="vars" id="v4423998920">
+              <thead>
+                <tr>
+                  <th>Variable</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+
+                  <tr>
+                    <td>args</td>
+                    <td class="code"><pre>()</pre></td>
+                  </tr>
+
+                  <tr>
+                    <td>clone</td>
+                    <td class="code"><pre>&lt;QuerySet [&lt;Profile: lsowers1 6&gt;, &lt;Profile: trapier 5&gt;, &lt;Profile: admin 1&gt;, &lt;Profile: pigarkle 2&gt;, &lt;Profile: fake 13&gt;]&gt;</pre></td>
+                  </tr>
+
+                  <tr>
+                    <td>kwargs</td>
+                    <td class="code"><pre>{&#39;user&#39;: &lt;SimpleLazyObject: &lt;django.contrib.auth.models.AnonymousUser object at 0x107bbd048&gt;&gt;}</pre></td>
+                  </tr>
+
+                  <tr>
+                    <td>negate</td>
+                    <td class="code"><pre>False</pre></td>
+                  </tr>
+
+                  <tr>
+                    <td>self</td>
+                    <td class="code"><pre>&lt;QuerySet [&lt;Profile: lsowers1 6&gt;, &lt;Profile: trapier 5&gt;, &lt;Profile: admin 1&gt;, &lt;Profile: pigarkle 2&gt;, &lt;Profile: fake 13&gt;]&gt;</pre></td>
+                  </tr>
+
+              </tbody>
+            </table>
+
+        </li>
+
+
+        <li class="frame django">
+          <code>/Users/blakepowell/_django/venv/lib/python3.6/site-packages/django/db/models/sql/query.py</code> in <code>add_q</code>
+
+
+            <div class="context" id="c4423996232">
+
+                <ol start="1283" class="pre-context" id="pre4423996232">
+
+                  <li onclick="toggle('pre4423996232', 'post4423996232')"><pre>        # For join promotion this case is doing an AND for the added q_object</pre></li>
+
+                  <li onclick="toggle('pre4423996232', 'post4423996232')"><pre>        # and existing conditions. So, any existing inner join forces the join</pre></li>
+
+                  <li onclick="toggle('pre4423996232', 'post4423996232')"><pre>        # type to remain inner. Existing outer joins can however be demoted.</pre></li>
+
+                  <li onclick="toggle('pre4423996232', 'post4423996232')"><pre>        # (Consider case where rel_a is LOUTER and rel_a__col=1 is added - if</pre></li>
+
+                  <li onclick="toggle('pre4423996232', 'post4423996232')"><pre>        # rel_a doesn&#39;t produce any rows, then the whole condition must fail.</pre></li>
+
+                  <li onclick="toggle('pre4423996232', 'post4423996232')"><pre>        # So, demotion is OK.</pre></li>
+
+                  <li onclick="toggle('pre4423996232', 'post4423996232')"><pre>        existing_inner = {a for a in self.alias_map if self.alias_map[a].join_type == INNER}</pre></li>
+
+                </ol>
+
+              <ol start="1290" class="context-line">
+                <li onclick="toggle('pre4423996232', 'post4423996232')"><pre>        clause, _ = self._add_q(q_object, self.used_aliases)</pre> <span>…</span></li>
+              </ol>
+
+                <ol start='1291' class="post-context" id="post4423996232">
+
+                  <li onclick="toggle('pre4423996232', 'post4423996232')"><pre>        if clause:</pre></li>
+
+                  <li onclick="toggle('pre4423996232', 'post4423996232')"><pre>            self.where.add(clause, AND)</pre></li>
+
+                  <li onclick="toggle('pre4423996232', 'post4423996232')"><pre>        self.demote_joins(existing_inner)</pre></li>
+
+                  <li onclick="toggle('pre4423996232', 'post4423996232')"><pre></pre></li>
+
+                  <li onclick="toggle('pre4423996232', 'post4423996232')"><pre>    def build_where(self, q_object):</pre></li>
+
+                  <li onclick="toggle('pre4423996232', 'post4423996232')"><pre>        return self._add_q(q_object, used_aliases=set(), allow_joins=False, simple_col=True)[0]</pre></li>
+
+              </ol>
+
+            </div>
+
+
+
+            <div class="commands">
+
+                    <a href="#" onclick="return varToggle(this, '4423996232')"><span>&#x25b6;</span> Local vars</a>
+
+            </div>
+            <table class="vars" id="v4423996232">
+              <thead>
+                <tr>
+                  <th>Variable</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody>
+
+                  <tr>
+                    <td>existing_inner</td>
+                    <td class="code"><pre>set()</pre></td>
+                  </tr>
+
+                  <tr>
+                    <td>q_object</td>
+                    <td class="code"><pre>&lt;Q: (AND: (&#39;user&#39;, &lt;SimpleLazyObject: &lt;django.contrib.auth.models.AnonymousUser object at 0x107bbd048&gt;&gt;))&gt;</pre></td>
+                  </tr>
+
+                  <tr>
+                    <td>self</td>
+                    <td class="code"><pre>&lt;django.db.models.sql.query.Query object at 0x107bbd2b0&gt;</pre></td>
+                  </tr>
+
+              </tbody>
+            </table>
+
+        </li>
+
+
+        <li class="frame django">
+          <code>/Users/blakepowell/_django/venv/lib/python3.6/site-packages/django/db/models/sql/query.py</code> in <code>_add_q</code>
+
+
+            <div class="context" id="c4423995528">
+
+                <ol start="1311" class="pre-context" id="pre4423995528">
+
+                  <li onclick="toggle('pre4423995528', 'post4423995528')"><pre>                    child, used_aliases, branch_negated,</pre></li>
+
+                  <li onclick="toggle('pre4423995528', 'post4423995528')"><pre>                    current_negated, allow_joins, split_subq, simple_col)</pre></li>
+
+                  <li onclick="toggle('pre4423995528', 'post4423995528')"><pre>                joinpromoter.add_votes(needed_inner)</pre></li>
+
+                  <li onclick="toggle('pre4423995528', 'post4423995528')"><pre>            else:</pre></li>
+
+                  <li onclick="toggle('pre4423995528', 'post4423995528')"><pre>                child_clause, needed_inner = self.build_filter(</pre></li>
+
+                  <li onclick="toggle('pre4423995528', 'post4423995528')"><pre>                    child, can_reuse=used_aliases, branch_negated=branch_negated,</pre></li>
+
+                  <li onclick="toggle('pre4423995528', 'post4423995528')"><pre>                    current_negated=current_negated, allow_joins=allow_joins,</pre></li>
+
+                </ol>
+
+              <ol start="1318" class="context-line">
+                <li onclick="toggle('pre4423995528', 'post4423995528')"><pre>                    split_subq=split_subq, simple_col=simple_col,</pre> <span>…</span></li>
+              </ol>
+
+                <ol start='1319' class="post-context" id="post4423995528">
+
+                  <li onclick="toggle('pre4423995528', 'post4423995528')"><pre>                )</pre></li>
+
+                  <li onclick="toggle('pre4423995528', 'post4423995528')"><pre>                joinpromoter.add_votes(needed_inner)</pre></li>
+
+                  <li onclick="toggle('pre4423995528', 'post4423995528')"><pre>            if child_clause:</pre></li>
+
+                  <li onclick="toggle('pre4423995528', 'post4423995528')"><pre>                target_clause.add(child_clause, connector)</pre></li>
+
+                  <li onclick="toggle('pre4423995528', 'post4423995528')"><pre>        needed_inner = joinpromoter.update_join_types(self)</pre></li>
+
+                  <li onclick="toggle('pre4423995528', 'post4423995528')"><pre>        return target_clause, needed_inner</pre></li>
+
+              </ol>
+
+            </div>
+
+
+
+            <div class="commands">
+
+                    <a href="#" onclick="return varToggle(this, '4423995528')"><span>&#x25b6;</span> Local vars</a>
+
+            </di...

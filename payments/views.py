@@ -6,11 +6,14 @@ from django.views.decorators.csrf import csrf_exempt
 import stripe
 from django.urls import reverse
 from accounts.models import Profile
+from datetime import date
+from django.contrib.auth.models import User
 
 stripe.api_key = config('STRIPE_TEST_SECRET_KEY')
 
 @csrf_exempt
 def stripe_webhook_view(request):
+
     payload = request.body
     event = None
 
@@ -25,17 +28,21 @@ def stripe_webhook_view(request):
         # Handle the event
     if event.type == 'checkout.session.completed':
         payment_intent = event.data.object # contains a stripe.PaymentIntent
+        print('checkout.session.completed', event.data.object.customer)
+
     # handle_payment_intent_succeeded(payment_intent)
     # elif event.type == 'payment_method.attached':
     #   payment_method = event.data.object # contains a stripe.PaymentMethod
     #   handle_payment_method_attached(payment_method)
     # ... handle other event types
     elif event.type == 'customer.created':
-        print(event.data.object.id)
+        print('customer.created', event.data.object.id)
         #add customer id to profile
     elif event.type == 'customer.source.created':
+        #save source
         print(event.type)
     elif event.type == 'customer.subscription.created':
+        #save subscription_id
         print(event.type)
     elif event.type == 'customer.subscription.deleted':
         print(event.type)
@@ -46,13 +53,15 @@ def stripe_webhook_view(request):
     elif event.type == 'customer.subscription.trial_will_end':
         print(event.type)
         #send email warning and make warning on login with link to profile
-    #happens again in webhook flow -- not sure how to handle
+
     elif event.type == 'invoice.created':
+        #happens again in webhook flow -- not sure how to handle
         print(event.type)
         #send email receipt
     elif event.type == 'invoice.payment_succeeded':
         print(event.type)
     elif event.type == 'charge.succeeded':
+        #modify db to show current
         print(event.type)
 
     else:

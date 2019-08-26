@@ -23,6 +23,7 @@ class Profile(models.Model):
 
     # stripe api response fields
     customer_id = models.CharField(max_length=50, blank=True)
+    subscription_id = models.CharField(max_length=50, blank=True)
     status = models.CharField(max_length=50, default='')
     today = timezone.now()
     trial_end = models.DateField(default=today, null=True)

@@ -3,9 +3,36 @@ from django.contrib.auth.models import User
 from django.contrib.admin import AdminSite
 from .models import *
 
-# class UserAdmin(admin.ModelAdmin):
-#     model = User
-#     list_display = [ 'username', 'first_name', 'last_name', 'email']
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.contrib.auth.models import User
+
+class EmailRequiredMixin(object):
+    def __init__(self, *args, **kwargs):
+        super(EmailRequiredMixin, self).__init__(*args, **kwargs)
+        # make user email field required
+        self.fields['email'].required = True
+
+
+class MyUserCreationForm(EmailRequiredMixin, UserCreationForm):
+    pass
+
+
+class MyUserChangeForm(EmailRequiredMixin, UserChangeForm):
+    pass
+
+
+class EmailRequiredUserAdmin(UserAdmin):
+    form = MyUserChangeForm
+    add_form = MyUserCreationForm
+    add_fieldsets = ((None, {
+        'fields': ('username', 'email', 'password1', 'password2'),
+        'classes': ('wide',)
+    }),)
+
+admin.site.unregister(User)
+admin.site.register(User, EmailRequiredUserAdmin)
+
 
 class ApproachInline(admin.TabularInline):
     model = Approach
