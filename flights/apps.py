@@ -18,5 +18,3 @@ class FlightsConfig(AppConfig):
         import flights.signal_error_tailnumber
 
         import accounts.signal_profile
-
-        import payments.signal_create_and_subscribe
