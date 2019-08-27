@@ -28,7 +28,7 @@ def stripe_webhook_view(request):
         # Handle the event
     if event.type == 'checkout.session.completed':
         payment_intent = event.data.object # contains a stripe.PaymentIntent
-        print('checkout.session.completed', event.data.object.customer)
+        # print('checkout.session.completed', event.data.object.customer)
 
     # handle_payment_intent_succeeded(payment_intent)
     # elif event.type == 'payment_method.attached':
@@ -36,33 +36,39 @@ def stripe_webhook_view(request):
     #   handle_payment_method_attached(payment_method)
     # ... handle other event types
     elif event.type == 'customer.created':
-        print('customer.created', event.data.object.id)
-        #add customer id to profile
-    elif event.type == 'customer.source.created':
+        None
+        # print('customer.created', event.data.object.id)
+        #add customer id to profileelif event.type == 'customer.source.created':
         #save source
-        print(event.type)
+        # print(event.type)
     elif event.type == 'customer.subscription.created':
+        None
         #save subscription_id
-        print(event.type)
+        # print(event.type)
     elif event.type == 'customer.subscription.deleted':
-        print(event.type)
+        None
+        # print(event.type)
         #make account/user inactive
     elif event.type == 'invoice.created':
-        print(event.type)
+        None
+        # print(event.type)
         #send email receipt
     elif event.type == 'customer.subscription.trial_will_end':
-        print(event.type)
+        None
+        # print(event.type)
         #send email warning and make warning on login with link to profile
-
     elif event.type == 'invoice.created':
+        None
         #happens again in webhook flow -- not sure how to handle
-        print(event.type)
+        # print(event.type)
         #send email receipt
     elif event.type == 'invoice.payment_succeeded':
-        print(event.type)
+        None
+        # print(event.type)
     elif event.type == 'charge.succeeded':
+        None
         #modify db to show current
-        print(event.type)
+        # print(event.type)
 
     else:
         # Unexpected event type
