@@ -12,9 +12,9 @@ def user_directory_path(instance, filename):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    company = models.CharField(max_length=50, default='')
+    company = models.CharField(max_length=50, default='', blank=True)
 
-    medical_issue_date = models.DateField(default=None, null=True)
+    medical_issue_date = models.DateField(default=None, null=True, blank=True)
     first_class = models.BooleanField(default=False)
     second_class = models.BooleanField(default=False)
     third_class = models.BooleanField(default=False)
@@ -24,7 +24,9 @@ class Profile(models.Model):
     # stripe api response fields
     customer_id = models.CharField(max_length=50, blank=True)
     subscription_id = models.CharField(max_length=50, blank=True)
-    status = models.CharField(max_length=50, default='')
+    active = models.BooleanField(default=False)
+    trial = models.BooleanField(default=False)
+    trial_expiring = models.BooleanField(default=False)
     today = timezone.now()
     trial_end = models.DateField(default=None, null=True, blank=True)
 

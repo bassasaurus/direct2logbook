@@ -30,8 +30,9 @@ def stripe_webhook_view(request):
 
         # Handle the event
     if event.type == 'checkout.session.completed':
-        payment_intent = event.data.object # contains a stripe.PaymentIntent
-        profile.status = "active"
+        profile.active = True
+        profile.trial = False
+        profile.trial_end = None
         profile.save()
 
     # handle_payment_intent_succeeded(payment_intent)
@@ -50,8 +51,8 @@ def stripe_webhook_view(request):
         #save subscription_id
         # print(event.type)
     elif event.type == 'customer.subscription.deleted':
-        None
-        # print(event.type)
+        profile.active = False
+        profile.save()
         #make account/user inactive
     elif event.type == 'invoice.created':
         None
@@ -73,6 +74,8 @@ def stripe_webhook_view(request):
         None
         #modify db to show current
         # print(event.type)
+    elif event.type == 'customer.source.created':
+        None
 
     else:
         # Unexpected event type
