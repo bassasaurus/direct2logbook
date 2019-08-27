@@ -14,6 +14,7 @@ stripe.api_key = config('STRIPE_TEST_SECRET_KEY')
 @csrf_exempt
 def stripe_webhook_view(request):
 
+
     payload = request.body
     event = None
 
@@ -25,10 +26,13 @@ def stripe_webhook_view(request):
         # Invalid payload
         return HttpResponse(status=400)
 
+    profile = Profile.objects.get(customer_id = event.data.object.customer)
+
         # Handle the event
     if event.type == 'checkout.session.completed':
         payment_intent = event.data.object # contains a stripe.PaymentIntent
-        # print('checkout.session.completed', event.data.object.customer)
+        profile.status = "active"
+        profile.save()
 
     # handle_payment_intent_succeeded(payment_intent)
     # elif event.type == 'payment_method.attached':
