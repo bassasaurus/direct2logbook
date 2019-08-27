@@ -32,6 +32,7 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
     template_name='profile/profile.html'
 
     def session_monthly(self, customer_id):
+        user = self.request.user
         session_monthly = stripe.checkout.Session.create(
             customer=customer_id,
             payment_method_types=['card'],
@@ -40,8 +41,8 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
                 'plan': 'plan_FZhtfxftM44uHz',
                 }],
             },
-        success_url='https://www.direct2logbook.com/payments/success',
-        cancel_url='https://www.direct2logbook.com/payments/cancel',
+        success_url='https://ced4518d.ngrok.io/payments/success/{}'.format(user.pk),
+        cancel_url='https://ced4518d.ngrok.io/payments/cancel/{}'.format(user.pk),
         )
 
         return session_monthly.id

@@ -14,7 +14,6 @@ stripe.api_key = config('STRIPE_TEST_SECRET_KEY')
 @csrf_exempt
 def stripe_webhook_view(request):
 
-
     payload = request.body
     event = None
 
@@ -33,6 +32,7 @@ def stripe_webhook_view(request):
         profile.active = True
         profile.trial = False
         profile.trial_end = None
+        profile.trial_expiring = False
         profile.save()
 
     # handle_payment_intent_succeeded(payment_intent)
@@ -59,7 +59,8 @@ def stripe_webhook_view(request):
         # print(event.type)
         #send email receipt
     elif event.type == 'customer.subscription.trial_will_end':
-        None
+        profile.trial_expiring = True
+        profile.save()
         # print(event.type)
         #send email warning and make warning on login with link to profile
     elif event.type == 'invoice.created':
@@ -84,13 +85,24 @@ def stripe_webhook_view(request):
 
     return HttpResponse(status=200)
 
-def success_view(request):
+
+def success_view(request, user):
+    print(user)
+
+    user = User.objects.get(id=user)
+
+    profile = Profile.objects.get(user=user)
+
+    retrieve_subscription = stripe.Subscription.retrieve(profile.subscription_id)
+
     context = {
         'title': 'Success',
         'home_link': reverse('home'),
         'parent_link': reverse('profile'),
-        'parent_name': 'Profile'
+        'parent_name': 'Profile',
+        'api_response': retrieve_subscription
     }
+
     return render(request,'payments/success.html', context)
 
 def canceled_view(request):
