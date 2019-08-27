@@ -26,7 +26,7 @@ class Profile(models.Model):
     subscription_id = models.CharField(max_length=50, blank=True)
     status = models.CharField(max_length=50, default='')
     today = timezone.now()
-    trial_end = models.DateField(default=today, null=True)
+    trial_end = models.DateField(default=None, null=True, blank=True)
 
     def __str__(self):
         title = "{} {}".format(self.user, self.pk)
