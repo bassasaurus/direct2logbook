@@ -41,13 +41,16 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
                 'plan': 'plan_FZhtfxftM44uHz',
                 }],
             },
-        success_url='https://ced4518d.ngrok.io/payments/success/{}'.format(user.pk),
-        cancel_url='https://ced4518d.ngrok.io/payments/cancel/{}'.format(user.pk),
+        # success_url='https://www.direct2logbook.com/payments/success/{}'.format(user.pk),
+        # cancel_url='https://www.direct2logbook.com/payments/cancel/{}'.format(user.pk),
+        success_url='http://localhost:8000/payments/success/{}'.format(user.pk),
+        cancel_url='http://localhost:8000/payments/cancel/{}'.format(user.pk),
         )
 
         return session_monthly.id
 
     def session_yearly(self, customer_id):
+        user = self.request.user
         session_yearly = stripe.checkout.Session.create(
             customer=customer_id,
             payment_method_types=['card'],
@@ -56,8 +59,10 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
                 'plan': 'plan_FaRGVsApeXu8bS',
                 }],
             },
-        success_url='https://www.direct2logbook.com/payments/success',
-        cancel_url='https://www.direct2logbook.com/payments/cancel',
+        # success_url='https://www.direct2logbook.com/payments/success/{}'.format(user.pk),
+        # cancel_url='https://www.direct2logbook.com/payments/cancel/{}'.format(user.pk),
+        success_url='http://localhost:8000/payments/success/{}'.format(user.pk),
+        cancel_url='http://localhost:8000/payments/cancel/{}'.format(user.pk),
         )
 
         return session_yearly.id

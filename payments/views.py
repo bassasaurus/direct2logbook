@@ -87,20 +87,19 @@ def stripe_webhook_view(request):
 
 
 def success_view(request, user):
-    print(user)
 
     user = User.objects.get(id=user)
 
     profile = Profile.objects.get(user=user)
 
-    retrieve_subscription = stripe.Subscription.retrieve(profile.subscription_id)
+    response = stripe.Subscription.retrieve(profile.subscription_id)
 
     context = {
         'title': 'Success',
         'home_link': reverse('home'),
         'parent_link': reverse('profile'),
         'parent_name': 'Profile',
-        'api_response': retrieve_subscription
+        'response': response
     }
 
     return render(request,'payments/success.html', context)
