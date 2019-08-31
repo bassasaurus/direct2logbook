@@ -9,12 +9,39 @@
     <a href="{% url 'user_update' user.pk %}">Update name</a><br>
     <a href="{% url 'account_change_password' %}">Change password</a><br>
     <hr>
-    Date Joined - {{ user.date_joined }}
+    Date Joined - {{ user.date_joined|date:"M d, Y"  }}
     <hr>
-    <h5>Subscription</h5>
-    <p>Trial ends on {{ profile.trial_end }}</p>
-    <button id="monthly">Monthly</button>
-    <button id="yearly">Yearly</button>
+    
+    {% if profile.admin %}
+      <h5>You have free access</h5>
+
+    {% elif profile.trial %}
+      <h5 class="text-success">Free trial</h5>
+      <p>Trial ends - {{ profile.end_date|date:"M d, Y" }}</p>
+      <h5 class="text-success">Subscribe now</h5>
+      <button class="btn btn-success" id="monthly">Monthly</button>
+      <span>- or -</span>
+      <button class="btn btn-success" id="yearly">Yearly</button>
+
+    {% elif not profile.active %}
+    <h5 class="text-danger">Subscription expired</h5>
+      <p>Expired on - {{ profile.end_date|date:"M d, Y" }}</p>
+      <h5 class="text-success">Subscribe now</h5>
+      <button class="btn btn-success" id="monthly">Monthly</button>
+      <span>- or -</span>
+      <button class="btn btn-success" id="yearly">Yearly</button>
+
+    {% elif not profile.trial and profile.trial_expiring %}
+    <h5 class="text-danger">Trial expired</h5>
+      <p>Expired on - {{ profile.end_date|date:"M d, Y" }}</p>
+      <h5 class="text-success">Subscribe now</h5>
+      <button class="btn btn-success" id="monthly">Monthly</button>
+      <span>- or -</span>
+      <button class="btn btn-success" id="yearly">Yearly</button>
+    {% else %}
+      <h5>Subscription active</h5>
+      <p>Next billing date - {{ profile.end_date|date:"M d, Y" }}</p>
+    {% endif %}
     <hr>
 
     <h5>Email</h5> {{ user.email }}<br>

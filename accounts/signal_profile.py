@@ -43,16 +43,14 @@ def create_user_profile(sender, instance, created, **kwargs):
         )
 
         timestamp = subscription_response.trial_end
-        profile = Profile()
 
         profile = Profile(
-                            user=instance,
-                            customer_id=customer_response.id,
-                            subscription_id=subscription_response.id,
-                            status=subscription_response.status,
-                            trial_end=datetime.fromtimestamp(subscription_response.trial_end)
-                        )
-        print(profile)
+            user=instance,
+            customer_id=customer_response.id,
+            subscription_id=subscription_response.id,
+            trial=True,
+            end_date=datetime.fromtimestamp(timestamp)
+        )
         profile.save()
 
     else:

@@ -20,7 +20,7 @@ class Profile(models.Model):
     third_class = models.BooleanField(default=False)
     over_40 = models.BooleanField(default=False)
     # signature = models.FileField(upload_to=user_directory_path, null=True, blank=True)
-
+    admin = models.BooleanField(default=False)
     # stripe api response fields
     customer_id = models.CharField(max_length=50, blank=True)
     subscription_id = models.CharField(max_length=50, blank=True)
@@ -28,7 +28,7 @@ class Profile(models.Model):
     trial = models.BooleanField(default=False)
     trial_expiring = models.BooleanField(default=False)
     today = timezone.now()
-    trial_end = models.DateField(default=None, null=True, blank=True)
+    end_date = models.DateField(default=None, null=True, blank=True)
 
     def __str__(self):
         title = "{} {}".format(self.user, self.pk)

@@ -6,7 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 import stripe
 from django.urls import reverse
 from accounts.models import Profile
-from datetime import date
+from datetime import datetime
 from django.contrib.auth.models import User
 
 stripe.api_key = config('STRIPE_TEST_SECRET_KEY')
@@ -27,11 +27,21 @@ def stripe_webhook_view(request):
 
     profile = Profile.objects.get(customer_id = event.data.object.customer)
 
-        # Handle the event
-    if event.type == 'checkout.session.completed':
+    if event.type == 'checkout.session.completed' or 'charge.succeeded':
+        print(event.type)
+        subscription_id = event.data.object.subscription
+        #end trial
+        modified_subscription_response = stripe.Subscription.modify(subscription_id,
+                    trial_end='now',
+                    days_until_due = 0,
+                    )
+
+        subscription_response = stripe.Subscription.retrieve(subscription_id)
+
+        timestamp = subscription_response.current_period_end
         profile.active = True
         profile.trial = False
-        profile.trial_end = None
+        profile.end_date = datetime.fromtimestamp(timestamp)
         profile.trial_expiring = False
         profile.save()
 
@@ -42,15 +52,10 @@ def stripe_webhook_view(request):
     # ... handle other event types
     elif event.type == 'customer.created':
         None
-        # print('customer.created', event.data.object.id)
-        #add customer id to profileelif event.type == 'customer.source.created':
-        #save source
-        # print(event.type)
     elif event.type == 'customer.subscription.created':
         None
-        #save subscription_id
-        # print(event.type)
     elif event.type == 'customer.subscription.deleted':
+        print(event.type)
         profile.active = False
         profile.save()
         #make account/user inactive
@@ -59,9 +64,9 @@ def stripe_webhook_view(request):
         # print(event.type)
         #send email receipt
     elif event.type == 'customer.subscription.trial_will_end':
+        print(event.type)
         profile.trial_expiring = True
         profile.save()
-        # print(event.type)
         #send email warning and make warning on login with link to profile
     elif event.type == 'invoice.created':
         None
@@ -70,10 +75,6 @@ def stripe_webhook_view(request):
         #send email receipt
     elif event.type == 'invoice.payment_succeeded':
         None
-        # print(event.type)
-    elif event.type == 'charge.succeeded':
-        None
-        #modify db to show current
         # print(event.type)
     elif event.type == 'customer.source.created':
         None
@@ -85,21 +86,25 @@ def stripe_webhook_view(request):
 
     return HttpResponse(status=200)
 
-
 def success_view(request, user):
 
     user = User.objects.get(id=user)
 
     profile = Profile.objects.get(user=user)
 
-    response = stripe.Subscription.retrieve(profile.subscription_id)
+    subscription_response = stripe.Subscription.retrieve(profile.subscription_id)
+    print(subscription_response)
+
+    timestamp = subscription_response.current_period_end
+    end_date = datetime.fromtimestamp(timestamp)
 
     context = {
         'title': 'Success',
         'home_link': reverse('home'),
         'parent_link': reverse('profile'),
         'parent_name': 'Profile',
-        'response': response
+        'response': subscription_response,
+        'end_date': end_date
     }
 
     return render(request,'payments/success.html', context)
