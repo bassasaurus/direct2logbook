@@ -52,12 +52,12 @@ def update_profiles():
 
             timestamp = subscription_response.trial_end
 
-            profile.customer_id=customer_response.id,
-            profile.subscription_id=subscription_response.id,
-            profile.active=False,
-            profile.trial=True,
-            profile.free_access=False,
-            profile.trial_expiring=False,
+            profile.customer_id=customer_response.id
+            profile.subscription_id=subscription_response.id
+            profile.active=False
+            profile.trial=True
+            profile.free_access=False
+            profile.trial_expiring=False
             profile.end_date=datetime.fromtimestamp(timestamp)
 
-        profile.save()
+        profile.save(update_fields=['customer_id', 'subscription_id', 'active', 'trial', 'free_access', 'trial_expiring', 'end_date'])
