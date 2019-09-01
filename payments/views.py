@@ -104,6 +104,7 @@ def success_view(request, user):
         'parent_link': reverse('profile'),
         'parent_name': 'Profile',
         'response': subscription_response,
+        'nickname': subscription_response.plan.nickname,
         'end_date': end_date
     }
 
