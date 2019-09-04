@@ -36,7 +36,7 @@ def create_user_profile(sender, instance, created, **kwargs):
             cancel_at_period_end=True,
             items=[
                 {
-                    "plan": "plan_FZhtfxftM44uHz",
+                    "plan": "prod_FZhtiCoFBC0oJ1",
                 },
             ],
             trial_end = timestamp,

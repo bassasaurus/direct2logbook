@@ -11,6 +11,8 @@ from django.contrib.auth.models import User
 
 stripe.api_key = config('STRIPE_TEST_SECRET_KEY')
 
+endpoint_secret = config('endpoint_secret')
+
 @csrf_exempt
 def stripe_webhook_view(request):
 
@@ -21,7 +23,19 @@ def stripe_webhook_view(request):
     # ... handle other event types
 
     payload = request.body
+    sig_header = request.META['HTTP_STRIPE_SIGNATURE']
     event = None
+
+    try:
+        event = stripe.Webhook.construct_event(
+          payload, sig_header, endpoint_secret
+        )
+    except ValueError as e:
+        # Invalid payload
+        return HttpResponse(status=400)
+    except stripe.error.SignatureVerificationError as e:
+        # Invalid signature
+        return HttpResponse(status=400)
 
     try:
         event = stripe.Event.construct_from(
@@ -49,6 +63,16 @@ def stripe_webhook_view(request):
         profile.subscription_id = subscription_response.id
         profile.active = True
         profile.trial = False
+
+        if subscription_response.get('items').data[0].get('plan').interval == 'month':
+            profile.monthly = True
+            profile.yearly = False
+        elif subscription_response.get('items').data[0].get('plan').interval == 'year':
+            profile.yearly = True
+            profile.monthly = False
+        else:
+            print('subscription api changed', 'payments.views.py')
+            
         profile.end_date = datetime.fromtimestamp(timestamp)
         profile.trial_expiring = False
         profile.save()
@@ -56,33 +80,36 @@ def stripe_webhook_view(request):
 
     # elif event.type == 'customer.created':
     #     None
-    # elif event.type == 'customer.subscription.created':
-    #     None
+    elif event.type == 'customer.subscription.created':
+        None
     elif event.type == 'customer.subscription.deleted':
-        print(event.type)
+        # print(event.type)
         profile.active = False
         profile.canceled = True
         profile.save()
-    # elif event.type == 'invoice.created':
-    #     None
-    #     # print(event.type)
-    #     #send email receipt
-    # elif event.type == 'customer.subscription.trial_will_end':
-    #     print(event.type)
-    #     profile.trial_expiring = True
-    #     profile.save()
-    #     #send email warning and make warning on login with link to profile
-    # elif event.type == 'invoice.created':
-    #     None
-    #     #happens again in webhook flow -- not sure how to handle
-    #     # print(event.type)
-    #
-    # elif event.type == 'invoice.payment_succeeded':
-    #     None
-    #     # print(event.type)
-    #     #send email receipt
-    # elif event.type == 'customer.source.created':
-    #     None
+    elif event.type == 'invoice.created':
+        None
+        # print(event.type)
+        #send email receipt
+    elif event.type == 'customer.subscription.trial_will_end':
+        # print(event.type)
+        profile.trial_expiring = True
+        profile.save()
+        #send email warning and make warning on login with link to profile
+    elif event.type == 'customer.source.created':
+        None
+        # print(event.type)
+
+    elif event.type == 'invoice.payment_succeeded':
+        None
+        # print(event.type)
+        #send email receipt
+    elif event.type == 'customer.source.created':
+        None
+    elif event.type == 'invoice.payment.succeeded':
+        None
+    elif event.type == 'charge.succeeded':
+        None
 
     else:
         # Unexpected event type
@@ -98,7 +125,7 @@ def success_view(request, user):
     profile = Profile.objects.get(user=user)
 
     subscription_response = stripe.Subscription.retrieve(profile.subscription_id)
-
+    # print(subscription_response)
     timestamp = subscription_response.current_period_end
     end_date = datetime.fromtimestamp(timestamp)
 
@@ -133,7 +160,7 @@ def subscription_cancel_view(request):
                                         profile.subscription_id,
                                         cancel_at_period_end=True
                                         )
-    print(canceled_subscription_response)
+    # print(canceled_subscription_response)
 
     profile.canceled = True
     profile.active = False
@@ -147,8 +174,3 @@ def subscription_cancel_view(request):
     }
 
     return render(request, 'payments/subscription_canceled.html', context)
-
-def debug_view(request):
-    context = {
-    }
-    return render(request,'payments/debug.html', context)

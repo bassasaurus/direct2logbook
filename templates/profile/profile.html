@@ -40,6 +40,12 @@
       <button class="btn btn-success" id="yearly">Yearly</button>
     {% else %}
       <h5>Subscription active</h5>
+      <p>Change Subscription</p>
+      {% if profile.monthly %}
+        <button class="btn btn-success" id="yearly">Yearly</button>
+      {% elif profile.yearly %}
+        <button class="btn btn-success" id="monthly">Monthly</button>
+      {% endif %}
       <p>Next billing date - {{ profile.end_date|date:"M d, Y" }}</p>
       <a class="text-danger" href="{% url 'subscription_canceled'%}">Cancel</a>
     {% endif %}
