@@ -25,6 +25,7 @@ class Profile(models.Model):
     customer_id = models.CharField(max_length=50, blank=True)
     subscription_id = models.CharField(max_length=50, blank=True)
     active = models.BooleanField(default=False)
+    canceled = models.BooleanField(default=False)
     trial = models.BooleanField(default=False)
     trial_expiring = models.BooleanField(default=False)
     today = timezone.now()

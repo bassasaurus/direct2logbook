@@ -250,9 +250,9 @@ LOGGING = {
     'disable_existing_loggers': False,
     'handlers': {
         'file': {
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'class': 'logging.FileHandler',
-            'filename': 'logbook/debug.log',
+            'filename': DJANGO_ROOT + '/logbook/debug.log',
         },
     },
     'loggers': {

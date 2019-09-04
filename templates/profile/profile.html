@@ -11,7 +11,7 @@
     <hr>
     Date Joined - {{ user.date_joined|date:"M d, Y"  }}
     <hr>
-    
+
     {% if profile.admin %}
       <h5>You have free access</h5>
 
@@ -41,6 +41,7 @@
     {% else %}
       <h5>Subscription active</h5>
       <p>Next billing date - {{ profile.end_date|date:"M d, Y" }}</p>
+      <a class="text-danger" href="{% url 'subscription_canceled'%}">Cancel</a>
     {% endif %}
     <hr>
 
