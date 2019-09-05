@@ -12,7 +12,7 @@
     Date Joined - {{ user.date_joined|date:"M d, Y"  }}
     <hr>
 
-    {% if profile.admin %}
+    {% if profile.free_access %}
       <h5>You have free access</h5>
 
     {% elif profile.trial %}
