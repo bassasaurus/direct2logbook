@@ -72,7 +72,6 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         context = super(ProfileView, self).get_context_data(**kwargs)
         user = self.request.user
         customer_id = Profile.objects.get(user=user).customer_id
-        print(customer_id)
 
         if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
             context['STRIPE_PUBLISHABLE_KEY'] = config('STRIPE_TEST_PUBLISHABLE_KEY')
