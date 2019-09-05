@@ -39,7 +39,7 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
             payment_method_types=['card'],
             subscription_data={
                 'items': [{
-                'plan': 'plan_FZhtfxftM44uHz',
+                'plan': 'plan_FZi0hBf46jbYVt',
                 }],
             },
         # success_url='https://www.direct2logbook.com/payments/success/{}'.format(user.pk),
@@ -57,7 +57,7 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
             payment_method_types=['card'],
             subscription_data={
                 'items': [{
-                'plan': 'plan_FaRGVsApeXu8bS',
+                'plan': 'plan_FbBfx5Pbam2QRa',
                 }],
             },
         # success_url='https://www.direct2logbook.com/payments/success/{}'.format(user.pk),
@@ -77,7 +77,7 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
             context['STRIPE_PUBLISHABLE_KEY'] = config('STRIPE_TEST_PUBLISHABLE_KEY')
         else:
             context['STRIPE_PUBLISHABLE_KEY'] = config('STRIPE_LIVE_PUBLISHABLE_KEY')
-        
+
         context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly(customer_id)
         context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly(customer_id)
         context['profile'] = Profile.objects.get(user=user)
