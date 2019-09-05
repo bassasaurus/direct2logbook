@@ -15,6 +15,8 @@ from accounts.forms import ProfileForm, UserForm
 from allauth.account.views import EmailView, PasswordSetView, PasswordChangeView, PasswordResetView, PasswordResetDoneView, PasswordResetFromKeyView, PasswordResetFromKeyDoneView
 from allauth.socialaccount.views import ConnectionsView
 from decouple import config
+import stripe
+import os
 
 class LoginRequiredMixin(LoginRequiredMixin):
     login_url = '/accounts/login'
@@ -26,20 +28,66 @@ class UserObjectsMixin():
         user = self.request.user
         return super(UserObjectsMixin, self).get_queryset().filter(user=user)
 
-
 class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
     model = Profile
     template_name='profile/profile.html'
 
+    def session_monthly(self, customer_id):
+        user = self.request.user
+        session_monthly = stripe.checkout.Session.create(
+            customer=customer_id,
+            payment_method_types=['card'],
+            subscription_data={
+                'items': [{
+                'plan': 'plan_FZhtfxftM44uHz',
+                }],
+            },
+        # success_url='https://www.direct2logbook.com/payments/success/{}'.format(user.pk),
+        # cancel_url='https://www.direct2logbook.com/payments/cancel/{}'.format(user.pk),
+        success_url='http://localhost:8000/payments/success/{}'.format(user.pk),
+        cancel_url='http://localhost:8000/payments/cancel/{}'.format(user.pk),
+        )
+
+        return session_monthly.id
+
+    def session_yearly(self, customer_id):
+        user = self.request.user
+        session_yearly = stripe.checkout.Session.create(
+            customer=customer_id,
+            payment_method_types=['card'],
+            subscription_data={
+                'items': [{
+                'plan': 'plan_FaRGVsApeXu8bS',
+                }],
+            },
+        # success_url='https://www.direct2logbook.com/payments/success/{}'.format(user.pk),
+        # cancel_url='https://www.direct2logbook.com/payments/cancel/{}'.format(user.pk),
+        success_url='http://localhost:8000/payments/success/{}'.format(user.pk),
+        cancel_url='http://localhost:8000/payments/cancel/{}'.format(user.pk),
+        )
+
+        return session_yearly.id
+
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
         user = self.request.user
+        customer_id = Profile.objects.get(user=user).customer_id
+
+        if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
+            context['STRIPE_PUBLISHABLE_KEY'] = config('STRIPE_TEST_PUBLISHABLE_KEY')
+        else:
+            context['STRIPE_PUBLISHABLE_KEY'] = config('STRIPE_LIVE_PUBLISHABLE_KEY')
+        
+        context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly(customer_id)
+        context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly(customer_id)
+        context['profile'] = Profile.objects.get(user=user)
+        context['customer_id'] = customer_id
         context['user_email'] = str(user.email)
-        context['STRIPE_PUBLISHABLE_KEY'] = config('STRIPE_TEST_PUBLISHABLE_KEY')
         context['title'] = "D-> | Profile"
         context['parent_name'] = 'Home'
         context['parent_link'] = reverse('home')
         context['page_title'] = 'Profile'
+
         return context
 
 class UserUpdateView(UpdateView):

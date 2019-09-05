@@ -5,21 +5,51 @@
 <hr>
 <div class="row">
   <div class="col-12">
-
     <h3>{{ user.first_name }} {{ user.last_name }}</h3>
     <a href="{% url 'user_update' user.pk %}">Update name</a><br>
     <a href="{% url 'account_change_password' %}">Change password</a><br>
     <hr>
-    Date Joined - {{ user.date_joined }}
+    Date Joined - {{ user.date_joined|date:"M d, Y"  }}
     <hr>
-    <h5>Subscribe</h5>
-    <button class="btn btn-secondary" id="checkout-button-plan_FZhtfxftM44uHz" role="link">
-      Monthly
-    </button>
-    <span>- or -</span>
-    <button class="btn btn-secondary" id="checkout-button-plan_FaRGVsApeXu8bS" role="link">
-      Yearly
-    </button>
+
+    {% if profile.admin %}
+      <h5>You have free access</h5>
+
+    {% elif profile.trial %}
+      <h5 class="text-success">Free trial ends {{ profile.end_date|date:"M d, Y" }}</h5>
+      <h5 class="text-success">Subscribe now</h5>
+      <h5><a href="" class="link text-success" id="monthly">Monthly</a>
+      <span>- or -</span>
+      <a href="" class="link text-success" id="yearly">Yearly</a></h5>
+
+    {% elif not profile.active %}
+    <h5 class="text-danger">Subscription expired</h5>
+      <p>Expired on - {{ profile.end_date|date:"M d, Y" }}</p>
+      <h5 class="text-success">Subscribe now</h5>
+      <h5><a href="" class="link text-success" id="monthly">Monthly</a>
+      <span>- or -</span>
+      <a href="" class="link text-success" id="yearly">Yearly</a></h5>
+
+    {% elif not profile.trial and profile.trial_expiring %}
+    <h5 class="text-danger">Trial expired</h5>
+      <p>Expired on - {{ profile.end_date|date:"M d, Y" }}</p>
+      <h5 class="text-success">Subscribe now</h5>
+      <h5><a href="" class="link text-success" id="monthly">Monthly</a>
+      <span>- or -</span>
+      <a href="" class="link text-success" id="yearly">Yearly</a></h5>
+
+    {% else %}
+      <h5>Subscription active</h5>
+      <p>Change Subscription</p>
+      {% if profile.monthly %}
+        <a href="" class="link text-success" id="yearly">Yearly</a>
+      {% elif profile.yearly %}
+        <a href="" class="link text-success" id="monthly">Monthly</a>
+      {% endif %}
+      <p>Next billing date - {{ profile.end_date|date:"M d, Y" }}</p>
+      <a class="text-danger" href="{% url 'subscription_canceled'%}">Cancel</a>
+
+    {% endif %}
 
     <hr>
     <h5>Email</h5> {{ user.email }}<br>
@@ -35,87 +65,44 @@
     {% if user.profile.second_class == True %} 2nd Class |{% else %}{% endif %}
     {% if user.profile.third_class == True %} 3rd Class |{% else %}{% endif %}
     {% if user.profile.over_40 == True %} Over 40 {% else %}{% endif %}
+    <p><a class="" href="{% url 'profile_update' user.profile.pk %}">Update medical info</a></p>
+
     <hr>
     <p>Questions or problems with the app? Email us <a target="new" href="mailto:support@direct2logbook.com?subject=Support">here</a></p>
     <p>Include a screenshot if possible, and a description of the error. More info is better</p>
     <hr>
-    <p><a class="btn-shadow btn-shadow-dark btn-block" href="{% url 'profile_update' user.profile.pk %}">Update Profile</a></p>
   </div>
 </div>
 
 <script src="https://js.stripe.com/v3/"></script>
-
-<!-- Load Stripe.js on your website. -->
-<script src="https://js.stripe.com/v3"></script>
-
-<!-- Create a button that your customers click to complete their purchase. Customize the styling to suit your branding. -->
-
-
-<div id="error-message"></div>
-
-<script>
-  var stripe = Stripe('pk_test_Z9KJ4TxX7nY9hcXA297CV7QK002fT3EcFo');
-
-  var checkoutButton = document.getElementById('checkout-button-plan_FZhtfxftM44uHz');
-  checkoutButton.addEventListener('click', function () {
-    // When the customer clicks on the button, redirect
-    // them to Checkout.
+<script type="text/javascript">
+  var stripe = Stripe('{{STRIPE_PUBLISHABLE_KEY}}');
+  $( "#monthly" ).click(function() {
     stripe.redirectToCheckout({
-      items: [{plan: 'plan_FZhtfxftM44uHz', quantity: 1}],
-
-      // Do not rely on the redirect to the successUrl for fulfilling
-      // purchases, customers may not always reach the success_url after
-      // a successful payment.
-      // Instead use one of the strategies described in
-      // https://stripe.com/docs/payments/checkout/fulfillment
-      successUrl: window.location.protocol + '//www.direct2logbook.com/payments/success',
-      cancelUrl: window.location.protocol + '//www.direct2logbook.com/payments/canceled',
-      customerEmail: '{{ user.email }}',
-    })
-    .then(function (result) {
-      if (result.error) {
-        // If `redirectToCheckout` fails due to a browser or network
-        // error, display the localized error message to your customer.
-        var displayError = document.getElementById('error-message');
-        displayError.textContent = result.error.message;
-      }
+      // Make the id field from the Checkout Session creation API response
+      // available to this file, so you can provide it as parameter here
+      // instead of the {{CHECKOUT_SESSION_ID}} placeholder.
+      sessionId: '{{CHECKOUT_SESSION_ID_MONTHLY}}'
+    }).then(function (result) {
+      // If `redirectToCheckout` fails due to a browser or network
+      // error, display the localized error message to your customer
+      // using `result.error.message`.
     });
   });
 </script>
-<!-- Load Stripe.js on your website. -->
-<script src="https://js.stripe.com/v3"></script>
 
-<!-- Create a button that your customers click to complete their purchase. Customize the styling to suit your branding. -->
-
-
-<div id="error-message"></div>
-
-<script>
-  var stripe = Stripe('pk_test_Z9KJ4TxX7nY9hcXA297CV7QK002fT3EcFo');
-
-  var checkoutButton = document.getElementById('checkout-button-plan_FaRGVsApeXu8bS');
-  checkoutButton.addEventListener('click', function () {
-    // When the customer clicks on the button, redirect
-    // them to Checkout.
+<script type="text/javascript">
+  var stripe = Stripe('{{STRIPE_PUBLISHABLE_KEY}}');
+  $( "#yearly" ).click(function() {
     stripe.redirectToCheckout({
-      items: [{plan: 'plan_FaRGVsApeXu8bS', quantity: 1}],
-
-      // Do not rely on the redirect to the successUrl for fulfilling
-      // purchases, customers may not always reach the success_url after
-      // a successful payment.
-      // Instead use one of the strategies described in
-      // https://stripe.com/docs/payments/checkout/fulfillment
-      successUrl: window.location.protocol + '//www.direct2logbook.com/payments/success',
-      cancelUrl: window.location.protocol + '//www.direct2logbook.com/payments/canceled',
-      customerEmail: '{{ user.email }}'
-    })
-    .then(function (result) {
-      if (result.error) {
-        // If `redirectToCheckout` fails due to a browser or network
-        // error, display the localized error message to your customer.
-        var displayError = document.getElementById('error-message');
-        displayError.textContent = result.error.message;
-      }
+      // Make the id field from the Checkout Session creation API response
+      // available to this file, so you can provide it as parameter here
+      // instead of the {{CHECKOUT_SESSION_ID}} placeholder.
+      sessionId: '{{CHECKOUT_SESSION_ID_YEARLY}}'
+    }).then(function (result) {
+      // If `redirectToCheckout` fails due to a browser or network
+      // error, display the localized error message to your customer
+      // using `result.error.message`.
     });
   });
 </script>

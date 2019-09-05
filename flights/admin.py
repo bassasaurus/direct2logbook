@@ -1,6 +1,37 @@
 from django.contrib import admin
+from django.contrib.auth.models import User
 from django.contrib.admin import AdminSite
 from .models import *
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.contrib.auth.models import User
+
+class EmailRequiredMixin(object):
+    def __init__(self, *args, **kwargs):
+        super(EmailRequiredMixin, self).__init__(*args, **kwargs)
+        # make user email field required
+        self.fields['email'].required = True
+
+
+class MyUserCreationForm(EmailRequiredMixin, UserCreationForm):
+    pass
+
+
+class MyUserChangeForm(EmailRequiredMixin, UserChangeForm):
+    pass
+
+
+class EmailRequiredUserAdmin(UserAdmin):
+    form = MyUserChangeForm
+    add_form = MyUserCreationForm
+    add_fieldsets = ((None, {
+        'fields': ('username', 'email', 'password1', 'password2'),
+        'classes': ('wide',)
+    }),)
+
+admin.site.unregister(User)
+admin.site.register(User, EmailRequiredUserAdmin)
+
 
 class ApproachInline(admin.TabularInline):
     model = Approach
@@ -62,6 +93,8 @@ class PowerAdmin(admin.ModelAdmin):
 class BulkEntryAdmin(admin.ModelAdmin):
     list_display = ['user', 'aircraft_type', 'aircraft_category', 'aircraft_class', 'total_time', 'pilot_in_command', 'second_in_command', 'cross_country', 'instructor', 'dual', 'solo', 'instrument', 'night', 'simulated_instrument', 'simulator', 'landings_day', 'landings_night', 'landings_total', 'last_flown', 'last_30', 'last_60', 'last_90', 'last_yr', 'last_2yr', 'ytd']
 
+# admin.site.unregister(User)
+# admin.site.register(User, UserAdmin)
 admin.site.register(Flight, FlightAdmin)
 admin.site.register(Aircraft, AircraftAdmin)
 

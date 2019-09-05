@@ -198,7 +198,7 @@ def gyro_vfr_night(user):
     return gyro_vfr_night, current
 
 def medical_duration(user): #still need to start calculations from next month after issue
-    issue_date = user.profile.date
+    issue_date = user.profile.medical_issue_date
     current_month = datetime.date.today()
 
     if user.profile.first_class and not user.profile.over_40:

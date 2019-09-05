@@ -85,6 +85,7 @@ AUTHENTICATION_BACKENDS = (
 )
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS=3
 ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_VERIFICATION = "optional"
 ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 10
 ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 216000 # 1 hour
@@ -96,7 +97,9 @@ ACCOUNT_SIGNUP_EMAIL_ENTER_TWICE=True
 ACCOUNT_USERNAME_BLACKLIST=['admin', 'pigarkle', 'test']
 ACCOUNT_UNIQUE_EMAIL=True
 ACCOUNT_CONFIRM_EMAIL_ON_GET=True
-
+ACCOUNT_FORMS = {
+    'signup': 'accounts.forms.CustomSignupForm',
+    }
 
 SOCIALACCOUNT_EMAIL_VERIFICATION=ACCOUNT_EMAIL_VERIFICATION
 SOCIALACCOUNT_EMAIL_REQUIRED=ACCOUNT_EMAIL_REQUIRED
@@ -247,9 +250,9 @@ LOGGING = {
     'disable_existing_loggers': False,
     'handlers': {
         'file': {
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'class': 'logging.FileHandler',
-            'filename': 'logbook/debug.log',
+            'filename': DJANGO_ROOT + '/logbook/debug.log',
         },
     },
     'loggers': {
@@ -276,3 +279,7 @@ CSRF_USE_SESSIONS = True
 
 if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS') is not None:
     from .development import *
+
+FIXTURE_DIRS = (
+   DJANGO_ROOT
+)
