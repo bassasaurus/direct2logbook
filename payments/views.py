@@ -165,17 +165,21 @@ def subscription_cancel_view(request):
                                         profile.subscription_id,
                                         cancel_at_period_end=True
                                         )
-    # print(canceled_subscription_response)
 
     profile.canceled = True
     profile.active = False
     profile.save()
 
+    timestamp = canceled_subscription_response.current_period_end
+    end_date = datetime.fromtimestamp(timestamp)
+
     context = {
         'title': 'Subscription canceled',
         'home_link': reverse('home'),
         'parent_link': reverse('profile'),
-        'parent_name': 'Profile'
+        'parent_name': 'Profile',
+
+        'end_date': end_date,
     }
 
     return render(request, 'payments/subscription_canceled.html', context)

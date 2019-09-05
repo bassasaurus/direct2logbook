@@ -33,13 +33,19 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
     template_name='profile/profile.html'
 
     def session_monthly(self, customer_id):
+
+        if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
+            plan_monthly = 'plan_FZhtfxftM44uHz'
+        else:
+            plan_monthly = 'plan_FZi0hBf46jbYVt'
+
         user = self.request.user
         session_monthly = stripe.checkout.Session.create(
             customer=customer_id,
             payment_method_types=['card'],
             subscription_data={
                 'items': [{
-                'plan': 'plan_FZi0hBf46jbYVt',
+                'plan': plan_monthly,
                 }],
             },
         # success_url='https://www.direct2logbook.com/payments/success/{}'.format(user.pk),
@@ -51,13 +57,19 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         return session_monthly.id
 
     def session_yearly(self, customer_id):
+
+        if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
+            plan_yearly = 'plan_FaRGVsApeXu8bS'
+        else:
+            plan_yearly = 'plan_FbBfx5Pbam2QRa'
+
         user = self.request.user
         session_yearly = stripe.checkout.Session.create(
             customer=customer_id,
             payment_method_types=['card'],
             subscription_data={
                 'items': [{
-                'plan': 'plan_FbBfx5Pbam2QRa',
+                'plan': plan_yearly,
                 }],
             },
         # success_url='https://www.direct2logbook.com/payments/success/{}'.format(user.pk),
