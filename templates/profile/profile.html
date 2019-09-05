@@ -16,41 +16,42 @@
       <h5>You have free access</h5>
 
     {% elif profile.trial %}
-      <h5 class="text-success">Free trial</h5>
-      <p>Trial ends - {{ profile.end_date|date:"M d, Y" }}</p>
+      <h5 class="text-success">Free trial ends {{ profile.end_date|date:"M d, Y" }}</h5>
       <h5 class="text-success">Subscribe now</h5>
-      <button class="btn btn-success" id="monthly">Monthly</button>
+      <h5><a href="" class="link text-success" id="monthly">Monthly</a>
       <span>- or -</span>
-      <button class="btn btn-success" id="yearly">Yearly</button>
+      <a href="" class="link text-success" id="yearly">Yearly</a></h5>
 
     {% elif not profile.active %}
     <h5 class="text-danger">Subscription expired</h5>
       <p>Expired on - {{ profile.end_date|date:"M d, Y" }}</p>
       <h5 class="text-success">Subscribe now</h5>
-      <button class="btn btn-success" id="monthly">Monthly</button>
+      <h5><a href="" class="link text-success" id="monthly">Monthly</a>
       <span>- or -</span>
-      <button class="btn btn-success" id="yearly">Yearly</button>
+      <a href="" class="link text-success" id="yearly">Yearly</a></h5>
 
     {% elif not profile.trial and profile.trial_expiring %}
     <h5 class="text-danger">Trial expired</h5>
       <p>Expired on - {{ profile.end_date|date:"M d, Y" }}</p>
       <h5 class="text-success">Subscribe now</h5>
-      <button class="btn btn-success" id="monthly">Monthly</button>
+      <h5><a href="" class="link text-success" id="monthly">Monthly</a>
       <span>- or -</span>
-      <button class="btn btn-success" id="yearly">Yearly</button>
+      <a href="" class="link text-success" id="yearly">Yearly</a></h5>
+
     {% else %}
       <h5>Subscription active</h5>
       <p>Change Subscription</p>
       {% if profile.monthly %}
-        <button class="btn btn-success" id="yearly">Yearly</button>
+        <a href="" class="link text-success" id="yearly">Yearly</a>
       {% elif profile.yearly %}
-        <button class="btn btn-success" id="monthly">Monthly</button>
+        <a href="" class="link text-success" id="monthly">Monthly</a>
       {% endif %}
       <p>Next billing date - {{ profile.end_date|date:"M d, Y" }}</p>
       <a class="text-danger" href="{% url 'subscription_canceled'%}">Cancel</a>
-    {% endif %}
-    <hr>
 
+    {% endif %}
+
+    <hr>
     <h5>Email</h5> {{ user.email }}<br>
     <a href="{% url 'account_email' %}">Update email</a><br>
 
