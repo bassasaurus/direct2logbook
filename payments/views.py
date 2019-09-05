@@ -8,10 +8,14 @@ from django.urls import reverse
 from accounts.models import Profile
 from datetime import datetime
 from django.contrib.auth.models import User
+import os
 
-stripe.api_key = config('STRIPE_TEST_SECRET_KEY')
-
-endpoint_secret = config('endpoint_secret')
+if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
+    stripe.api_key = config('STRIPE_TEST_SECRET_KEY')
+    endpoint_secret = config('endpoint_test_secret')
+else:
+    stripe.api_key = config('STRIPE_LIVE_SECRET_KEY')
+    endpoint_secret = config('endpoint_live_secret')
 
 @csrf_exempt
 def stripe_webhook_view(request):
@@ -63,6 +67,7 @@ def stripe_webhook_view(request):
         profile.subscription_id = subscription_response.id
         profile.active = True
         profile.trial = False
+        profile.canceled = False
 
         if subscription_response.get('items').data[0].get('plan').interval == 'month':
             profile.monthly = True
@@ -72,7 +77,7 @@ def stripe_webhook_view(request):
             profile.monthly = False
         else:
             print('subscription api changed', 'payments.views.py')
-            
+
         profile.end_date = datetime.fromtimestamp(timestamp)
         profile.trial_expiring = False
         profile.save()

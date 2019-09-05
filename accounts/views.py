@@ -16,6 +16,7 @@ from allauth.account.views import EmailView, PasswordSetView, PasswordChangeView
 from allauth.socialaccount.views import ConnectionsView
 from decouple import config
 import stripe
+import os
 
 class LoginRequiredMixin(LoginRequiredMixin):
     login_url = '/accounts/login'
@@ -72,7 +73,11 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         user = self.request.user
         customer_id = Profile.objects.get(user=user).customer_id
 
-        context['STRIPE_TEST_PUBLISHABLE_KEY'] = config('STRIPE_TEST_PUBLISHABLE_KEY')
+        if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
+            context['STRIPE_PUBLISHABLE_KEY'] = config('STRIPE_TEST_PUBLISHABLE_KEY')
+        else:
+            context['STRIPE_PUBLISHABLE_KEY'] = config('STRIPE_LIVE_PUBLISHABLE_KEY')
+        
         context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly(customer_id)
         context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly(customer_id)
         context['profile'] = Profile.objects.get(user=user)
