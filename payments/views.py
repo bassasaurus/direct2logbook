@@ -83,8 +83,6 @@ def stripe_webhook_view(request):
         profile.save()
 
 
-    # elif event.type == 'customer.created':
-    #     None
     elif event.type == 'customer.subscription.created':
         None
     elif event.type == 'customer.subscription.deleted':

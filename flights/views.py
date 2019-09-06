@@ -1,4 +1,5 @@
 from flights.models import *
+from accounts.models import Profile
 from django.contrib.auth.models import User, Group
 
 from flights.forms import FlightForm, AircraftForm, TailNumberForm , HoldingFormSet, ApproachFormSet, ImportAircraftForm
@@ -29,6 +30,8 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from flights.get_map_data import get_map_data
 import flights.currency as currency
+
+from django.contrib.auth.mixins import UserPassesTestMixin
 
 CharField.register_lookup(Length, 'length')
 
@@ -70,6 +73,19 @@ def error_403(request, exception):
         'home_link': reverse('home')
         }
         return render(request,'error_403.html', context)
+
+class ProfileNotActiveMixin(UserPassesTestMixin):
+
+    def handle_no_permission(self):
+        profile = Profile.objects.get(user=self.request.user)
+        if profile.active == False:
+            return redirect(reverse('profile'))
+        else:
+            return None
+
+    def test_func(self):
+        return None
+
 
 class UserObjectsMixin():
 
@@ -135,7 +151,7 @@ def index_view(request):
     else:
         return render(request, 'index.html', context)
 
-class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
+class HomeView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, TemplateView):
     template_name='home.html'
 
     def get_context_data(self, **kwargs):
