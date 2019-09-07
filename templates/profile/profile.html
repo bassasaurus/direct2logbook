@@ -2,7 +2,9 @@
 
 {% block content %}
 <hr>
+
 {% if not profile.active or profile.canceled %}
+
 <h5 class="text-danger">Subscription expired</h5>
   <hr>
   <p>You have either canceled the subscription or your card is no longer valid<p>
@@ -12,6 +14,8 @@
   <span>- or -</span>
   <a href="" class="link text-success" id="yearly">Yearly</a></h5>
 {% else %}
+
+
 
 <div class="row">
   <div class="col-12">
