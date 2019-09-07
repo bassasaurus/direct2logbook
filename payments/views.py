@@ -83,8 +83,6 @@ def stripe_webhook_view(request):
         profile.save()
 
 
-    # elif event.type == 'customer.created':
-    #     None
     elif event.type == 'customer.subscription.created':
         None
     elif event.type == 'customer.subscription.deleted':
@@ -115,6 +113,11 @@ def stripe_webhook_view(request):
         None
     elif event.type == 'charge.succeeded':
         None
+    elif event.type == 'charge.failed':
+        profile.active = False
+        profile.monthly = False
+        profile.yearly = False
+        profile.save()
 
     else:
         # Unexpected event type
