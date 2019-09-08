@@ -82,13 +82,6 @@ def error_403(request, exception):
 
 class ProfileNotActiveMixin(UserPassesTestMixin):
 
-    # def user_not_active(self):
-    #     profile = Profile.objects.get(user=self.request.user)
-    #     if not profile.active:
-    #         return False
-    #     else:
-    #         return True
-
     def test_func(self):
         profile = Profile.objects.get(user=self.request.user)
         if not profile.active:
