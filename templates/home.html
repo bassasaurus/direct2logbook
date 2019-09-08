@@ -19,7 +19,8 @@
     {% endif %}
     {% endif %}
   </div>
-  <a id="pdf" href="{% url 'pdf' user.pk %}">Print Logbook</a>
+  <p><a id="pdf" href="{% url 'pdf' user.pk %}">Print Logbook</a><p>
+  <p><a id="csv" href="{% url 'csv' %}">Download .csv</a></p>
 </div>
 
 <hr>
@@ -308,6 +309,19 @@
       swal({
         type: 'info',
         title: 'Preparing your logbook.',
+        text: 'Please be patient, This might take several minutes.',
+        footer: 'Dont leave this page.',
+        toast: true,
+        position: 'top',
+        showConfirmButton: false,
+        allowOutsideClick: false,
+        // timer: 50000,
+      })
+    });
+    $('#csv').click(function(e) {
+      swal({
+        type: 'info',
+        title: 'Preparing your .csv download.',
         text: 'Please be patient, This might take several minutes.',
         footer: 'Dont leave this page.',
         toast: true,

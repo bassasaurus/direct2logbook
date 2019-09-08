@@ -16,13 +16,24 @@ def csv_view(request):
                 'date',
                 'aircraft',
                 'registration',
-                'duration',
                 'route',
+                'duration',
                 'pilot in command',
                 'second in command',
                 'cross country',
                 'night',
                 'instrument',
+                #appr
+                #hold
+                'day landing',
+                'night landing',
+                'simulated instrument',
+                'instructor',
+                'dual',
+                'solo',
+                'simulator',
+                'remarks',
+
                 ])
 
     for flight in flights:
@@ -48,22 +59,66 @@ def csv_view(request):
             night = flight.night
 
         if not flight.instrument:
-            inst = 0
+            ifr = 0
         else:
-            inst = flight.instrument
+            ifr = flight.instrument
+
+        if not flight.landings_day:
+            day_ldg = 0
+        else:
+            day_ldg = flight.landings_day
+
+        if not flight.landings_night:
+            night_ldg = 0
+        else:
+            night_ldg = flight.landings_night
+
+        if not flight.simulated_instrument:
+            sim_inst = 0
+        else:
+            sim_inst = flight.simulated_instrument
+
+        if not flight.instructor:
+            cfi = 0
+        else:
+            cfi = flight.instructor
+
+        if not flight.dual:
+            dual = 0
+        else:
+            dual = flight.dual
+
+        if not flight.solo:
+            solo = 0
+        else:
+            solo = flight.solo
+
+        if not flight.simulator:
+            sim = 0
+        else:
+            sim = flight.simulator
 
         writer.writerow([
                 str(flight.date),
                 str(flight.aircraft_type),
                 str(flight.registration),
-                str(flight.duration),
                 str(flight.route),
-                str(pic),
-                str(sic),
-                str(xc),
-                str(night),
-                str(inst),
-
+                flight.duration,
+                pic,
+                sic,
+                xc,
+                night,
+                ifr,
+                # appr
+                # hold
+                day_ldg,
+                night_ldg,
+                sim_inst,
+                cfi,
+                dual,
+                solo,
+                sim,
+                flight.remarks
                 ])
 
     return response
