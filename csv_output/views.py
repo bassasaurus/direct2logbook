@@ -39,17 +39,17 @@ def csv_view(request):
     for flight in flights:
 
         if flight.pilot_in_command:
-            pic = str(flight.duration)
+            pic = flight.duration
         else:
             pic = 0
 
         if flight.second_in_command:
-            sic = str(flight.duration)
+            sic = flight.duration
         else:
             sic = 0
 
         if flight.cross_country:
-            xc = str(flight.duration)
+            xc = flight.duration
         else:
             xc = 0
 
@@ -81,22 +81,22 @@ def csv_view(request):
         if not flight.instructor:
             cfi = 0
         else:
-            cfi = flight.instructor
+            cfi = flight.duration
 
         if not flight.dual:
             dual = 0
         else:
-            dual = flight.dual
+            dual = flight.duration
 
         if not flight.solo:
             solo = 0
         else:
-            solo = flight.solo
+            solo = flight.duration
 
         if not flight.simulator:
             sim = 0
         else:
-            sim = flight.simulator
+            sim = flight.duration
 
         writer.writerow([
                 str(flight.date),

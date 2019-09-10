@@ -2,7 +2,7 @@ from flights.models import *
 from accounts.models import Profile
 from django.contrib.auth.models import User, Group
 
-from flights.forms import FlightForm, AircraftForm, TailNumberForm , HoldingFormSet, ApproachFormSet, ImportAircraftForm
+from flights.forms import FlightForm, AircraftForm, TailNumberForm, HoldingFormSet, ApproachFormSet, ImportAircraftForm
 from django.db.models import Sum, Q, F
 from django.db.models.functions import Length
 from django.db.models import CharField
@@ -37,6 +37,7 @@ CharField.register_lookup(Length, 'length')
 
 zulu_time = datetime.datetime.now().strftime('%Y %b %d %H:%M') + " UTC"
 
+
 def get_deleted_objects(objs):
     collector = NestedObjects(using='default')
     collector.collect(objs)
@@ -49,43 +50,47 @@ def get_deleted_objects(objs):
 
     to_delete = collector.nested(format_callback)[1:]
     protected = [format_callback(obj) for obj in collector.protected]
-    model_count = {model._meta.verbose_name_plural: len(objs) for model, objs in collector.model_objs.items()}
+    model_count = {model._meta.verbose_name_plural: len(
+        objs) for model, objs in collector.model_objs.items()}
 
     return to_delete, model_count, protected
 
+
 def error_404(request, exception):
-        context = {
+    context = {
         'title': '404',
         'home_link': reverse('home')
-        }
-        return render(request,'error_404.html', context)
+    }
+    return render(request, 'error_404.html', context)
+
 
 def error_500(request):
-        context = {
+    context = {
         'title': '500',
         'home_link': reverse('home')
-        }
-        return render(request,'error_500.html', context)
+    }
+    return render(request, 'error_500.html', context)
+
 
 def error_403(request, exception):
-        context = {
+    context = {
         'title': '403',
         'home_link': reverse('home')
-        }
-        return render(request,'error_403.html', context)
+    }
+    return render(request, 'error_403.html', context)
 
-# class ProfileNotActiveMixin(UserPassesTestMixin):
-#
-#     def handle_no_permission(self):
-#         profile = Profile.objects.get(user=self.request.user)
-#         if profile.active == False:
-#             return redirect(reverse('profile'))
-#         else:
-#             pass
-#
-#     def test_func(self):
-#         pass
 
+class ProfileNotActiveMixin(UserPassesTestMixin):
+
+    def test_func(self):
+        profile = Profile.objects.get(user=self.request.user)
+        if not profile.active:
+            return False
+        else:
+            return True
+
+    def handle_no_permission(self):
+        return redirect('profile')
 
 class UserObjectsMixin():
 
@@ -97,6 +102,7 @@ class LoginRequiredMixin(LoginRequiredMixin):
     login_url = '/accounts/login'
     # redirect_field_name = None
 
+
 def geoJSON_airports_view(request, user_id):
     if request.method == 'GET':
         user = request.user
@@ -105,6 +111,7 @@ def geoJSON_airports_view(request, user_id):
         data = cache.get(user_cache)
         return JsonResponse(data, content_type='application/json', safe=False)
 
+
 def geoJSON_routes_view(request, user_id):
     if request.method == 'GET':
         user = request.user
@@ -112,6 +119,7 @@ def geoJSON_routes_view(request, user_id):
         user_cache = 'routes_{}'.format(user.id)
         data = cache.get(user_cache)
         return HttpResponse(data, content_type='text/html')
+
 
 class AircraftAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
 
@@ -126,6 +134,7 @@ class AircraftAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView)
         if self.q:
             qs = qs.filter(aircraft_type__istartswith=self.q)
         return qs
+
 
 class TailNumberAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
 
@@ -142,6 +151,7 @@ class TailNumberAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetVie
 
         return qs
 
+
 def index_view(request):
     context = {
         'title': 'D-> | Direct2Logbook'
@@ -151,24 +161,31 @@ def index_view(request):
     else:
         return render(request, 'index.html', context)
 
-class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
-    template_name='home.html'
+
+class HomeView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, TemplateView):
+    template_name = 'home.html'
 
     def get_context_data(self, **kwargs):
         user = self.request.user
         context = super(HomeView, self).get_context_data(**kwargs)
 
-        context['recent'] = Flight.objects.filter(user=user).order_by('-id')[:8]
+        context['recent'] = Flight.objects.filter(
+            user=user).order_by('-id')[:8]
 
-        flight_error_query = Q(map_error__length__gt=0) | Q(duplicate_error__length__gt=0) | Q(aircraft_type_error__length__gt=0) | Q(registration_error__length__gt=0) | Q(crew_error__length__gt=0)
-        context['flight_errors'] = Flight.objects.filter(user=user).filter(flight_error_query)
+        flight_error_query = Q(map_error__length__gt=0) | Q(duplicate_error__length__gt=0) | Q(
+            aircraft_type_error__length__gt=0) | Q(registration_error__length__gt=0) | Q(crew_error__length__gt=0)
+        context['flight_errors'] = Flight.objects.filter(
+            user=user).filter(flight_error_query)
 
-        aircraft_error_query = Q(config_error__length__gt=0) | Q(power_error__length__gt=0) | Q(weight_error__length__gt=0) | Q(category_error__length__gt=0) | Q(class_error__length__gt=0)
-        context['aircraft_errors'] = Aircraft.objects.filter(user=user).filter(aircraft_error_query)
+        aircraft_error_query = Q(config_error__length__gt=0) | Q(power_error__length__gt=0) | Q(
+            weight_error__length__gt=0) | Q(category_error__length__gt=0) | Q(class_error__length__gt=0)
+        context['aircraft_errors'] = Aircraft.objects.filter(
+            user=user).filter(aircraft_error_query)
 
         tailnumber_error_query = Q(reg_error__length__gt=0)
-        context['tailnumber_errors'] = TailNumber.objects.filter(user=user).filter(tailnumber_error_query)
-        for tail in  TailNumber.objects.filter(user=user).filter(tailnumber_error_query):
+        context['tailnumber_errors'] = TailNumber.objects.filter(
+            user=user).filter(tailnumber_error_query)
+        for tail in TailNumber.objects.filter(user=user).filter(tailnumber_error_query):
             print(tail, len(tail.reg_error))
 
         aircraft_list = []
@@ -179,66 +196,79 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
                 aircraft_list.append(aircraft)
                 context['aircraft_needs_tailnumber'] = aircraft_list
 
-        #cat/class vfr day, night currency
+        # cat/class vfr day, night currency
         if not Total.objects.filter(user=user):
             context['asel_total'] = 0
         else:
-            context['asel_total'] = Total.objects.filter(user=user).get(total="ASEL")
+            context['asel_total'] = Total.objects.filter(
+                user=user).get(total="ASEL")
             asel_total = Total.objects.filter(user=user).get(total="ASEL")
 
         if not Total.objects.filter(user=user):
             context['amel_total'] = 0
         else:
-            context['amel_total'] = Total.objects.filter(user=user).get(total="AMEL")
+            context['amel_total'] = Total.objects.filter(
+                user=user).get(total="AMEL")
 
         if not Total.objects.filter(user=user):
             context['ases_total'] = 0
         else:
-            context['ases_total'] = Total.objects.filter(user=user).get(total="ASES")
+            context['ases_total'] = Total.objects.filter(
+                user=user).get(total="ASES")
 
         if not Total.objects.filter(user=user):
             context['ames_total'] = 0
         else:
-            context['ames_total'] = Total.objects.filter(user=user).get(total="AMES")
+            context['ames_total'] = Total.objects.filter(
+                user=user).get(total="AMES")
 
         if not Total.objects.filter(user=user):
             context['helo_total'] = 0
         else:
-            context['helo_total'] = Total.objects.filter(user=user).get(total="HELO")
+            context['helo_total'] = Total.objects.filter(
+                user=user).get(total="HELO")
 
         if not Total.objects.filter(user=user):
             context['gyro_total'] = 0
         else:
-            context['gyro_total'] = Total.objects.filter(user=user).get(total="GYRO")
+            context['gyro_total'] = Total.objects.filter(
+                user=user).get(total="GYRO")
 
         # IFR currency
         today = datetime.date.today()
         last_180 = today - datetime.timedelta(days=180)
 
-        appr_qs = Flight.objects.filter(user=user).filter(date__lte=today, date__gte=last_180).filter(approach__number__gte=0).aggregate(Sum(F('approach__number')))
+        appr_qs = Flight.objects.filter(user=user).filter(date__lte=today, date__gte=last_180).filter(
+            approach__number__gte=0).aggregate(Sum(F('approach__number')))
         if not appr_qs:
             context['appr_quantity'] = 0
         else:
-            context['appr_quantity'] = appr_qs.get('approach__number__sum') #Model__field__SumFunctionValue
+            context['appr_quantity'] = appr_qs.get(
+                'approach__number__sum')  # Model__field__SumFunctionValue
             # context['still_needed'] = 6 - int(appr_qs.get('approach__number__sum'))
 
-        oldest_approach_date = Flight.objects.filter(user=user).filter(date__lte=today, date__gte=last_180).filter(approach__number__gte=0).first()
+        oldest_approach_date = Flight.objects.filter(user=user).filter(
+            date__lte=today, date__gte=last_180).filter(approach__number__gte=0).first()
         if not oldest_approach_date:
             context['appr_current_date'] = None
         else:
-            context['appr_current_date'] = oldest_approach_date.date + datetime.timedelta(180)
+            context['appr_current_date'] = oldest_approach_date.date + \
+                datetime.timedelta(180)
 
-        hold_qs = Flight.objects.filter(user=user).filter(date__lte=today, date__gte=last_180).filter(holding__hold=True)
+        hold_qs = Flight.objects.filter(user=user).filter(
+            date__lte=today, date__gte=last_180).filter(holding__hold=True)
         if not hold_qs:
             context['hold_quantity'] = 0
         else:
             context['hold_quantity'] = 1
 
-        hold_date_qs = Flight.objects.filter(user=user).filter(date__lte=today, date__gte=last_180).filter(holding__hold=True).last()
+        hold_date_qs = Flight.objects.filter(user=user).filter(
+            date__lte=today, date__gte=last_180).filter(holding__hold=True).last()
         if not hold_date_qs:
             context['hold_current_date'] = None
         else:
-            context['hold_current_date'] = hold_date_qs.date + datetime.timedelta(180)
+            context['hold_current_date'] = hold_date_qs.date + \
+                datetime.timedelta(180)
 
         context['amel_vfr_day'] = currency.amel_vfr_day(user)[0]
         context['amel_vfr_day_current'] = currency.amel_vfr_day(user)[1]
@@ -288,17 +318,21 @@ class HomeView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         else:
             context['new_user_flight'] = False
 
-        context['totals'] = Total.objects.filter(user=user).exclude(total_time__lte=.1)
+        context['totals'] = Total.objects.filter(
+            user=user).exclude(total_time__lte=.1)
         context['stats'] = Stat.objects.filter(user=user)
         context['regs'] = Regs.objects.filter(user=user).all()
-        context['weights'] = Weight.objects.filter(user=user).exclude(total__lte=.1)
+        context['weights'] = Weight.objects.filter(
+            user=user).exclude(total__lte=.1)
         context['powers'] = Power.objects.filter(user=user).all()
-        context['endorsements'] = Endorsement.objects.filter(user=user).exclude(total__lte=.1)
+        context['endorsements'] = Endorsement.objects.filter(
+            user=user).exclude(total__lte=.1)
         context['title'] = 'D-> | Home'
         context['page_title'] = "Home"
         return context
 
-class FlightArchive(LoginRequiredMixin, UserObjectsMixin, ArchiveIndexView):
+
+class FlightArchive(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, ArchiveIndexView):
     model = Flight
     date_field = 'date'
     make_object_list = True
@@ -314,15 +348,18 @@ class FlightArchive(LoginRequiredMixin, UserObjectsMixin, ArchiveIndexView):
         context['parent_name'] = 'Home'
         context['parent_link'] = reverse('home')
         context['page_title'] = 'Map'
-        context['years'] = Flight.objects.filter(user=user).dates('date', 'year')
-        context['months'] = Flight.objects.filter(user=user).dates('date', 'month')
+        context['years'] = Flight.objects.filter(
+            user=user).dates('date', 'year')
+        context['months'] = Flight.objects.filter(
+            user=user).dates('date', 'month')
         return context
 
-class FlightArchiveYear(LoginRequiredMixin, UserObjectsMixin, YearArchiveView):
+
+class FlightArchiveYear(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, YearArchiveView):
     model = Flight
     date_field = 'date'
     make_object_list = True
-    allow_empty = False #ok since url can't be used until ArchiveIndexView is populated
+    allow_empty = False  # ok since url can't be used until ArchiveIndexView is populated
     allow_future = False
 
     def get_context_data(self, **kwargs):
@@ -335,14 +372,16 @@ class FlightArchiveYear(LoginRequiredMixin, UserObjectsMixin, YearArchiveView):
         context['parent_name'] = 'Map'
         context['parent_link'] = reverse('flight_by_date')
         context['page_title'] = "Flights by Year"
-        context['years'] = Flight.objects.filter(user=user).dates('date', 'year')
+        context['years'] = Flight.objects.filter(
+            user=user).dates('date', 'year')
         return context
 
-class FlightArchiveMonth(LoginRequiredMixin, UserObjectsMixin, MonthArchiveView):
+
+class FlightArchiveMonth(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, MonthArchiveView):
     model = Flight
     date_field = 'date'
     make_object_list = True
-    allow_empty = False #ok since url can't be used until ArchiveIndexView is populated
+    allow_empty = False  # ok since url can't be used until ArchiveIndexView is populated
     allow_future = False
 
     def get_context_data(self, **kwargs):
@@ -355,8 +394,10 @@ class FlightArchiveMonth(LoginRequiredMixin, UserObjectsMixin, MonthArchiveView)
         context['parent_name'] = 'Map'
         context['parent_link'] = reverse('flight_by_date')
         context['page_title'] = "Flights by Month"
-        context['years'] = Flight.objects.filter(user=user).dates('date', 'year')
-        context['months'] = Flight.objects.filter(user=user).dates('date', 'month')
+        context['years'] = Flight.objects.filter(
+            user=user).dates('date', 'year')
+        context['months'] = Flight.objects.filter(
+            user=user).dates('date', 'month')
         return context
 
 # class FlightArchiveDay(LoginRequiredMixin, UserObjectsMixin, DayArchiveView):
@@ -364,9 +405,10 @@ class FlightArchiveMonth(LoginRequiredMixin, UserObjectsMixin, MonthArchiveView)
 # 	date_field = 'date'
 # 	allow_future = False
 
-#-------------------Flight CRUD-------------------------
+# -------------------Flight CRUD-------------------------
 
-class RemarksList(LoginRequiredMixin, UserObjectsMixin, ListView):
+
+class RemarksList(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, ListView):
     model = Flight
     template_name = "flights/remarks.html"
     pagninate_by = 30
@@ -381,7 +423,8 @@ class RemarksList(LoginRequiredMixin, UserObjectsMixin, ListView):
         context['parent_name'] = 'Logbook'
         return context
 
-class FlightList(LoginRequiredMixin, UserObjectsMixin, ListView):
+
+class FlightList(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, ListView):
     model = Flight
     template_name = "flight_list.html"
     paginate_by = 40
@@ -398,7 +441,8 @@ class FlightList(LoginRequiredMixin, UserObjectsMixin, ListView):
         context['page_title'] = "Logbook"
         return context
 
-class FlightCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
+
+class FlightCreate(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, CreateView):
     model = Flight
     form_class = FlightForm
     template_name = 'flights/flight_create_form.html'
@@ -430,7 +474,7 @@ class FlightCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
         approach_form = ApproachFormSet(self.request.POST)
         holding_form = HoldingFormSet(self.request.POST)
         if (form.is_valid() and approach_form.is_valid() and
-            holding_form.is_valid()):
+                holding_form.is_valid()):
             return self.form_valid(form, approach_form, holding_form)
         else:
             return self.form_invalid(form, approach_form, holding_form)
@@ -469,21 +513,26 @@ class FlightCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
         context['page_title'] = "New Flight"
         return context
 
-class FlightUpdate(LoginRequiredMixin, UserObjectsMixin, UpdateView):
+
+class FlightUpdate(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, UpdateView):
     model = Flight
     form_class = FlightForm
     template_name = 'flights/flight_update_form.html'
 
     def get_context_data(self, **kwargs):
         context = super(FlightUpdate, self).get_context_data(**kwargs)
-        ApproachFormSet = inlineformset_factory(Flight, Approach, fields=('approach_type', 'number'), max_num=4, extra=1)
-        HoldingFormSet = inlineformset_factory(Flight, Holding, fields=('hold',), max_num=1, extra=1)
+        ApproachFormSet = inlineformset_factory(Flight, Approach, fields=(
+            'approach_type', 'number'), max_num=4, extra=1)
+        HoldingFormSet = inlineformset_factory(
+            Flight, Holding, fields=('hold',), max_num=1, extra=1)
 
         if self.request.POST:
             # Create a formset instance to edit an existing model object,
             # but use POST data to populate the formset.
-            context['approaches'] = ApproachFormSet(self.request.POST, instance=self.get_object())
-            context['holding'] = HoldingFormSet(self.request.POST, instance=self.get_object())
+            context['approaches'] = ApproachFormSet(
+                self.request.POST, instance=self.get_object())
+            context['holding'] = HoldingFormSet(
+                self.request.POST, instance=self.get_object())
 
         else:
             # Create a formset with the data from model object and add it to context
@@ -510,12 +559,14 @@ class FlightUpdate(LoginRequiredMixin, UserObjectsMixin, UpdateView):
                 holding.instance = self.object
                 holding.save()
             else:
-                context.update({'approaches': approaches}, {'holding': holding})
+                context.update({'approaches': approaches},
+                               {'holding': holding})
                 return self.render_to_response(context)
 
         return super(FlightUpdate, self).form_valid(form)
 
-class FlightDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
+
+class FlightDetail(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, DetailView):
     model = Flight
     template_name = 'flights/flight_detail.html'
 
@@ -548,7 +599,8 @@ class FlightDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
 
         return context
 
-class FlightDelete(LoginRequiredMixin, UserObjectsMixin, DeleteView):
+
+class FlightDelete(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, DeleteView):
     model = Flight
     template_name = 'flights/flight_delete.html'
     success_url = '/logbook/'
@@ -563,7 +615,7 @@ class FlightDelete(LoginRequiredMixin, UserObjectsMixin, DeleteView):
         context['parent_name'] = 'Logbook'
         return context
 
-#-------------------Aircraft CRUD-----------------------
+# -------------------Aircraft CRUD-----------------------
 
 # class AircraftList(LoginRequiredMixin, UserObjectsMixin, ListView):
 #     model = Aircraft
@@ -580,7 +632,8 @@ class FlightDelete(LoginRequiredMixin, UserObjectsMixin, DeleteView):
 #         context['page_title'] = "Aircraft"
 #         return context
 
-class AircraftCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
+
+class AircraftCreate(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, CreateView):
     model = Aircraft
     form_class = AircraftForm
     template_name = "aircraft/aircraft_create_form.html"
@@ -604,7 +657,8 @@ class AircraftCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
         context['parent_name'] = 'Aircraft'
         return context
 
-class AircraftUpdate(LoginRequiredMixin, UserObjectsMixin, UpdateView):
+
+class AircraftUpdate(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, UpdateView):
     model = Aircraft
     form_class = AircraftForm
     template_name = 'aircraft/aircraft_update_form.html'
@@ -620,14 +674,16 @@ class AircraftUpdate(LoginRequiredMixin, UserObjectsMixin, UpdateView):
         context['parent_name'] = 'Aircraft'
         return context
 
-class AircraftDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
+
+class AircraftDetail(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, DetailView):
     model = Aircraft
     form = TailNumberForm
     template_name = 'aircraft/aircraft_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super(AircraftDetail, self).get_context_data(**kwargs)
-        context['tailnumbers'] = TailNumber.objects.all().filter(aircraft = self.object )
+        context['tailnumbers'] = TailNumber.objects.all().filter(
+            aircraft=self.object)
 
         flights = Flight.objects.all().filter(aircraft_type=self.object)
         user = self.request.user
@@ -637,7 +693,8 @@ class AircraftDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
         if TailNumber.objects.filter(aircraft__aircraft_type=self.object).exists():
             pass
         else:
-            context['aircraft_needs_tailnumber'] = "Please select a tailnumber for {}".format(self.object.aircraft_type)
+            context['aircraft_needs_tailnumber'] = "Please select a tailnumber for {}".format(
+                self.object.aircraft_type)
 
         context['title'] = "D-> | " + str(self.object)
         context['page_title'] = str(self.object)
@@ -646,7 +703,8 @@ class AircraftDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
         context['parent_name'] = 'Aircraft'
         return context
 
-class AircraftDelete(LoginRequiredMixin, UserObjectsMixin, DeleteView):
+
+class AircraftDelete(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, DeleteView):
     model = Aircraft
     template_name = 'aircraft/aircraft_delete.html'
     success_url = '/aircraft/'
@@ -654,7 +712,8 @@ class AircraftDelete(LoginRequiredMixin, UserObjectsMixin, DeleteView):
     def get_context_data(self, **kwargs):
         context = super(AircraftDelete, self).get_context_data(**kwargs)
 
-        deletable_objects, model_count, protected = get_deleted_objects([self.object])
+        deletable_objects, model_count, protected = get_deleted_objects([
+                                                                        self.object])
 
         context['deletable_objects'] = deletable_objects
         context['model_count'] = dict(model_count).items()
@@ -668,9 +727,9 @@ class AircraftDelete(LoginRequiredMixin, UserObjectsMixin, DeleteView):
         return context
 
 
-#------------------TailNumber CRUD----------------------
+# ------------------TailNumber CRUD----------------------
 
-class TailNumberList(LoginRequiredMixin, UserObjectsMixin, ListView):
+class TailNumberList(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, ListView):
     model = TailNumber
     template_name = "tailnumbers/tailnumber_list.html"
     context_object_name = 'tailnumbers'
@@ -709,7 +768,8 @@ class TailNumberList(LoginRequiredMixin, UserObjectsMixin, ListView):
         context['page_title'] = "Aircraft"
         return context
 
-class TailNumberCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
+
+class TailNumberCreate(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, CreateView):
     model = TailNumber
     form_class = TailNumberForm
     template_name = "tailnumbers/tailnumber_create_form.html"
@@ -730,7 +790,8 @@ class TailNumberCreate(LoginRequiredMixin, UserObjectsMixin, CreateView):
         context['parent_name'] = 'Aircraft'
         return context
 
-class TailNumberUpdate(LoginRequiredMixin, UserObjectsMixin, UpdateView):
+
+class TailNumberUpdate(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, UpdateView):
     model = TailNumber
     form_class = TailNumberForm
     template_name = 'tailnumbers/tailnumber_update_form.html'
@@ -745,14 +806,16 @@ class TailNumberUpdate(LoginRequiredMixin, UserObjectsMixin, UpdateView):
         context['parent_name'] = 'Aircraft'
         return context
 
-class TailNumberDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
+
+class TailNumberDetail(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, DetailView):
     model = TailNumber
     template_name = 'tailnumbers/tailnumber_detail.html'
 
     def get_context_data(self, **kwargs):
         tailnumber = self.object
         user = self.request.user
-        flights = Flight.objects.filter(user=user).filter(registration = self.object)
+        flights = Flight.objects.filter(
+            user=user).filter(registration=self.object)
         get_map_data(flights, user)
 
         context = super(TailNumberDetail, self).get_context_data(**kwargs)
@@ -778,11 +841,13 @@ class TailNumberDetail(LoginRequiredMixin, UserObjectsMixin, DetailView):
         context['parent_link'] = reverse('aircraft_list')
         context['parent_name'] = 'Aircraft'
         context['child_name'] = tailnumber.aircraft
-        context['child_link'] = reverse('aircraft_detail', args = [self.object.aircraft.pk])
+        context['child_link'] = reverse('aircraft_detail', args=[
+                                        self.object.aircraft.pk])
         context['flights'] = flights
         return context
 
-class TailNumberDelete(LoginRequiredMixin, UserObjectsMixin, DeleteView):
+
+class TailNumberDelete(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, DeleteView):
     model = TailNumber
     template_name = 'tailnumbers/tailnumber_delete.html'
     success_url = '/aircraft/'
@@ -797,8 +862,10 @@ class TailNumberDelete(LoginRequiredMixin, UserObjectsMixin, DeleteView):
         context['parent_name'] = 'Aircraft'
         return context
 
-class IacraView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
+
+class IacraView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, TemplateView):
     template_name = "flights/iacra.html"
+
     def get_context_data(self, **kwargs):
         user = self.request.user
         context = super(IacraView, self).get_context_data(**kwargs)
@@ -811,96 +878,130 @@ class IacraView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         context['HELO'] = Total.objects.filter(user=user).get(total='HELO')
         context['GYRO'] = Total.objects.filter(user=user).get(total='GYRO')
 
-        airplane_query = Q(aircraft_type__aircraft_category__aircraft_category__icontains = 'airplane')
-        airplane_xc_dual = Flight.objects.filter(user=user).filter(airplane_query, cross_country=True, dual=True).aggregate(Sum('duration'))
+        airplane_query = Q(
+            aircraft_type__aircraft_category__aircraft_category__icontains='airplane')
+        airplane_xc_dual = Flight.objects.filter(user=user).filter(
+            airplane_query, cross_country=True, dual=True).aggregate(Sum('duration'))
         if not airplane_xc_dual.get('duration__sum'):
             context['airplane_xc_dual'] = 0.0
         else:
-            context['airplane_xc_dual'] = round(airplane_xc_dual.get('duration__sum'),1)
+            context['airplane_xc_dual'] = round(
+                airplane_xc_dual.get('duration__sum'), 1)
 
-        airplane_xc_solo = Flight.objects.filter(user=user).filter(airplane_query, cross_country=True, solo=True).aggregate(Sum('duration'))
+        airplane_xc_solo = Flight.objects.filter(user=user).filter(
+            airplane_query, cross_country=True, solo=True).aggregate(Sum('duration'))
         if not airplane_xc_solo.get('duration__sum'):
             context['airplane_xc_solo'] = 0.0
         else:
-            context['airplane_xc_solo'] = round(airplane_xc_solo.get('duration__sum'),1)
+            context['airplane_xc_solo'] = round(
+                airplane_xc_solo.get('duration__sum'), 1)
 
-        airplane_xc_pic_sic_query = Q(cross_country=True) & Q(pilot_in_command=True) | Q(second_in_command=True)
-        airplane_xc_pic_sic = Flight.objects.filter(user=user).filter(airplane_query, airplane_xc_pic_sic_query).aggregate(Sum('duration'))
+        airplane_xc_pic_sic_query = Q(cross_country=True) & Q(
+            pilot_in_command=True) | Q(second_in_command=True)
+        airplane_xc_pic_sic = Flight.objects.filter(user=user).filter(
+            airplane_query, airplane_xc_pic_sic_query).aggregate(Sum('duration'))
         if not airplane_xc_pic_sic.get('duration__sum'):
             context['airplane_xc_pic_sic'] = 0.0
         else:
-            context['airplane_xc_pic_sic'] = round(airplane_xc_pic_sic.get('duration__sum'),1)
+            context['airplane_xc_pic_sic'] = round(
+                airplane_xc_pic_sic.get('duration__sum'), 1)
 
-        airplane_night_dual = Flight.objects.filter(user=user).filter(airplane_query, night=True, dual=True).aggregate(Sum('duration'))
+        airplane_night_dual = Flight.objects.filter(user=user).filter(
+            airplane_query, night=True, dual=True).aggregate(Sum('duration'))
         if not airplane_night_dual.get('duration__sum'):
             context['airplane_night_dual'] = 0.0
         else:
-            context['airplane_night_dual'] = round(airplane_night_dual.get('duration__sum'),1)
+            context['airplane_night_dual'] = round(
+                airplane_night_dual.get('duration__sum'), 1)
 
-        airplane_night_pic_sic_query = Q(night=True) & Q(pilot_in_command=True) | Q(second_in_command=True)
-        airplane_night_pic_sic = Flight.objects.filter(user=user).filter(airplane_query, airplane_night_pic_sic_query).aggregate(Sum('duration'))
+        airplane_night_pic_sic_query = Q(night=True) & Q(
+            pilot_in_command=True) | Q(second_in_command=True)
+        airplane_night_pic_sic = Flight.objects.filter(user=user).filter(
+            airplane_query, airplane_night_pic_sic_query).aggregate(Sum('duration'))
         if not airplane_night_pic_sic.get('duration__sum'):
             context['airplane_night_pic_sic'] = 0.0
         else:
-            context['airplane_night_pic_sic'] = round(airplane_night_pic_sic.get('duration__sum'), 1)
+            context['airplane_night_pic_sic'] = round(
+                airplane_night_pic_sic.get('duration__sum'), 1)
 
-        night_ldg_pic = Flight.objects.filter(user=user).filter(airplane_query, pilot_in_command=True).aggregate(Sum('landings_night'))
+        night_ldg_pic = Flight.objects.filter(user=user).filter(
+            airplane_query, pilot_in_command=True).aggregate(Sum('landings_night'))
         if not night_ldg_pic.get('landings_night__sum'):
             context['airplane_night_ldg_pic'] = 0
         else:
-            context['airplane_night_ldg_pic'] = night_ldg_pic.get('landings_night__sum')
+            context['airplane_night_ldg_pic'] = night_ldg_pic.get(
+                'landings_night__sum')
 
-        night_ldg_sic = Flight.objects.filter(user=user).filter(airplane_query, second_in_command=True).aggregate(Sum('landings_night'))
+        night_ldg_sic = Flight.objects.filter(user=user).filter(
+            airplane_query, second_in_command=True).aggregate(Sum('landings_night'))
         if not night_ldg_sic.get('landings_night__sum'):
             context['airplane_night_ldg_sic'] = 0
         else:
-            context['airplane_night_ldg_sic'] = night_ldg_sic.get('landings_night__sum')
+            context['airplane_night_ldg_sic'] = night_ldg_sic.get(
+                'landings_night__sum')
 
-#---------------rotorcraft---------------
-        rotorcraft_query = Q(aircraft_type__aircraft_category__aircraft_category__icontains = 'rotorcraft')
-        rotorcraft_xc_dual = Flight.objects.filter(user=user).filter(rotorcraft_query, cross_country=True, dual=True).aggregate(Sum('duration'))
+# ---------------rotorcraft---------------
+        rotorcraft_query = Q(
+            aircraft_type__aircraft_category__aircraft_category__icontains='rotorcraft')
+        rotorcraft_xc_dual = Flight.objects.filter(user=user).filter(
+            rotorcraft_query, cross_country=True, dual=True).aggregate(Sum('duration'))
         if not rotorcraft_xc_dual.get('duration__sum'):
             context['rotorcraft_xc_dual'] = 0.0
         else:
-            context['rotorcraft_xc_dual'] = round(rotorcraft_xc_dual.get('duration__sum'),1)
+            context['rotorcraft_xc_dual'] = round(
+                rotorcraft_xc_dual.get('duration__sum'), 1)
 
-        rotorcraft_xc_solo = Flight.objects.filter(user=user).filter(rotorcraft_query, cross_country=True, solo=True).aggregate(Sum('duration'))
+        rotorcraft_xc_solo = Flight.objects.filter(user=user).filter(
+            rotorcraft_query, cross_country=True, solo=True).aggregate(Sum('duration'))
         if not rotorcraft_xc_solo.get('duration__sum'):
             context['rotorcraft_xc_solo'] = 0.0
         else:
-            context['rotorcraft_xc_solo'] = round(rotorcraft_xc_solo.get('duration__sum'),1)
+            context['rotorcraft_xc_solo'] = round(
+                rotorcraft_xc_solo.get('duration__sum'), 1)
 
-        rotorcraft_xc_pic_sic_query = Q(cross_country=True) & Q(pilot_in_command=True) | Q(second_in_command=True)
-        rotorcraft_xc_pic_sic = Flight.objects.filter(user=user).filter(rotorcraft_query, rotorcraft_xc_pic_sic_query).aggregate(Sum('duration'))
+        rotorcraft_xc_pic_sic_query = Q(cross_country=True) & Q(
+            pilot_in_command=True) | Q(second_in_command=True)
+        rotorcraft_xc_pic_sic = Flight.objects.filter(user=user).filter(
+            rotorcraft_query, rotorcraft_xc_pic_sic_query).aggregate(Sum('duration'))
         if not rotorcraft_xc_pic_sic.get('duration__sum'):
             context['rotorcraft_xc_pic_sic'] = 0.0
         else:
-            context['rotorcraft_xc_pic_sic'] = round(rotorcraft_xc_pic_sic.get('duration__sum'),1)
+            context['rotorcraft_xc_pic_sic'] = round(
+                rotorcraft_xc_pic_sic.get('duration__sum'), 1)
 
-        rotorcraft_night_dual = Flight.objects.filter(user=user).filter(rotorcraft_query, night=True, dual=True).aggregate(Sum('duration'))
+        rotorcraft_night_dual = Flight.objects.filter(user=user).filter(
+            rotorcraft_query, night=True, dual=True).aggregate(Sum('duration'))
         if not rotorcraft_night_dual.get('duration__sum'):
             context['rotorcraft_night_dual'] = 0.0
         else:
-            context['rotorcraft_night_dual'] = round(rotorcraft_night_dual.get('duration__sum'),1)
+            context['rotorcraft_night_dual'] = round(
+                rotorcraft_night_dual.get('duration__sum'), 1)
 
-        rotorcraft_night_pic_sic_query = Q(night=True) & Q(pilot_in_command=True) | Q(second_in_command=True)
-        rotorcraft_night_pic_sic = Flight.objects.filter(user=user).filter(rotorcraft_query, rotorcraft_night_pic_sic_query).aggregate(Sum('duration'))
+        rotorcraft_night_pic_sic_query = Q(night=True) & Q(
+            pilot_in_command=True) | Q(second_in_command=True)
+        rotorcraft_night_pic_sic = Flight.objects.filter(user=user).filter(
+            rotorcraft_query, rotorcraft_night_pic_sic_query).aggregate(Sum('duration'))
         if not rotorcraft_night_pic_sic.get('duration__sum'):
             context['rotorcraft_night_pic_sic'] = 0.0
         else:
-            context['rotorcraft_night_pic_sic'] = round(rotorcraft_night_pic_sic.get('duration__sum'), 1)
+            context['rotorcraft_night_pic_sic'] = round(
+                rotorcraft_night_pic_sic.get('duration__sum'), 1)
 
-        night_ldg_pic = Flight.objects.filter(user=user).filter(rotorcraft_query, pilot_in_command=True).aggregate(Sum('landings_night'))
+        night_ldg_pic = Flight.objects.filter(user=user).filter(
+            rotorcraft_query, pilot_in_command=True).aggregate(Sum('landings_night'))
         if not night_ldg_pic.get('landings_night__sum'):
             context['rotorcraft_night_ldg_pic'] = 0.0
         else:
-            context['rotorcraft_night_ldg_pic'] = round(night_ldg_pic.get('landings_night__sum'), 1)
+            context['rotorcraft_night_ldg_pic'] = round(
+                night_ldg_pic.get('landings_night__sum'), 1)
 
-        night_ldg_sic = Flight.objects.filter(user=user).filter(rotorcraft_query, second_in_command=True).aggregate(Sum('landings_night'))
+        night_ldg_sic = Flight.objects.filter(user=user).filter(
+            rotorcraft_query, second_in_command=True).aggregate(Sum('landings_night'))
         if not night_ldg_sic.get('landings_night__sum'):
             context['rotorcraft_night_ldg_sic'] = 0.0
         else:
-            context['rotorcraft_night_ldg_sic'] = round(night_ldg_sic.get('landings_night__sum'), 1)
+            context['rotorcraft_night_ldg_sic'] = round(
+                night_ldg_sic.get('landings_night__sum'), 1)
 
         context['title'] = "D-> | IACRA - 8710"
         context['page_title'] = "IACRA - 8710"
@@ -909,13 +1010,15 @@ class IacraView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
 
         return context
 
+
 class ImportAircraftListView(LoginRequiredMixin, UserObjectsMixin, ListView):
     model = BulkEntry
     template_name = 'import_aircraft/import_aircraft_list.html'
     context_object_name = 'import_aircraft'
 
     def get_context_data(self, **kwargs):
-        context = super(ImportAircraftListView, self).get_context_data(**kwargs)
+        context = super(ImportAircraftListView,
+                        self).get_context_data(**kwargs)
 
         context['title'] = "D-> | Import Aircraft "
         context['page_title'] = "Import Aircraft "
@@ -923,6 +1026,7 @@ class ImportAircraftListView(LoginRequiredMixin, UserObjectsMixin, ListView):
         context['parent_link'] = reverse('flight_list')
         context['parent_name'] = 'Logbook'
         return context
+
 
 class ImportAircraftCreateView(LoginRequiredMixin, UserObjectsMixin, CreateView):
     model = BulkEntry
@@ -937,7 +1041,8 @@ class ImportAircraftCreateView(LoginRequiredMixin, UserObjectsMixin, CreateView)
         return super(ImportAircraftCreateView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
-        context = super(ImportAircraftCreateView, self).get_context_data(**kwargs)
+        context = super(ImportAircraftCreateView,
+                        self).get_context_data(**kwargs)
 
         context['title'] = "D-> | New Import Aircraft "
         context['page_title'] = "New Import Aircraft "
@@ -945,6 +1050,7 @@ class ImportAircraftCreateView(LoginRequiredMixin, UserObjectsMixin, CreateView)
         context['parent_link'] = reverse('import_aircraft_list')
         context['parent_name'] = 'Import Aircraft'
         return context
+
 
 class ImportAircraftUpdateView(LoginRequiredMixin, UserObjectsMixin, UpdateView):
     model = BulkEntry
@@ -952,7 +1058,8 @@ class ImportAircraftUpdateView(LoginRequiredMixin, UserObjectsMixin, UpdateView)
     form_class = ImportAircraftForm
 
     def get_context_data(self, **kwargs):
-        context = super(ImportAircraftUpdateView, self).get_context_data(**kwargs)
+        context = super(ImportAircraftUpdateView,
+                        self).get_context_data(**kwargs)
 
         context['title'] = "D-> | New Import Aircraft "
         context['page_title'] = "New Import Aircraft "
@@ -960,6 +1067,7 @@ class ImportAircraftUpdateView(LoginRequiredMixin, UserObjectsMixin, UpdateView)
         context['parent_link'] = reverse('import_aircraft_list')
         context['parent_name'] = 'Import Aircraft'
         return context
+
 
 class ImportAircraftDeleteView(LoginRequiredMixin, UserObjectsMixin, DeleteView):
     model = BulkEntry
@@ -967,7 +1075,8 @@ class ImportAircraftDeleteView(LoginRequiredMixin, UserObjectsMixin, DeleteView)
     success_url = '/import_aircraft/'
 
     def get_context_data(self, **kwargs):
-        context = super(ImportAircraftDeleteView, self).get_context_data(**kwargs)
+        context = super(ImportAircraftDeleteView,
+                        self).get_context_data(**kwargs)
 
         context['title'] = "D-> | New Import Aircraft "
         context['page_title'] = "New Import Aircraft "
@@ -976,13 +1085,15 @@ class ImportAircraftDeleteView(LoginRequiredMixin, UserObjectsMixin, DeleteView)
         context['parent_name'] = 'Import Aircraft'
         return context
 
+
 class ImportAircraftDetailView(LoginRequiredMixin, UserObjectsMixin, DetailView):
     model = BulkEntry
     template_name = 'import_aircraft/import_aircraft_detail.html'
     context_object_name = 'import_aircraft'
 
     def get_context_data(self, **kwargs):
-        context = super(ImportAircraftDetailView, self).get_context_data(**kwargs)
+        context = super(ImportAircraftDetailView,
+                        self).get_context_data(**kwargs)
 
         context['title'] = "D-> | New Import Aircraft "
         context['page_title'] = "New Import Aircraft "
