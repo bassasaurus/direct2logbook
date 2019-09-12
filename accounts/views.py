@@ -38,7 +38,6 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
             plan_monthly = 'plan_FZhtfxftM44uHz'
             success_url='http://localhost:8000/payments/success/{}'.format(user.pk),
             cancel_url='http://localhost:8000/payments/cancel/{}'.format(user.pk),
-
         else:
             plan_monthly = 'plan_FZi0hBf46jbYVt'
             success_url='https://www.direct2logbook.com/payments/success/{}'.format(user.pk),
@@ -53,8 +52,9 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
                 'plan': plan_monthly,
                 }],
             },
-            success_url,
-            cancel_url,
+            success_url=success_url,
+            cancel_url=cancel_url,
+
         )
 
         return session_monthly.id
