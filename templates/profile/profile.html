@@ -65,7 +65,7 @@
     <h5>Company</h5> {{ user.profile.company }}
     <hr>
     <h5>Medical Certificate</h5>
-    Issued - {{ user.profile.date }} |
+    Issued - {{ user.profile.medical_issue_date }} |
     Type -
     {% if user.profile.first_class == True %} 1st Class |{% else %}{% endif %}
     {% if user.profile.second_class == True %} 2nd Class |{% else %}{% endif %}
