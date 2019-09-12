@@ -34,6 +34,8 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
 
     def session_monthly(self, customer_id):
 
+        user = self.request.user
+
         if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
             plan_monthly = 'plan_FZhtfxftM44uHz'
             success_url='http://localhost:8000/payments/success/{}'.format(user.pk),
@@ -43,7 +45,7 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
             success_url='https://www.direct2logbook.com/payments/success/{}'.format(user.pk),
             cancel_url='https://www.direct2logbook.com/payments/cancel/{}'.format(user.pk),
 
-        user = self.request.user
+
         session_monthly = stripe.checkout.Session.create(
             customer=customer_id,
             payment_method_types=['card'],
