@@ -45,8 +45,7 @@
       <a href="" class="link text-success" id="yearly">Yearly</a></h5>
 
     {% elif profile.canceled %}
-    <h5 class="text-danger">You have unsubscribed and will lose accces soon</h5>
-      <p>Expires on - {{ profile.end_date|date:"M d, Y" }}</p>
+    <h5 class="text-danger">You have unsubscribed and will lose accces on {{ profile.end_date|date:"M d, Y" }}</h5>
       <h5 class="text-success">Resubscribe now</h5>
       <h5><a href="" class="link text-success" id="monthly">Monthly</a>
       <span>- or -</span>
@@ -56,9 +55,9 @@
       <h5>Subscription active</h5>
       <p>Change Subscription</p>
       {% if profile.monthly %}
-        <a href="" class="link text-success" id="yearly">Yearly</a>
+        <p><a href="" class="link text-success" id="yearly">Yearly</a></p>
       {% elif profile.yearly %}
-        <a href="" class="link text-success" id="monthly">Monthly</a>
+        <p><a href="" class="link text-success" id="monthly">Monthly</a></p>
       {% endif %}
       <p>Next billing date - {{ profile.end_date|date:"M d, Y" }}</p>
       <a class="text-danger" href="{% url 'subscription_canceled'%}">Cancel</a>
