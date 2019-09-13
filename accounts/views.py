@@ -17,6 +17,7 @@ from allauth.socialaccount.views import ConnectionsView
 from decouple import config
 import stripe
 import os
+import datetime
 
 class LoginRequiredMixin(LoginRequiredMixin):
     login_url = '/accounts/login'
@@ -83,7 +84,7 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
         user = self.request.user
-        customer_id = Profile.objects.get(user=user).customer_id
+        profile = Profile.objects.get(user=user)
 
         if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
             context['STRIPE_PUBLISHABLE_KEY'] = config('STRIPE_TEST_PUBLISHABLE_KEY')
@@ -91,12 +92,17 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
             context['CHECKOUT_SESSION_ID_YEARLY'] = 'cus_Fkerl0ew4MHGjD'
         else:
             context['STRIPE_PUBLISHABLE_KEY'] = config('STRIPE_LIVE_PUBLISHABLE_KEY')
-            context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly(customer_id)
-            context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly(customer_id)
+            context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly(profile.customer_id)
+            context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly(profile.customer_id)
 
+        today = datetime.datetime.now()
 
+        if today.date() < profile.end_date:
+            context['passed_end_date'] = False
+        else:
+            context['passed_end_date'] = True
         context['profile'] = Profile.objects.get(user=user)
-        context['customer_id'] = customer_id
+        context['customer_id'] = profile.customer_id
         context['user_email'] = str(user.email)
         context['title'] = "D-> | Profile"
         context['parent_name'] = 'Home'

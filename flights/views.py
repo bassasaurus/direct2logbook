@@ -83,11 +83,20 @@ def error_403(request, exception):
 class ProfileNotActiveMixin(UserPassesTestMixin):
 
     def test_func(self):
+        today = datetime.datetime.now()
         profile = Profile.objects.get(user=self.request.user)
-        if not profile.active:
-            return False
+
+        if profile.end_date > today.date():
+            expired=False
         else:
+            expired=True
+
+        if profile.active:
             return True
+        elif profile.canceled and expired==False:
+            return True
+        else:
+            return False
 
     def handle_no_permission(self):
         return redirect('profile')

@@ -3,7 +3,7 @@
 {% block content %}
 <hr>
 
-{% if not profile.active or profile.canceled %}
+{% if passed_end_date is True%}
 
 <h5 class="text-danger">Subscription expired</h5>
   <hr>
@@ -13,9 +13,8 @@
   <h5><a href="" class="link text-success" id="monthly">Monthly</a>
   <span>- or -</span>
   <a href="" class="link text-success" id="yearly">Yearly</a></h5>
+
 {% else %}
-
-
 
 <div class="row">
   <div class="col-12">
@@ -28,6 +27,7 @@
 
     {% if profile.free_access %}
       <h5>You have free access</h5>
+
 
     {% elif profile.trial %}
       <h5 class="text-success">Free trial ends {{ profile.end_date|date:"M d, Y" }}</h5>
@@ -44,18 +44,61 @@
       <span>- or -</span>
       <a href="" class="link text-success" id="yearly">Yearly</a></h5>
 
+    {% elif profile.canceled %}
+    <h5 class="text-danger">You have unsubscribed and will lose accces on {{ profile.end_date|date:"M d, Y" }}</h5>
+      <h5 class="text-success">Resubscribe now</h5>
+      <h5><a href="" class="link text-success" id="monthly">Monthly</a>
+      <span>- or -</span>
+      <a href="" class="link text-success" id="yearly">Yearly</a></h5>
+
     {% else %}
       <h5>Subscription active</h5>
       <p>Change Subscription</p>
       {% if profile.monthly %}
-        <a href="" class="link text-success" id="yearly">Yearly</a>
+        <p><a href="" class="link text-success" id="yearly">Yearly</a></p>
       {% elif profile.yearly %}
-        <a href="" class="link text-success" id="monthly">Monthly</a>
+        <p><a href="" class="link text-success" id="monthly">Monthly</a></p>
       {% endif %}
       <p>Next billing date - {{ profile.end_date|date:"M d, Y" }}</p>
       <a class="text-danger" href="{% url 'subscription_canceled'%}">Cancel</a>
 
     {% endif %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     <hr>
     <h5>Email</h5> {{ user.email }}<br>
