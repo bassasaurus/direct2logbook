@@ -91,7 +91,9 @@ class ProfileNotActiveMixin(UserPassesTestMixin):
         else:
             expired=True
 
-        if profile.active and expired==False:
+        if profile.active:
+            return True
+        elif profile.canceled and expired==False:
             return True
         else:
             return False
