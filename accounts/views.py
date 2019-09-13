@@ -72,10 +72,10 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
                 'plan': plan_yearly,
                 }],
             },
-        # success_url='https://www.direct2logbook.com/payments/success/{}'.format(user.pk),
-        # cancel_url='https://www.direct2logbook.com/payments/cancel/{}'.format(user.pk),
-        success_url='http://localhost:8000/payments/success/{}'.format(user.pk),
-        cancel_url='http://localhost:8000/payments/cancel/{}'.format(user.pk),
+        success_url='https://www.direct2logbook.com/payments/success/{}'.format(user.pk),
+        cancel_url='https://www.direct2logbook.com/payments/cancel/{}'.format(user.pk),
+        # success_url='http://localhost:8000/payments/success/{}'.format(user.pk),
+        # cancel_url='http://localhost:8000/payments/cancel/{}'.format(user.pk),
         )
 
         return session_yearly.id
@@ -87,11 +87,14 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
 
         if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
             context['STRIPE_PUBLISHABLE_KEY'] = config('STRIPE_TEST_PUBLISHABLE_KEY')
+            context['CHECKOUT_SESSION_ID_MONTHLY'] = 'cus_Fkerl0ew4MHGjD'
+            context['CHECKOUT_SESSION_ID_YEARLY'] = 'cus_Fkerl0ew4MHGjD'
         else:
             context['STRIPE_PUBLISHABLE_KEY'] = config('STRIPE_LIVE_PUBLISHABLE_KEY')
+            context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly(customer_id)
+            context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly(customer_id)
 
-        context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly(customer_id)
-        context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly(customer_id)
+
         context['profile'] = Profile.objects.get(user=user)
         context['customer_id'] = customer_id
         context['user_email'] = str(user.email)
