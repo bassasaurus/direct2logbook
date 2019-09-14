@@ -14,12 +14,30 @@ class UserForm(forms.ModelForm):
 
 class FlightForm(forms.ModelForm):
 
+    aircraft = Aircraft.objects.all()
+    choices = []
+    for obj in aircraft:
+        j=0
+        choices.append((j, str(obj)))
+        j+=1
+
+    aircraft_type = autocomplete.ModelSelect2(choices=choices)
+
     class Meta:
         model = Flight
         fields = flight_fields()
         widgets = {
-            'aircraft_type': autocomplete.ModelSelect2(url='aircraft-autocomplete', attrs={'data-placeholder': 'Aircraft *'}),
-            'registration': autocomplete.ModelSelect2(url='tailnumber-autocomplete', attrs={'data-placeholder': 'Tailnumber *'}),
+            'aircraft_type': autocomplete.ModelSelect2(
+                    url='aircraft-autocomplete',
+                    attrs={'data-placeholder': 'Aircraft *'}
+                    ),
+            'registration': autocomplete.ModelSelect2(
+                    url='tailnumber-autocomplete',
+                    forward=['aircraft_type'],
+                    attrs={'data-placeholder': 'Tailnumber *',
+                    },
+                    ),
+
             'cross_country': forms.CheckboxInput(),
             'second_in_command': forms.CheckboxInput(),
             'pilot_in_command': forms.CheckboxInput(),

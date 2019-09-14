@@ -91,7 +91,7 @@ class ProfileNotActiveMixin(UserPassesTestMixin):
         else:
             expired=True
 
-        if profile.active:
+        if profile.active or profile.trial:
             return True
         elif profile.canceled and expired==False:
             return True
@@ -154,6 +154,11 @@ class TailNumberAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetVie
 
         user = self.request.user
         qs = TailNumber.objects.filter(user=user)
+
+        aircraft_type = self.forwarded.get('aircraft_type', None)
+
+        if aircraft_type:
+            qs = qs.filter(aircraft=aircraft_type)
 
         if self.q:
             qs = qs.filter(registration__istartswith=self.q)
