@@ -9,8 +9,8 @@ urlpatterns = [
     url(r'^iacra/$', IacraView.as_view(), name='iacra'),
 
     #autocomplete urls
-    url(r'^aircraft-autocomplete/$', AircraftAutocomplete.as_view(create_field="aircraft_type"), name='aircraft-autocomplete'),
-    url(r'^tailnumber-autocomplete/$', TailNumberAutocomplete.as_view(create_field="registration"), name='tailnumber-autocomplete'),
+    url(r'^aircraft-autocomplete/$', AircraftAutocomplete.as_view(), name='aircraft-autocomplete'),
+    url(r'^tailnumber-autocomplete/$', TailNumberAutocomplete.as_view(), name='tailnumber-autocomplete'),
     url(r'^geojson/airports/(?P<user_id>\d+)/$', geoJSON_airports_view, name='geojson_airports'),
     url(r'^geojson/routes/(?P<user_id>\d+)/$', geoJSON_routes_view, name='geojson_routes'),
 
