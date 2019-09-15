@@ -37,23 +37,4 @@ urlpatterns = [
     url(r'^aircraft/update/(?P<pk>\d+)/$', AircraftUpdate.as_view(), name='aircraft_update'),
     url(r'^aircraft/detail/(?P<pk>\d+)/$', AircraftDetail.as_view(), name='aircraft_detail'),
     url(r'^aircraft/delete/(?P<pk>\d+)/$', AircraftDelete.as_view(), name='aircraft_delete'),
-
-    url(r'^import_aircraft/$', ImportAircraftListView.as_view(), name='import_aircraft_list'),
-    url(r'^import_aircraft/create/$', ImportAircraftCreateView.as_view(), name='import_aircraft_create'),
-    url(r'^import_aircraft/update/(?P<pk>\d+)/$', ImportAircraftUpdateView.as_view(), name='import_aircraft_update'),
-    url(r'^import_aircraft/delete/(?P<pk>\d+)/$', ImportAircraftDeleteView.as_view(), name='import_aircraft_delete'),
-    url(r'^import_aircraft/detail/(?P<pk>\d+)/$', ImportAircraftDetailView.as_view(), name='import_aircraft_detail'),
-
-    # url(r'^approaches/$', ApproachList.as_view(), name='approach_list'),
-    # url(r'^approaches/create/$', ApproachCreate.as_view(), name='approach_create'),
-    # url(r'^approaches/update/(?P<pk>\d+)/$', ApproachUpdate.as_view(), name='approach_update'),
-    # url(r'^approaches/detail/(?P<pk>\d+)/$', ApproachDetail.as_view(), name='approach_detail'),
-    # url(r'^approaches/delete/(?P<pk>\d+)/$', ApproachDelete.as_view(), name='approach_delete'),
-
-    # url(r'^tailnumbers/$', TailNumberList.as_view(), name='tailnumber_list'),
-    url(r'^tailnumbers/create/$', TailNumberCreate.as_view(), name='tailnumber_create'),
-    url(r'^tailnumbers/update/(?P<pk>\d+)/$', TailNumberUpdate.as_view(), name='tailnumber_update'),
-    url(r'^tailnumbers/detail/(?P<pk>\d+)/$', TailNumberDetail.as_view(), name='tailnumber_detail'),
-    url(r'^tailnumbers/delete/(?P<pk>\d+)/$', TailNumberDelete.as_view(), name='tailnumber_delete'),
-
 ]

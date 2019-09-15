@@ -89,10 +89,7 @@ class WeightAdmin(admin.ModelAdmin):
 
 class PowerAdmin(admin.ModelAdmin):
     list_display = ('user', 'role', 'turbine', 'piston')
-
-class BulkEntryAdmin(admin.ModelAdmin):
-    list_display = ['user', 'aircraft_type', 'aircraft_category', 'aircraft_class', 'total_time', 'pilot_in_command', 'second_in_command', 'cross_country', 'instructor', 'dual', 'solo', 'instrument', 'night', 'simulated_instrument', 'simulator', 'landings_day', 'landings_night', 'landings_total', 'last_flown', 'last_30', 'last_60', 'last_90', 'last_yr', 'last_2yr', 'ytd']
-
+    
 # admin.site.unregister(User)
 # admin.site.register(User, UserAdmin)
 admin.site.register(Flight, FlightAdmin)
@@ -106,7 +103,7 @@ admin.site.register(AircraftClass)
 admin.site.register(TailNumber, TailnumberAdmin)
 
 admin.site.register(Total, TotalAdmin)
-admin.site.register(BulkEntry, BulkEntryAdmin)
+
 admin.site.register(Stat, StatAdmin)
 admin.site.register(Power, PowerAdmin)
 admin.site.register(Regs, RegAdmin)
