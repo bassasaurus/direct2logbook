@@ -2,7 +2,7 @@ from flights.models import *
 from accounts.models import Profile
 from django.contrib.auth.models import User, Group
 
-from flights.forms import FlightForm, AircraftForm, TailNumberForm, HoldingFormSet, ApproachFormSet, ImportAircraftForm
+from flights.forms import FlightForm, AircraftForm, TailNumberForm, HoldingFormSet, ApproachFormSet
 from django.db.models import Sum, Q, F
 from django.db.models.functions import Length
 from django.db.models import CharField
@@ -1022,96 +1022,4 @@ class IacraView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, Tem
         context['parent_link'] = reverse('home')
         context['parent_name'] = 'Home'
 
-        return context
-
-
-class ImportAircraftListView(LoginRequiredMixin, UserObjectsMixin, ListView):
-    model = BulkEntry
-    template_name = 'import_aircraft/import_aircraft_list.html'
-    context_object_name = 'import_aircraft'
-
-    def get_context_data(self, **kwargs):
-        context = super(ImportAircraftListView,
-                        self).get_context_data(**kwargs)
-
-        context['title'] = "D-> | Import Aircraft "
-        context['page_title'] = "Import Aircraft "
-        context['home_link'] = reverse('home')
-        context['parent_link'] = reverse('flight_list')
-        context['parent_name'] = 'Logbook'
-        return context
-
-
-class ImportAircraftCreateView(LoginRequiredMixin, UserObjectsMixin, CreateView):
-    model = BulkEntry
-    template_name = 'import_aircraft/import_aircraft_create.html'
-    success_url = '/import_aircraft/'
-    form_class = ImportAircraftForm
-
-    def form_valid(self, form):
-        object = form.save(commit=False)
-        object.user = self.request.user
-        object.save()
-        return super(ImportAircraftCreateView, self).form_valid(form)
-
-    def get_context_data(self, **kwargs):
-        context = super(ImportAircraftCreateView,
-                        self).get_context_data(**kwargs)
-
-        context['title'] = "D-> | New Import Aircraft "
-        context['page_title'] = "New Import Aircraft "
-        context['home_link'] = reverse('home')
-        context['parent_link'] = reverse('import_aircraft_list')
-        context['parent_name'] = 'Import Aircraft'
-        return context
-
-
-class ImportAircraftUpdateView(LoginRequiredMixin, UserObjectsMixin, UpdateView):
-    model = BulkEntry
-    template_name = 'import_aircraft/import_aircraft_update.html'
-    form_class = ImportAircraftForm
-
-    def get_context_data(self, **kwargs):
-        context = super(ImportAircraftUpdateView,
-                        self).get_context_data(**kwargs)
-
-        context['title'] = "D-> | New Import Aircraft "
-        context['page_title'] = "New Import Aircraft "
-        context['home_link'] = reverse('home')
-        context['parent_link'] = reverse('import_aircraft_list')
-        context['parent_name'] = 'Import Aircraft'
-        return context
-
-
-class ImportAircraftDeleteView(LoginRequiredMixin, UserObjectsMixin, DeleteView):
-    model = BulkEntry
-    template_name = 'import_aircraft/import_aircraft_delete.html'
-    success_url = '/import_aircraft/'
-
-    def get_context_data(self, **kwargs):
-        context = super(ImportAircraftDeleteView,
-                        self).get_context_data(**kwargs)
-
-        context['title'] = "D-> | New Import Aircraft "
-        context['page_title'] = "New Import Aircraft "
-        context['home_link'] = reverse('home')
-        context['parent_link'] = reverse('import_aircraft_list')
-        context['parent_name'] = 'Import Aircraft'
-        return context
-
-
-class ImportAircraftDetailView(LoginRequiredMixin, UserObjectsMixin, DetailView):
-    model = BulkEntry
-    template_name = 'import_aircraft/import_aircraft_detail.html'
-    context_object_name = 'import_aircraft'
-
-    def get_context_data(self, **kwargs):
-        context = super(ImportAircraftDetailView,
-                        self).get_context_data(**kwargs)
-
-        context['title'] = "D-> | New Import Aircraft "
-        context['page_title'] = "New Import Aircraft "
-        context['home_link'] = reverse('home')
-        context['parent_link'] = reverse('import_aircraft_list')
-        context['parent_name'] = 'Import Aircraft'
         return context

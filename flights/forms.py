@@ -93,9 +93,3 @@ class TailNumberForm(forms.ModelForm):
             'is_135': '135',
             'is_91': '91',
         }
-
-class ImportAircraftForm(forms.ModelForm):
-
-    class Meta:
-        model = BulkEntry
-        fields = import_aircraft_fields()

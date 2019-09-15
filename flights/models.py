@@ -307,35 +307,3 @@ class AircraftClass(models.Model):
 
     def __str__(self):
         return self.aircraft_class
-
-class BulkEntry(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    aircraft_type = models.CharField(max_length=10, default=None)
-    aircraft_category = models.ForeignKey('AircraftCategory', on_delete=models.CASCADE, default=None)
-    aircraft_class = models.ForeignKey('AircraftClass', on_delete=models.CASCADE, default=None)
-    total_time = models.DecimalField(decimal_places=1, max_digits=6, db_index=True, null=True, blank=True, default=0, verbose_name="Time")
-    pilot_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="PIC")
-    second_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="SIC")
-    cross_country = models.DecimalField(decimal_places=1, max_digits=6, null=True, blank=True, default=0, verbose_name="XC")
-    instructor = models.DecimalField(decimal_places=1, max_digits=6, null=True, blank=True, default=0, verbose_name="CFI")
-    dual = models.DecimalField(decimal_places=1, max_digits=6, null=True, blank=True, default=0)
-    solo = models.DecimalField(decimal_places=1, max_digits=6, null=True, blank=True, default=0)
-    instrument = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="Inst")
-    night = models.DecimalField(decimal_places=1, max_digits=6, null=True, blank=True, default=0)
-    simulated_instrument = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="Sim Inst")
-    simulator = models.DecimalField(decimal_places=1, max_digits=6, null=True, blank=True, default=0, verbose_name="Sim")
-    landings_day = models.PositiveIntegerField(null=True, blank=True, default=0, verbose_name="Day Ldg")
-    landings_night = models.PositiveIntegerField(null=True, blank=True, default=0, verbose_name="Night Ldg")
-    landings_total = models.PositiveIntegerField(null=True, blank=True, default=0, verbose_name="Total Ldg")
-    last_flown = models.DateField(null=True, blank=True)
-    last_30 = models.DecimalField(decimal_places=1, max_digits=6, null=True, blank=True, verbose_name='30')
-    last_60 = models.DecimalField(decimal_places=1, max_digits=6, null=True, blank=True, verbose_name='60')
-    last_90 = models.DecimalField(decimal_places=1, max_digits=6, null=True, blank=True, verbose_name='90')
-    last_180 = models.DecimalField(decimal_places=1, max_digits=6, null=True, blank=True, verbose_name='6mo')
-    last_yr = models.DecimalField(decimal_places=1, max_digits=6, null=True, blank=True, verbose_name='12mo')
-    last_2yr = models.DecimalField(decimal_places=1, max_digits=6, null=True, blank=True, verbose_name='24')
-    ytd = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, verbose_name='YDT')
-
-    def __str__(self):
-        title = str(self.aircraft_type)
-        return title
