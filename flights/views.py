@@ -1026,11 +1026,12 @@ class IacraView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, Tem
 
 class ImportListView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, ListView):
     model = Import
-    template_name = 'import_aircraft/import_aircraft_list.html'
+    template_name = 'import/import_list.html'
 
     def get_queryset(self, **kwargs):
+        user = self.request.user
         queryset = super().get_queryset(**kwargs)
-        queryset = Import.objects.filter(user=self.request.user)
+        queryset = Import.objects.filter(user=user)
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -1046,8 +1047,8 @@ class ImportListView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin
 class ImportCreateView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, CreateView):
     model = Import
     form_class = ImportForm
-    template_name = 'import_aircraft/import_aircraft_create.html'
-    success_url = '/import/aircraft/'
+    template_name = 'import/import_create.html'
+    success_url = '/import/'
 
     def form_valid(self, form):
         object = form.save(commit=False)
@@ -1056,13 +1057,13 @@ class ImportCreateView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMix
         return super(ImportCreateView, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
-        context = super(ImportAircraftCreateView,
+        context = super(ImportCreateView,
                         self).get_context_data(**kwargs)
 
         context['title'] = "D-> | Import Aircraft Create"
         context['page_title'] = "Import Aircraft Create"
         context['home_link'] = reverse('home')
-        context['parent_link'] = reverse('import_aircraft_list')
+        context['parent_link'] = reverse('import_list')
         context['parent_name'] = 'Import Aircraft'
         return context
 
@@ -1070,8 +1071,8 @@ class ImportCreateView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMix
 class ImportUpdateView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, UpdateView):
     model = Import
     form_class = ImportForm
-    template_name = 'import_aircraft/import_aircraft_update.html'
-    success_url = '/import/aircraft/'
+    template_name = 'import/import_update.html'
+    success_url = '/import/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1079,15 +1080,15 @@ class ImportUpdateView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMix
         context['title'] = "D-> | Import Aircraft Update"
         context['page_title'] = "Import Aircraft Update"
         context['home_link'] = reverse('home')
-        context['parent_link'] = reverse('import_aircraft_list')
+        context['parent_link'] = reverse('import_list')
         context['parent_name'] = 'Import Aircraft'
         return context
 
 
 class ImportDetailView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, DetailView):
     model = Import
-    template_name = 'import_aircraft/import_aircraft_detail.html'
+    template_name = 'import/import_detail.html'
 
 class ImportDeleteView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, DeleteView):
     model = Import
-    template_name = 'import_aircraft/import_aircraft_delete.html'
+    template_name = 'import/import_delete.html'
