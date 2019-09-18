@@ -4,8 +4,8 @@
 
 <a href="{% url 'import_aircraft_create' %}">Import Previous Aircraft</a>
 
-{% for aircraft in object_list %}
-  <p><a href="{% url 'import_aircraft_detail' aircraft.pk %}">{{ aircraft }}</a></p>
+{% for object in object_list %}
+  <p><a href="{% url 'import_aircraft_detail' object.pk %}">{{ aircraft }}</a></p>
 {% endfor %}
 
 {% endblock %}

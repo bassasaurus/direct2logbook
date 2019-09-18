@@ -101,17 +101,4 @@ class ImportAircraftForm(forms.ModelForm):
         exclude = ['user']
         widgets = {
             'aircraft_type': autocomplete.ModelSelect2(url='aircraft-autocomplete', attrs={'data-placeholder': 'Aircraft *'}),
-            'turbine': forms.CheckboxInput(),
-            'piston': forms.CheckboxInput(),
-            'requires_type': forms.CheckboxInput(),
-            'superr': forms.CheckboxInput(),
-            'heavy': forms.CheckboxInput(),
-            'large': forms.CheckboxInput(),
-            'medium': forms.CheckboxInput(),
-            'small': forms.CheckboxInput(),
-            'light_sport':forms.CheckboxInput(),
-            'tailwheel': forms.CheckboxInput(),
-            'simple': forms.CheckboxInput(),
-            'compleks': forms.CheckboxInput(),
-            'high_performance': forms.CheckboxInput(),
         }

@@ -46,6 +46,7 @@ urlpatterns = [
 
     url(r'^import/aircraft/$', ImportAircraftListView.as_view(), name='import_aircraft_list'),
     url(r'^import/aircraft_create/$', ImportAircraftCreateView.as_view(), name='import_aircraft_create'),
-    url(r'^import/aircraft_update/$', ImportAircraftUpdateView.as_view(), name='import_aircraft_update'),
-    url(r'^import/aircraft_delete/$', ImportAircraftDeleteView.as_view(), name='import_aircraft_delete'),
+    url(r'^import/aircraft_detail/(?P<pk>\d+)/$', ImportAircraftDetailView.as_view(), name='import_aircraft_detail'),
+    url(r'^import/aircraft_update/(?P<pk>\d+)/$', ImportAircraftUpdateView.as_view(), name='import_aircraft_update'),
+    url(r'^import/aircraft_delete/(?P<pk>\d+)/$', ImportAircraftDeleteView.as_view(), name='import_aircraft_delete'),
 ]
