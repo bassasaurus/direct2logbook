@@ -102,7 +102,7 @@ admin.site.register(AircraftCategory)
 admin.site.register(AircraftClass)
 admin.site.register(TailNumber, TailnumberAdmin)
 
-admin.site.register(Import)
+admin.site.register(Imported)
 admin.site.register(Total, TotalAdmin)
 admin.site.register(Stat, StatAdmin)
 admin.site.register(Power, PowerAdmin)

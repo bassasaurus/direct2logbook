@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<a href="{% url 'imported_create' %}">Import Previous Aircraft</a>
+
+{% for object in object_list %}
+  <p><a href="{% url 'imported_detail' object.pk %}">{{ object }}</a></p>
+{% endfor %}
+
+{% endblock %}

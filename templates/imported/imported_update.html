@@ -4,15 +4,15 @@
 
 <div class="row justify-content-center">
   <div class="col-12">
-    <form action="" class="form-horizontal" method="post">
+    <form action="" class="" method="post">
       {% csrf_token %}
         <div class="form-group">
-          <h4>New Aircraft Import</h4>
+          <h4>Update Bulk Entry for {{ obj.aircraft_type }}</h4>
           <p>Required *</p>
           {{ form.non_field_errors }}
         </div>
         <hr>
-          {% include 'import/import_form.html' %}
+          {% include 'imported/imported_form.html' %}
         <hr>
       <button class="btn-shadow btn-shadow-dark btn-block" type="submit">Submit</button>
     </form>

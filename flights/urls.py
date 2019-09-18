@@ -44,9 +44,9 @@ urlpatterns = [
     url(r'^tailnumbers/detail/(?P<pk>\d+)/$', TailNumberDetail.as_view(), name='tailnumber_detail'),
     url(r'^tailnumbers/delete/(?P<pk>\d+)/$', TailNumberDelete.as_view(), name='tailnumber_delete'),
 
-    url(r'^import/$', ImportListView.as_view(), name='import_list'),
-    url(r'^import/create/$', ImportCreateView.as_view(), name='import_create'),
-    url(r'^import/detail/(?P<pk>\d+)/$', ImportDetailView.as_view(), name='import_detail'),
-    url(r'^import/update/(?P<pk>\d+)/$', ImportUpdateView.as_view(), name='import_update'),
-    url(r'^import/delete/(?P<pk>\d+)/$', ImportDeleteView.as_view(), name='import_delete'),
+    url(r'^imported/$', ImportedListView.as_view(), name='imported_list'),
+    url(r'^imported/create/$', ImportedCreateView.as_view(), name='imported_create'),
+    url(r'^imported/detail/(?P<pk>\d+)/$', ImportedDetailView.as_view(), name='imported_detail'),
+    url(r'^imported/update/(?P<pk>\d+)/$', ImportedUpdateView.as_view(), name='imported_update'),
+    url(r'^imported/delete/(?P<pk>\d+)/$', ImportedDeleteView.as_view(), name='imported_delete'),
 ]
