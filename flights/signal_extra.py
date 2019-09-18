@@ -3,6 +3,7 @@ from accounts.models import Profile
 from django.db.models.signals import pre_save, post_save, post_delete
 from django.db.models import Sum, Q
 from django.core.exceptions import ObjectDoesNotExist
+from django.dispatch import receiver
 
 @receiver(pre_save, sender=Profile)
 def create_weight_instances(sender, instance, **kwargs):

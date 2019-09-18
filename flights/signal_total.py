@@ -6,6 +6,7 @@ import datetime
 from math import floor
 from django.core.exceptions import ObjectDoesNotExist
 from flights.queryset_helpers import *
+from django.dispatch import receiver
 
 @receiver(pre_save, sender=Profile)
 def create_total_instances(sender, instance, **kwargs):

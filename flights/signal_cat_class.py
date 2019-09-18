@@ -2,6 +2,7 @@ from flights.models import Flight, Aircraft, Total
 from django.db.models.signals import pre_save, post_save, post_delete
 from django.db.models import Sum, Q
 import datetime
+from django.dispatch import receiver
 
 today = datetime.date.today()
 

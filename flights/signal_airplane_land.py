@@ -3,6 +3,7 @@ from django.db.models.signals import pre_save, post_save, post_delete
 from django.db.models import Sum, Q
 import datetime
 from django.core.exceptions import ObjectDoesNotExist
+from django.dispatch import receiver
 
 
 @receiver(post_save, sender=Aircraft)
