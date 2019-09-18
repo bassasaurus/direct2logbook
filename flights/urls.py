@@ -43,4 +43,9 @@ urlpatterns = [
     url(r'^tailnumbers/update/(?P<pk>\d+)/$', TailNumberUpdate.as_view(), name='tailnumber_update'),
     url(r'^tailnumbers/detail/(?P<pk>\d+)/$', TailNumberDetail.as_view(), name='tailnumber_detail'),
     url(r'^tailnumbers/delete/(?P<pk>\d+)/$', TailNumberDelete.as_view(), name='tailnumber_delete'),
+
+    url(r'^import/aircraft/$', ImportAircraftListView.as_view(), name='import_aircraft_list'),
+    url(r'^import/aircraft_create/$', ImportAircraftCreateView.as_view(), name='import_aircraft_create'),
+    url(r'^import/aircraft_update/$', ImportAircraftUpdateView.as_view(), name='import_aircraft_update'),
+    url(r'^import/aircraft_delete/$', ImportAircraftDeleteView.as_view(), name='import_aircraft_delete'),
 ]
