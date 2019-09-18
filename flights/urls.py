@@ -44,9 +44,9 @@ urlpatterns = [
     url(r'^tailnumbers/detail/(?P<pk>\d+)/$', TailNumberDetail.as_view(), name='tailnumber_detail'),
     url(r'^tailnumbers/delete/(?P<pk>\d+)/$', TailNumberDelete.as_view(), name='tailnumber_delete'),
 
-    url(r'^import/aircraft/$', ImportAircraftListView.as_view(), name='import_aircraft_list'),
-    url(r'^import/aircraft_create/$', ImportAircraftCreateView.as_view(), name='import_aircraft_create'),
-    url(r'^import/aircraft_detail/(?P<pk>\d+)/$', ImportAircraftDetailView.as_view(), name='import_aircraft_detail'),
-    url(r'^import/aircraft_update/(?P<pk>\d+)/$', ImportAircraftUpdateView.as_view(), name='import_aircraft_update'),
-    url(r'^import/aircraft_delete/(?P<pk>\d+)/$', ImportAircraftDeleteView.as_view(), name='import_aircraft_delete'),
+    url(r'^import/$', ImportListView.as_view(), name='import_aircraft_list'),
+    url(r'^import/create/$', ImportCreateView.as_view(), name='import_aircraft_create'),
+    url(r'^import/detail/(?P<pk>\d+)/$', ImportDetailView.as_view(), name='import_aircraft_detail'),
+    url(r'^import/update/(?P<pk>\d+)/$', ImportUpdateView.as_view(), name='import_aircraft_update'),
+    url(r'^import/delete/(?P<pk>\d+)/$', ImportDeleteView.as_view(), name='import_aircraft_delete'),
 ]

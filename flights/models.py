@@ -308,7 +308,7 @@ class AircraftClass(models.Model):
     def __str__(self):
         return self.aircraft_class
 
-class ImportAircraft(models.Model):
+class Import(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     aircraft_type = models.ForeignKey(Aircraft, on_delete=models.CASCADE)
     total_time = models.DecimalField(decimal_places=1, max_digits=6, db_index=True, null=True, blank=True, default=0, verbose_name="Time")

@@ -70,7 +70,7 @@ def total_update(sender, instance, **kwargs):
             total.last_flown = None
 
         today = datetime.date.today()
-        
+
         last_30 = today - datetime.timedelta(days=30)
         last_30 = flight_queryset.filter(date__lte=today,date__gte=last_30).aggregate(Sum('duration'))
         last_30 = avoid_none_duration(last_30)

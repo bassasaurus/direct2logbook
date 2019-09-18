@@ -94,10 +94,10 @@ class TailNumberForm(forms.ModelForm):
             'is_91': '91',
         }
 
-class ImportAircraftForm(forms.ModelForm):
+class ImportForm(forms.ModelForm):
 
     class Meta:
-        model = ImportAircraft
+        model = Import
         exclude = ['user']
         widgets = {
             'aircraft_type': autocomplete.ModelSelect2(url='aircraft-autocomplete', attrs={'data-placeholder': 'Aircraft *'}),
