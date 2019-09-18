@@ -2,7 +2,7 @@ from flights.models import *
 from accounts.models import Profile
 from django.contrib.auth.models import User, Group
 
-from flights.forms import FlightForm, AircraftForm, TailNumberForm, HoldingFormSet, ApproachFormSet
+from flights.forms import *
 from django.db.models import Sum, Q, F
 from django.db.models.functions import Length
 from django.db.models import CharField
@@ -1023,3 +1023,71 @@ class IacraView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, Tem
         context['parent_name'] = 'Home'
 
         return context
+
+class ImportAircraftListView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, ListView):
+    model = ImportAircraft
+    template_name = 'import_aircraft/import_aircraft_list.html'
+
+    def get_queryset(self, **kwargs):
+        queryset = super().get_queryset(**kwargs)
+        queryset = ImportAircraft.objects.filter(user=self.request.user)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = "D-> | Import Aircraft"
+        context['page_title'] = "Import Aircraft"
+        context['home_link'] = reverse('home')
+        context['parent_link'] = reverse('aircraft_list')
+        context['parent_name'] = 'Aircraft'
+        return context
+
+
+class ImportAircraftCreateView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, CreateView):
+    model = ImportAircraft
+    form_class = ImportAircraftForm
+    template_name = 'import_aircraft/import_aircraft_create.html'
+    success_url = '/import/aircraft/'
+
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.user = self.request.user
+        object.save()
+        return super(ImportAircraftCreateView, self).form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super(ImportAircraftCreateView,
+                        self).get_context_data(**kwargs)
+
+        context['title'] = "D-> | Import Aircraft Create"
+        context['page_title'] = "Import Aircraft Create"
+        context['home_link'] = reverse('home')
+        context['parent_link'] = reverse('import_aircraft_list')
+        context['parent_name'] = 'Import Aircraft'
+        return context
+
+
+class ImportAircraftUpdateView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, UpdateView):
+    model = ImportAircraft
+    form_class = ImportAircraftForm
+    template_name = 'import_aircraft/import_aircraft_update.html'
+    success_url = '/import/aircraft/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['title'] = "D-> | Import Aircraft Update"
+        context['page_title'] = "Import Aircraft Update"
+        context['home_link'] = reverse('home')
+        context['parent_link'] = reverse('import_aircraft_list')
+        context['parent_name'] = 'Import Aircraft'
+        return context
+
+
+class ImportAircraftDetailView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, DetailView):
+    model = ImportAircraft
+    template_name = 'import_aircraft/import_aircraft_detail.html'
+
+class ImportAircraftDeleteView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, DeleteView):
+    model = ImportAircraft
+    template_name = 'import_aircraft/import_aircraft_delete.html'
