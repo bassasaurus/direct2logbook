@@ -5,8 +5,8 @@
 <div class="row flex-md-row">
   <div class="col flex-md-column">
     <div class="btn-group">
-      <a href ="{% url 'import_aircraft_update' import_aircraft.pk %}" class="btn btn-outline-secondary">Update</a>
-      <a href ="{% url 'import_aircraft_delete' import_aircraft.pk %}" class="btn btn-outline-danger">Delete</a>
+      <a href ="{% url 'import_aircraft_update' object.pk %}" class="btn btn-outline-secondary">Update</a>
+      <a href ="{% url 'import_aircraft_delete' object.pk %}" class="btn btn-outline-danger">Delete</a>
     </div>
   </div>
 </div>
