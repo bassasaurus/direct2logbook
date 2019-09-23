@@ -211,42 +211,41 @@ class HomeView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, Temp
                 context['aircraft_needs_tailnumber'] = aircraft_list
 
         # cat/class vfr day, night currency
-        if not Total.objects.filter(user=user):
+        try:
+            Total.objects.filter(user=user).get(total="ASEL")
+            context['asel_total'] = Total.objects.filter(user=user).get(total="ASEL")
+        except ObjectDoesNotExist:
             context['asel_total'] = 0
-        else:
-            context['asel_total'] = Total.objects.filter(
-                user=user).get(total="ASEL")
-            asel_total = Total.objects.filter(user=user).get(total="ASEL")
 
-        if not Total.objects.filter(user=user):
+        try:
+            Total.objects.filter(user=user).get(total="AMEL")
+            context['amel_total'] = Total.objects.filter(user=user).get(total="AMEL")
+        except ObjectDoesNotExist:
             context['amel_total'] = 0
-        else:
-            context['amel_total'] = Total.objects.filter(
-                user=user).get(total="AMEL")
 
-        if not Total.objects.filter(user=user):
+        try:
+            Total.objects.filter(user=user).get(total="ASES")
+            context['ases_total'] = Total.objects.filter(user=user).get(total="ASES")
+        except ObjectDoesNotExist:
             context['ases_total'] = 0
-        else:
-            context['ases_total'] = Total.objects.filter(
-                user=user).get(total="ASES")
 
-        if not Total.objects.filter(user=user):
+        try:
+            Total.objects.filter(user=user).get(total="AMES")
+            context['ames_total'] = Total.objects.filter(user=user).get(total="AMES")
+        except ObjectDoesNotExist:
             context['ames_total'] = 0
-        else:
-            context['ames_total'] = Total.objects.filter(
-                user=user).get(total="AMES")
 
-        if not Total.objects.filter(user=user):
+        try:
+            Total.objects.filter(user=user).get(total="HELO")
+            context['helo_total'] = Total.objects.filter(user=user).get(total="HELO")
+        except ObjectDoesNotExist:
             context['helo_total'] = 0
-        else:
-            context['helo_total'] = Total.objects.filter(
-                user=user).get(total="HELO")
 
-        if not Total.objects.filter(user=user):
+        try:
+            Total.objects.filter(user=user).get(total="GYRO")
+            context['gyro_total'] = Total.objects.filter(user=user).get(total="GYRO")
+        except ObjectDoesNotExist:
             context['gyro_total'] = 0
-        else:
-            context['gyro_total'] = Total.objects.filter(
-                user=user).get(total="GYRO")
 
         # IFR currency
         today = datetime.date.today()
@@ -1092,3 +1091,4 @@ class ImportedDetailView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsM
 class ImportedDeleteView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, DeleteView):
     model = Imported
     template_name = 'imported/imported_delete.html'
+    success_url = '/imported/'

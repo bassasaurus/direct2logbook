@@ -343,6 +343,5 @@ class Imported(models.Model):
 
     def save(self, *args, **kwargs):
 
-        #do something here
 
         super().save(*args, **kwargs)

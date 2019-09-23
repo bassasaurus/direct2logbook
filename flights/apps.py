@@ -5,9 +5,7 @@ class FlightsConfig(AppConfig):
 
     def ready(self):
         import flights.signal_stat
-        import flights.signal_airplane_land
-        import flights.signal_airplane_sea
-        import flights.signal_rotorcraft
+        
         import flights.signal_extra
         import flights.signal_total
 
