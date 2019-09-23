@@ -1026,6 +1026,7 @@ class IacraView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, Tem
 class ImportedListView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, ListView):
     model = Imported
     template_name = 'imported/imported_list.html'
+    context_object_name = 'imported'
 
     def get_queryset(self, **kwargs):
         user = self.request.user
@@ -1088,7 +1089,27 @@ class ImportedDetailView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsM
     model = Imported
     template_name = 'imported/imported_detail.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['title'] = "D-> | Imported Aircraft Update"
+        context['page_title'] = "Imported Aircraft Update"
+        context['home_link'] = reverse('home')
+        context['parent_link'] = reverse('imported_list')
+        context['parent_name'] = 'Imported Aircraft'
+        return context
+
 class ImportedDeleteView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, DeleteView):
     model = Imported
     template_name = 'imported/imported_delete.html'
     success_url = '/imported/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['title'] = "D-> | Imported Aircraft Delete"
+        context['page_title'] = "Imported Aircraft Delete"
+        context['home_link'] = reverse('home')
+        context['parent_link'] = reverse('imported_list')
+        context['parent_name'] = 'Imported Aircraft'
+        return context

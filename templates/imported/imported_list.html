@@ -2,10 +2,16 @@
 {% load static %}
 {% block content %}
 
-<a href="{% url 'imported_create' %}">Import Previous Aircraft</a>
+<div class="row flex-md-row">
+  <div class="col flex-md-column">
+    <a href="{% url 'imported_create' %}">Import Previous Aircraft</a>
+    <hr>
+      <div class="row flex-med-row>">
+        {% include 'table_imported.html' %}
+    </div>
+  </div>
+</div>
 
-{% for object in object_list %}
-  <p><a href="{% url 'imported_detail' object.pk %}">{{ object }}</a></p>
-{% endfor %}
+{% include 'tablefixer.html' %}
 
 {% endblock %}
