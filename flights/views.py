@@ -87,13 +87,13 @@ class ProfileNotActiveMixin(UserPassesTestMixin):
         profile = Profile.objects.get(user=self.request.user)
 
         if profile.end_date > today.date():
-            expired=False
+            expired = False
         else:
-            expired=True
+            expired = True
 
         if profile.active or profile.trial:
             return True
-        elif profile.canceled and expired==False:
+        elif profile.canceled and expired == False:
             return True
         else:
             return False
@@ -101,11 +101,13 @@ class ProfileNotActiveMixin(UserPassesTestMixin):
     def handle_no_permission(self):
         return redirect('profile')
 
+
 class UserObjectsMixin():
 
     def get_queryset(self):
         user = self.request.user
         return super(UserObjectsMixin, self).get_queryset().filter(user=user)
+
 
 class LoginRequiredMixin(LoginRequiredMixin):
     login_url = '/accounts/login'
@@ -204,7 +206,7 @@ class HomeView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, Temp
 
         aircraft_list = []
         for aircraft in Aircraft.objects.filter(user=user).all():
-            if TailNumber.objects.filter(user=user).filter(aircraft__aircraft_type=aircraft).exists():
+            if TailNumber.objects.filter(user=user).filter(aircraft__aircraft_type=aircraft).exists() or Imported.objects.filter(user=user).filter(aircraft_type=aircraft).exists():
                 pass
             else:
                 aircraft_list.append(aircraft)
@@ -213,37 +215,43 @@ class HomeView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, Temp
         # cat/class vfr day, night currency
         try:
             Total.objects.filter(user=user).get(total="ASEL")
-            context['asel_total'] = Total.objects.filter(user=user).get(total="ASEL")
+            context['asel_total'] = Total.objects.filter(
+                user=user).get(total="ASEL")
         except ObjectDoesNotExist:
             context['asel_total'] = 0
 
         try:
             Total.objects.filter(user=user).get(total="AMEL")
-            context['amel_total'] = Total.objects.filter(user=user).get(total="AMEL")
+            context['amel_total'] = Total.objects.filter(
+                user=user).get(total="AMEL")
         except ObjectDoesNotExist:
             context['amel_total'] = 0
 
         try:
             Total.objects.filter(user=user).get(total="ASES")
-            context['ases_total'] = Total.objects.filter(user=user).get(total="ASES")
+            context['ases_total'] = Total.objects.filter(
+                user=user).get(total="ASES")
         except ObjectDoesNotExist:
             context['ases_total'] = 0
 
         try:
             Total.objects.filter(user=user).get(total="AMES")
-            context['ames_total'] = Total.objects.filter(user=user).get(total="AMES")
+            context['ames_total'] = Total.objects.filter(
+                user=user).get(total="AMES")
         except ObjectDoesNotExist:
             context['ames_total'] = 0
 
         try:
             Total.objects.filter(user=user).get(total="HELO")
-            context['helo_total'] = Total.objects.filter(user=user).get(total="HELO")
+            context['helo_total'] = Total.objects.filter(
+                user=user).get(total="HELO")
         except ObjectDoesNotExist:
             context['helo_total'] = 0
 
         try:
             Total.objects.filter(user=user).get(total="GYRO")
-            context['gyro_total'] = Total.objects.filter(user=user).get(total="GYRO")
+            context['gyro_total'] = Total.objects.filter(
+                user=user).get(total="GYRO")
         except ObjectDoesNotExist:
             context['gyro_total'] = 0
 
@@ -316,17 +324,17 @@ class HomeView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, Temp
         context['expiry_date'] = currency.medical_duration(user)[0]
         context['this_month'] = currency.medical_duration(user)[1]
 
-        if len(Aircraft.objects.filter(user=user).all()) == 0:
+        if len(Aircraft.objects.filter(user=user)) == 0:
             context['new_user_aircraft'] = True
         else:
             context['new_user_aircraft'] = False
 
-        if len(TailNumber.objects.filter(user=user).all()) == 0:
+        if len(TailNumber.objects.filter(user=user)) == 0:
             context['new_user_tailnumber'] = True
         else:
             context['new_user_tailnumber'] = False
 
-        if len(Flight.objects.filter(user=user).all()) == 0:
+        if len(Flight.objects.filter(user=user)) == 0:
             context['new_user_flight'] = True
         else:
             context['new_user_flight'] = False
@@ -755,7 +763,7 @@ class TailNumberList(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin
 
         aircraft_list = []
         for aircraft in Aircraft.objects.filter(user=user).all():
-            if TailNumber.objects.filter(user=user).filter(aircraft__aircraft_type=aircraft).exists():
+            if TailNumber.objects.filter(user=user).filter(aircraft__aircraft_type=aircraft).exists() or Imported.objects.filter(user=user).filter(aircraft_type=aircraft).exists():
                 pass
             else:
                 aircraft_list.append(aircraft)
@@ -1024,6 +1032,7 @@ class IacraView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, Tem
 
         return context
 
+
 class ImportedListView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, ListView):
     model = Imported
     template_name = 'imported/imported_list.html'
@@ -1099,6 +1108,7 @@ class ImportedDetailView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsM
         context['parent_link'] = reverse('imported_list')
         context['parent_name'] = 'Imported Aircraft'
         return context
+
 
 class ImportedDeleteView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, DeleteView):
     model = Imported
