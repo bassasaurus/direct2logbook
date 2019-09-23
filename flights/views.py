@@ -331,13 +331,14 @@ class HomeView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, Temp
         else:
             context['new_user_flight'] = False
 
+        context['flights'] = Flight.objects.filter(user=user)
         context['totals'] = Total.objects.filter(
             user=user).exclude(total_time__lte=.1)
         context['stats'] = Stat.objects.filter(user=user)
-        context['regs'] = Regs.objects.filter(user=user).all()
+        context['regs'] = Regs.objects.filter(user=user)
         context['weights'] = Weight.objects.filter(
             user=user).exclude(total__lte=.1)
-        context['powers'] = Power.objects.filter(user=user).all()
+        context['powers'] = Power.objects.filter(user=user)
         context['endorsements'] = Endorsement.objects.filter(
             user=user).exclude(total__lte=.1)
         context['title'] = 'D-> | Home'
