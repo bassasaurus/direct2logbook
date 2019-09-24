@@ -311,6 +311,9 @@ class AircraftClass(models.Model):
 class Imported(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     aircraft_type = models.ForeignKey(Aircraft, on_delete=models.CASCADE)
+    is_121 = models.NullBooleanField(null=True, blank=True)
+    is_135 = models.NullBooleanField(null=True, blank=True)
+    is_91 = models.NullBooleanField(null=True, blank=True)
     total_time = models.DecimalField(decimal_places=1, max_digits=6, db_index=True, null=True, blank=True, default=0, verbose_name="Time")
     pilot_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="PIC")
     second_in_command = models.DecimalField(decimal_places=1, max_digits=6,null=True, blank=True, default=0, verbose_name="SIC")

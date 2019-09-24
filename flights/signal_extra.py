@@ -22,7 +22,7 @@ def weight_update(sender, instance, **kwargs):
     large_query = Q(aircraft_type__large=True)
     medium_query = Q(aircraft_type__medium=True)
     small_query = Q(aircraft_type__small=True)
-    lsa_query = Q(aircraft_type__lsa=True)
+    # lsa_query = Q(aircraft_type__lsa=True)
 
     if not flight.filter(superr_query) and not imported.filter(superr_query):
         pass
@@ -66,12 +66,12 @@ def weight_update(sender, instance, **kwargs):
         small.total = avoid_none(flight.filter(small_query), 'duration') + avoid_none(imported.filter(small_query), 'total_time')
         small.save()
 
-    if not flight.filter(lsa_query) and not imported.filter(lsa_query):
-        pass
-    else:
-        lsa = Weight.objects.get_or_create(user=user, weight='LSA')[0]
-        lsa.total = avoid_none(flight.filter(lsa_query), 'duration') + avoid_none(imported.filter(lsa_query), 'total_time')
-        lsa.save()
+    # if not flight.filter(lsa_query) and not imported.filter(lsa_query):
+    #     pass
+    # else:
+    #     lsa = Weight.objects.get_or_create(user=user, weight='LSA')[0]
+    #     lsa.total = avoid_none(flight.filter(lsa_query), 'duration') + avoid_none(imported.filter(lsa_query), 'total_time')
+    #     lsa.save()
 
 @receiver(pre_save, sender=Profile)
 def create_reg_instances(sender, instance, **kwargs):
@@ -90,28 +90,40 @@ def regs_update(sender, instance, **kwargs):
 
     user = instance.user
 
-    try:
-        airline = Regs.objects.get(user=user, reg_type='121')
-        airline_query = Q(registration__is_121=True)
+    flight = Flight.objects.filter(user=user)
+    imported = Imported.objects.filter(user=user)
 
-        airline_pic = Flight.objects.filter(user=user).filter(pilot_in_command=True).filter(airline_query).aggregate(Sum('duration'))
-        if airline_pic.get('duration__sum') is None:
-            airline_pic = 0
-        else:
-            airline_pic = round(airline_pic.get('duration__sum'),1)
-        airline.pilot_in_command = airline_pic
-
-        airline_sic = Flight.objects.filter(user=user).filter(second_in_command=True).filter(airline_query).aggregate(Sum('duration'))
-        if airline_sic.get('duration__sum') is None:
-            airline_sic = 0
-        else:
-            airline_sic = round(airline_sic.get('duration__sum'),1)
-        airline.second_in_command = airline_sic
-
-        airline.save()
-
-    except ObjectDoesNotExist:
+    airline_query = Q(registration__is_121=True)
+    print('reg signal')
+    if not flight.filter(pilot_in_command=True).filter(airline_query):
         pass
+    else:
+        airline_pic = Regs.objects.get_or_create(user=user, reg_type='121')[0]
+        airline_pic = avoid_none(flight.filter(pilot_in_command=True).filter(airline_query), 'duration') + avoid_none()
+        airline_pic.save()
+
+    # try:
+    #     airline = Regs.objects.get(user=user, reg_type='121')
+    #     airline_query = Q(registration__is_121=True)
+    #
+    #     airline_pic = Flight.objects.filter(user=user).filter(pilot_in_command=True).filter(airline_query).aggregate(Sum('duration'))
+    #     if airline_pic.get('duration__sum') is None:
+    #         airline_pic = 0
+    #     else:
+    #         airline_pic = round(airline_pic.get('duration__sum'),1)
+    #     airline.pilot_in_command = airline_pic
+    #
+    #     airline_sic = Flight.objects.filter(user=user).filter(second_in_command=True).filter(airline_query).aggregate(Sum('duration'))
+    #     if airline_sic.get('duration__sum') is None:
+    #         airline_sic = 0
+    #     else:
+    #         airline_sic = round(airline_sic.get('duration__sum'),1)
+    #     airline.second_in_command = airline_sic
+    #
+    #     airline.save()
+    #
+    # except ObjectDoesNotExist:
+    #     pass
 
     try:
         charter = Regs.objects.get(user=user, reg_type='135')
