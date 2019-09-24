@@ -718,6 +718,11 @@ class AircraftDetail(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin
             context['aircraft_needs_tailnumber'] = "Please select a tailnumber for {}".format(
                 self.object.aircraft_type)
 
+        if Imported.objects.filter(user=user).filter(aircraft_type=self.object).exists():
+            context['is_imported'] = True
+        else:
+            context['is_imported'] = False
+
         context['title'] = "D-> | " + str(self.object)
         context['page_title'] = str(self.object)
         context['home_link'] = reverse('home')
