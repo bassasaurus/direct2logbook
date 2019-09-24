@@ -204,77 +204,46 @@ def endorsement_update(sender, instance, **kwargs):
 
     user = instance.user
 
+    flight = Flight.objects.filter(user=user)
+    imported = Imported.objects.filter(user=user)
+
     simple_query = Q(aircraft_type__simple=True)
     compleks_query = Q(aircraft_type__compleks=True)
     high_performance_query = Q(aircraft_type__high_performance=True)
     tailwheel_query = Q(aircraft_type__tailwheel=True)
     type_rating_query = Q(aircraft_type__requires_type=True)
 
-    try:
-        simple = Endorsement.objects.get(user=user, endorsement="Simple")
-        simple_total = Flight.objects.filter(user=user).filter(simple_query).aggregate(Sum('duration'))
-        if simple_total.get('duration__sum') is None:
-            simple_total = 0
-        else:
-            simple_total = round(simple_total.get('duration__sum'),1)
-        simple.total = simple_total
+    if not flight.filter(simple_query) and not imported.filter(simple_query):
+        pass
+    else:
+        simple = Endorsement.objects.get_or_create(user=user, endorsement="Simple")[0]
+        simple.total = avoid_none(flight.filter(simple_query), 'duration') + avoid_none(imported.filter(simple_query), 'total_time')
         simple.save()
 
-    except ObjectDoesNotExist:
+    if not flight.filter(compleks_query) and not imported.filter(compleks_query):
         pass
-
-    try:
-        compleks = Endorsement.objects.get(user=user, endorsement="Complex")
-
-        compleks_total = Flight.objects.filter(user=user).filter(compleks_query).aggregate(Sum('duration'))
-        if compleks_total.get('duration__sum') is None:
-            compleks_total = 0
-        else:
-            compleks_total = round(compleks_total.get('duration__sum'),1)
-        compleks.total = compleks_total
+    else:
+        compleks = Endorsement.objects.get_or_create(user=user, endorsement="Complex")[0]
+        compleks.total = avoid_none(flight.filter(compleks_query), 'duration') + avoid_none(imported.filter(compleks_query), 'total_time')
         compleks.save()
 
-    except ObjectDoesNotExist:
+    if not flight.filter(high_performance_query) and not imported.filter(high_performance_query):
         pass
-
-    try:
-        high_performance = Endorsement.objects.get(user=user, endorsement='High Performance')
-
-        high_performance_total = Flight.objects.filter(user=user).filter(high_performance_query).aggregate(Sum('duration'))
-        if high_performance_total.get('duration__sum') is None:
-            high_performance_total = 0
-        else:
-            high_performance_total = round(high_performance_total.get('duration__sum'),1)
-        high_performance.total = high_performance_total
+    else:
+        high_performance = Endorsement.objects.get_or_create(user=user, endorsement="High Performance")[0]
+        high_performance.total = avoid_none(flight.filter(high_performance_query), 'duration') + avoid_none(imported.filter(high_performance_query), 'total_time')
         high_performance.save()
 
-    except ObjectDoesNotExist:
+    if not flight.filter(tailwheel_query) and not imported.filter(tailwheel_query):
         pass
-
-    try:
-        tailwheel = Endorsement.objects.get(user=user, endorsement='Tailwheel')
-
-        tailwheel_total = Flight.objects.filter(user=user).filter(tailwheel_query).aggregate(Sum('duration'))
-        if tailwheel_total.get('duration__sum') is None:
-            tailwheel_total = 0
-        else:
-            tailwheel_total = round(tailwheel_total.get('duration__sum'),1)
-        tailwheel.total = tailwheel_total
+    else:
+        tailwheel = Endorsement.objects.get_or_create(user=user, endorsement="Tailwheel")[0]
+        tailwheel.total = avoid_none(flight.filter(tailwheel_query), 'duration') + avoid_none(imported.filter(tailwheel_query), 'total_time')
         tailwheel.save()
 
-    except ObjectDoesNotExist:
+    if not flight.filter(type_rating_query) and not imported.filter(type_rating_query):
         pass
-
-    try:
-        type_rating = Endorsement.objects.get(user=user, endorsement='Type Rating')
-
-        type_rating_total = Flight.objects.filter(user=user).filter(type_rating_query).aggregate(Sum('duration'))
-        if type_rating_total.get('duration__sum') is None:
-            type_rating_total = 0
-        else:
-            type_rating_total = round(type_rating_total.get('duration__sum'),1)
-        type_rating.total = type_rating_total
+    else:
+        type_rating = Endorsement.objects.get_or_create(user=user, endorsement="Type Rating")[0]
+        type_rating.total = avoid_none(flight.filter(type_rating_query), 'duration') + avoid_none(imported.filter(type_rating_query), 'total_time')
         type_rating.save()
-
-    except ObjectDoesNotExist:
-        pass
