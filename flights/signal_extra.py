@@ -4,17 +4,7 @@ from django.db.models.signals import pre_save, post_save, post_delete
 from django.db.models import Sum, Q
 from django.core.exceptions import ObjectDoesNotExist
 from django.dispatch import receiver
-
-@receiver(pre_save, sender=Profile)
-def create_weight_instances(sender, instance, **kwargs):
-
-    user = instance.user
-
-    Weight.objects.get_or_create(user=user, weight="Super")
-    Weight.objects.get_or_create(user=user, weight="Heavy")
-    Weight.objects.get_or_create(user=user, weight="Large")
-    Weight.objects.get_or_create(user=user, weight="Medium")
-    Weight.objects.get_or_create(user=user, weight="Small")
+from flights.queryset_helpers import *
 
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
@@ -24,81 +14,64 @@ def weight_update(sender, instance, **kwargs):
 
     user = instance.user
 
+    flight = Flight.objects.filter(user=user)
+    imported = Imported.objects.filter(user=user)
+
     superr_query = Q(aircraft_type__superr=True)
     heavy_query = Q(aircraft_type__heavy=True)
     large_query = Q(aircraft_type__large=True)
     medium_query = Q(aircraft_type__medium=True)
     small_query = Q(aircraft_type__small=True)
+    lsa_query = Q(aircraft_type__lsa=True)
 
-    try:
-        superr = Weight.objects.get(user=user, weight="Super")
-
-        superr_total = Flight.objects.filter(user=user).filter(superr_query).aggregate(Sum('duration'))
-        if superr_total.get('duration__sum') is None:
-            superr_total = 0
-        else:
-            superr_total = round(superr_total.get('duration__sum'),1)
-        superr.total = superr_total
+    if not flight.filter(superr_query) and not imported.filter(superr_query):
+        pass
+    else:
+        superr = Weight.objects.get_or_create(user=user, weight='Super')[0]
+        superr.total = avoid_none(flight.filter(superr_query), 'duration') + avoid_none(imported.filter(superr_query), 'total_time')
         superr.save()
 
-    except ObjectDoesNotExist:
+    if not flight.filter(heavy_query) and not imported.filter(heavy_query):
         pass
-
-    try:
-        heavy = Weight.objects.get(user=user, weight="Heavy")
-
-        heavy_total = Flight.objects.filter(user=user).filter(heavy_query).aggregate(Sum('duration'))
-        if heavy_total.get('duration__sum') is None:
-            heavy_total = 0
-        else:
-            heavy_total = round(heavy_total.get('duration__sum'),1)
-        heavy.total = heavy_total
+    else:
+        heavy = Weight.objects.get_or_create(user=user, weight='Heavy')[0]
+        heavy.total = avoid_none(flight.filter(heavy_query), 'duration') + avoid_none(imported.filter(heavy_query), 'total_time')
         heavy.save()
 
-    except ObjectDoesNotExist:
+    if not flight.filter(large_query) and not imported.filter(large_query):
         pass
-
-    try:
-        large = Weight.objects.get(user=user, weight="Large")
-
-        large_total = Flight.objects.filter(user=user).filter(large_query).aggregate(Sum('duration'))
-        if large_total.get('duration__sum') is None:
-            large_total = 0
-        else:
-            large_total = round(large_total.get('duration__sum'),1)
-        large.total = large_total
+    else:
+        large = Weight.objects.get_or_create(user=user, weight='Large')[0]
+        large.total = avoid_none(flight.filter(large_query), 'duration') + avoid_none(imported.filter(large_query), 'total_time')
         large.save()
 
-    except ObjectDoesNotExist:
+    if not flight.filter(large_query) and not imported.filter(large_query):
         pass
+    else:
+        large = Weight.objects.get_or_create(user=user, weight='Large')[0]
+        large.total = avoid_none(flight.filter(large_query), 'duration') + avoid_none(imported.filter(large_query), 'total_time')
+        large.save()
 
-    try:
-        medium = Weight.objects.get(user=user, weight="Medium")
-
-        medium_total = Flight.objects.filter(user=user).filter(medium_query).aggregate(Sum('duration'))
-        if medium_total.get('duration__sum') is None:
-            medium_total = 0
-        else:
-            medium_total = round(medium_total.get('duration__sum'),1)
-        medium.total = medium_total
+    if not flight.filter(medium_query) and not imported.filter(medium_query):
+        pass
+    else:
+        medium = Weight.objects.get_or_create(user=user, weight='Medium')[0]
+        medium.total = avoid_none(flight.filter(medium_query), 'duration') + avoid_none(imported.filter(medium_query), 'total_time')
         medium.save()
 
-    except ObjectDoesNotExist:
+    if not flight.filter(small_query) and not imported.filter(small_query):
         pass
-
-    try:
-        small = Weight.objects.get(user=user, weight="Small")
-
-        small_total = Flight.objects.filter(user=user).filter(small_query).aggregate(Sum('duration'))
-        if small_total.get('duration__sum') is None:
-            small_total = 0
-        else:
-            small_total = round(small_total.get('duration__sum'),1)
-        small.total = small_total
+    else:
+        small = Weight.objects.get_or_create(user=user, weight='Small')[0]
+        small.total = avoid_none(flight.filter(small_query), 'duration') + avoid_none(imported.filter(small_query), 'total_time')
         small.save()
 
-    except ObjectDoesNotExist:
+    if not flight.filter(lsa_query) and not imported.filter(lsa_query):
         pass
+    else:
+        lsa = Weight.objects.get_or_create(user=user, weight='LSA')[0]
+        lsa.total = avoid_none(flight.filter(lsa_query), 'duration') + avoid_none(imported.filter(lsa_query), 'total_time')
+        lsa.save()
 
 @receiver(pre_save, sender=Profile)
 def create_reg_instances(sender, instance, **kwargs):
