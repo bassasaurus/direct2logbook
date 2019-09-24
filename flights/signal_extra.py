@@ -92,42 +92,42 @@ def regs_update(sender, instance, **kwargs):
         pass
     else:
         airline_pic = Regs.objects.get_or_create(user=user, reg_type='121')[0]
-        airline_pic = avoid_none(flight.filter(pilot_in_command=True).filter(airline_query), 'duration') + avoid_none(imported.filter(is_121=True), 'pilot_in_command')
+        airline_pic.total = avoid_none(flight.filter(pilot_in_command=True).filter(airline_query), 'duration') + avoid_none(imported.filter(is_121=True), 'pilot_in_command')
         airline_pic.save()
 
     if not flight.filter(second_in_command=True).filter(airline_query):
         pass
     else:
         airline_sic = Regs.objects.get_or_create(user=user, reg_type='121')[0]
-        airline_sic = avoid_none(flight.filter(second_in_command=True).filter(airline_query), 'duration') + avoid_none(imported.filter(is_121=True), 'second_in_command')
+        airline_sic.total = avoid_none(flight.filter(second_in_command=True).filter(airline_query), 'duration') + avoid_none(imported.filter(is_121=True), 'second_in_command')
         airline_sic.save()
 
     if not flight.filter(pilot_in_command=True).filter(charter_query):
         pass
     else:
         charter_pic = Regs.objects.get_or_create(user=user, reg_type='135')[0]
-        charter_pic = avoid_none(flight.filter(pilot_in_command=True).filter(charter_query), 'duration') + avoid_none(imported.filter(is_135=True), 'pilot_in_command')
+        charter_pic.total = avoid_none(flight.filter(pilot_in_command=True).filter(charter_query), 'duration') + avoid_none(imported.filter(is_135=True), 'pilot_in_command')
         charter_pic.save()
 
     if not flight.filter(second_in_command=True).filter(charter_query):
         pass
     else:
         charter_sic = Regs.objects.get_or_create(user=user, reg_type='135')[0]
-        charter_sic = avoid_none(flight.filter(second_in_command=True).filter(charter_query), 'duration') + avoid_none(imported.filter(is_135=True), 'second_in_command')
+        charter_sic.total = avoid_none(flight.filter(second_in_command=True).filter(charter_query), 'duration') + avoid_none(imported.filter(is_135=True), 'second_in_command')
         charter_sic.save()
 
     if not flight.filter(pilot_in_command=True).filter(private_query):
         pass
     else:
         private_pic = Regs.objects.get_or_create(user=user, reg_type='91')[0]
-        private_pic = avoid_none(flight.filter(pilot_in_command=True).filter(private_query), 'duration') + avoid_none(imported.filter(is_91=True), 'pilot_in_command')
+        private_pic.total = avoid_none(flight.filter(pilot_in_command=True).filter(private_query), 'duration') + avoid_none(imported.filter(is_91=True), 'pilot_in_command')
         private_pic.save()
 
     if not flight.filter(second_in_command=True).filter(private_query):
         pass
     else:
         private_sic = Regs.objects.get_or_create(user=user, reg_type='91')[0]
-        private_sic = avoid_none(flight.filter(second_in_command=True).filter(private_query), 'duration') + avoid_none(imported.filter(is_91=True), 'second_in_command')
+        private_sic.total = avoid_none(flight.filter(second_in_command=True).filter(private_query), 'duration') + avoid_none(imported.filter(is_91=True), 'second_in_command')
         private_sic.save()
 
 @receiver(pre_save, sender=Profile)
