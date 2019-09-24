@@ -18,10 +18,10 @@
 </div>
 <hr>
 {% if imported_aircraft %}
-  <div class="mt-4">
+  <div class="">
     <h5>Imported aircraft</h5>
       {% for aircraft in imported_aircraft %}
-        <a class="ml-4 text-dark" href="{% url 'aircraft_detail' aircraft.pk %}"><h6>{{ aircraft.aircraft_type }}</h6></a>
+        <a class="mr-4 text-dark" href="{% url 'aircraft_detail' aircraft.pk %}"><h6>{{ aircraft.aircraft_type }}</h6></a>
       {% endfor %}
   </div>
   <hr>
