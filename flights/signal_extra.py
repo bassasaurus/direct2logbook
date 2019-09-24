@@ -92,42 +92,42 @@ def regs_update(sender, instance, **kwargs):
         pass
     else:
         airline_pic = Regs.objects.get_or_create(user=user, reg_type='121')[0]
-        airline_pic.total = avoid_none(flight.filter(pilot_in_command=True).filter(airline_query), 'duration') + avoid_none(imported.filter(is_121=True), 'pilot_in_command')
+        airline_pic.pilot_in_command = avoid_none(flight.filter(pilot_in_command=True).filter(airline_query), 'duration') + avoid_none(imported.filter(is_121=True), 'pilot_in_command')
         airline_pic.save()
 
     if not flight.filter(second_in_command=True).filter(airline_query):
         pass
     else:
         airline_sic = Regs.objects.get_or_create(user=user, reg_type='121')[0]
-        airline_sic.total = avoid_none(flight.filter(second_in_command=True).filter(airline_query), 'duration') + avoid_none(imported.filter(is_121=True), 'second_in_command')
+        airline_sic.second_in_command = avoid_none(flight.filter(second_in_command=True).filter(airline_query), 'duration') + avoid_none(imported.filter(is_121=True), 'second_in_command')
         airline_sic.save()
 
     if not flight.filter(pilot_in_command=True).filter(charter_query):
         pass
     else:
         charter_pic = Regs.objects.get_or_create(user=user, reg_type='135')[0]
-        charter_pic.total = avoid_none(flight.filter(pilot_in_command=True).filter(charter_query), 'duration') + avoid_none(imported.filter(is_135=True), 'pilot_in_command')
+        charter_pic.pilot_in_command = avoid_none(flight.filter(pilot_in_command=True).filter(charter_query), 'duration') + avoid_none(imported.filter(is_135=True), 'pilot_in_command')
         charter_pic.save()
 
     if not flight.filter(second_in_command=True).filter(charter_query):
         pass
     else:
         charter_sic = Regs.objects.get_or_create(user=user, reg_type='135')[0]
-        charter_sic.total = avoid_none(flight.filter(second_in_command=True).filter(charter_query), 'duration') + avoid_none(imported.filter(is_135=True), 'second_in_command')
+        charter_sic.second_in_command = avoid_none(flight.filter(second_in_command=True).filter(charter_query), 'duration') + avoid_none(imported.filter(is_135=True), 'second_in_command')
         charter_sic.save()
 
     if not flight.filter(pilot_in_command=True).filter(private_query):
         pass
     else:
         private_pic = Regs.objects.get_or_create(user=user, reg_type='91')[0]
-        private_pic.total = avoid_none(flight.filter(pilot_in_command=True).filter(private_query), 'duration') + avoid_none(imported.filter(is_91=True), 'pilot_in_command')
+        private_pic.pilot_in_command = avoid_none(flight.filter(pilot_in_command=True).filter(private_query), 'duration') + avoid_none(imported.filter(is_91=True), 'pilot_in_command')
         private_pic.save()
 
     if not flight.filter(second_in_command=True).filter(private_query):
         pass
     else:
         private_sic = Regs.objects.get_or_create(user=user, reg_type='91')[0]
-        private_sic.total = avoid_none(flight.filter(second_in_command=True).filter(private_query), 'duration') + avoid_none(imported.filter(is_91=True), 'second_in_command')
+        private_sic.second_in_command = avoid_none(flight.filter(second_in_command=True).filter(private_query), 'duration') + avoid_none(imported.filter(is_91=True), 'second_in_command')
         private_sic.save()
 
 @receiver(pre_save, sender=Profile)
@@ -149,65 +149,41 @@ def power_update(sender, instance, **kwargs):
 
     user = instance.user
 
+    flight = Flight.objects.filter(user=user)
+    imported = Imported.objects.filter(user=user)
+
     turbine_query = Q(aircraft_type__turbine=True)
     piston_query = Q(aircraft_type__piston=True)
 
-    try:
-        pic = Power.objects.get(user=user, role='PIC')
-
-        pic_turbine = Flight.objects.filter(user=user).filter(pilot_in_command=True).filter(turbine_query).aggregate(Sum('duration'))
-        if pic_turbine.get('duration__sum') is None:
-            pic_turbine = 0
-        else:
-            pic_turbine = round(pic_turbine.get('duration__sum'),1)
-        pic.turbine = pic_turbine
-
-        pic_piston = Flight.objects.filter(user=user).filter(pilot_in_command=True).filter(piston_query).aggregate(Sum('duration'))
-        if pic_piston.get('duration__sum') is None:
-            pic_piston = 0
-        else:
-            pic_piston = round(pic_piston.get('duration__sum'),1)
-        pic.piston = pic_piston
-
+    if not flight.filter(turbine_query) and not imported.filter(turbine_query):
+        pass
+    else:
+        pic = Power.objects.get_or_create(user=user, role='PIC')[0]
+        pic.turbine = avoid_none(flight.filter(pilot_in_command=True).filter(turbine_query), 'duration') + avoid_none(imported.filter(turbine_query), 'pilot_in_command')
         pic.save()
 
-    except ObjectDoesNotExist:
-        pass
-
-    try:
-        sic = Power.objects.get(user=user, role='SIC')
-
-        sic_turbine = Flight.objects.filter(user=user).filter(second_in_command=True).filter(turbine_query).aggregate(Sum('duration'))
-        if sic_turbine.get('duration__sum') is None:
-            sic_turbine = 0
-        else:
-            sic_turbine = round(sic_turbine.get('duration__sum'),1)
-        sic.turbine = sic_turbine
-
-        sic_piston = Flight.objects.filter(user=user).filter(second_in_command=True).filter(piston_query).aggregate(Sum('duration'))
-        if sic_piston.get('duration__sum') is None:
-            sic_piston = 0
-        else:
-            sic_piston = round(sic_piston.get('duration__sum'),1)
-        sic.piston = sic_piston
-
+        sic = Power.objects.get_or_create(user=user, role='SIC')[0]
+        sic.turbine = avoid_none(flight.filter(second_in_command=True).filter(turbine_query), 'duration') + avoid_none(imported.filter(turbine_query), 'second_in_command')
         sic.save()
 
-    except ObjectDoesNotExist:
+    if not flight.filter(piston_query) and not imported.filter(piston_query):
         pass
+    else:
+        pic = Power.objects.get_or_create(user=user, role='PIC')[0]
+        pic.piston = avoid_none(flight.filter(pilot_in_command=True).filter(piston_query), 'duration') + avoid_none(imported.filter(turbine_query), 'pilot_in_command')
+        pic.save()
 
-    try:
-        total = Power.objects.get(user=user, role='Total')
+        sic = Power.objects.get_or_create(user=user, role='SIC')[0]
+        sic.piston = avoid_none(flight.filter(second_in_command=True).filter(piston_query), 'duration') + avoid_none(imported.filter(turbine_query), 'second_in_command')
+        sic.save()
 
-        total_turbine = pic_turbine + sic_turbine
-        total.turbine = total_turbine
-        total_piston = pic_piston + sic_piston
-        total.piston = total_piston
 
-        total.save()
+    total = Power.objects.get_or_create(user=user, role='Total')[0]
 
-    except ObjectDoesNotExist:
-        pass
+    total.turbine = pic.turbine + sic.turbine
+    total.piston = pic.piston + sic.piston
+
+    total.save()
 
 @receiver(pre_save, sender=Profile)
 def create_endorsement_instances(sender, instance, **kwargs):

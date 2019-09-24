@@ -16,6 +16,13 @@ def avoid_none(queryset, field):
         return Decimal(0)
     else:
         return Decimal(queryset.get(field__sum))
+        
+
+def zero_if_none(object):
+    if not object:
+        return 0
+    else:
+        return object
 
 
 def cat_class_sort_total(instance):
