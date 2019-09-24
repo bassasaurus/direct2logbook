@@ -17,6 +17,16 @@
   {% endfor %}
 </div>
 <hr>
+{% if imported_aircraft %}
+  <div class="mt-4">
+    <h5>Imported aircraft</h5>
+      {% for aircraft in imported_aircraft %}
+        <a class="ml-4 text-dark" href="{% url 'aircraft_detail' aircraft.pk %}"><h6>{{ aircraft.aircraft_type }}</h6></a>
+      {% endfor %}
+  </div>
+  <hr>
+  {% else %}
+{% endif %}
 
 
 {% regroup tailnumbers by aircraft as aircraft_list %}

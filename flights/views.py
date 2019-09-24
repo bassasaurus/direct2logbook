@@ -712,7 +712,7 @@ class AircraftDetail(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin
         get_map_data(flights, user)
         context['flights'] = flights
 
-        if TailNumber.objects.filter(aircraft__aircraft_type=self.object).exists():
+        if TailNumber.objects.filter(user=user).filter(aircraft__aircraft_type=self.object).exists() or Imported.objects.filter(user=user).filter(aircraft_type=self.object).exists():
             pass
         else:
             context['aircraft_needs_tailnumber'] = "Please select a tailnumber for {}".format(
@@ -769,20 +769,29 @@ class TailNumberList(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin
                 aircraft_list.append(aircraft)
                 context['aircraft_needs_tailnumber'] = aircraft_list
 
-        if len(Aircraft.objects.filter(user=user).all()) == 0:
+        if len(Aircraft.objects.filter(user=user)) == 0:
             context['new_user_aircraft'] = True
         else:
             context['new_user_aircraft'] = False
 
-        if len(TailNumber.objects.filter(user=user).all()) == 0:
+        if len(TailNumber.objects.filter(user=user)) == 0:
             context['new_user_tailnumber'] = True
         else:
             context['new_user_tailnumber'] = False
 
-        if len(Flight.objects.filter(user=user).all()) == 0:
+        if len(Flight.objects.filter(user=user)) == 0:
             context['new_user_flight'] = True
         else:
             context['new_user_flight'] = False
+
+        imported_aircraft = []
+        for aircraft in Aircraft.objects.filter(user=user):
+            if Imported.objects.filter(user=user).filter(aircraft_type=aircraft).exists():
+                imported_aircraft.append(aircraft)
+                context['imported_aircraft'] = imported_aircraft
+            else:
+                context['imported_aircraft'] = None
+
 
         context['title'] = "D-> | Aircraft"
         context['parent_name'] = 'Home'
