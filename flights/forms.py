@@ -101,4 +101,7 @@ class ImportedForm(forms.ModelForm):
         exclude = ['user']
         widgets = {
             'aircraft_type': autocomplete.ModelSelect2(url='aircraft-autocomplete', attrs={'data-placeholder': 'Aircraft *'}),
+            'is_121': forms.CheckboxInput(),
+            'is_135': forms.CheckboxInput(),
+            'is_91': forms.CheckboxInput(),
         }

@@ -73,15 +73,6 @@ def weight_update(sender, instance, **kwargs):
     #     lsa.total = avoid_none(flight.filter(lsa_query), 'duration') + avoid_none(imported.filter(lsa_query), 'total_time')
     #     lsa.save()
 
-@receiver(pre_save, sender=Profile)
-def create_reg_instances(sender, instance, **kwargs):
-
-    user = instance.user
-
-    Regs.objects.get_or_create(user=user, reg_type='121')
-    Regs.objects.get_or_create(user=user, reg_type='135')
-    Regs.objects.get_or_create(user=user, reg_type='91')
-
 @receiver(post_save, sender=TailNumber)
 @receiver(post_delete, sender=TailNumber)
 @receiver(post_save, sender=Flight)
@@ -94,83 +85,50 @@ def regs_update(sender, instance, **kwargs):
     imported = Imported.objects.filter(user=user)
 
     airline_query = Q(registration__is_121=True)
-    print('reg signal')
+    charter_query = Q(registration__is_135=True)
+    private_query = Q(registration__is_91=True)
+
     if not flight.filter(pilot_in_command=True).filter(airline_query):
         pass
     else:
         airline_pic = Regs.objects.get_or_create(user=user, reg_type='121')[0]
-        airline_pic = avoid_none(flight.filter(pilot_in_command=True).filter(airline_query), 'duration') + avoid_none()
+        airline_pic = avoid_none(flight.filter(pilot_in_command=True).filter(airline_query), 'duration') + avoid_none(imported.filter(is_121=True), 'pilot_in_command')
         airline_pic.save()
 
-    # try:
-    #     airline = Regs.objects.get(user=user, reg_type='121')
-    #     airline_query = Q(registration__is_121=True)
-    #
-    #     airline_pic = Flight.objects.filter(user=user).filter(pilot_in_command=True).filter(airline_query).aggregate(Sum('duration'))
-    #     if airline_pic.get('duration__sum') is None:
-    #         airline_pic = 0
-    #     else:
-    #         airline_pic = round(airline_pic.get('duration__sum'),1)
-    #     airline.pilot_in_command = airline_pic
-    #
-    #     airline_sic = Flight.objects.filter(user=user).filter(second_in_command=True).filter(airline_query).aggregate(Sum('duration'))
-    #     if airline_sic.get('duration__sum') is None:
-    #         airline_sic = 0
-    #     else:
-    #         airline_sic = round(airline_sic.get('duration__sum'),1)
-    #     airline.second_in_command = airline_sic
-    #
-    #     airline.save()
-    #
-    # except ObjectDoesNotExist:
-    #     pass
-
-    try:
-        charter = Regs.objects.get(user=user, reg_type='135')
-        charter_query = Q(registration__is_135=True)
-
-        charter_pic = Flight.objects.filter(user=user).filter(pilot_in_command=True).filter(charter_query).aggregate(Sum('duration'))
-        if charter_pic.get('duration__sum') is None:
-            charter_pic = 0
-        else:
-            charter_pic = round(charter_pic.get('duration__sum'),1)
-        charter.pilot_in_command = charter_pic
-
-        charter_sic = Flight.objects.filter(user=user).filter(second_in_command=True).filter(charter_query).aggregate(Sum('duration'))
-        if charter_sic.get('duration__sum') is None:
-            charter_sic = 0
-        else:
-            charter_sic = round(charter_sic.get('duration__sum'),1)
-        charter.second_in_command = charter_sic
-
-        charter.save()
-
-    except ObjectDoesNotExist:
+    if not flight.filter(second_in_command=True).filter(airline_query):
         pass
+    else:
+        airline_sic = Regs.objects.get_or_create(user=user, reg_type='121')[0]
+        airline_sic = avoid_none(flight.filter(second_in_command=True).filter(airline_query), 'duration') + avoid_none(imported.filter(is_121=True), 'second_in_command')
+        airline_sic.save()
 
-    try:
-        private = Regs.objects.get(user=user, reg_type='91')
-        private_query = Q(registration__is_91=True)
-
-
-        private_pic = Flight.objects.filter(user=user).filter(pilot_in_command=True).filter(private_query).aggregate(Sum('duration'))
-        if private_pic.get('duration__sum') is None:
-            private_pic = 0
-        else:
-            private_pic = round(private_pic.get('duration__sum'),1)
-        private.pilot_in_command = private_pic
-
-        private_sic = Flight.objects.filter(user=user).filter(second_in_command=True).filter(private_query).aggregate(Sum('duration'))
-        if private_sic.get('duration__sum') is None:
-            private_sic = 0
-        else:
-            private_sic = round(private_sic.get('duration__sum'),1)
-        private.second_in_command = private_sic
-
-        private.save()
-
-    except ObjectDoesNotExist:
+    if not flight.filter(pilot_in_command=True).filter(charter_query):
         pass
+    else:
+        charter_pic = Regs.objects.get_or_create(user=user, reg_type='135')[0]
+        charter_pic = avoid_none(flight.filter(pilot_in_command=True).filter(charter_query), 'duration') + avoid_none(imported.filter(is_135=True), 'pilot_in_command')
+        charter_pic.save()
+
+    if not flight.filter(second_in_command=True).filter(charter_query):
+        pass
+    else:
+        charter_sic = Regs.objects.get_or_create(user=user, reg_type='135')[0]
+        charter_sic = avoid_none(flight.filter(second_in_command=True).filter(charter_query), 'duration') + avoid_none(imported.filter(is_135=True), 'second_in_command')
+        charter_sic.save()
+
+    if not flight.filter(pilot_in_command=True).filter(private_query):
+        pass
+    else:
+        private_pic = Regs.objects.get_or_create(user=user, reg_type='91')[0]
+        private_pic = avoid_none(flight.filter(pilot_in_command=True).filter(private_query), 'duration') + avoid_none(imported.filter(is_91=True), 'pilot_in_command')
+        private_pic.save()
+
+    if not flight.filter(second_in_command=True).filter(private_query):
+        pass
+    else:
+        private_sic = Regs.objects.get_or_create(user=user, reg_type='91')[0]
+        private_sic = avoid_none(flight.filter(second_in_command=True).filter(private_query), 'duration') + avoid_none(imported.filter(is_91=True), 'second_in_command')
+        private_sic.save()
 
 @receiver(pre_save, sender=Profile)
 def create_power_instances(sender, instance, **kwargs):
