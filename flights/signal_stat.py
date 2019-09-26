@@ -42,13 +42,13 @@ def no_aircraft_stat_delete(sender, instance, **kwargs):
 @receiver(pre_delete, sender=Flight)
 def stat_update(sender, instance, **kwargs):
 
-    stat = Stat.objects.get_or_create(user=instance.user, aircraft_type=instance.aircraft_type)
+    stat = Stat.objects.get_or_create(user=instance.user, aircraft_type=str(instance.aircraft_type))
     stat=stat[0]
 
     flight = Flight.objects.filter(user=instance.user).filter(aircraft_type=instance.aircraft_type)
     imported = Imported.objects.filter(user=instance.user).filter(aircraft_type=instance.aircraft_type)
 
-    stat.total_time = avoid_none(flight, 'duration')
+    stat.total_time = avoid_none(flight, 'duration') + avoid_none(imported, 'total_time')
 
     stat.pilot_in_command = avoid_none(flight.filter(pilot_in_command=True), 'duration') + avoid_none(imported, 'pilot_in_command')
 
@@ -80,8 +80,12 @@ def stat_update(sender, instance, **kwargs):
         last_flown = flight.latest('date').date
         stat.last_flown = last_flown
     except ObjectDoesNotExist:
-        stat.last_flown = imported.last_flown
-
+        pass
+    try:
+        stat.last_flown = imported.latest('last_flown').last_flown
+    except ObjectDoesNotExist:
+        pass
+    
     today = datetime.date.today()
 
     last_30 = today - datetime.timedelta(days=30)

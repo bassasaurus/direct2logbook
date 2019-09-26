@@ -10,6 +10,8 @@ from flights.queryset_helpers import *
 @receiver(post_delete, sender=Flight)
 @receiver(post_save, sender=Aircraft)
 @receiver(post_delete, sender=Aircraft)
+@receiver(post_save, sender=Imported)
+@receiver(post_delete, sender=Imported)
 def weight_update(sender, instance, **kwargs):
 
     user = instance.user
@@ -77,6 +79,8 @@ def weight_update(sender, instance, **kwargs):
 @receiver(post_delete, sender=TailNumber)
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
+@receiver(post_save, sender=Imported)
+@receiver(post_delete, sender=Imported)
 def regs_update(sender, instance, **kwargs):
 
     user = instance.user
@@ -145,6 +149,8 @@ def create_power_instances(sender, instance, **kwargs):
 @receiver(post_delete, sender=Flight)
 @receiver(post_save, sender=Aircraft)
 @receiver(post_delete, sender=Aircraft)
+@receiver(post_save, sender=Imported)
+@receiver(post_delete, sender=Imported)
 def power_update(sender, instance, **kwargs):
 
     user = instance.user
@@ -200,6 +206,8 @@ def create_endorsement_instances(sender, instance, **kwargs):
 @receiver(post_delete, sender=Flight)
 @receiver(post_save, sender=Aircraft)
 @receiver(post_delete, sender=Aircraft)
+@receiver(post_save, sender=Imported)
+@receiver(post_delete, sender=Imported)
 def endorsement_update(sender, instance, **kwargs):
 
     user = instance.user
