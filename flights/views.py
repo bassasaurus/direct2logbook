@@ -32,6 +32,7 @@ from flights.get_map_data import get_map_data
 import flights.currency as currency
 
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.utils.encoding import force_text
 
 CharField.register_lookup(Length, 'length')
 
@@ -44,8 +45,7 @@ def get_deleted_objects(objs):
 
     def format_callback(obj):
         opts = obj._meta
-        no_edit_link = '%s: %s' % (capfirst(opts.verbose_name),
-                                   force_text(obj))
+        no_edit_link = '%s: %s' % (capfirst(opts.verbose_name), force_text(obj))
         return no_edit_link
 
     to_delete = collector.nested(format_callback)[1:]
