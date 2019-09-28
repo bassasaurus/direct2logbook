@@ -4,14 +4,17 @@
 
 <div class="row flex-md-row">
   <div class="col flex-md-column">
-    <a href="{% url 'imported_create' %}">Import New Aircraft</a>
-    <p><span class="text-dark">Requires a new aircraft to be <a href="{% url 'aircraft_create' %}">created first.</a></span></p>
+    <a class="btn btn-primary" href="{% url 'imported_create' %}">Import New Aircraft</a>
     <hr>
-      <div class="row flex-med-row>">
-        {% include 'table_imported.html' %}
-    </div>
   </div>
 </div>
+
+<div class="row flex-med-row>">
+  <div class="">
+  {% include 'table_imported.html' %}
+  </div>
+</div>
+
 
 {% include 'tablefixer.html' %}
 

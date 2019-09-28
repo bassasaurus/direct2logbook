@@ -29,7 +29,12 @@
   </thead>
   {% for import in imported %}
   <tr>
-    <td><a href="{% url 'imported_detail' import.pk %}">{{ import.aircraft_type }}</a></td>
+    <td>
+      {{ import.aircraft_type }}
+      <a class="ml-2 text-primary" href="{% url 'imported_update' import.pk %}">Update</a>
+      <a class="ml-2 text-danger" href="{% url 'imported_delete' import.pk %}">Delete</a>
+    </td>
+
     <td class="text-right">{{ import.total_time }}</td>
     <td class="text-right">{{ import.pilot_in_command }}</td>
     <td class="text-right">{{ import.second_in_command }}</td>
