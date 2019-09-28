@@ -16,7 +16,7 @@ def avoid_none(queryset, field):
         return Decimal(0)
     else:
         return Decimal(queryset.get(field__sum))
-        
+
 
 def zero_if_none(object):
     if not object:
@@ -36,111 +36,122 @@ def cat_class_sort_total(instance):
         aircraft_type__aircraft_category__aircraft_category__icontains='airplane')
     ases_query = Q(aircraft_type__aircraft_class__aircraft_class__icontains='single engine sea') & Q(
         aircraft_type__aircraft_category__aircraft_category__icontains='airplane')
-    ases_query = Q(aircraft_type__aircraft_class__aircraft_class__icontains='multi engine sea') & Q(
+    ames_query = Q(aircraft_type__aircraft_class__aircraft_class__icontains='multi engine sea') & Q(
         aircraft_type__aircraft_category__aircraft_category__icontains='airplane')
     helo_query = Q(aircraft_type__aircraft_class__aircraft_class__icontains='helicopter') & Q(
         aircraft_type__aircraft_category__aircraft_category__icontains='rotorcraft')
     gyro_query = Q(aircraft_type__aircraft_class__aircraft_class__icontains='gyroplane') & Q(
         aircraft_type__aircraft_category__aircraft_category__icontains='rotorcraft')
 
+    flight_queries = {
+                    'All': flight,
+                    'ASEL': flight.filter(asel_query),
+                    'AMEL': flight.filter(amel_query),
+                    'ASES': flight.filter(ases_query),
+                    'AMES': flight.filter(ames_query),
+                    'HELO': flight.filter(helo_query),
+                    'GYRO': flight.filter(gyro_query),
+                }
+
+    imported_queries = {
+                    'All': imported,
+                    'ASEL': imported.filter(asel_query),
+                    'AMEL': imported.filter(amel_query),
+                    'ASES': imported.filter(ases_query),
+                    'AMES': imported.filter(ames_query),
+                    'HELO': imported.filter(helo_query),
+                    'GYRO': imported.filter(gyro_query),
+                }
+
     if str(instance.aircraft_type.aircraft_category) == "Airplane" and str(instance.aircraft_type.aircraft_class) == 'Single Engine Land':
-        object = Total.objects.get_or_create(user=instance.user, total='ASEL',)
-        flight = flight.filter(asel_query)
-        imported = imported.filter(asel_query)
-        object = object[0]
+        Total.objects.get_or_create(user=instance.user, total='ASEL',)
 
     elif str(instance.aircraft_type.aircraft_category) == "Airplane" and str(instance.aircraft_type.aircraft_class) == 'Multi Engine Land':
-        object = Total.objects.get_or_create(user=instance.user, total='AMEL',)
-        flight = flight.filter(amel_query)
-        imported = imported.filter(amel_query)
-        object = object[0]
+        Total.objects.get_or_create(user=instance.user, total='AMEL',)
 
     elif str(instance.aircraft_type.aircraft_category) == "Airplane" and str(instance.aircraft_type.aircraft_class) == 'Single Engine Sea':
-        object = Total.objects.get_or_create(user=instance.user, total='ASES',)
-        flight = flight.filter(ases_query)
-        imported = imported.filter(ases_query)
-        object = object[0]
+        Total.objects.get_or_create(user=instance.user, total='ASES',)
 
     elif str(instance.aircraft_type.aircraft_category) == "Airplane" and str(instance.aircraft_type.aircraft_class) == 'Multi Engine Sea':
-        object = Total.objects.get_or_create(user=instance.user, total='AMES',)
-        flight = flight.filter(ames_query)
-        imported = imported.filter(ames_query)
-        object = object[0]
+        Total.objects.get_or_create(user=instance.user, total='AMES',)
 
     elif str(instance.aircraft_type.aircraft_category) == "Rotorcraft" and str(instance.aircraft_type.aircraft_class) == 'Helicopter':
-        object = Total.objects.get_or_create(user=instance.user, total='HELO',)
-        flight = flight.filter(helo_query)
-        imported = imported.filter(helo_query)
-        object = object[0]
+        Total.objects.get_or_create(user=instance.user, total='HELO',)
 
     elif str(instance.aircraft_type.aircraft_category) == "Rotorcraft" and str(instance.aircraft_type.aircraft_class) == 'Gyroplane':
-        object = Total.objects.get_or_create(user=instance.user, total='GYRO',)
-        flight = flight.filter(gyro_query)
-        imported = imported.filter(gyro_query)
-        object = object[0]
+        Total.objects.get_or_create(user=instance.user, total='GYRO',)
 
-    object.total_time = avoid_none(flight, 'duration') + avoid_none(imported, 'total_time')
 
-    object.pilot_in_command = avoid_none(flight.filter(pilot_in_command=True), 'duration') + avoid_none(imported, 'pilot_in_command')
+    total = Total.objects.filter(user=instance.user)
 
-    object.second_in_command = avoid_none(flight.filter(second_in_command=True), 'duration') + avoid_none(imported, 'second_in_command')
+    for object in total:
+        print('updating', object)
+        key = str(object.total)
+        flight = flight_queries[key]
+        imported = imported_queries[key]
 
-    object.cross_country = avoid_none(flight.filter(cross_country=True), 'duration') + avoid_none(imported, 'cross_country')
+        object.total_time = avoid_none(flight, 'duration') + avoid_none(imported, 'total_time')
 
-    object.instructor = avoid_none(flight.filter(instructor=True), 'duration') + avoid_none(imported, 'instructor')
+        object.pilot_in_command = avoid_none(flight.filter(pilot_in_command=True), 'duration') + avoid_none(imported, 'pilot_in_command')
 
-    object.dual = avoid_none(flight.filter(dual=True), 'duration') + avoid_none(imported, 'dual')
+        object.second_in_command = avoid_none(flight.filter(second_in_command=True), 'duration') + avoid_none(imported, 'second_in_command')
 
-    object.solo = avoid_none(flight.filter(solo=True), 'duration') + avoid_none(imported, 'solo')
+        object.cross_country = avoid_none(flight.filter(cross_country=True), 'duration') + avoid_none(imported, 'cross_country')
 
-    object.instrument = avoid_none(flight, 'instrument') + avoid_none(imported, 'instrument')
+        object.instructor = avoid_none(flight.filter(instructor=True), 'duration') + avoid_none(imported, 'instructor')
 
-    object.simulated_instrument = avoid_none(flight, 'simulated_instrument') + avoid_none(imported, 'simulated_instrument')
+        object.dual = avoid_none(flight.filter(dual=True), 'duration') + avoid_none(imported, 'dual')
 
-    object.simulator = avoid_none(flight.filter(simulator=True), 'duration') +  + avoid_none(imported, 'simulator')
+        object.solo = avoid_none(flight.filter(solo=True), 'duration') + avoid_none(imported, 'solo')
 
-    object.night = avoid_none(flight, 'night') + avoid_none(imported, 'night')
+        object.instrument = avoid_none(flight, 'instrument') + avoid_none(imported, 'instrument')
 
-    object.landings_day = avoid_none(flight, 'landings_day') + avoid_none(imported, 'landings_day')
+        object.simulated_instrument = avoid_none(flight, 'simulated_instrument') + avoid_none(imported, 'simulated_instrument')
 
-    object.landings_night = avoid_none(flight, 'landings_night') + avoid_none(imported, 'landings_night')
+        object.simulator = avoid_none(flight.filter(simulator=True), 'duration') +  + avoid_none(imported, 'simulator')
 
-    object.landings_object = object.landings_day + object.landings_night + avoid_none(imported, 'landings_day') + avoid_none(imported, 'landings_night')
+        object.night = avoid_none(flight, 'night') + avoid_none(imported, 'night')
 
-    try:
-        last_flown = flight.latest('date')
-        object.last_flown = last_flown.date
-    except:
-        object.last_flown = None
+        object.landings_day = avoid_none(flight, 'landings_day') + avoid_none(imported, 'landings_day')
 
-    today = datetime.date.today()
+        object.landings_night = avoid_none(flight, 'landings_night') + avoid_none(imported, 'landings_night')
 
-    last_30 = today - datetime.timedelta(days=30)
-    last_30 = flight.filter(date__lte=today, date__gte=last_30)
-    object.last_30 = avoid_none(last_30, 'duration') + avoid_none(imported, 'last_30')
+        object.landings_object = object.landings_day + object.landings_night + avoid_none(imported, 'landings_day') + avoid_none(imported, 'landings_night')
 
-    last_60 = today - datetime.timedelta(days=60)
-    last_60 = flight.filter(date__lte=today, date__gte=last_60)
-    object.last_60 = avoid_none(last_60, 'duration') + avoid_none(imported, 'last_60')
+        try:
+            last_flown = flight.latest('date')
+            object.last_flown = last_flown.date
+        except:
+            object.last_flown = None
 
-    last_90 = today - datetime.timedelta(days=90)
-    last_90 = flight.filter(date__lte=today, date__gte=last_90)
-    object.last_90 = avoid_none(last_90, 'duration') + avoid_none(imported, 'last_90')
+        today = datetime.date.today()
 
-    last_180 = today - datetime.timedelta(days=180)
-    last_180 = flight.filter(date__lte=today, date__gte=last_180)
-    object.last_180 = avoid_none(last_180, 'duration') + avoid_none(imported, 'last_180')
+        last_30 = today - datetime.timedelta(days=30)
+        last_30 = flight.filter(date__lte=today, date__gte=last_30)
+        object.last_30 = avoid_none(last_30, 'duration') + avoid_none(imported, 'last_30')
 
-    last_yr = today - datetime.timedelta(days=365)
-    last_yr = flight.filter(date__lte=today, date__gte=last_yr)
-    object.last_yr = avoid_none(last_yr, 'duration') + avoid_none(imported, 'last_yr')
+        last_60 = today - datetime.timedelta(days=60)
+        last_60 = flight.filter(date__lte=today, date__gte=last_60)
+        object.last_60 = avoid_none(last_60, 'duration') + avoid_none(imported, 'last_60')
 
-    last_2yr = today - datetime.timedelta(days=730)
-    last_2yr = flight.filter(date__lte=today, date__gte=last_2yr)
-    object.last_2yr = avoid_none(last_2yr, 'duration') + avoid_none(imported, 'last_2yr')
+        last_90 = today - datetime.timedelta(days=90)
+        last_90 = flight.filter(date__lte=today, date__gte=last_90)
+        object.last_90 = avoid_none(last_90, 'duration') + avoid_none(imported, 'last_90')
 
-    ytd = datetime.date(today.year, 1, 1)
-    ytd = flight.filter(date__lte=today, date__gte=ytd)
-    object.ytd = avoid_none(ytd, 'duration') + avoid_none(imported, 'ytd')
+        last_180 = today - datetime.timedelta(days=180)
+        last_180 = flight.filter(date__lte=today, date__gte=last_180)
+        object.last_180 = avoid_none(last_180, 'duration') + avoid_none(imported, 'last_180')
 
-    object.save()
+        last_yr = today - datetime.timedelta(days=365)
+        last_yr = flight.filter(date__lte=today, date__gte=last_yr)
+        object.last_yr = avoid_none(last_yr, 'duration') + avoid_none(imported, 'last_yr')
+
+        last_2yr = today - datetime.timedelta(days=730)
+        last_2yr = flight.filter(date__lte=today, date__gte=last_2yr)
+        object.last_2yr = avoid_none(last_2yr, 'duration') + avoid_none(imported, 'last_2yr')
+
+        ytd = datetime.date(today.year, 1, 1)
+        ytd = flight.filter(date__lte=today, date__gte=ytd)
+        object.ytd = avoid_none(ytd, 'duration') + avoid_none(imported, 'ytd')
+
+        object.save()
