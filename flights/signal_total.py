@@ -144,6 +144,7 @@ def total_all_update(sender, instance, **kwargs):
             object.save()
 
             print(object.total_time)
+            
 # @receiver(post_save, sender=Aircraft)
 # @receiver(post_delete, sender=Aircraft)
 # def update_total_after_aircraft_change(sender, instance, **kwargs):
