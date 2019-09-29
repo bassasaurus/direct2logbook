@@ -9,11 +9,15 @@
   </div>
 </div>
 
-<div class="row flex-med-row>">
-  <div class="">
-  {% include 'table_imported.html' %}
+{% if imported %}
+  <div class="row flex-med-row>">
+    <div class="">
+    {% include 'table_imported.html' %}
+    </div>
   </div>
-</div>
+{% else %}
+<h5>No imported aircraft</h5>
+{% endif %}
 
 
 {% include 'tablefixer.html' %}
