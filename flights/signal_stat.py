@@ -1,5 +1,4 @@
 from flights.models import *
-from flights import querys
 from django.db.models.signals import pre_save, pre_delete, post_save, post_delete
 from django.db.models import Sum, Q
 from django.dispatch import receiver
@@ -86,15 +85,18 @@ def stat_update(sender, instance, **kwargs):
 
     stat.landings_stat = zero_if_none(stat.landings_day) + zero_if_none(stat.landings_night) + avoid_none(imported, 'landings_day') + avoid_none(imported, 'landings_night')
 
-    try:
+
+    if flight.latest('date').date:
         last_flown = flight.latest('date').date
-        stat.last_flown = last_flown
-    except ObjectDoesNotExist:
-        pass
-    try:
-        stat.last_flown = imported.latest('last_flown').last_flown
-    except ObjectDoesNotExist:
-        stat.last_flown = None
+
+    elif imported.latest('last_flown').last_flown:
+        last_flown = imported.latest('last_flown').last_flown
+
+    else:
+
+        last_flown = None
+
+    stat.last_flown = last_flown
 
     today = datetime.date.today()
 
