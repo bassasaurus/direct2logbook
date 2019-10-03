@@ -1,10 +1,9 @@
-from flights.models import *
-from accounts.models import Profile
-from django.db.models.signals import pre_save, post_save, post_delete
-from django.db.models import Sum, Q
+from flights.models import Flight, TailNumber, Aircraft, Imported, Endorsement, Regs, Power, Weight
+from django.db.models.signals import post_save, post_delete
+from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from django.dispatch import receiver
-from flights.queryset_helpers import *
+from flights.queryset_helpers import avoid_none
 
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
@@ -54,7 +53,7 @@ def weight_update(sender, instance, **kwargs):
 
     if not flight.filter(large_query) and not imported.filter(large_query):
         try:
-            large_query = Weight.objects.get(user=user, weight='Large')
+            large = Weight.objects.get(user=user, weight='Large')
             large.delete()
 
         except ObjectDoesNotExist:
@@ -177,6 +176,7 @@ def power_update(sender, instance, **kwargs):
 
     flight = Flight.objects.filter(user=user)
     imported = Imported.objects.filter(user=user)
+    total = Power.objects.get_or_create(user=user, role='Total')[0]
 
     turbine_query = Q(aircraft_type__turbine=True)
     piston_query = Q(aircraft_type__piston=True)
@@ -192,6 +192,11 @@ def power_update(sender, instance, **kwargs):
         sic.turbine = avoid_none(flight.filter(second_in_command=True).filter(turbine_query), 'duration') + avoid_none(imported.filter(turbine_query), 'second_in_command')
         sic.save()
 
+        total.turbine = pic.turbine + sic.turbine
+        total.piston = pic.piston + sic.piston
+
+        total.save()
+
     if not flight.filter(piston_query) and not imported.filter(piston_query):
         pass
     else:
@@ -203,13 +208,10 @@ def power_update(sender, instance, **kwargs):
         sic.piston = avoid_none(flight.filter(second_in_command=True).filter(piston_query), 'duration') + avoid_none(imported.filter(piston_query), 'second_in_command')
         sic.save()
 
+        total.turbine = pic.turbine + sic.turbine
+        total.piston = pic.piston + sic.piston
 
-    total = Power.objects.get_or_create(user=user, role='Total')[0]
-
-    total.turbine = pic.turbine + sic.turbine
-    total.piston = pic.piston + sic.piston
-
-    total.save()
+        total.save()
 
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
@@ -246,7 +248,7 @@ def endorsement_update(sender, instance, **kwargs):
     if not flight.filter(compleks_query) and not imported.filter(compleks_query):
         try:
             compleks = Endorsement.objects.get(user=user, endorsement="Complex")
-            simple.delete()
+            compleks.delete()
 
         except ObjectDoesNotExist:
             pass
