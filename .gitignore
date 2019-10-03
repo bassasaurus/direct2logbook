@@ -103,3 +103,5 @@ ENV/
 
 # redis dump file
 .rdb
+
+.idea/
