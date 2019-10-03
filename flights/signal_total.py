@@ -1,12 +1,13 @@
-from flights.models import *
-from accounts.models import Profile
-from django.db.models.signals import pre_save, post_save, post_delete
-from django.db.models import Sum, Q
+from flights.models import Total, Flight, Imported
+
+from django.db.models.signals import post_save, post_delete
+from django.db.models import Q
 import datetime
-from math import floor
+
 from django.core.exceptions import ObjectDoesNotExist
-from flights.queryset_helpers import *
+from flights.queryset_helpers import avoid_none
 from django.dispatch import receiver
+
 
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
@@ -68,7 +69,6 @@ def total_all_update(sender, instance, **kwargs):
     elif str(instance.aircraft_type.aircraft_category) == "Rotorcraft" and str(instance.aircraft_type.aircraft_class) == 'Gyroplane':
         Total.objects.get_or_create(user=instance.user, total='GYRO',)
 
-
     total = Total.objects.filter(user=instance.user)
 
     for object in total:
@@ -94,7 +94,7 @@ def total_all_update(sender, instance, **kwargs):
 
         object.simulated_instrument = avoid_none(flight, 'simulated_instrument') + avoid_none(imported, 'simulated_instrument')
 
-        object.simulator = avoid_none(flight.filter(simulator=True), 'duration') +  + avoid_none(imported, 'simulator')
+        object.simulator = avoid_none(flight.filter(simulator=True), 'duration') + avoid_none(imported, 'simulator')
 
         object.night = avoid_none(flight, 'night') + avoid_none(imported, 'night')
 
@@ -102,12 +102,13 @@ def total_all_update(sender, instance, **kwargs):
 
         object.landings_night = avoid_none(flight, 'landings_night') + avoid_none(imported, 'landings_night')
 
-        object.landings_object = object.landings_day + object.landings_night + avoid_none(imported, 'landings_day') + avoid_none(imported, 'landings_night')
+        object.landings_total = object.landings_day + object.landings_night
 
         try:
             last_flown = flight.latest('date')
             object.last_flown = last_flown.date
-        except:
+
+        except ObjectDoesNotExist:
             object.last_flown = None
 
         today = datetime.date.today()

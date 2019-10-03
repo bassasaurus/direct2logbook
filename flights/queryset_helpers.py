@@ -6,7 +6,7 @@ import datetime
 getcontext().prec = 1
 
 
-def avoid_none(queryset, field):
+def avoid_none(queryset: object, field: object) -> object:
 
     field__sum = str(field + '__sum')
 

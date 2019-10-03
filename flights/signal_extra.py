@@ -5,6 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.dispatch import receiver
 from flights.queryset_helpers import avoid_none
 
+
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
 @receiver(post_save, sender=Aircraft)

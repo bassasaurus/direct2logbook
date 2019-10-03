@@ -280,10 +280,10 @@ class Approach(models.Model):
 
     class Meta:
         verbose_name_plural = "Approaches"
-        ordering =['approach_type']
+        ordering = ['approach_type']
 
     def __str__(self):
-        return approach_type
+        return str(self.approach_type)
 
 class Holding(models.Model):
 
