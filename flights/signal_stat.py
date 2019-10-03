@@ -97,8 +97,7 @@ def stat_update(sender, instance, **kwargs):
     try:
         last_flown = imported.latest('last_flown').last_flown
     except ObjectDoesNotExist:
-        last_flown = None
-
+        last_flown = flight.latest('date').date
     finally:
         last_flown = None
 
