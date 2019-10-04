@@ -1,7 +1,6 @@
-from django.db.models import Sum, Q
+from django.db.models import Sum
 from decimal import *
-from .models import Total, Flight, Imported
-import datetime
+
 
 getcontext().prec = 1
 
