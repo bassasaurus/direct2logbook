@@ -21,7 +21,7 @@ def no_flight_stat_delete(sender, instance, dispatch_uid="no_flight_stat_delete"
             stat = Stat.objects.filter(user=user).get(**kwargs)
             stat.delete()
     except ObjectDoesNotExist:
-        print('except')
+        pass
 
 
 @receiver(pre_delete, sender=Aircraft)
