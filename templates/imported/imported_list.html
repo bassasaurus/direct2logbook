@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="row flex-md-row">
+  <div class="col flex-md-column">
+    <a class="btn btn-primary" href="{% url 'imported_create' %}">Import New Aircraft</a>
+    <hr>
+  </div>
+</div>
+
+{% if imported %}
+  <div class="row flex-med-row>">
+    <div class="">
+    {% include 'table_imported.html' %}
+    </div>
+  </div>
+{% else %}
+<h5>No imported aircraft</h5>
+{% endif %}
+
+
+{% include 'tablefixer.html' %}
+
+{% endblock %}

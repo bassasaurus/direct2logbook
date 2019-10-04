@@ -44,10 +44,13 @@
 <hr>
 <div class="row">
   <div class="col-12">
+    {% if is_imported %}
+      <h4>No map data available for this aircraft</h4>
+    {% else %}
     <div style="margin-top: 10px;" id="mapid" class="col image-shadow custom-popup">
       {% include 'leaflet.html' %}
-
     </div>
+    {% endif %}
   </div>
 </div>
 

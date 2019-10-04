@@ -4,7 +4,7 @@
 <form action="" class="" method="post">
   {% csrf_token %}
   <div class="form-group">
-    <h4>New Aircraft</h4>
+    <h4>Update {{ object }}</h4>
     <p>Required *</p>
     <p class="text-danger">{{ form.non_field_errors }}<p>
   </div>

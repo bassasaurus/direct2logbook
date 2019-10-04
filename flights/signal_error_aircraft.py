@@ -4,7 +4,7 @@ from django.dispatch import receiver
 
 
 @receiver(post_save, sender=Aircraft)
-def aircraft_error(sender, instance, **kwargs):
+def aircraft_error(sender, instance, dispatch_uid='aircraft_error', **kwargs):
 
     user = instance.user
 

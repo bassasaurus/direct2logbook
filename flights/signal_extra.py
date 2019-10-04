@@ -1,199 +1,182 @@
-from flights.models import *
-from accounts.models import Profile
-from django.db.models.signals import pre_save, post_save, post_delete
-from django.db.models import Sum, Q
+from flights.models import Flight, TailNumber, Aircraft, Imported, Endorsement, Regs, Power, Weight
+from django.db.models.signals import post_save, post_delete
+from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
-
-@receiver(pre_save, sender=Profile)
-def create_weight_instances(sender, instance, **kwargs):
-
-    user = instance.user
-
-    Weight.objects.get_or_create(user=user, weight="Super")
-    Weight.objects.get_or_create(user=user, weight="Heavy")
-    Weight.objects.get_or_create(user=user, weight="Large")
-    Weight.objects.get_or_create(user=user, weight="Medium")
-    Weight.objects.get_or_create(user=user, weight="Small")
+from django.dispatch import receiver
+from flights.queryset_helpers import avoid_none
 
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
 @receiver(post_save, sender=Aircraft)
 @receiver(post_delete, sender=Aircraft)
-def weight_update(sender, instance, **kwargs):
+@receiver(post_save, sender=Imported)
+@receiver(post_delete, sender=Imported)
+def weight_update(sender, instance, dispatch_uid="weight_update", **kwargs):
 
     user = instance.user
+
+    flight = Flight.objects.filter(user=user)
+    imported = Imported.objects.filter(user=user)
 
     superr_query = Q(aircraft_type__superr=True)
     heavy_query = Q(aircraft_type__heavy=True)
     large_query = Q(aircraft_type__large=True)
     medium_query = Q(aircraft_type__medium=True)
     small_query = Q(aircraft_type__small=True)
+    lsa_query = Q(aircraft_type__light_sport=True)
 
-    try:
-        superr = Weight.objects.get(user=user, weight="Super")
+    if not flight.filter(superr_query) and not imported.filter(superr_query):
+        try:
+            superr = Weight.objects.get(user=user, weight='Super')
+            superr.delete()
 
-        superr_total = Flight.objects.filter(user=user).filter(superr_query).aggregate(Sum('duration'))
-        if superr_total.get('duration__sum') is None:
-            superr_total = 0
-        else:
-            superr_total = round(superr_total.get('duration__sum'),1)
-        superr.total = superr_total
+        except ObjectDoesNotExist:
+            pass
+
+    else:
+        superr = Weight.objects.get_or_create(user=user, weight='Super')[0]
+        superr.total = avoid_none(flight.filter(superr_query), 'duration') + avoid_none(imported.filter(superr_query), 'total_time')
         superr.save()
 
-    except ObjectDoesNotExist:
-        pass
+    if not flight.filter(heavy_query) and not imported.filter(heavy_query):
+        try:
+            heavy = Weight.objects.get(user=user, weight='Heavy')
+            heavy.delete()
 
-    try:
-        heavy = Weight.objects.get(user=user, weight="Heavy")
+        except ObjectDoesNotExist:
+            pass
 
-        heavy_total = Flight.objects.filter(user=user).filter(heavy_query).aggregate(Sum('duration'))
-        if heavy_total.get('duration__sum') is None:
-            heavy_total = 0
-        else:
-            heavy_total = round(heavy_total.get('duration__sum'),1)
-        heavy.total = heavy_total
+    else:
+        heavy = Weight.objects.get_or_create(user=user, weight='Heavy')[0]
+        heavy.total = avoid_none(flight.filter(heavy_query), 'duration') + avoid_none(imported.filter(heavy_query), 'total_time')
         heavy.save()
 
-    except ObjectDoesNotExist:
-        pass
+    if not flight.filter(large_query) and not imported.filter(large_query):
+        try:
+            large = Weight.objects.get(user=user, weight='Large')
+            large.delete()
 
-    try:
-        large = Weight.objects.get(user=user, weight="Large")
+        except ObjectDoesNotExist:
+            pass
 
-        large_total = Flight.objects.filter(user=user).filter(large_query).aggregate(Sum('duration'))
-        if large_total.get('duration__sum') is None:
-            large_total = 0
-        else:
-            large_total = round(large_total.get('duration__sum'),1)
-        large.total = large_total
+    else:
+        large = Weight.objects.get_or_create(user=user, weight='Large')[0]
+        large.total = avoid_none(flight.filter(large_query), 'duration') + avoid_none(imported.filter(large_query), 'total_time')
         large.save()
 
-    except ObjectDoesNotExist:
-        pass
+    if not flight.filter(medium_query) and not imported.filter(medium_query):
+        try:
+            medium = Weight.objects.get(user=user, weight='Medium')
+            medium.delete()
 
-    try:
-        medium = Weight.objects.get(user=user, weight="Medium")
+        except ObjectDoesNotExist:
+            pass
 
-        medium_total = Flight.objects.filter(user=user).filter(medium_query).aggregate(Sum('duration'))
-        if medium_total.get('duration__sum') is None:
-            medium_total = 0
-        else:
-            medium_total = round(medium_total.get('duration__sum'),1)
-        medium.total = medium_total
+    else:
+        medium = Weight.objects.get_or_create(user=user, weight='Medium')[0]
+        medium.total = avoid_none(flight.filter(medium_query), 'duration') + avoid_none(imported.filter(medium_query), 'total_time')
         medium.save()
 
-    except ObjectDoesNotExist:
-        pass
+    if not flight.filter(small_query) and not imported.filter(small_query):
+        try:
+            small = Weight.objects.get(user=user, weight='Small')
+            small.delete()
 
-    try:
-        small = Weight.objects.get(user=user, weight="Small")
+        except ObjectDoesNotExist:
+            pass
 
-        small_total = Flight.objects.filter(user=user).filter(small_query).aggregate(Sum('duration'))
-        if small_total.get('duration__sum') is None:
-            small_total = 0
-        else:
-            small_total = round(small_total.get('duration__sum'),1)
-        small.total = small_total
+    else:
+        small = Weight.objects.get_or_create(user=user, weight='Small')[0]
+        small.total = avoid_none(flight.filter(small_query), 'duration') + avoid_none(imported.filter(small_query), 'total_time')
         small.save()
 
-    except ObjectDoesNotExist:
-        pass
+    if not flight.filter(lsa_query) and not imported.filter(lsa_query):
+        try:
+            lsa = Weight.objects.get(user=user, weight='LSA')
+            lsa.delete()
 
-@receiver(pre_save, sender=Profile)
-def create_reg_instances(sender, instance, **kwargs):
+        except ObjectDoesNotExist:
+            pass
 
-    user = instance.user
+    else:
+        lsa = Weight.objects.get_or_create(user=user, weight='LSA')[0]
+        lsa.total = avoid_none(flight.filter(lsa_query), 'duration') + avoid_none(imported.filter(lsa_query), 'total_time')
+        lsa.save()
 
-    Regs.objects.get_or_create(user=user, reg_type='121')
-    Regs.objects.get_or_create(user=user, reg_type='135')
-    Regs.objects.get_or_create(user=user, reg_type='91')
 
+@receiver(post_save, sender=Imported)
+@receiver(post_delete, sender=Imported)
 @receiver(post_save, sender=TailNumber)
 @receiver(post_delete, sender=TailNumber)
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
-def regs_update(sender, instance, **kwargs):
+@receiver(post_save, sender=Aircraft)
+@receiver(post_delete, sender=Aircraft)
+def regs_update(sender, instance, dispatch_uid="regs_update", **kwargs):
 
     user = instance.user
 
-    try:
-        airline = Regs.objects.get(user=user, reg_type='121')
-        airline_query = Q(registration__is_121=True)
+    flight = Flight.objects.filter(user=user)
+    imported = Imported.objects.filter(user=user)
 
-        airline_pic = Flight.objects.filter(user=user).filter(pilot_in_command=True).filter(airline_query).aggregate(Sum('duration'))
-        if airline_pic.get('duration__sum') is None:
-            airline_pic = 0
-        else:
-            airline_pic = round(airline_pic.get('duration__sum'),1)
-        airline.pilot_in_command = airline_pic
+    airline_query = Q(registration__is_121=True)
+    charter_query = Q(registration__is_135=True)
+    private_query = Q(registration__is_91=True)
 
-        airline_sic = Flight.objects.filter(user=user).filter(second_in_command=True).filter(airline_query).aggregate(Sum('duration'))
-        if airline_sic.get('duration__sum') is None:
-            airline_sic = 0
-        else:
-            airline_sic = round(airline_sic.get('duration__sum'),1)
-        airline.second_in_command = airline_sic
+    if flight.filter(pilot_in_command=True).filter(airline_query):
+        airline_pic = Regs.objects.get_or_create(user=user, reg_type='121')[0]
+        airline_pic.pilot_in_command = avoid_none(flight.filter(pilot_in_command=True).filter(airline_query), 'duration') + avoid_none(imported.filter(is_121=True), 'pilot_in_command')
+        airline_pic.save()
+    else:
+        airline_pic = Regs.objects.get_or_create(user=user, reg_type='121')[0]
+        airline_pic.pilot_in_command = 0
+        airline_pic.save()
 
-        airline.save()
+    if flight.filter(second_in_command=True).filter(airline_query):
+        airline_sic = Regs.objects.get_or_create(user=user, reg_type='121')[0]
+        airline_sic.second_in_command = avoid_none(flight.filter(second_in_command=True).filter(airline_query), 'duration') + avoid_none(imported.filter(is_121=True), 'second_in_command')
+        airline_sic.save
+    else:
+        airline_sic = Regs.objects.get_or_create(user=user, reg_type='121')[0]
+        airline_sic.second_in_command = 0
+        airline_sic.save()
 
-    except ObjectDoesNotExist:
-        pass
+    if flight.filter(pilot_in_command=True).filter(charter_query):
+        charter_pic = Regs.objects.get_or_create(user=user, reg_type='135')[0]
+        charter_pic.pilot_in_command = avoid_none(flight.filter(pilot_in_command=True).filter(charter_query), 'duration') + avoid_none(imported.filter(is_135=True), 'pilot_in_command')
+        charter_pic.save()
+    else:
+        charter_pic = Regs.objects.get_or_create(user=user, reg_type='135')[0]
+        charter_pic.pilot_in_command = 0
+        charter_pic.save()
 
-    try:
-        charter = Regs.objects.get(user=user, reg_type='135')
-        charter_query = Q(registration__is_135=True)
+    if flight.filter(second_in_command=True).filter(charter_query):
+        charter_sic = Regs.objects.get_or_create(user=user, reg_type='135')[0]
+        charter_sic.second_in_command = avoid_none(flight.filter(second_in_command=True).filter(charter_query), 'duration') + avoid_none(imported.filter(is_135=True), 'second_in_command')
+        charter_sic.save()
+    else:
+        charter_sic = Regs.objects.get_or_create(user=user, reg_type='135')[0]
+        charter_sic.second_in_command = 0
+        charter_sic.save()
 
-        charter_pic = Flight.objects.filter(user=user).filter(pilot_in_command=True).filter(charter_query).aggregate(Sum('duration'))
-        if charter_pic.get('duration__sum') is None:
-            charter_pic = 0
-        else:
-            charter_pic = round(charter_pic.get('duration__sum'),1)
-        charter.pilot_in_command = charter_pic
+    if flight.filter(pilot_in_command=True).filter(private_query):
+        private_pic = Regs.objects.get_or_create(user=user, reg_type='91')[0]
+        private_pic.pilot_in_command = avoid_none(flight.filter(pilot_in_command=True).filter(private_query), 'duration') + avoid_none(imported.filter(is_135=True), 'pilot_in_command')
+        private_pic.save()
+    else:
+        private_pic = Regs.objects.get_or_create(user=user, reg_type='91')[0]
+        private_pic.pilot_in_command = 0
+        private_pic.save()
 
-        charter_sic = Flight.objects.filter(user=user).filter(second_in_command=True).filter(charter_query).aggregate(Sum('duration'))
-        if charter_sic.get('duration__sum') is None:
-            charter_sic = 0
-        else:
-            charter_sic = round(charter_sic.get('duration__sum'),1)
-        charter.second_in_command = charter_sic
+    if flight.filter(pilot_in_command=True).filter(private_query):
+        private_sic = Regs.objects.get_or_create(user=user, reg_type='91')[0]
+        private_sic.second_in_command = avoid_none(flight.filter(second_in_command=True).filter(private_query), 'duration') + avoid_none(imported.filter(is_135=True), 'second_in_command')
+        private_sic.save()
+    else:
+        private_sic = Regs.objects.get_or_create(user=user, reg_type='91')[0]
+        private_sic.second_in_command = 0
+        private_sic.save()
 
-        charter.save()
-
-    except ObjectDoesNotExist:
-        pass
-
-    try:
-        private = Regs.objects.get(user=user, reg_type='91')
-        private_query = Q(registration__is_91=True)
-
-
-        private_pic = Flight.objects.filter(user=user).filter(pilot_in_command=True).filter(private_query).aggregate(Sum('duration'))
-        if private_pic.get('duration__sum') is None:
-            private_pic = 0
-        else:
-            private_pic = round(private_pic.get('duration__sum'),1)
-        private.pilot_in_command = private_pic
-
-        private_sic = Flight.objects.filter(user=user).filter(second_in_command=True).filter(private_query).aggregate(Sum('duration'))
-        if private_sic.get('duration__sum') is None:
-            private_sic = 0
-        else:
-            private_sic = round(private_sic.get('duration__sum'),1)
-        private.second_in_command = private_sic
-
-        private.save()
-
-    except ObjectDoesNotExist:
-        pass
-
-@receiver(pre_save, sender=Profile)
-def create_power_instances(sender, instance, **kwargs):
-
-    user = instance.user
-
-    Power.objects.get_or_create(user=user, role='PIC')
-    Power.objects.get_or_create(user=user, role='SIC')
-    Power.objects.get_or_create(user=user, role='Total')
 
 @receiver(post_save, sender=TailNumber)
 @receiver(post_delete, sender=TailNumber)
@@ -201,88 +184,71 @@ def create_power_instances(sender, instance, **kwargs):
 @receiver(post_delete, sender=Flight)
 @receiver(post_save, sender=Aircraft)
 @receiver(post_delete, sender=Aircraft)
-def power_update(sender, instance, **kwargs):
+@receiver(post_save, sender=Imported)
+@receiver(post_delete, sender=Imported)
+def power_update(sender, instance, dispatch_uid="power_update", **kwargs):
 
     user = instance.user
+
+    flight = Flight.objects.filter(user=user)
+    imported = Imported.objects.filter(user=user)
+    total = Power.objects.get_or_create(user=user, role='Total')[0]
+    pic = Power.objects.get_or_create(user=user, role='PIC')[0]
+    sic = Power.objects.get_or_create(user=user, role='SIC')[0]
 
     turbine_query = Q(aircraft_type__turbine=True)
     piston_query = Q(aircraft_type__piston=True)
 
-    try:
-        pic = Power.objects.get(user=user, role='PIC')
-
-        pic_turbine = Flight.objects.filter(user=user).filter(pilot_in_command=True).filter(turbine_query).aggregate(Sum('duration'))
-        if pic_turbine.get('duration__sum') is None:
-            pic_turbine = 0
-        else:
-            pic_turbine = round(pic_turbine.get('duration__sum'),1)
-        pic.turbine = pic_turbine
-
-        pic_piston = Flight.objects.filter(user=user).filter(pilot_in_command=True).filter(piston_query).aggregate(Sum('duration'))
-        if pic_piston.get('duration__sum') is None:
-            pic_piston = 0
-        else:
-            pic_piston = round(pic_piston.get('duration__sum'),1)
-        pic.piston = pic_piston
-
+    if not flight.filter(turbine_query) and not imported.filter(turbine_query):
+        pic.turbine = 0
+        pic.save()
+        sic.turbine = 0
+        sic.save()
+        total.turbine = 0
+        total.save()
+    else:
+        pic.turbine = avoid_none(flight.filter(pilot_in_command=True).filter(turbine_query), 'duration') + avoid_none(imported.filter(turbine_query), 'pilot_in_command')
         pic.save()
 
-    except ObjectDoesNotExist:
-        pass
-
-    try:
-        sic = Power.objects.get(user=user, role='SIC')
-
-        sic_turbine = Flight.objects.filter(user=user).filter(second_in_command=True).filter(turbine_query).aggregate(Sum('duration'))
-        if sic_turbine.get('duration__sum') is None:
-            sic_turbine = 0
-        else:
-            sic_turbine = round(sic_turbine.get('duration__sum'),1)
-        sic.turbine = sic_turbine
-
-        sic_piston = Flight.objects.filter(user=user).filter(second_in_command=True).filter(piston_query).aggregate(Sum('duration'))
-        if sic_piston.get('duration__sum') is None:
-            sic_piston = 0
-        else:
-            sic_piston = round(sic_piston.get('duration__sum'),1)
-        sic.piston = sic_piston
-
+        sic.turbine = avoid_none(flight.filter(second_in_command=True).filter(turbine_query), 'duration') + avoid_none(imported.filter(turbine_query), 'second_in_command')
         sic.save()
 
-    except ObjectDoesNotExist:
-        pass
-
-    try:
-        total = Power.objects.get(user=user, role='Total')
-
-        total_turbine = pic_turbine + sic_turbine
-        total.turbine = total_turbine
-        total_piston = pic_piston + sic_piston
-        total.piston = total_piston
+        total.turbine = pic.turbine + sic.turbine
+        total.piston = pic.piston + sic.piston
 
         total.save()
 
-    except ObjectDoesNotExist:
-        pass
+    if not flight.filter(piston_query) and not imported.filter(piston_query):
+        pic.piston = 0
+        pic.save()
+        sic.piston = 0
+        sic.save()
 
-@receiver(pre_save, sender=Profile)
-def create_endorsement_instances(sender, instance, **kwargs):
+    else:
+        pic.piston = avoid_none(flight.filter(pilot_in_command=True).filter(piston_query), 'duration') + avoid_none(imported.filter(piston_query), 'pilot_in_command')
+        pic.save()
 
-    user = instance.user
+        sic.piston = avoid_none(flight.filter(second_in_command=True).filter(piston_query), 'duration') + avoid_none(imported.filter(piston_query), 'second_in_command')
+        sic.save()
 
-    Endorsement.objects.get_or_create(user=user, endorsement="Simple")
-    Endorsement.objects.get_or_create(user=user, endorsement="Complex")
-    Endorsement.objects.get_or_create(user=user, endorsement='High Performance')
-    Endorsement.objects.get_or_create(user=user, endorsement='Tailwheel')
-    Endorsement.objects.get_or_create(user=user, endorsement='Type Rating')
+        total.turbine = pic.turbine + sic.turbine
+        total.piston = pic.piston + sic.piston
+
+        total.save()
+
 
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
 @receiver(post_save, sender=Aircraft)
 @receiver(post_delete, sender=Aircraft)
-def endorsement_update(sender, instance, **kwargs):
+@receiver(post_save, sender=Imported)
+@receiver(post_delete, sender=Imported)
+def endorsement_update(sender, instance, dispatch_uid="endorsement_update", **kwargs):
 
     user = instance.user
+
+    flight = Flight.objects.filter(user=user)
+    imported = Imported.objects.filter(user=user)
 
     simple_query = Q(aircraft_type__simple=True)
     compleks_query = Q(aircraft_type__compleks=True)
@@ -290,71 +256,67 @@ def endorsement_update(sender, instance, **kwargs):
     tailwheel_query = Q(aircraft_type__tailwheel=True)
     type_rating_query = Q(aircraft_type__requires_type=True)
 
-    try:
-        simple = Endorsement.objects.get(user=user, endorsement="Simple")
-        simple_total = Flight.objects.filter(user=user).filter(simple_query).aggregate(Sum('duration'))
-        if simple_total.get('duration__sum') is None:
-            simple_total = 0
-        else:
-            simple_total = round(simple_total.get('duration__sum'),1)
-        simple.total = simple_total
+    if not flight.filter(simple_query) and not imported.filter(simple_query):
+        try:
+            simple = Endorsement.objects.get(user=user, endorsement="Simple")
+            simple.delete()
+
+        except ObjectDoesNotExist:
+            pass
+
+    else:
+        simple = Endorsement.objects.get_or_create(user=user, endorsement="Simple")[0]
+        simple.total = avoid_none(flight.filter(simple_query), 'duration') + avoid_none(imported.filter(simple_query), 'total_time')
         simple.save()
 
-    except ObjectDoesNotExist:
-        pass
+    if not flight.filter(compleks_query) and not imported.filter(compleks_query):
+        try:
+            compleks = Endorsement.objects.get(user=user, endorsement="Complex")
+            compleks.delete()
 
-    try:
-        compleks = Endorsement.objects.get(user=user, endorsement="Complex")
+        except ObjectDoesNotExist:
+            pass
 
-        compleks_total = Flight.objects.filter(user=user).filter(compleks_query).aggregate(Sum('duration'))
-        if compleks_total.get('duration__sum') is None:
-            compleks_total = 0
-        else:
-            compleks_total = round(compleks_total.get('duration__sum'),1)
-        compleks.total = compleks_total
+    else:
+        compleks = Endorsement.objects.get_or_create(user=user, endorsement="Complex")[0]
+        compleks.total = avoid_none(flight.filter(compleks_query), 'duration') + avoid_none(imported.filter(compleks_query), 'total_time')
         compleks.save()
 
-    except ObjectDoesNotExist:
-        pass
+    if not flight.filter(high_performance_query) and not imported.filter(high_performance_query):
+        try:
+            high_performance = Endorsement.objects.get(user=user, endorsement="High Performance")
+            high_performance.delete()
 
-    try:
-        high_performance = Endorsement.objects.get(user=user, endorsement='High Performance')
+        except ObjectDoesNotExist:
+            pass
 
-        high_performance_total = Flight.objects.filter(user=user).filter(high_performance_query).aggregate(Sum('duration'))
-        if high_performance_total.get('duration__sum') is None:
-            high_performance_total = 0
-        else:
-            high_performance_total = round(high_performance_total.get('duration__sum'),1)
-        high_performance.total = high_performance_total
+    else:
+        high_performance = Endorsement.objects.get_or_create(user=user, endorsement="High Performance")[0]
+        high_performance.total = avoid_none(flight.filter(high_performance_query), 'duration') + avoid_none(imported.filter(high_performance_query), 'total_time')
         high_performance.save()
 
-    except ObjectDoesNotExist:
-        pass
+    if not flight.filter(tailwheel_query) and not imported.filter(tailwheel_query):
+        try:
+            tailwheel = Endorsement.objects.get(user=user, endorsement="Tailwheel")
+            tailwheel.delete()
 
-    try:
-        tailwheel = Endorsement.objects.get(user=user, endorsement='Tailwheel')
+        except ObjectDoesNotExist:
+            pass
 
-        tailwheel_total = Flight.objects.filter(user=user).filter(tailwheel_query).aggregate(Sum('duration'))
-        if tailwheel_total.get('duration__sum') is None:
-            tailwheel_total = 0
-        else:
-            tailwheel_total = round(tailwheel_total.get('duration__sum'),1)
-        tailwheel.total = tailwheel_total
+    else:
+        tailwheel = Endorsement.objects.get_or_create(user=user, endorsement="Tailwheel")[0]
+        tailwheel.total = avoid_none(flight.filter(tailwheel_query), 'duration') + avoid_none(imported.filter(tailwheel_query), 'total_time')
         tailwheel.save()
 
-    except ObjectDoesNotExist:
-        pass
+    if not flight.filter(type_rating_query) and not imported.filter(type_rating_query):
+        try:
+            type_rating = Endorsement.objects.get(user=user, endorsement="Type Rating")
+            type_rating.delete()
 
-    try:
-        type_rating = Endorsement.objects.get(user=user, endorsement='Type Rating')
+        except ObjectDoesNotExist:
+            pass
 
-        type_rating_total = Flight.objects.filter(user=user).filter(type_rating_query).aggregate(Sum('duration'))
-        if type_rating_total.get('duration__sum') is None:
-            type_rating_total = 0
-        else:
-            type_rating_total = round(type_rating_total.get('duration__sum'),1)
-        type_rating.total = type_rating_total
+    else:
+        type_rating = Endorsement.objects.get_or_create(user=user, endorsement="Type Rating")[0]
+        type_rating.total = avoid_none(flight.filter(type_rating_query), 'duration') + avoid_none(imported.filter(type_rating_query), 'total_time')
         type_rating.save()
-
-    except ObjectDoesNotExist:
-        pass

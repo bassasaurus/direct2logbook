@@ -4,7 +4,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 @receiver(post_save, sender=Flight)
-def save_route_data(sender, instance, **kwargs):
+def save_route_data(sender, instance, dispatch_uid='save_route_data', **kwargs):
 
     user = instance.user
 

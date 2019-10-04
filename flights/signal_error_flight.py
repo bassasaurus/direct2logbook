@@ -5,7 +5,7 @@ import re
 from itertools import chain
 
 @receiver(post_save, sender=Flight)
-def map_error(sender, instance, **kwargs):
+def map_error(sender, instance, dispatch_uid='map_error',**kwargs):
 
     user = instance.user
 
@@ -29,7 +29,7 @@ def map_error(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=Flight)
-def duplicate_error(sender, instance, **kwargs):
+def duplicate_error(sender, instance, dispatch_uid='duplicate_error', **kwargs):
 
     user = instance.user
 
@@ -53,7 +53,7 @@ def duplicate_error(sender, instance, **kwargs):
 
 
 @receiver(post_save, sender=Flight)
-def flight_misc_error(sender, instance, **kwargs):
+def flight_misc_error(sender, instance, dispatch_uid='flight_misc_error', **kwargs):
 
     user = instance.user
 

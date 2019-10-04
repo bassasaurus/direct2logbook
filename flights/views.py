@@ -2,7 +2,7 @@ from flights.models import *
 from accounts.models import Profile
 from django.contrib.auth.models import User, Group
 
-from flights.forms import FlightForm, AircraftForm, TailNumberForm, HoldingFormSet, ApproachFormSet
+from flights.forms import *
 from django.db.models import Sum, Q, F
 from django.db.models.functions import Length
 from django.db.models import CharField
@@ -32,6 +32,7 @@ from flights.get_map_data import get_map_data
 import flights.currency as currency
 
 from django.contrib.auth.mixins import UserPassesTestMixin
+from django.utils.encoding import force_text
 
 CharField.register_lookup(Length, 'length')
 
@@ -44,8 +45,7 @@ def get_deleted_objects(objs):
 
     def format_callback(obj):
         opts = obj._meta
-        no_edit_link = '%s: %s' % (capfirst(opts.verbose_name),
-                                   force_text(obj))
+        no_edit_link = '%s: %s' % (capfirst(opts.verbose_name), force_text(obj))
         return no_edit_link
 
     to_delete = collector.nested(format_callback)[1:]
@@ -87,13 +87,13 @@ class ProfileNotActiveMixin(UserPassesTestMixin):
         profile = Profile.objects.get(user=self.request.user)
 
         if profile.end_date > today.date():
-            expired=False
+            expired = False
         else:
-            expired=True
+            expired = True
 
         if profile.active or profile.trial:
             return True
-        elif profile.canceled and expired==False:
+        elif profile.canceled and expired == False:
             return True
         else:
             return False
@@ -101,11 +101,13 @@ class ProfileNotActiveMixin(UserPassesTestMixin):
     def handle_no_permission(self):
         return redirect('profile')
 
+
 class UserObjectsMixin():
 
     def get_queryset(self):
         user = self.request.user
         return super(UserObjectsMixin, self).get_queryset().filter(user=user)
+
 
 class LoginRequiredMixin(LoginRequiredMixin):
     login_url = '/accounts/login'
@@ -204,49 +206,54 @@ class HomeView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, Temp
 
         aircraft_list = []
         for aircraft in Aircraft.objects.filter(user=user).all():
-            if TailNumber.objects.filter(user=user).filter(aircraft__aircraft_type=aircraft).exists():
+            if TailNumber.objects.filter(user=user).filter(aircraft__aircraft_type=aircraft).exists() or Imported.objects.filter(user=user).filter(aircraft_type=aircraft).exists():
                 pass
             else:
                 aircraft_list.append(aircraft)
                 context['aircraft_needs_tailnumber'] = aircraft_list
 
         # cat/class vfr day, night currency
-        if not Total.objects.filter(user=user):
-            context['asel_total'] = 0
-        else:
+        try:
+            Total.objects.filter(user=user).get(total="ASEL")
             context['asel_total'] = Total.objects.filter(
                 user=user).get(total="ASEL")
-            asel_total = Total.objects.filter(user=user).get(total="ASEL")
+        except ObjectDoesNotExist:
+            context['asel_total'] = 0
 
-        if not Total.objects.filter(user=user):
-            context['amel_total'] = 0
-        else:
+        try:
+            Total.objects.filter(user=user).get(total="AMEL")
             context['amel_total'] = Total.objects.filter(
                 user=user).get(total="AMEL")
+        except ObjectDoesNotExist:
+            context['amel_total'] = 0
 
-        if not Total.objects.filter(user=user):
-            context['ases_total'] = 0
-        else:
+        try:
+            Total.objects.filter(user=user).get(total="ASES")
             context['ases_total'] = Total.objects.filter(
                 user=user).get(total="ASES")
+        except ObjectDoesNotExist:
+            context['ases_total'] = 0
 
-        if not Total.objects.filter(user=user):
-            context['ames_total'] = 0
-        else:
+        try:
+            Total.objects.filter(user=user).get(total="AMES")
             context['ames_total'] = Total.objects.filter(
                 user=user).get(total="AMES")
+        except ObjectDoesNotExist:
+            context['ames_total'] = 0
 
-        if not Total.objects.filter(user=user):
-            context['helo_total'] = 0
-        else:
+        try:
+            Total.objects.filter(user=user).get(total="HELO")
             context['helo_total'] = Total.objects.filter(
                 user=user).get(total="HELO")
+        except ObjectDoesNotExist:
+            context['helo_total'] = 0
 
-        if not Total.objects.filter(user=user):
-            context['gyro_total'] = 0
-        else:
+        try:
+            Total.objects.filter(user=user).get(total="GYRO")
             context['gyro_total'] = Total.objects.filter(
                 user=user).get(total="GYRO")
+        except ObjectDoesNotExist:
+            context['gyro_total'] = 0
 
         # IFR currency
         today = datetime.date.today()
@@ -317,28 +324,29 @@ class HomeView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, Temp
         context['expiry_date'] = currency.medical_duration(user)[0]
         context['this_month'] = currency.medical_duration(user)[1]
 
-        if len(Aircraft.objects.filter(user=user).all()) == 0:
+        if len(Aircraft.objects.filter(user=user)) == 0:
             context['new_user_aircraft'] = True
         else:
             context['new_user_aircraft'] = False
 
-        if len(TailNumber.objects.filter(user=user).all()) == 0:
+        if len(TailNumber.objects.filter(user=user)) == 0:
             context['new_user_tailnumber'] = True
         else:
             context['new_user_tailnumber'] = False
 
-        if len(Flight.objects.filter(user=user).all()) == 0:
+        if len(Flight.objects.filter(user=user)) == 0:
             context['new_user_flight'] = True
         else:
             context['new_user_flight'] = False
 
+        context['flights'] = Flight.objects.filter(user=user)
         context['totals'] = Total.objects.filter(
             user=user).exclude(total_time__lte=.1)
         context['stats'] = Stat.objects.filter(user=user)
-        context['regs'] = Regs.objects.filter(user=user).all()
+        context['regs'] = Regs.objects.filter(user=user)
         context['weights'] = Weight.objects.filter(
             user=user).exclude(total__lte=.1)
-        context['powers'] = Power.objects.filter(user=user).all()
+        context['powers'] = Power.objects.filter(user=user)
         context['endorsements'] = Endorsement.objects.filter(
             user=user).exclude(total__lte=.1)
         context['title'] = 'D-> | Home'
@@ -704,11 +712,16 @@ class AircraftDetail(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin
         get_map_data(flights, user)
         context['flights'] = flights
 
-        if TailNumber.objects.filter(aircraft__aircraft_type=self.object).exists():
+        if TailNumber.objects.filter(user=user).filter(aircraft__aircraft_type=self.object).exists() or Imported.objects.filter(user=user).filter(aircraft_type=self.object).exists():
             pass
         else:
             context['aircraft_needs_tailnumber'] = "Please select a tailnumber for {}".format(
                 self.object.aircraft_type)
+
+        if Imported.objects.filter(user=user).filter(aircraft_type=self.object).exists():
+            context['is_imported'] = True
+        else:
+            context['is_imported'] = False
 
         context['title'] = "D-> | " + str(self.object)
         context['page_title'] = str(self.object)
@@ -755,26 +768,28 @@ class TailNumberList(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin
 
         aircraft_list = []
         for aircraft in Aircraft.objects.filter(user=user).all():
-            if TailNumber.objects.filter(user=user).filter(aircraft__aircraft_type=aircraft).exists():
+            if TailNumber.objects.filter(user=user).filter(aircraft__aircraft_type=aircraft).exists() or Imported.objects.filter(user=user).filter(aircraft_type=aircraft).exists():
                 pass
             else:
                 aircraft_list.append(aircraft)
                 context['aircraft_needs_tailnumber'] = aircraft_list
 
-        if len(Aircraft.objects.filter(user=user).all()) == 0:
+        if len(Aircraft.objects.filter(user=user)) == 0:
             context['new_user_aircraft'] = True
         else:
             context['new_user_aircraft'] = False
 
-        if len(TailNumber.objects.filter(user=user).all()) == 0:
+        if len(TailNumber.objects.filter(user=user)) == 0:
             context['new_user_tailnumber'] = True
         else:
             context['new_user_tailnumber'] = False
 
-        if len(Flight.objects.filter(user=user).all()) == 0:
+        if len(Flight.objects.filter(user=user)) == 0:
             context['new_user_flight'] = True
         else:
             context['new_user_flight'] = False
+
+        context['imported'] = Imported.objects.filter(user=user)
 
         context['title'] = "D-> | Aircraft"
         context['parent_name'] = 'Home'
@@ -1022,4 +1037,97 @@ class IacraView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, Tem
         context['parent_link'] = reverse('home')
         context['parent_name'] = 'Home'
 
+        return context
+
+
+class ImportedListView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, ListView):
+    model = Imported
+    template_name = 'imported/imported_list.html'
+    context_object_name = 'imported'
+
+    def get_queryset(self, **kwargs):
+        user = self.request.user
+        queryset = super().get_queryset(**kwargs)
+        queryset = Imported.objects.filter(user=user)
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['title'] = "D-> | Imported Aircraft"
+        context['page_title'] = "Imported Aircraft"
+        context['home_link'] = reverse('home')
+        context['parent_link'] = reverse('aircraft_list')
+        context['parent_name'] = 'Aircraft'
+        return context
+
+
+class ImportedCreateView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, CreateView):
+    model = Imported
+    form_class = ImportedForm
+    template_name = 'imported/imported_create.html'
+    success_url = '/aircraft/'
+
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.user = self.request.user
+        object.save()
+        return super(ImportedCreateView, self).form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super(ImportedCreateView,
+                        self).get_context_data(**kwargs)
+
+        context['title'] = "D-> | Imported Aircraft Create"
+        context['page_title'] = "Imported Aircraft Create"
+        context['home_link'] = reverse('home')
+        context['parent_link'] = reverse('imported_list')
+        context['parent_name'] = 'Imported Aircraft'
+        return context
+
+
+class ImportedUpdateView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, UpdateView):
+    model = Imported
+    form_class = ImportedForm
+    template_name = 'imported/imported_update.html'
+    success_url = '/aircraft/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['title'] = "D-> | Imported Aircraft Update"
+        context['page_title'] = "Imported Aircraft Update"
+        context['home_link'] = reverse('home')
+        context['parent_link'] = reverse('imported_list')
+        context['parent_name'] = 'Imported Aircraft'
+        return context
+
+
+class ImportedDetailView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, DetailView):
+    model = Imported
+    template_name = 'imported/imported_detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['title'] = "D-> | Imported Aircraft Update"
+        context['page_title'] = "Imported Aircraft Update"
+        context['home_link'] = reverse('home')
+        context['parent_link'] = reverse('imported_list')
+        context['parent_name'] = 'Imported Aircraft'
+        return context
+
+
+class ImportedDeleteView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, DeleteView):
+    model = Imported
+    template_name = 'imported/imported_delete.html'
+    success_url = '/aircraft/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['title'] = "D-> | Imported Aircraft Delete"
+        context['page_title'] = "Imported Aircraft Delete"
+        context['home_link'] = reverse('home')
+        context['parent_link'] = reverse('imported_list')
+        context['parent_name'] = 'Imported Aircraft'
         return context
