@@ -789,14 +789,7 @@ class TailNumberList(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin
         else:
             context['new_user_flight'] = False
 
-        imported_aircraft = []
-        for aircraft in Aircraft.objects.filter(user=user):
-            if Imported.objects.filter(user=user).filter(aircraft_type=aircraft).exists():
-                imported_aircraft.append(aircraft)
-                context['imported_aircraft'] = imported_aircraft
-            else:
-                context['imported_aircraft'] = None
-
+        context['imported'] = Imported.objects.filter(user=user)
 
         context['title'] = "D-> | Aircraft"
         context['parent_name'] = 'Home'
@@ -1072,7 +1065,7 @@ class ImportedCreateView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsM
     model = Imported
     form_class = ImportedForm
     template_name = 'imported/imported_create.html'
-    success_url = '/imported/'
+    success_url = '/aircraft/'
 
     def form_valid(self, form):
         object = form.save(commit=False)
@@ -1096,7 +1089,7 @@ class ImportedUpdateView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsM
     model = Imported
     form_class = ImportedForm
     template_name = 'imported/imported_update.html'
-    success_url = '/imported/'
+    success_url = '/aircraft/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1127,7 +1120,7 @@ class ImportedDetailView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsM
 class ImportedDeleteView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, DeleteView):
     model = Imported
     template_name = 'imported/imported_delete.html'
-    success_url = '/imported/'
+    success_url = '/aircraft/'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

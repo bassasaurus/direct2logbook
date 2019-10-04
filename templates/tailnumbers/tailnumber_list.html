@@ -6,7 +6,7 @@
 
   <a class="btn btn-primary" href="{% url 'aircraft_create' %}">New Aircraft</a>
   <a class="btn btn-primary" href="{% url 'tailnumber_create' %}">New Tailnumber</a>
-  <a class="btn btn-secondary" href="{% url 'imported_list' %}">Previous Aircraft</a>
+  <a class="btn btn-secondary" href="{% url 'imported_create' %}">Enter Previous Aircraft</a>
 </div>
 
 <div class="mt-4">
@@ -16,13 +16,16 @@
 </div>
 <hr>
 
-{% if imported_aircraft %}
-<h6>Imported Aircraft</h6>
-    {% for aircraft in imported_aircraft %}
-        <a class="mr-4 text-dark" href="{% url 'aircraft_detail' aircraft.pk %}"><h6>{{ aircraft.aircraft_type }}</h6></a>
-    {% endfor %}
-  <hr>
-  {% else %}
+{% if imported %}
+  <div class="row flex-med-row>">
+    <div class="">
+    {% include 'table_imported.html' %}
+    </div>
+  </div>
+<hr>
+{% else %}
+<h5>No imported aircraft</h5>
+<hr>
 {% endif %}
 
 
@@ -47,5 +50,7 @@
 {% include 'new_user_modal.html' %}
 {% else %}
 {% endif %}
+
+{% include 'tablefixer.html' %}
 
 {% endblock %}
