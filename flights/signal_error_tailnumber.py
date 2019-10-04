@@ -4,7 +4,7 @@ from django.dispatch import receiver
 
 
 @receiver(post_save, sender=TailNumber)
-def tainumber_error(sender, instance, **kwargs):
+def tainumber_error(sender, instance, dispatch_uid='tailnumber_error', **kwargs):
 
     user = instance.user
 

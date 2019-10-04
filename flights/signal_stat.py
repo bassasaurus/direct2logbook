@@ -5,11 +5,10 @@ from django.dispatch import receiver
 import datetime
 from django.core.exceptions import ObjectDoesNotExist
 from flights.queryset_helpers import avoid_none, zero_if_none
-from django.core.signals import request_finished
 
 
 @receiver(post_delete, sender=Flight)
-def no_flight_stat_delete(sender, instance, **kwargs):
+def no_flight_stat_delete(sender, instance, dispatch_uid="no_flight_stat_delete", **kwargs):
 
     user = instance.user
     aircraft_type = instance.aircraft_type
@@ -22,14 +21,11 @@ def no_flight_stat_delete(sender, instance, **kwargs):
             stat = Stat.objects.filter(user=user).get(**kwargs)
             stat.delete()
     except ObjectDoesNotExist:
-        pass
-
-
-request_finished.connect(no_flight_stat_delete, dispatch_uid="no_flight_stat_delete")
+        print('except')
 
 
 @receiver(pre_delete, sender=Aircraft)
-def no_aircraft_stat_delete(sender, instance, **kwargs):
+def no_aircraft_stat_delete(sender, instance, dispatch_uid="no_aircraft_stat_delete", **kwargs):
 
     user = instance.user
     try:
@@ -40,12 +36,8 @@ def no_aircraft_stat_delete(sender, instance, **kwargs):
     except ObjectDoesNotExist:
         pass
 
-
-request_finished.connect(no_aircraft_stat_delete, dispatch_uid="no_aircraft_stat_delete")
-
-
 @receiver(post_delete, sender=Imported)
-def imported_deleted(sender, instance, **kwargs):
+def imported_deleted(sender, instance, dispatch_uid="imported_deleted", **kwargs):
 
     try:
         stat = Stat.objects.filter(user=instance.user).get(aircraft_type=instance.aircraft_type)
@@ -56,14 +48,11 @@ def imported_deleted(sender, instance, **kwargs):
         pass
 
 
-request_finished.connect(imported_deleted, dispatch_uid="imported_deleted")
-
-
 @receiver(post_save, sender=Imported)
 @receiver(post_save, sender=Flight)
 @receiver(pre_delete, sender=Imported)
 @receiver(pre_delete, sender=Flight)
-def stat_update(sender, instance, **kwargs):
+def stat_update(sender, instance, dispatch_uid="stat_update", **kwargs):
 
     stat = Stat.objects.get_or_create(user=instance.user, aircraft_type=str(instance.aircraft_type))
     stat = stat[0]
@@ -144,6 +133,3 @@ def stat_update(sender, instance, **kwargs):
     stat.ytd = avoid_none(ytd, 'duration') + avoid_none(imported, 'ytd')
 
     stat.save()
-
-
-request_finished.connect(stat_update, dispatch_uid="stat_update")

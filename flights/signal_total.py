@@ -7,14 +7,13 @@ import datetime
 from django.core.exceptions import ObjectDoesNotExist
 from flights.queryset_helpers import avoid_none
 from django.dispatch import receiver
-from django.core.signals import request_finished
 
 
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
 @receiver(post_save, sender=Imported)
 @receiver(post_delete, sender=Imported)
-def total_all_update(sender, instance, **kwargs):
+def total_all_update(sender, instance, dispatch_uid="total_all_update", **kwargs):
 
     flight = Flight.objects.filter(user=instance.user)
     imported = Imported.objects.filter(user=instance.user)
@@ -143,5 +142,3 @@ def total_all_update(sender, instance, **kwargs):
         object.ytd = avoid_none(ytd, 'duration') + avoid_none(imported, 'ytd')
 
         object.save()
-
-    request_finished.connect(total_all_update, dispatch_uid="total_all_update")

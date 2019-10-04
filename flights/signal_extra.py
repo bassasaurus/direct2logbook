@@ -4,7 +4,6 @@ from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from django.dispatch import receiver
 from flights.queryset_helpers import avoid_none
-from django.core.signals import request_finished
 
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
@@ -12,7 +11,7 @@ from django.core.signals import request_finished
 @receiver(post_delete, sender=Aircraft)
 @receiver(post_save, sender=Imported)
 @receiver(post_delete, sender=Imported)
-def weight_update(sender, instance, **kwargs):
+def weight_update(sender, instance, dispatch_uid="weight_update", **kwargs):
 
     user = instance.user
 
@@ -105,9 +104,6 @@ def weight_update(sender, instance, **kwargs):
         lsa.save()
 
 
-request_finished.connect(weight_update, dispatch_uid="weight_update")
-
-
 @receiver(post_save, sender=Imported)
 @receiver(post_delete, sender=Imported)
 @receiver(post_save, sender=TailNumber)
@@ -116,7 +112,7 @@ request_finished.connect(weight_update, dispatch_uid="weight_update")
 @receiver(post_delete, sender=Flight)
 @receiver(post_save, sender=Aircraft)
 @receiver(post_delete, sender=Aircraft)
-def regs_update(sender, instance, **kwargs):
+def regs_update(sender, instance, dispatch_uid="regs_update", **kwargs):
 
     user = instance.user
 
@@ -182,9 +178,6 @@ def regs_update(sender, instance, **kwargs):
         private_sic.save()
 
 
-request_finished.connect(regs_update, dispatch_uid="regs_update")
-
-
 @receiver(post_save, sender=TailNumber)
 @receiver(post_delete, sender=TailNumber)
 @receiver(post_save, sender=Flight)
@@ -193,7 +186,7 @@ request_finished.connect(regs_update, dispatch_uid="regs_update")
 @receiver(post_delete, sender=Aircraft)
 @receiver(post_save, sender=Imported)
 @receiver(post_delete, sender=Imported)
-def power_update(sender, instance, **kwargs):
+def power_update(sender, instance, dispatch_uid="power_update", **kwargs):
 
     user = instance.user
 
@@ -244,16 +237,13 @@ def power_update(sender, instance, **kwargs):
         total.save()
 
 
-request_finished.connect(power_update, dispatch_uid="power_update")
-
-
 @receiver(post_save, sender=Flight)
 @receiver(post_delete, sender=Flight)
 @receiver(post_save, sender=Aircraft)
 @receiver(post_delete, sender=Aircraft)
 @receiver(post_save, sender=Imported)
 @receiver(post_delete, sender=Imported)
-def endorsement_update(sender, instance, **kwargs):
+def endorsement_update(sender, instance, dispatch_uid="endorsement_update", **kwargs):
 
     user = instance.user
 
@@ -330,6 +320,3 @@ def endorsement_update(sender, instance, **kwargs):
         type_rating = Endorsement.objects.get_or_create(user=user, endorsement="Type Rating")[0]
         type_rating.total = avoid_none(flight.filter(type_rating_query), 'duration') + avoid_none(imported.filter(type_rating_query), 'total_time')
         type_rating.save()
-
-
-request_finished.connect(endorsement_update, dispatch_uid="endorsement_update")
