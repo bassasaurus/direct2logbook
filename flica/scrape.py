@@ -1,38 +1,25 @@
-# import requests
-#
-# # from lmxl import html
-# import datetime
-#
-# url = 'https://spirit.flica.net'
-#
-# date = datetime.datetime.now().strftime('%Y%m%d%H%m%S')
-#
-# page = 'https://spirit.flica.net/online/mainmenu.cgi'
-# # page = 'https://spirit.flica.net/online/mainmenu.cgi?nocache={}'.format(date)
-#
-# payload = {
-#     'UserId': 'nks69069'
-#     'Password’: ‘1q2w3e'
-#     }
-#
-# with requests.Session() as session:
-#     post = session.post(url, data=payload)
-#     r = session.get(page)
-#     print(r.text)
+import requests
+from lxml import html
 
-from selenium import webdriver
 
-driver = webdriver.Firefox()
-driver.get("https://spirit.flica.net/ui/public/login/index.html")
+with requests.Session() as session:
 
-user_id = driver.find_element_by_name("UserId")
-user_id.send_keys("nks069069")
+    payload = {
+        'UserId': 'nks069069'
+        'Password’: ‘1q2w3e'
+        }
 
-password = driver.find_element_by_name("Password")
-password.send_keys("1q2w3e")
+    home_url = 'https://spirit.flica.net/ui/public/login/index.html'
+    login_url = 'https://www.flica.net/public/flicaLogon.cgi'
+    payload = {'UserId': 'nks069069', 'Password': '1q2w3e'}
 
-driver.find_element_by_class_name("spark-btn").click()
+    login_page = session.post(login_url, data=payload)
 
-session_cookie = driver.get_cookie('FLiCASession')
-print(session_cookie)
-# driver.close()
+    tree = html.fromstring(login_page.content)
+    page_url = str(tree.xpath('//script/text()')[0])
+
+    page_url = page_url.strip().strip('top.location=').strip("'")
+
+    content_page = session.get(page_url)
+
+    print(content_page.text)
