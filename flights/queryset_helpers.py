@@ -1,11 +1,11 @@
 from django.db.models import Sum
-from decimal import *
+from decimal import Decimal
 
 
-getcontext().prec = 1
+Decimal.getcontext().prec = 1
 
 
-def avoid_none(queryset: object, field: object) -> object:
+def avoid_none(queryset, field):
 
     field__sum = str(field + '__sum')
 
