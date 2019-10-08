@@ -1,6 +1,7 @@
 import requests
 from lxml import html
-
+import pandas
+from bs4 import BeautifulSoup
 
 with requests.Session() as session:
 
@@ -15,11 +16,15 @@ with requests.Session() as session:
 
     login_page = session.post(login_url, data=payload)
 
-    tree = html.fromstring(login_page.content)
-    page_url = str(tree.xpath('//script/text()')[0])
-
+    login_tree = html.fromstring(login_page.content)
+    page_url = str(login_tree.xpath('//script/text()')[0])
     page_url = page_url.strip().strip('top.location=').strip("'")
 
     content_page = session.get(page_url)
 
-    print(content_page.text)
+    schedule_url = 'https://spirit.flica.net/online/leftmenu.cgi?whosepage=Crewmember'
+    schedule_page = session.get(schedule_url)
+
+    soup = BeautifulSoup(schedule_page.content, 'lxml')
+
+    print(content_page.text, file=open("soup.txt", "a"))
