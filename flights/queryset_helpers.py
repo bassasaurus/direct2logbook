@@ -1,8 +1,4 @@
 from django.db.models import Sum
-from decimal import *
-
-getcontext().prec = 1
-
 
 def avoid_none(queryset, field):
 
@@ -11,9 +7,9 @@ def avoid_none(queryset, field):
     queryset = queryset.aggregate(Sum(field))
 
     if not queryset.get(field__sum):
-        return Decimal(0)
+        return 0
     else:
-        return Decimal(queryset.get(field__sum))
+        return round(queryset.get(field__sum), 1)
 
 
 def zero_if_none(object):
