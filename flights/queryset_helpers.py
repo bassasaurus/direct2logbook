@@ -1,8 +1,7 @@
 from django.db.models import Sum
-from decimal import Decimal
+from decimal import *
 
-
-Decimal.getcontext().prec = 1
+getcontext().prec = 1
 
 
 def avoid_none(queryset, field):
