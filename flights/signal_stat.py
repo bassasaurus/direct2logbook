@@ -62,6 +62,8 @@ def stat_update(sender, instance, dispatch_uid="stat_update", **kwargs):
 
     stat.total_time = avoid_none(flight, 'duration') + avoid_none(imported, 'total_time')
 
+    print('stat', stat.total_time)
+
     stat.pilot_in_command = avoid_none(flight.filter(pilot_in_command=True), 'duration') + avoid_none(imported, 'pilot_in_command')
 
     stat.second_in_command = avoid_none(flight.filter(second_in_command=True), 'duration') + avoid_none(imported, 'second_in_command')

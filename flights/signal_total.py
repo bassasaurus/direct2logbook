@@ -78,6 +78,8 @@ def total_all_update(sender, instance, dispatch_uid="total_all_update", **kwargs
 
         object.total_time = avoid_none(flight, 'duration') + avoid_none(imported, 'total_time')
 
+        print('total', total.total_time)
+
         object.pilot_in_command = avoid_none(flight.filter(pilot_in_command=True), 'duration') + avoid_none(imported, 'pilot_in_command')
 
         object.second_in_command = avoid_none(flight.filter(second_in_command=True), 'duration') + avoid_none(imported, 'second_in_command')
