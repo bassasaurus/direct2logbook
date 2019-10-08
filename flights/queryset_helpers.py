@@ -1,5 +1,6 @@
 from django.db.models import Sum
 
+
 def avoid_none(queryset, field):
 
     field__sum = str(field + '__sum')
