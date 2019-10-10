@@ -20,7 +20,7 @@ def aircraft_error(sender, instance, dispatch_uid='aircraft_error', **kwargs):
     else:
         Aircraft.objects.filter(user=user).filter(pk=instance.pk).update(config_error='')
 
-    data =  (instance.superr, instance.heavy, instance.large, instance.medium, instance.small)
+    data = (instance.superr, instance.heavy, instance.large, instance.medium, instance.small)
     if not any(data):
         weight_error = "Please select a weight category"
         Aircraft.objects.filter(user=user).filter(pk=instance.pk).update(weight_error=weight_error)
