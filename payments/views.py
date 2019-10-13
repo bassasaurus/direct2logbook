@@ -109,10 +109,12 @@ def stripe_webhook_view(request):
         #send email receipt
     elif event.type == 'customer.source.created':
         None
-    elif event.type == 'invoice.payment.succeeded':
-        None
     elif event.type == 'charge.succeeded':
-        None
+        profile.active = True
+        # timestamp = event.current_period_end
+        # profile.end_date = datetime.fromtimestamp(timestamp)
+        profile.save()
+
     elif event.type == 'charge.failed':
         profile.active = False
         profile.monthly = False
