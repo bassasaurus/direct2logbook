@@ -20,18 +20,18 @@ def convertBool(row_id):
 # assigns row_id as aircraft object
 
 
-def addFKAircraft(row_id):
+def addFKAircraft(row_id, user):
     try:
-        obj = Aircraft.objects.get(aircraft_type=row_id)
+        obj = Aircraft.objects.filter(user=user).get(aircraft_type=row_id)
     except Aircraft.DoesNotExist:
         obj = Aircraft(aircraft_type=row_id)
         obj.save()
     return obj
 
 
-def addFKTailnumber(row_id):
+def addFKTailnumber(row_id, user):
     try:
-        obj = TailNumber.objects.get(registration=row_id)
+        obj = TailNumber.objects.filter(user=user).get(registration=row_id)
     except TailNumber.DoesNotExist:
         obj = TailNumber(registration=row_id)
         obj.save()
@@ -80,6 +80,6 @@ with open(path, 'r') as logbook:
             solo=convertBool(row[15]),
             simulator=convertBool(row[16]),
             remarks=row[17],
-
         )
+
         flight.save()

@@ -62,7 +62,7 @@ INSTALLED_APPS = [
     'accounts',
     'flights',
     'pdf_output',
-    'csv_output',
+    'csv',
 
     #installed
     'rest_framework',
