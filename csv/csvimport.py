@@ -1,10 +1,9 @@
-import os.path
-import sys
+
 import csv
-import django
 import datetime
 
 from flights.models import Flight, Aircraft, Approach, TailNumber
+
 
 # converts values, if they exist, to boolean objects
 
@@ -24,7 +23,7 @@ def addFKAircraft(row_id, user):
     try:
         obj = Aircraft.objects.filter(user=user).get(aircraft_type=row_id)
     except Aircraft.DoesNotExist:
-        obj = Aircraft(aircraft_type=row_id)
+        obj = Aircraft(user=user, aircraft_type=row_id)
         obj.save()
     return obj
 
@@ -33,17 +32,14 @@ def addFKTailnumber(row_id, user):
     try:
         obj = TailNumber.objects.filter(user=user).get(registration=row_id)
     except TailNumber.DoesNotExist:
-        obj = TailNumber(registration=row_id)
+        obj = TailNumber(user=user, registration=row_id)
         obj.save()
     return obj
 
 
-# os agnostic file path
-userhome = os.path.expanduser('~')
-path = os.path.join(userhome, 'django_/logbook/', 'logbook_current.csv')
-with open(path, 'r') as logbook:
+def import_csv(user, file):
 
-    reader = csv.reader(logbook)
+    reader = csv.reader(file)
     next(reader)  # skips header
 
     for row in reader:  # iterates rows
@@ -57,11 +53,12 @@ with open(path, 'r') as logbook:
             if i == '':
                 row[n] = 0
 
-        aircraft = addFKAircraft(row[1])
+        aircraft = addFKAircraft(user, row[1])
 
-        tailnumber = addFKTailnumber(row[2])
+        tailnumber = addFKTailnumber(user, row[2])
 
         flight = Flight(
+            user=user,
             date=row[0],
             aircraft=aircraft,
             registration=tailnumber,
@@ -81,5 +78,6 @@ with open(path, 'r') as logbook:
             simulator=convertBool(row[16]),
             remarks=row[17],
         )
+        print(flight.date, flight.route)
 
-        flight.save()
+        # flight.save()

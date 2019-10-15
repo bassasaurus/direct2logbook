@@ -20,7 +20,8 @@
     {% endif %}
   </div>
   <p><a id="pdf" href="{% url 'pdf' user.pk %}">Print Logbook</a><p>
-  <p><a id="csv" href="{% url 'csv' %}">Download .csv</a></p>
+  <p><a id="csv" href="{% url 'csv_download' %}">Download .csv</a></p>
+  <p><a id="csv" href="{% url 'csv_upload' %}">Upload .csv</a></p>
 </div>
 
 <hr>

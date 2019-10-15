@@ -1,40 +1,44 @@
 from django.shortcuts import render
 import csv
-from django.http import HttpResponse
+from django.http import HttpResponseRedirect
 from flights.models import Flight
+from django import forms
+from csv.csvimport import import_csv
 
-def csv_view(request):
+
+def csv_download_view(request):
     user = request.user
     # Create the HttpResponse object with the appropriate CSV header.
 
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="{}_{}_logbook.csv"'.format(user.first_name, user.last_name)
+    response['Content-Disposition'] = 'attachment; filename="{}_{}_logbook.csv"'.format(
+        user.first_name, user.last_name)
 
     flights = Flight.objects.filter(user=user)
     writer = csv.writer(response)
     writer.writerow([
-                'date',
-                'aircraft',
-                'registration',
-                'route',
-                'duration',
-                'pilot in command',
-                'second in command',
-                'cross country',
-                'night',
-                'instrument',
-                #appr
-                #hold
-                'day landing',
-                'night landing',
-                'simulated instrument',
-                'instructor',
-                'dual',
-                'solo',
-                'simulator',
-                'remarks',
+        'date',
+        'aircraft',
+        'registration',
+        'route',
+        'duration',
+        'pilot in command',
+        'second in command',
+        'cross country',
+        'night',
+        'instrument',
+        # appr
+        # hold
+        'day landing',
+        'night landing',
+        'simulated instrument',
+        'instructor',
+        'dual',
+        'solo',
+        'simulator',
+        'remarks',
 
-                ])
+    ])
 
     for flight in flights:
 
@@ -99,26 +103,46 @@ def csv_view(request):
             sim = flight.duration
 
         writer.writerow([
-                str(flight.date),
-                str(flight.aircraft_type),
-                str(flight.registration),
-                str(flight.route),
-                flight.duration,
-                pic,
-                sic,
-                xc,
-                night,
-                ifr,
-                # appr
-                # hold
-                day_ldg,
-                night_ldg,
-                sim_inst,
-                cfi,
-                dual,
-                solo,
-                sim,
-                flight.remarks
-                ])
+            str(flight.date),
+            str(flight.aircraft_type),
+            str(flight.registration),
+            str(flight.route),
+            flight.duration,
+            pic,
+            sic,
+            xc,
+            night,
+            ifr,
+            # appr
+            # hold
+            day_ldg,
+            night_ldg,
+            sim_inst,
+            cfi,
+            dual,
+            solo,
+            sim,
+            flight.remarks
+        ])
 
     return response
+
+
+class UploadFileForm(forms.Form):
+    file = forms.FileField()
+
+
+def csv_upload_view(request):
+    if request.method == 'POST':
+        form = UploadFileForm(request.POST, request.FILES)
+        if form.is_valid():
+            # import_csv(request.user, request.FILES['file'])
+            return HttpResponseRedirect('/csv/inspect/')
+    else:
+        form = UploadFileForm()
+    return render(request, 'csv/upload_csv.html', {'form': form})
+
+
+def csv_inspect_view(request):
+
+    return render(request, 'csv/inspect_csv.html')
