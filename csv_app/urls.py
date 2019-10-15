@@ -1,6 +1,6 @@
 from django.conf.urls import url, include
 
-from csv.views import *
+from csv_app.views import *
 
 urlpatterns = [
 

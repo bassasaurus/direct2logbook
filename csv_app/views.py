@@ -3,7 +3,7 @@ import csv
 from django.http import HttpResponseRedirect
 from flights.models import Flight
 from django import forms
-from csv.csvimport import import_csv
+from csv_app.csvimport import import_csv
 
 
 def csv_download_view(request):
@@ -135,14 +135,17 @@ class UploadFileForm(forms.Form):
 def csv_upload_view(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
+
         if form.is_valid():
-            # import_csv(request.user, request.FILES['file'])
+
+            import_csv(request)
+
             return HttpResponseRedirect('/csv/inspect/')
     else:
         form = UploadFileForm()
-    return render(request, 'csv/upload_csv.html', {'form': form})
+    return render(request, 'csv_app/upload_csv.html', {'form': form})
 
 
 def csv_inspect_view(request):
 
-    return render(request, 'csv/inspect_csv.html')
+    return render(request, 'csv_app/inspect_csv.html')
