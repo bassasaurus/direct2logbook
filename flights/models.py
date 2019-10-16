@@ -159,7 +159,7 @@ class Weight(models.Model):
     def __str__(self):
         title = str(self.weight) + ' ' + str(self.total)
         return title
-        
+
 CATEGORY_CHOICES = (
             ('Airplane', 'Airplane'),
             ('Rotorcraft', 'Rotorcraft')
@@ -169,7 +169,9 @@ CLASS_CHOICES = (
             ('SEL', 'Single-Engine Land'),
             ('MEL', 'Multi-Engine Land'),
             ('SES', 'Single-Engine Sea'),
-            ('MES', 'Mult-Engine Sea')
+            ('MES', 'Mult-Engine Sea'),
+            ('HELO', 'Helicopter'),
+            ('GYRO', 'Gyroplane')
             )
 
 class Aircraft(models.Model):
