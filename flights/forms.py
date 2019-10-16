@@ -74,11 +74,6 @@ class AircraftForm(forms.ModelForm):
             'high_performance': forms.CheckboxInput(),
             }
 
-        labels = {
-            'aircraft_category': 'Category*',
-            'aircraft_class': 'Class*',
-            }
-
 class TailNumberForm(forms.ModelForm):
 
     class Meta:
