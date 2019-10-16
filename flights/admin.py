@@ -54,7 +54,7 @@ class FlightAdmin(admin.ModelAdmin):
 
 class AircraftAdmin(admin.ModelAdmin):
     list_display = ('aircraft_type', 'user', 'pk', 'turbine', 'piston', 'requires_type',
-    'tailwheel', 'compleks', 'high_performance', 'aircraft_category', 'aircraft_class', 'image',
+    'tailwheel', 'compleks', 'high_performance', 'ac_category', 'ac_class', 'image',
      'power_error', 'config_error', 'weight_error', 'category_error', 'class_error')
 
 class TailnumberAdmin(admin.ModelAdmin):

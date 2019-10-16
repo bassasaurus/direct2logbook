@@ -19,17 +19,15 @@ def convertBool(row_id):
 
 def addFKAircraft(user, row_id):
 
-    obj = Aircraft.objects.get_or_create(user=user, aircraft_type=str(row_id))
+    obj = Aircraft.objects.get_or_create(user=user, aircraft_type=str(row_id), ac_category='', ac_class='')
 
     return obj[0]
 
 
 def addFKTailnumber(row_id, user):
-    try:
-        obj = TailNumber.objects.filter(user=user).get(registration=row_id)
-    except TailNumber.DoesNotExist:
-        obj = TailNumber(user=user, registration=row_id)
-        obj.save()
+
+    obj = TailNumber.objects.get_or_create(user=user, registration=str(row_id))
+
     return obj
 
 
@@ -54,8 +52,8 @@ def import_csv(request):
         flight = Flight(
             user=user,
             date=parse(row[0]).strftime("%Y-%d-%m"),
-            # aircraft=addFKAircraft(user, row[1]),
-            # registration=addFKTailnumber(user, row[2]),
+            aircraft=addFKAircraft(user, row[1]),
+            registration=addFKTailnumber(user, row[2]),
             route=row[3],
             duration=row[4],
             pilot_in_command=convertBool(row[5]),

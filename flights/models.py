@@ -188,8 +188,8 @@ class Aircraft(models.Model):
     ac_category = models.CharField(max_length=30, choices=CATEGORY_CHOICES, verbose_name="Aircraft Category", default='')
     ac_class = models.CharField(max_length=30, choices=CLASS_CHOICES, verbose_name="Aircraft Class", default='')
 
-    aircraft_category = models.ForeignKey('AircraftCategory', on_delete=models.PROTECT, default=None)
-    aircraft_class = models.ForeignKey('AircraftClass', on_delete=models.PROTECT, default=None)
+    # aircraft_category = models.ForeignKey('AircraftCategory', on_delete=models.PROTECT, default=None)
+    # aircraft_class = models.ForeignKey('AircraftClass', on_delete=models.PROTECT, default=None)
     superr = models.NullBooleanField(verbose_name = 'Super')
     heavy = models.NullBooleanField(verbose_name = 'Heavy >300k lbs')
     large = models.NullBooleanField(verbose_name = 'Large 41k-300k lbs')
