@@ -1,9 +1,11 @@
 from django.shortcuts import render
 import csv
-from django.http import HttpResponseRedirect
-from flights.models import Flight
+from django.http import HttpResponseRedirect, HttpResponse
 from django import forms
+from flights.models import Flight
+
 from csv_app.csvimport import import_csv
+import math
 
 
 def csv_download_view(request):

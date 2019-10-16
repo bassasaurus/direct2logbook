@@ -11,22 +11,17 @@ from dateutil.parser import parse
 
 def convertBool(row_id):
 
-    if row_id:
-        row_id = True
+    if float(row_id) > 0:
+        return True
     else:
-        row_id = False
-    return row_id
-
-# assigns row_id as aircraft object
+        return False
 
 
-def addFKAircraft(row_id, user):
-    try:
-        obj = Aircraft.objects.filter(user=user).get(aircraft_type=str(row_id))
-    except Aircraft.DoesNotExist:
-        obj = Aircraft(user=user, aircraft_type=row_id)
-        obj.save()
-    return obj
+def addFKAircraft(user, row_id):
+
+    obj = Aircraft.objects.get_or_create(user=user, aircraft_type=str(row_id))
+
+    return obj[0]
 
 
 def addFKTailnumber(row_id, user):
@@ -58,9 +53,9 @@ def import_csv(request):
 
         flight = Flight(
             user=user,
-            date=parse(row[0]),
-            aircraft=addFKAircraft(user, row[1]),
-            registration=addFKTailnumber(user, row[2]),
+            date=parse(row[0]).strftime("%Y-%d-%m"),
+            # aircraft=addFKAircraft(user, row[1]),
+            # registration=addFKTailnumber(user, row[2]),
             route=row[3],
             duration=row[4],
             pilot_in_command=convertBool(row[5]),
@@ -78,6 +73,25 @@ def import_csv(request):
             remarks=row[17],
         )
 
-        print(flight.date, flight.route)
+        print(
+            flight.date,
+            # flight.aircraft_type,
+            # flight.registration,
+            flight.route,
+            flight.duration,
+            flight.pilot_in_command,
+            flight.second_in_command,
+            flight.cross_country,
+            flight.night,
+            flight.instrument,
+            flight.landings_day,
+            flight.landings_night,
+            flight.simulated_instrument,
+            flight.instructor,
+            flight.dual,
+            flight.solo,
+            flight.simulator,
+            flight.remarks
+            )
 
         # flight.save()
