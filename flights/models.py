@@ -159,6 +159,18 @@ class Weight(models.Model):
     def __str__(self):
         title = str(self.weight) + ' ' + str(self.total)
         return title
+        
+CATEGORY_CHOICES = (
+            ('Airplane', 'Airplane'),
+            ('Rotorcraft', 'Rotorcraft')
+            )
+
+CLASS_CHOICES = (
+            ('SEL', 'Single-Engine Land'),
+            ('MEL', 'Multi-Engine Land'),
+            ('SES', 'Single-Engine Sea'),
+            ('MES', 'Mult-Engine Sea')
+            )
 
 class Aircraft(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
