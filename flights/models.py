@@ -161,11 +161,13 @@ class Weight(models.Model):
         return title
 
 CATEGORY_CHOICES = (
+            ('', 'None'),
             ('A', 'Airplane'),
             ('R', 'Rotorcraft')
             )
 
 CLASS_CHOICES = (
+            ('', 'None'),
             ('SEL', 'Single-Engine Land'),
             ('MEL', 'Multi-Engine Land'),
             ('SES', 'Single-Engine Sea'),
@@ -188,8 +190,6 @@ class Aircraft(models.Model):
     aircraft_category = models.CharField(max_length=30, choices=CATEGORY_CHOICES, verbose_name="Aircraft Category", default='')
     aircraft_class = models.CharField(max_length=30, choices=CLASS_CHOICES, verbose_name="Aircraft Class", default='')
 
-    # aircraft_category = models.ForeignKey('AircraftCategory', on_delete=models.PROTECT, default=None)
-    # aircraft_class = models.ForeignKey('AircraftClass', on_delete=models.PROTECT, default=None)
     superr = models.NullBooleanField(verbose_name = 'Super')
     heavy = models.NullBooleanField(verbose_name = 'Heavy >300k lbs')
     large = models.NullBooleanField(verbose_name = 'Large 41k-300k lbs')

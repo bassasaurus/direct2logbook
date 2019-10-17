@@ -1,11 +1,12 @@
 from django.shortcuts import render
 import csv
 from django.http import HttpResponseRedirect, HttpResponse
+from django.template.response import TemplateResponse
 from django import forms
 from flights.models import Flight
-
 from csv_app.csvimport import import_csv
-import math
+import csv
+import io
 
 
 def csv_download_view(request):
@@ -134,20 +135,32 @@ class UploadFileForm(forms.Form):
     file = forms.FileField()
 
 
-def csv_upload_view(request):
+def csv_inspect_view(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
 
         if form.is_valid():
 
-            import_csv(request)
+            # import_csv(request)
 
-            return HttpResponseRedirect('/csv/inspect/')
+            file = request.FILES['file']
+
+            decoded_file = file.read().decode('utf-8')
+
+            io_string = io.StringIO(decoded_file)
+
+            next(io_string) #skips header row
+
+            file = csv.reader(io_string, delimiter=',')
+
+            {'file' : file}
+
+            return TemplateResponse(request, 'csv_app/inspect_csv.html', {'file' : file })
     else:
         form = UploadFileForm()
-    return render(request, 'csv_app/upload_csv.html', {'form': form})
+    return render(request, 'csv_app/inspect_csv.html', {'form': form})
 
 
-def csv_inspect_view(request):
+def csv_upload_view(request):
 
-    return render(request, 'csv_app/inspect_csv.html')
+    return render(request, 'csv_app/upload_csv.html')
