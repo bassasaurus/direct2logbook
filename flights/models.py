@@ -161,8 +161,8 @@ class Weight(models.Model):
         return title
 
 CATEGORY_CHOICES = (
-            ('Airplane', 'Airplane'),
-            ('Rotorcraft', 'Rotorcraft')
+            ('A', 'Airplane'),
+            ('R', 'Rotorcraft')
             )
 
 CLASS_CHOICES = (
