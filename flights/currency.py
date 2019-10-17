@@ -1,5 +1,4 @@
 from flights.models import Flight
-from accounts.models import User, Profile
 from django.db.models import Sum, Q
 import datetime
 from dateutil.relativedelta import relativedelta
