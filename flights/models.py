@@ -185,8 +185,8 @@ class Aircraft(models.Model):
     compleks = models.NullBooleanField(verbose_name='Complex')
     high_performance = models.NullBooleanField()
 
-    ac_category = models.CharField(max_length=30, choices=CATEGORY_CHOICES, verbose_name="Aircraft Category", default='')
-    ac_class = models.CharField(max_length=30, choices=CLASS_CHOICES, verbose_name="Aircraft Class", default='')
+    aircraft_category = models.CharField(max_length=30, choices=CATEGORY_CHOICES, verbose_name="Aircraft Category", default='')
+    aircraft_class = models.CharField(max_length=30, choices=CLASS_CHOICES, verbose_name="Aircraft Class", default='')
 
     # aircraft_category = models.ForeignKey('AircraftCategory', on_delete=models.PROTECT, default=None)
     # aircraft_class = models.ForeignKey('AircraftClass', on_delete=models.PROTECT, default=None)

@@ -27,13 +27,13 @@ def aircraft_error(sender, instance, dispatch_uid='aircraft_error', **kwargs):
     else:
         Aircraft.objects.filter(user=user).filter(pk=instance.pk).update(weight_error='')
 
-    if not instance.aircraft_category:
+    if instance.aircraft_category == '':
         category_error = "Please select an aircraft category"
         Aircraft.objects.filter(user=user).filter(pk=instance.pk).update(category_error=category_error)
     else:
         Aircraft.objects.filter(user=user).filter(pk=instance.pk).update(category_error='')
 
-    if not instance.aircraft_class:
+    if instance.aircraft_class == '':
         class_error = "Please select an aircraft class"
         Aircraft.objects.filter(user=user).filter(pk=instance.pk).update(class_error=class_error)
     else:
