@@ -2,35 +2,69 @@
 {% load widget_tweaks %}
 {% block content %}
 
-<table class="custom-table table-striped">
-  <thead>
-    <tr>
-      <th class="pl-2 text-left">Date</th>
-      <th class="text-left">Type</th>
-      <th class="text-left">Reg</th>
-      <th class="text-left">Route</th>
-      <th class="text-right">Duration</th>
-      <th class="pl-3 text-right">PIC</th>
-      <th class="pl-3 text-right">SIC</th>
-      <th class="pl-3 text-left">X Country</th>
-      <th class="pl-3 text-right">Night</th>
-      <th class="pl-3 pr-3 text-right">IFR</th>
-      <th class="pl-3 text-right">Day Ldg</th>
-      <th class="pl-3 text-right">Night Ldg</th>
-      <th class="pl-3 text-right">Sim Inst</th>
-      <th class="pl-3 text-right">CFI</th>
-      <th class="pl-3 text-right">Dual</th>
-      <th class="pl-3 text-right">Solo</th>
-      <th class="pl-3 text-right">Sim</th>
-      <th class="pl-3 text-center">Remarks</th>
-    </tr>
-  </thead>
-{% for row in file %}
-  <tr>
-    {% for field in row %}
-      <td>{{ field }}</td>
-    {% endfor %}
-  </tr>
-{% endfor %}
-</table>
+<style>
+  .container-outer {
+    overflow: scroll;
+    width: auto;
+    height: 100%;
+  }
+
+  ;
+
+  .container-inner {
+    width: 10000px;
+  }
+
+  ;
+</style>
+
+<form action="" class="" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="form-group">
+    <h4>Upload .csv</h4>
+    <div class="row">
+      <div class="col-5">{{ form.as_table }}</div>
+      <div class="col-7"><button class="btn-shadow btn-shadow-dark btn-block" type="submit">Submit</button></div>
+    </div>
+  </div>
+
+</form>
+
+<div class="container-outer">
+  <div class="container-inner">
+    <table class="table custom-table table-striped">
+      <thead>
+        <tr>
+          <th class="pl-2 text-left">Date</th>
+          <th class="text-left">Type</th>
+          <th class="text-left">Reg</th>
+          <th class="text-left">Route</th>
+          <th class="text-right">Duration</th>
+          <th class="pl-3 text-right">PIC</th>
+          <th class="pl-3 text-right">SIC</th>
+          <th class="pl-3 text-left">X Country</th>
+          <th class="pl-3 text-right">Night</th>
+          <th class="pl-3 pr-3 text-right">IFR</th>
+          <th class="pl-3 text-right">Day Ldg</th>
+          <th class="pl-3 text-right">Night Ldg</th>
+          <th class="pl-3 text-right">Sim Inst</th>
+          <th class="pl-3 text-right">CFI</th>
+          <th class="pl-3 text-right">Dual</th>
+          <th class="pl-3 text-right">Solo</th>
+          <th class="pl-3 text-right">Sim</th>
+          <th class="pl-3 text-center">Remarks</th>
+        </tr>
+      </thead>
+      {% for row in file %}
+      <tr>
+        {% for field in row %}
+        <td>{{ field }}</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+
 {% endblock %}

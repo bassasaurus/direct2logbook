@@ -153,9 +153,7 @@ def csv_inspect_view(request):
 
             file = csv.reader(io_string, delimiter=',')
 
-            {'file' : file}
-
-            return TemplateResponse(request, 'csv_app/inspect_csv.html', {'file' : file })
+            return TemplateResponse(request, 'csv_app/inspect_csv.html', {'file' : file, 'form': form})
     else:
         form = UploadFileForm()
     return render(request, 'csv_app/inspect_csv.html', {'form': form})
