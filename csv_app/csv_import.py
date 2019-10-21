@@ -28,7 +28,8 @@ def addFKTailnumber(user, row_1, row_2):
 
     aircraft = Aircraft.objects.get(user=user, aircraft_type=str(row_1))
 
-    obj = TailNumber.objects.get_or_create(user=user, aircraft=aircraft, registration=str(row_2))
+    obj = TailNumber.objects.get_or_create(
+        user=user, aircraft=aircraft, registration=str(row_2))
 
     return obj[0]
 
@@ -42,7 +43,7 @@ def import_csv(request):
 
     io_string = io.StringIO(decoded_file)
 
-    next(io_string) #skips header row
+    next(io_string)  # skips header row
 
     for row in csv.reader(io_string, delimiter=','):
 
@@ -54,8 +55,8 @@ def import_csv(request):
         flight = Flight(
             user=user,
             date=parse(row[0]).strftime("%Y-%d-%m"),
-            aircraft_type=addFKAircraft(user, row[1]),
-            registration=addFKTailnumber(user, row[1], row[2]),
+            # aircraft_type=addFKAircraft(user, row[1]),
+            # registration=addFKTailnumber(user, row[1], row[2]),
             route=row[3],
             duration=row[4],
             pilot_in_command=convertBool(row[5]),
@@ -92,6 +93,6 @@ def import_csv(request):
             flight.solo,
             flight.simulator,
             flight.remarks
-            )
+        )
 
         # flight.save()

@@ -24,12 +24,22 @@
     <h4>Upload .csv</h4>
     <div class="row">
       <div class="col-5">{{ form.as_table }}</div>
-      <div class="col-7"><button class="btn-shadow btn-shadow-dark btn-block" type="submit">Submit</button></div>
+      <div class="col-7"><button class="btn-shadow btn-shadow-dark btn-block" type="submit">Inspect</button></div>
+      {% if request.FILES %}
+      <div class="col-7"><a class="btn-shadow btn-shadow-dark btn-block" href="{% url 'csv_upload' %}">Upload</a></div>
+      {% endif %}
     </div>
   </div>
 
 </form>
-
+{% if not request.FILES %}
+<div class="row">
+  <div class="col">
+    File requirements
+  </div>
+</div>
+{% endif %}
+{% if reqest.FILES %}
 <div class="container-outer">
   <div class="container-inner">
     <table class="table custom-table table-striped">
@@ -65,6 +75,7 @@
     </table>
   </div>
 </div>
+{% endif %}
 
 
 {% endblock %}
