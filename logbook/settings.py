@@ -282,7 +282,3 @@ CSRF_USE_SESSIONS = True
 
 if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS') is not None:
     from .development import *
-
-FIXTURE_DIRS = (
-   DJANGO_ROOT
-)

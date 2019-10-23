@@ -22,7 +22,6 @@ DATABASES = {
         'USER': POSTGRES_UN,
         'PASSWORD': POSTGRES_PW,
         'HOST': DB_HOST,
-        'HOST': 'localhost',
     }
 }
 
