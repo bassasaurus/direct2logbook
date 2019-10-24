@@ -32,14 +32,8 @@
   </div>
 
 </form>
-{% if not request.FILES %}
-<div class="row">
-  <div class="col">
-    File requirements
-  </div>
-</div>
-{% endif %}
-{% if reqest.FILES %}
+
+{% if request.FILES %}
 <div class="container-outer">
   <div class="container-inner">
     <table class="table custom-table table-striped">

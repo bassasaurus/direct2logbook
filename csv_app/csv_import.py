@@ -34,7 +34,7 @@ def addFKTailnumber(user, row_1, row_2):
     return obj[0]
 
 
-def import_csv(request):
+def csv_import(request):
     user = request.user
 
     file = request.FILES['file']

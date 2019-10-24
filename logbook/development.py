@@ -1,4 +1,6 @@
 from decouple import config
+
+print('development settings')
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
@@ -27,7 +29,7 @@ DATABASES = {
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' #disable/setup for production
 
-print('development settings')
+
 
 
 #   python manage.py runserver --settings=logbook.settings.development

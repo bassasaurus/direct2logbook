@@ -4,7 +4,8 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.template.response import TemplateResponse
 from django import forms
 from flights.models import Flight
-from csv_app.csv_import import import_csv
+from csv_app.csv_import import csv_import
+from csv_app.csv_inspect import csv_inspect
 import csv
 import io
 
@@ -142,13 +143,16 @@ def csv_inspect_view(request):
         if form.is_valid():
 
             file = request.FILES['file']
+
             decoded_file = file.read().decode('utf-8')
+
             io_string = io.StringIO(decoded_file)
             next(io_string)  # skips header row
 
             file = csv.reader(io_string, delimiter=',')
 
-            #process file and display errors if needed
+            for row in file:
+                print(row)
 
             return TemplateResponse(request, 'csv_app/inspect_csv.html', {'file': file, 'form': form})
 
