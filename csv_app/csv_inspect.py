@@ -5,29 +5,24 @@ import datetime
 from flights.models import Flight, Aircraft, Approach, TailNumber
 from dateutil.parser import parse
 
+def format_route(field):
 
-def csv_inspect(request):
+    return field
 
-    user = request.user
+def check_decimal(field):
 
-    file = request.FILES['file']
+    return field
 
-    decoded_file = file.read().decode('utf-8')
+def csv_inspect(file):
 
-    io_string = io.StringIO(decoded_file)
-    next(io_string)  # skips header row
-
-    file = csv.reader(io_string, delimiter=',')
-
-    memory_string = io.StringIO()
+    new_file = io.StringIO()
+    writer = csv.writer(new_file, delimiter=',')
 
     for row in file:
-        memory_string.write(str(row[0]))
-        memory_string.write(str(row[1]))
+        writer.writerow([
+            row[0],
+            row[1],
+            row[2],
+        ])
 
-    converted_file = csv.reader(memory_string, delimiter=',')
-
-    for row in converted_file:
-        print(row)
-
-    return(file)
+    return(new_file)
