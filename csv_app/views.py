@@ -145,12 +145,16 @@ def csv_inspect_view(request):
             file = request.FILES['file']
             decoded_file = file.read().decode('utf-8')
             io_string = io.StringIO(decoded_file)
-            next(io_string)  # skips header row
+            next(io_string)  # skips header row and gives reader a place to start
             file = csv.reader(io_string, delimiter=',')
 
-            inspected_file = csv.reader(csv_inspect(file), delimiter=',')
+            inspected_file = csv_inspect(file)
+            inspected_file.seek(0, 0) 3 # gives reader a place to start
 
-            return TemplateResponse(request, 'csv_app/inspect_csv.html', {'file': inspected_file, 'form': form})
+            display_file = csv.reader(inspected_file, delimiter=',')
+
+
+            return TemplateResponse(request, 'csv_app/inspect_csv.html', {'file': display_file, 'form': form})
 
     else:
 
