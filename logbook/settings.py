@@ -280,5 +280,5 @@ DEFAULT_FROM_EMAIL = "no-reply@direct2logbook.com"  # if you don't already have 
 
 CSRF_USE_SESSIONS = True
 
-if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS') is not None:
+if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
     from .development import *

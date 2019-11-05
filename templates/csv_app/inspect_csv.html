@@ -18,22 +18,23 @@
   ;
 </style>
 
-<form action="" class="" method="post" enctype="multipart/form-data">
-  {% csrf_token %}
-  <div class="form-group">
-    <h4>Upload .csv</h4>
-    <div class="row">
-      <div class="col-5">{{ form.as_table }}</div>
-      <div class="col-7"><button class="btn-shadow btn-shadow-dark btn-block" type="submit">Inspect</button></div>
-      {% if request.FILES %}
-      <div class="col-7"><a class="btn-shadow btn-shadow-dark btn-block" href="{% url 'csv_upload' %}">Upload</a></div>
-      {% endif %}
+<div>
+  <form action="" class="" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-group">
+      <h4>Upload .csv</h4>
+      <div class="row">
+        <div class="col-5">{{ form.as_table }}</div>
+        <div class="col-7"><button class="btn-shadow btn-shadow-dark btn-block" type="submit">Inspect</button></div>
+        {% if request.FILES %}
+        <div class="col-7"><a class="btn-shadow btn-shadow-dark btn-block" href="{% url 'csv_upload' %}">Upload</a></div>
+        {% endif %}
+      </div>
     </div>
-  </div>
+  </form>
+</div>
 
-</form>
 
-{% if request.FILES %}
 <div class="container-outer">
   <div class="container-inner">
     <table class="table custom-table table-striped">
@@ -49,6 +50,7 @@
           <th class="pl-3 text-left">X Country</th>
           <th class="pl-3 text-right">Night</th>
           <th class="pl-3 pr-3 text-right">IFR</th>
+          <th class="pl-3 pr-3 text-right">Approaches</th>
           <th class="pl-3 text-right">Day Ldg</th>
           <th class="pl-3 text-right">Night Ldg</th>
           <th class="pl-3 text-right">Sim Inst</th>
@@ -59,17 +61,46 @@
           <th class="pl-3 text-center">Remarks</th>
         </tr>
       </thead>
-      {% for row in file %}
-      <tr>
-        {% for field in row %}
-        <td>{{ field }}</td>
+      {% if request.FILES %}
+        {% for row in file %}
+          <tr>
+            {% for field in row %}
+              <td>{{ field }}</td>
+            {% endfor %}
+          </tr>
         {% endfor %}
-      </tr>
-      {% endfor %}
+        {% else %}
+        <tr>
+          <td class="text-left">Formats:<br> <!-- date -->
+            mm-dd-yyyy<br>
+            mm/dd/yyy</td>
+          <td>Abc/#</td> <!-- type -->
+          <td>Abc/#</td> <!-- reg -->
+          <td>ICAO or ATA<br> <!-- route -->
+            MMUN-IAH-DFW-CYOW</td>
+          <td class="text-right">##.#</td>  <!-- duration -->
+          <td class="text-right">##.#</td>  <!-- pic -->
+          <td class="text-right">##.#</td> <!-- sic -->
+          <td class="text-right">##.#</td> <!-- xc -->
+          <td class="text-right">##.#</td> <!-- night -->
+          <td class="text-right">##.#</td> <!-- ifr -->
+          <td class="text-right">#<br> <!-- appr -->
+            - will default to ILS</td>
+          <td class="text-right">#</td> <!-- day ldg -->
+          <td class="text-right">#</td> <!-- night ldg -->
+          <td class="text-right">##.#</td>  <!-- sim inst -->
+          <td class="text-right">##.#</td> <!-- cfi -->
+          <td class="text-right">##.#</td> <!-- dual -->
+          <td class="text-right">##.#</td> <!-- solo -->
+          <td class="text-right">##.#</td> <!-- sim -->
+          <td class="text-right">Text</td> <!-- remarks -->
+        </tr>
+      {% endif %}
     </table>
   </div>
 </div>
-{% endif %}
+
+
 
 
 {% endblock %}
