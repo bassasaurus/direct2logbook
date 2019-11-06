@@ -6,7 +6,7 @@
   .container-outer {
     overflow: scroll;
     width: auto;
-    height: 100%;
+    height: 500px;
   }
 
   ;
@@ -15,8 +15,16 @@
     width: 10000px;
   }
 
-  ;
+
+
+  table th {
+      position: sticky;
+      top: 0;
+      background: white;
+    }
+
 </style>
+
 
 <div>
   <form action="" class="" method="post" enctype="multipart/form-data">
@@ -61,13 +69,14 @@
           <th class="pl-3 text-center">Remarks</th>
         </tr>
       </thead>
-      {% if request.FILES %}
+      <tbody>
+        {% if request.FILES %}
         {% for row in file %}
-          <tr>
-            {% for field in row %}
-              <td>{{ field }}</td>
-            {% endfor %}
-          </tr>
+        <tr>
+          {% for field in row %}
+          <td>{{ field }}</td>
+          {% endfor %}
+        </tr>
         {% endfor %}
         {% else %}
         <tr>
@@ -78,8 +87,8 @@
           <td>Abc/#</td> <!-- reg -->
           <td>ICAO or ATA<br> <!-- route -->
             MMUN-IAH-DFW-CYOW</td>
-          <td class="text-right">##.#</td>  <!-- duration -->
-          <td class="text-right">##.#</td>  <!-- pic -->
+          <td class="text-right">##.#</td> <!-- duration -->
+          <td class="text-right">##.#</td> <!-- pic -->
           <td class="text-right">##.#</td> <!-- sic -->
           <td class="text-right">##.#</td> <!-- xc -->
           <td class="text-right">##.#</td> <!-- night -->
@@ -88,19 +97,17 @@
             - will default to ILS</td>
           <td class="text-right">#</td> <!-- day ldg -->
           <td class="text-right">#</td> <!-- night ldg -->
-          <td class="text-right">##.#</td>  <!-- sim inst -->
+          <td class="text-right">##.#</td> <!-- sim inst -->
           <td class="text-right">##.#</td> <!-- cfi -->
           <td class="text-right">##.#</td> <!-- dual -->
           <td class="text-right">##.#</td> <!-- solo -->
           <td class="text-right">##.#</td> <!-- sim -->
           <td class="text-right">Text</td> <!-- remarks -->
         </tr>
-      {% endif %}
+        {% endif %}
+      </tbody>
     </table>
   </div>
 </div>
-
-
-
 
 {% endblock %}
