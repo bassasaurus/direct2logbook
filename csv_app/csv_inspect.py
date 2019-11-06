@@ -47,7 +47,4 @@ def csv_inspect(file):
     new_file.seek(0, 0)  # gives reader a place to start
     new_csv = csv.reader(new_file, delimiter=',')
 
-    for i in new_csv:
-        print(i)
-
     return(new_file)
