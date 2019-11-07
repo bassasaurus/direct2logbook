@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, reverse
 import csv
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template.response import TemplateResponse
@@ -130,16 +130,24 @@ def csv_download_view(request):
 
     return response
 
-class InspectFileForm(forms.Form):
+
+class InspectForm(forms.Form):
     file = forms.FileField()
+
+
+class UploadForm(forms.Form):
+    file = forms.FileField()
+
 
 def csv_inspect_view(request):
     if request.method == 'POST':
-        form = InspectFileForm(request.POST, request.FILES)
+        inspect_form = InspectForm(request.POST, request.FILES)
+
+        upload_form = UploadForm(request.POST, request.FILES)
 
         file = request.FILES["file"]
 
-        if form.is_valid():
+        if inspect_form.is_valid():
 
             # catch if file is .csv
 
@@ -154,13 +162,36 @@ def csv_inspect_view(request):
 
             display_file = csv.reader(inspected_file, delimiter=',')
 
-            return TemplateResponse(request, 'csv_app/inspect_csv.html', {'file': display_file, 'form': form})
+            return TemplateResponse(
+                request,
+                'csv_app/inspect_csv.html', {
+                    'file': display_file,
+                    'inspect_form': inspect_form,
+                    'upload_form': upload_form
+                    }
+                 )
+
+        elif upload_form.is_valid():
+            file = request.FILES['file']
+
+            upload_form.file = file
+            upload_form.save()
+
+            csv_import(request, file)
+
+            return HttpResponseRedirect(reverse('logbook'))
 
     else:
 
-        form = InspectFileForm()
+        inspect_form = InspectForm()
 
-    return render(request, 'csv_app/inspect_csv.html', {'form': form})
+    return render(
+        request,
+        'csv_app/inspect_csv.html', {
+            'inspect_form': inspect_form
+            }
+        )
+
 
 def csv_upload_view(request):
 
