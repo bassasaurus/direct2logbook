@@ -1,8 +1,7 @@
 
 import csv
 import io
-import datetime
-from flights.models import Flight, Aircraft, Approach, TailNumber
+from flights.models import Flight, Aircraft, TailNumber
 from dateutil.parser import parse
 
 
@@ -34,7 +33,7 @@ def addFKTailnumber(user, row_1, row_2):
     return obj[0]
 
 
-def csv_import(request):
+def csv_import(request, file):
     user = request.user
 
     file = request.FILES['file']
@@ -55,8 +54,8 @@ def csv_import(request):
         flight = Flight(
             user=user,
             date=parse(row[0]).strftime("%Y-%d-%m"),
-            # aircraft_type=addFKAircraft(user, row[1]),
-            # registration=addFKTailnumber(user, row[1], row[2]),
+            aircraft_type=addFKAircraft(user, row[1]),
+            registration=addFKTailnumber(user, row[1], row[2]),
             route=row[3],
             duration=row[4],
             pilot_in_command=convertBool(row[5]),
@@ -85,6 +84,7 @@ def csv_import(request):
             flight.cross_country,
             flight.night,
             flight.instrument,
+            flight.approcahes,
             flight.landings_day,
             flight.landings_night,
             flight.simulated_instrument,

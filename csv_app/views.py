@@ -6,7 +6,6 @@ from django import forms
 from flights.models import Flight
 from csv_app.csv_import import csv_import
 from csv_app.csv_inspect import csv_inspect
-import csv
 import io
 
 
@@ -131,14 +130,12 @@ def csv_download_view(request):
 
     return response
 
-
-class UploadFileForm(forms.Form):
+class InspectFileForm(forms.Form):
     file = forms.FileField()
-
 
 def csv_inspect_view(request):
     if request.method == 'POST':
-        form = UploadFileForm(request.POST, request.FILES)
+        form = InspectFileForm(request.POST, request.FILES)
 
         file = request.FILES["file"]
 
@@ -161,13 +158,12 @@ def csv_inspect_view(request):
 
     else:
 
-        form = UploadFileForm()
+        form = InspectFileForm()
 
     return render(request, 'csv_app/inspect_csv.html', {'form': form})
 
-
 def csv_upload_view(request):
 
-    # import_csv(request)
+    csv_import(request)
 
     return render(request, 'csv_app/upload_csv.html')

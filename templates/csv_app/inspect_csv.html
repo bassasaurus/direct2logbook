@@ -16,10 +16,10 @@
   }
 
   table th {
-      position: sticky;
-      top: 0;
-      background: white;
-    }
+    position: sticky;
+    top: 0;
+    background: white;
+  }
 </style>
 
 <div>
@@ -27,11 +27,12 @@
     {% csrf_token %}
     <div class="form-group">
       <h4>Upload .csv</h4>
+      <hr>
       <div class="row">
         <div class="col-5">{{ form.as_table }}</div>
         <div class="col-7"><button class="btn-shadow btn-shadow-dark btn-block" type="submit">Inspect</button></div>
         {% if request.FILES %}
-        <div class="col-7"><a class="btn-shadow btn-shadow-dark btn-block" href="{% url 'csv_upload' %}">Upload</a></div>
+          <div class="col-7"><a class="btn-shadow btn-shadow-dark btn-block" href="{% url 'csv_upload' %}">Upload</a></div>
         {% endif %}
       </div>
     </div>
@@ -41,28 +42,28 @@
 
 <div class="container-outer">
   <div class="container-inner">
-    <table class="table table-sm custom-table table-striped">
+    <table class="table table-sm custom-table table-striped {% if not request.FILES %} table-bordered {% endif %}">
       <thead>
         <tr>
-          <th class="pl-2 text-left">Date</th>
+          <th class="text-left">Date</th>
           <th class="text-left">Type</th>
           <th class="text-left">Reg</th>
           <th class="text-left">Route</th>
           <th class="text-right">Duration</th>
-          <th class="pl-3 text-right">PIC</th>
-          <th class="pl-3 text-right">SIC</th>
-          <th class="pl-3 text-left">X Country</th>
-          <th class="pl-3 text-right">Night</th>
-          <th class="pl-3 pr-3 text-right">IFR</th>
-          <th class="pl-3 pr-3 text-right">Approaches</th>
-          <th class="pl-3 text-right">Day Ldg</th>
-          <th class="pl-3 text-right">Night Ldg</th>
-          <th class="pl-3 text-right">Sim Inst</th>
-          <th class="pl-3 text-right">CFI</th>
-          <th class="pl-3 text-right">Dual</th>
-          <th class="pl-3 text-right">Solo</th>
-          <th class="pl-3 text-right">Sim</th>
-          <th class="pl-3 text-center">Remarks</th>
+          <th class="text-right">PIC</th>
+          <th class="text-right">SIC</th>
+          <th class="text-right">X Country</th>
+          <th class="text-right">Night</th>
+          <th class="text-right">IFR</th>
+          <th class="text-right">Approaches</th>
+          <th class="text-right">Day Ldg</th>
+          <th class="text-right">Night Ldg</th>
+          <th class="text-right">Sim Inst</th>
+          <th class="text-right">CFI</th>
+          <th class="text-right">Dual</th>
+          <th class="text-right">Solo</th>
+          <th class="text-right">Sim</th>
+          <th class="text-center">Remarks</th>
         </tr>
       </thead>
       <tbody>
@@ -78,7 +79,8 @@
         <tr>
           <td class="text-left">Formats:<br> <!-- date -->
             mm-dd-yyyy<br>
-            mm/dd/yyy</td>
+            mm/dd/yyy
+          </td>
           <td>Abc/#</td> <!-- type -->
           <td>Abc/#</td> <!-- reg -->
           <td>ICAO or ATA<br> <!-- route -->
