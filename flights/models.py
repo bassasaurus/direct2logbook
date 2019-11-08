@@ -277,6 +277,7 @@ class TailNumber(models.Model):
 class Approach(models.Model):
 
     APPR_CHOICES=(
+        ('', 'None'),
         ('ILS', 'ILS'),
         ('CATII', 'CAT II'),
         ('CATIII', 'CAT III'),

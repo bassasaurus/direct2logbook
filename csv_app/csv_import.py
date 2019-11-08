@@ -4,8 +4,14 @@ import io
 from flights.models import Flight, Aircraft, TailNumber, Approach
 from dateutil.parser import parse
 
-
 # converts values, if they exist, to boolean objects
+
+
+def assign_ils(row_id):
+    if row_id > 0:
+        return 'ILS'
+    else:
+        return 'None'
 
 
 def convertBool(row_id):
@@ -16,36 +22,14 @@ def convertBool(row_id):
         return False
 
 
-def addFKAircraft(user, row_id):
-
-    obj = Aircraft.objects.get_or_create(user=user, aircraft_type=str(row_id))
-
-    return obj[0]
-
-
-
-
-def addFKTailnumber(user, row_1, row_2):
-
-    aircraft = Aircraft.objects.get(user=user, aircraft_type=str(row_1))
-
-    obj = TailNumber.objects.get_or_create(
-        user=user, aircraft=aircraft, registration=str(row_2))
-
-    return obj[0]
-
-
-
-
 def csv_import(request, file):
 
     user = request.user
 
-    # decoded_file = file.read().decode('utf-8')
-
     io_string = io.StringIO(file)
-
     next(io_string)  # skips header row
+
+    flight_object_list = []
 
     for row in csv.reader(io_string, delimiter=','):
 
@@ -54,11 +38,28 @@ def csv_import(request, file):
             if i == '':
                 row[n] = 0
 
+        if Aircraft.objects.filter(user=user, aircraft_type=row[1]).exists():
+            pass
+
+        else:
+            Aircraft.objects.create(user=user, aircraft_type=str(row[1]))
+
+        if TailNumber.objects.filter(user=user, registration=row[2]).exists():
+            pass
+
+        else:
+            aircraft = Aircraft.objects.get(user=user, aircraft_type=row[1])
+            TailNumber.objects.create(
+                user=user, aircraft=aircraft, registration=str(row[2]))
+
+        aircraft_type = Aircraft.objects.get(user=user, aircraft_type=str(row[1]))
+        registration = TailNumber.objects.get(user=user, registration=str(row[2]))
+
         flight = Flight(
             user=user,
             date=parse(row[0]).strftime("%Y-%m-%d"),
-            aircraft_type=addFKAircraft(user, row[1]),
-            registration=addFKTailnumber(user, row[1], row[2]),
+            aircraft_type=aircraft_type,
+            registration=registration,
             route=row[3],
             duration=row[4],
             pilot_in_command=convertBool(row[5]),
@@ -77,15 +78,15 @@ def csv_import(request, file):
             remarks=row[18],
         )
 
-        flight.save()
+        flight_object_list.append(flight)
 
-        approach = Approach(
-            flight_object=flight,
-            approach_type='ILS',
-            number=row[10]
-        )
-
-        approach.save()
+        # approach = Approach(
+        #     flight_object=flight,
+        #     approach_type=assign_ils(row[10]),
+        #     number=row[10]
+        # )
+        #
+        # approach.save()
 
         # print(
         #     flight.date,
@@ -108,3 +109,4 @@ def csv_import(request, file):
         #     flight.simulator,
         #     flight.remarks
         # )
+    Flight.objects.bulk_create(flight_object_list)
