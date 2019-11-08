@@ -1,5 +1,6 @@
 from django.shortcuts import render, reverse
 import csv
+import json
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template.response import TemplateResponse
 from django import forms
@@ -135,52 +136,41 @@ class InspectForm(forms.Form):
     file = forms.FileField()
 
 
-class UploadForm(forms.Form):
-    file = forms.FileField()
-
-
 def csv_inspect_view(request):
     if request.method == 'POST':
+
         inspect_form = InspectForm(request.POST, request.FILES)
 
-        upload_form = UploadForm(request.POST, request.FILES)
-
-        file = request.FILES["file"]
-
+        # user uploads file
         if inspect_form.is_valid():
 
-            # catch if file is .csv
-
+            # catch if file is .csv or not
             file = request.FILES['file']
+
             decoded_file = file.read().decode('utf-8')
             io_string = io.StringIO(decoded_file)
-            next(io_string)  # skips header row and gives reader a place to start
+            next(io_string)  # skips header row
             file = csv.reader(io_string, delimiter=',')
 
             inspected_file = csv_inspect(file)
-            inspected_file.seek(0, 0)  # gives reader a place to start
+            inspected_file.seek(0, 0)
 
             display_file = csv.reader(inspected_file, delimiter=',')
 
+            request.session['file'] = decoded_file
+
+            # file is formatted and displayed to user on same page
+
+            # if the file looks ok, then user can save it to db
             return TemplateResponse(
                 request,
                 'csv_app/inspect_csv.html', {
                     'file': display_file,
                     'inspect_form': inspect_form,
-                    'upload_form': upload_form
                     }
                  )
 
-        elif upload_form.is_valid():
-            file = request.FILES['file']
-
-            upload_form.file = file
-            upload_form.save()
-
-            csv_import(request, file)
-
-            return HttpResponseRedirect(reverse('logbook'))
-
+    # if file fails tests or doesn't exist
     else:
 
         inspect_form = InspectForm()
@@ -195,6 +185,8 @@ def csv_inspect_view(request):
 
 def csv_upload_view(request):
 
-    csv_import(request)
+    file = request.session['file']
+
+    csv_import(request, file)
 
     return render(request, 'csv_app/upload_csv.html')
