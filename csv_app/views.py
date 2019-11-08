@@ -189,4 +189,4 @@ def csv_upload_view(request):
 
     csv_import(request, file)
 
-    return render(request, 'csv_app/upload_csv.html')
+    return HttpResponseRedirect(reverse('flight_list'))
