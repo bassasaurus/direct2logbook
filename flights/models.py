@@ -107,6 +107,7 @@ class Total(models.Model):
         title = str(self.total) + ' ' + str(self.total_time)
         return title
 
+
 class Power(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     role = models.CharField(db_index=True, max_length=5, default='')

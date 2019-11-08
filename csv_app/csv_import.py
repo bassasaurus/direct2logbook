@@ -1,7 +1,7 @@
 
 import csv
 import io
-from flights.models import Flight, Aircraft, TailNumber
+from flights.models import Flight, Aircraft, TailNumber, Approach
 from dateutil.parser import parse
 
 
@@ -56,7 +56,7 @@ def csv_import(request, file):
 
         flight = Flight(
             user=user,
-            date=parse(row[0]).strftime("%Y-%d-%m"),
+            date=parse(row[0]).strftime("%Y-%m-%d"),
             aircraft_type=addFKAircraft(user, row[1]),
             registration=addFKTailnumber(user, row[1], row[2]),
             route=row[3],
@@ -66,36 +66,45 @@ def csv_import(request, file):
             cross_country=convertBool(row[7]),
             night=row[8],
             instrument=row[9],
-            landings_day=int(row[10]),
-            landings_night=int(row[11]),
-            simulated_instrument=row[12],
-            instructor=convertBool(row[13]),
-            dual=convertBool(row[14]),
-            solo=convertBool(row[15]),
-            simulator=convertBool(row[16]),
-            remarks=row[17],
+
+            landings_day=int(row[11]),
+            landings_night=int(row[12]),
+            simulated_instrument=row[13],
+            instructor=convertBool(row[14]),
+            dual=convertBool(row[15]),
+            solo=convertBool(row[16]),
+            simulator=convertBool(row[17]),
+            remarks=row[18],
         )
 
-        print(
-            flight.date,
-            flight.aircraft_type,
-            flight.registration,
-            flight.route,
-            flight.duration,
-            flight.pilot_in_command,
-            flight.second_in_command,
-            flight.cross_country,
-            flight.night,
-            flight.instrument,
-            # flight.approach,
-            flight.landings_day,
-            flight.landings_night,
-            flight.simulated_instrument,
-            flight.instructor,
-            flight.dual,
-            flight.solo,
-            flight.simulator,
-            flight.remarks
+        flight.save()
+
+        approach = Approach(
+            flight_object=flight,
+            approach_type='ILS',
+            number=row[10]
         )
 
-        # flight.save()
+        approach.save()
+
+        # print(
+        #     flight.date,
+        #     flight.aircraft_type,
+        #     flight.registration,
+        #     flight.route,
+        #     flight.duration,
+        #     flight.pilot_in_command,
+        #     flight.second_in_command,
+        #     flight.cross_country,
+        #     flight.night,
+        #     flight.instrument,
+        #     # flight.approach,
+        #     flight.landings_day,
+        #     flight.landings_night,
+        #     flight.simulated_instrument,
+        #     flight.instructor,
+        #     flight.dual,
+        #     flight.solo,
+        #     flight.simulator,
+        #     flight.remarks
+        # )
