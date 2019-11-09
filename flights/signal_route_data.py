@@ -30,4 +30,6 @@ def save_route_data(sender, instance, dispatch_uid='save_route_data', **kwargs):
     #gets object through a queryset to avoid infinite loop casued by save() method
     Flight.objects.filter(user=user).filter(pk=instance.pk).update(route_data=route_data)
 
+    return route_data
+
     # print(instance.pk, " updated")
