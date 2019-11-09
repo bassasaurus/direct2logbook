@@ -1,9 +1,10 @@
 
 import csv
 import io
-from flights.models import Flight, Aircraft, TailNumber, Approach, MapData
+from flights.models import Flight, Aircraft, TailNumber, MapData
 from dateutil.parser import parse
 import re
+
 
 def assign_ils(row_id):
     if row_id > 0:
@@ -51,63 +52,62 @@ def csv_import(request, file):
     flight_object_list = []
 
     for row in csv.reader(io_string, delimiter=','):
-        limit = 0
-        while limit < 50:
-            # makes any empty entry default to 0
-            for n, i in enumerate(row):
-                if i == '':
-                    row[n] = 0
 
-            if Aircraft.objects.filter(user=user, aircraft_type=row[1]).exists():
-                pass
+        # makes any empty entry default to 0
+        for n, i in enumerate(row):
+            if i == '':
+                row[n] = 0
 
-            else:
-                Aircraft.objects.create(user=user, aircraft_type=str(row[1]))
+        if Aircraft.objects.filter(user=user, aircraft_type=row[1]).exists():
+            pass
 
-            if TailNumber.objects.filter(user=user, registration=row[2]).exists():
-                pass
+        else:
+            Aircraft.objects.create(user=user, aircraft_type=str(row[1]))
 
-            else:
-                aircraft = Aircraft.objects.get(user=user, aircraft_type=row[1])
-                TailNumber.objects.create(
-                    user=user, aircraft=aircraft, registration=str(row[2]))
+        if TailNumber.objects.filter(user=user, registration=row[2]).exists():
+            pass
 
-            aircraft_type = Aircraft.objects.get(user=user, aircraft_type=str(row[1]))
-            registration = TailNumber.objects.get(user=user, registration=str(row[2]))
+        else:
+            aircraft = Aircraft.objects.get(user=user, aircraft_type=row[1])
+            TailNumber.objects.create(
+                user=user, aircraft=aircraft, registration=str(row[2]))
 
-            route_data = save_route_data(user, row[3])
+        aircraft_type = Aircraft.objects.get(user=user, aircraft_type=str(row[1]))
+        registration = TailNumber.objects.get(user=user, registration=str(row[2]))
 
-            flight = Flight(
-                user=user,
-                date=parse(row[0]).strftime("%Y-%m-%d"),
-                aircraft_type=aircraft_type,
-                registration=registration,
-                route=row[3],
-                duration=row[4],
-                pilot_in_command=convertBool(row[5]),
-                second_in_command=convertBool(row[6]),
-                cross_country=convertBool(row[7]),
-                night=row[8],
-                instrument=row[9],
+        route_data = save_route_data(user, row[3])
 
-                landings_day=int(row[11]),
-                landings_night=int(row[12]),
-                simulated_instrument=row[13],
-                instructor=convertBool(row[14]),
-                dual=convertBool(row[15]),
-                solo=convertBool(row[16]),
-                simulator=convertBool(row[17]),
-                remarks=row[18],
-                route_data=route_data,
-            )
+        flight = Flight(
+            user=user,
+            date=parse(row[0]).strftime("%Y-%m-%d"),
+            aircraft_type=aircraft_type,
+            registration=registration,
+            route=row[3],
+            duration=row[4],
+            pilot_in_command=convertBool(row[5]),
+            second_in_command=convertBool(row[6]),
+            cross_country=convertBool(row[7]),
+            night=row[8],
+            instrument=row[9],
 
-            flight_object_list.append(flight)
+            landings_day=int(row[11]),
+            landings_night=int(row[12]),
+            simulated_instrument=row[13],
+            instructor=convertBool(row[14]),
+            dual=convertBool(row[15]),
+            solo=convertBool(row[16]),
+            simulator=convertBool(row[17]),
+            remarks=row[18],
+            route_data=route_data,
+        )
 
-            flight.save()
+        flight_object_list.append(flight)
 
-            print(flight.date, flight.route, flight.route_data)
+        flight.save()
 
-        limit += 1
+        print(flight.date, flight.route, flight.route_data)
+
+
 
 
         # approach = Approach(

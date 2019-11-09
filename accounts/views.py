@@ -111,13 +111,11 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
 
         return context
 
+
 class UserUpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(UserUpdateView, self).get_context_data(**kwargs)
-
-        user = self.request.user
-        pk = str(user.profile.pk)
 
         context['title'] = "D-> | Update Name"
         context['parent_name'] = 'Profile'
@@ -135,9 +133,6 @@ class ProfileUpdateView(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(ProfileUpdateView, self).get_context_data(**kwargs)
-
-        user = self.request.user
-        pk = str(user.profile.pk)
 
         context['title'] = "D-> | Update Profile"
         context['parent_name'] = 'Profile'

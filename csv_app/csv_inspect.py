@@ -1,9 +1,5 @@
-
 import csv
 import io
-import datetime
-from flights.models import Flight, Aircraft, Approach, TailNumber
-from dateutil.parser import parse
 
 
 def format_route(field):

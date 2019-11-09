@@ -1,14 +1,10 @@
-import re
+
 from django.db import models
-from django.db import signals
-from django.dispatch import receiver
 from django.urls import reverse
 
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 
 from picklefield.fields import PickledObjectField
-
-from django.template.defaultfilters import truncatechars  # or truncatewords
 
 from django.core.validators import MinValueValidator, RegexValidator
 

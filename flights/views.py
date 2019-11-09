@@ -1,6 +1,6 @@
 from flights.models import *
 from accounts.models import Profile
-from django.contrib.auth.models import User, Group
+
 
 from flights.forms import *
 from django.db.models import Sum, Q, F
@@ -14,19 +14,17 @@ from django.utils.text import capfirst
 from django.forms import inlineformset_factory
 
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DetailView, DeleteView
-from django.views.generic.dates import YearArchiveView, MonthArchiveView, ArchiveIndexView, DayArchiveView, DayMixin
+from django.views.generic.dates import YearArchiveView, MonthArchiveView, ArchiveIndexView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
-import json
-from django.views.decorators.cache import cache_page
+
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 
 from dal import autocomplete
 import datetime
-from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 
 from flights.get_map_data import get_map_data
 import flights.currency as currency
@@ -668,7 +666,6 @@ class AircraftCreate(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin
         return super(AircraftCreate, self).form_valid(form)
 
     def get_context_data(self, **kwargs):
-        user = self.request.user
 
         context = super(AircraftCreate, self).get_context_data(**kwargs)
         context['title'] = "D-> | New Aircraft"

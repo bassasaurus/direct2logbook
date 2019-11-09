@@ -1,6 +1,6 @@
 import os
-from os.path import abspath, basename, dirname, join, normpath
-from sys import path
+from os.path import abspath, dirname
+
 from decouple import config
 
 import sentry_sdk

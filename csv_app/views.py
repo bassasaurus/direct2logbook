@@ -1,6 +1,5 @@
 from django.shortcuts import render, reverse
 import csv
-import json
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template.response import TemplateResponse
 from django import forms
