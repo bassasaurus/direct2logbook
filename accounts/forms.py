@@ -5,6 +5,7 @@ from accounts.models import Profile
 from allauth.account.forms import SignupForm
 from django import forms
 
+
 class CustomSignupForm(SignupForm):
     first_name = forms.CharField(max_length=30, label='First Name')
     last_name = forms.CharField(max_length=30, label='Last Name')
@@ -15,11 +16,13 @@ class CustomSignupForm(SignupForm):
         user.save()
         return user
 
+
 class ProfileForm(forms.ModelForm):
 
     class Meta:
         model = Profile
         fields = ('company', 'medical_issue_date', 'first_class', 'second_class', 'third_class', 'over_40')
+
 
 class UserForm(forms.ModelForm):
 
