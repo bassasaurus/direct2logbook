@@ -14,14 +14,16 @@ class UserForm(forms.ModelForm):
 
 class FlightForm(forms.ModelForm):
 
-    aircraft = Aircraft.objects.all()
-    choices = []
-    for obj in aircraft:
-        j=0
-        choices.append((j, str(obj)))
-        j+=1
+    None
 
-    aircraft_type = autocomplete.ModelSelect2(choices=choices)
+    # aircraft = Aircraft.objects.all()
+    # choices = []
+    # for obj in aircraft:
+    #     j=0
+    #     choices.append((j, str(obj)))
+    #     j+=1
+    #
+    # aircraft_type = autocomplete.ModelSelect2(choices=choices)
 
     class Meta:
         model = Flight
