@@ -12,14 +12,15 @@ class UserForm(forms.ModelForm):
         model = User
         fields = ('first_name', 'last_name')
 
+
 class FlightForm(forms.ModelForm):
 
     aircraft = Aircraft.objects.all()
     choices = []
     for obj in aircraft:
-        j=0
+        j = 0
         choices.append((j, str(obj)))
-        j+=1
+        j += 1
 
     aircraft_type = autocomplete.ModelSelect2(choices=choices)
 
@@ -29,15 +30,15 @@ class FlightForm(forms.ModelForm):
         fields = flight_fields()
         widgets = {
             'aircraft_type': autocomplete.ModelSelect2(
-                    url='aircraft-autocomplete',
-                    attrs={'data-placeholder': 'Aircraft *'}
-                    ),
+                url='aircraft-autocomplete',
+                attrs={'data-placeholder': 'Aircraft *'}
+            ),
             'registration': autocomplete.ModelSelect2(
-                    url='tailnumber-autocomplete',
-                    forward=['aircraft_type'],
-                    attrs={'data-placeholder': 'Tailnumber *',
-                    },
-                    ),
+                url='tailnumber-autocomplete',
+                forward=['aircraft_type'],
+                attrs={'data-placeholder': 'Tailnumber *',
+                       },
+            ),
 
             'cross_country': forms.CheckboxInput(),
             'second_in_command': forms.CheckboxInput(),
@@ -48,8 +49,11 @@ class FlightForm(forms.ModelForm):
             'solo': forms.CheckboxInput(),
         }
 
-ApproachFormSet = inlineformset_factory(Flight, Approach, fields=('approach_type', 'number'), max_num=4, extra=1)
-HoldingFormSet = inlineformset_factory(Flight, Holding, fields=('hold',), max_num=1, extra=1)
+
+ApproachFormSet = inlineformset_factory(Flight, Approach, fields=(
+    'approach_type', 'number'), max_num=4, extra=1)
+HoldingFormSet = inlineformset_factory(
+    Flight, Holding, fields=('hold',), max_num=1, extra=1)
 
 
 class AircraftForm(forms.ModelForm):
@@ -67,12 +71,13 @@ class AircraftForm(forms.ModelForm):
             'large': forms.CheckboxInput(),
             'medium': forms.CheckboxInput(),
             'small': forms.CheckboxInput(),
-            'light_sport':forms.CheckboxInput(),
+            'light_sport': forms.CheckboxInput(),
             'tailwheel': forms.CheckboxInput(),
             'simple': forms.CheckboxInput(),
             'compleks': forms.CheckboxInput(),
             'high_performance': forms.CheckboxInput(),
-            }
+        }
+
 
 class TailNumberForm(forms.ModelForm):
 
@@ -91,6 +96,7 @@ class TailNumberForm(forms.ModelForm):
             'is_135': '135',
             'is_91': '91',
         }
+
 
 class ImportedForm(forms.ModelForm):
 
