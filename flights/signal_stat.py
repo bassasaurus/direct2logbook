@@ -36,6 +36,7 @@ def no_aircraft_stat_delete(sender, instance, dispatch_uid="no_aircraft_stat_del
     except ObjectDoesNotExist:
         pass
 
+
 @receiver(post_delete, sender=Imported)
 def imported_deleted(sender, instance, dispatch_uid="imported_deleted", **kwargs):
 

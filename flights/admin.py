@@ -57,6 +57,8 @@ class AircraftAdmin(admin.ModelAdmin):
     'tailwheel', 'compleks', 'high_performance', 'aircraft_category', 'aircraft_class', 'image',
      'power_error', 'config_error', 'weight_error', 'category_error', 'class_error')
 
+    search_fields = ['user']
+
 class TailnumberAdmin(admin.ModelAdmin):
     list_display = ('registration', 'user', 'pk', 'aircraft', 'is_121', 'is_135', 'is_91', 'reg_error')
     search_fields = ('registration',)
@@ -98,8 +100,8 @@ admin.site.register(Aircraft, AircraftAdmin)
 admin.site.register(Holding, HoldingAdmin)
 admin.site.register(Approach, ApproachAdmin)
 
-admin.site.register(AircraftCategory)
-admin.site.register(AircraftClass)
+# admin.site.register(AircraftCategory)
+# admin.site.register(AircraftClass)
 admin.site.register(TailNumber, TailnumberAdmin)
 
 admin.site.register(Imported)

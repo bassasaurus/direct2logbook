@@ -1,6 +1,6 @@
 import os
-from os.path import abspath, basename, dirname, join, normpath
-from sys import path
+from os.path import abspath, dirname
+
 from decouple import config
 
 import sentry_sdk
@@ -62,7 +62,7 @@ INSTALLED_APPS = [
     'accounts',
     'flights',
     'pdf_output',
-    'csv_output',
+    'csv_app',
 
     #installed
     'rest_framework',
@@ -213,9 +213,11 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_L10N = True
+USE_L10N = False
 
 USE_TZ = True
+
+DATE_INPUT_FORMATS = ['%m-%d-%Y', '%m/%d/%Y', '%Y-%m-%d']
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
@@ -228,7 +230,7 @@ STATICFILES_FINDERS = [
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, '/media/')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 
@@ -278,9 +280,5 @@ DEFAULT_FROM_EMAIL = "no-reply@direct2logbook.com"  # if you don't already have 
 
 CSRF_USE_SESSIONS = True
 
-if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS') is not None:
+if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
     from .development import *
-
-FIXTURE_DIRS = (
-   DJANGO_ROOT
-)

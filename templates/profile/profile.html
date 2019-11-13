@@ -3,7 +3,7 @@
 {% block content %}
 <hr>
 
-{% if passed_end_date is True%}
+{% if passed_end_date is True and not profile.free_access %}
 
 <h5 class="text-danger">Subscription expired</h5>
   <hr>

@@ -1,14 +1,10 @@
-import re
+
 from django.db import models
-from django.db import signals
-from django.dispatch import receiver
 from django.urls import reverse
 
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User
 
 from picklefield.fields import PickledObjectField
-
-from django.template.defaultfilters import truncatechars  # or truncatewords
 
 from django.core.validators import MinValueValidator, RegexValidator
 
@@ -107,6 +103,7 @@ class Total(models.Model):
         title = str(self.total) + ' ' + str(self.total_time)
         return title
 
+
 class Power(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     role = models.CharField(db_index=True, max_length=5, default='')
@@ -160,6 +157,25 @@ class Weight(models.Model):
         title = str(self.weight) + ' ' + str(self.total)
         return title
 
+
+CATEGORY_CHOICES = (
+            ('', 'None'),
+            ('A', 'Airplane'),
+            ('R', 'Rotorcraft')
+            )
+
+
+CLASS_CHOICES = (
+            ('', 'None'),
+            ('SEL', 'Single-Engine Land'),
+            ('MEL', 'Multi-Engine Land'),
+            ('SES', 'Single-Engine Sea'),
+            ('MES', 'Mult-Engine Sea'),
+            ('HELO', 'Helicopter'),
+            ('GYRO', 'Gyroplane')
+            )
+
+
 class Aircraft(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     aircraft_type = models.CharField(db_index=True, max_length=10)
@@ -170,8 +186,10 @@ class Aircraft(models.Model):
     simple = models.NullBooleanField()
     compleks = models.NullBooleanField(verbose_name='Complex')
     high_performance = models.NullBooleanField()
-    aircraft_category = models.ForeignKey('AircraftCategory', on_delete=models.PROTECT, default=None)
-    aircraft_class = models.ForeignKey('AircraftClass', on_delete=models.PROTECT, default=None)
+
+    aircraft_category = models.CharField(max_length=30, choices=CATEGORY_CHOICES, verbose_name="Aircraft Category", default='')
+    aircraft_class = models.CharField(max_length=30, choices=CLASS_CHOICES, verbose_name="Aircraft Class", default='')
+
     superr = models.NullBooleanField(verbose_name = 'Super')
     heavy = models.NullBooleanField(verbose_name = 'Heavy >300k lbs')
     large = models.NullBooleanField(verbose_name = 'Large 41k-300k lbs')
@@ -194,6 +212,7 @@ class Aircraft(models.Model):
     def __str__(self):
         aircraft_type = str(self.aircraft_type)
         return aircraft_type
+
 
 class Flight(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -258,6 +277,7 @@ class TailNumber(models.Model):
 class Approach(models.Model):
 
     APPR_CHOICES=(
+        ('', ''),
         ('ILS', 'ILS'),
         ('CATII', 'CAT II'),
         ('CATIII', 'CAT III'),

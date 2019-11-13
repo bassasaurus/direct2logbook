@@ -18,18 +18,12 @@ def total_all_update(sender, instance, dispatch_uid="total_all_update", **kwargs
     flight = Flight.objects.filter(user=instance.user)
     imported = Imported.objects.filter(user=instance.user)
 
-    asel_query = Q(aircraft_type__aircraft_class__aircraft_class__icontains='single engine land') & Q(
-        aircraft_type__aircraft_category__aircraft_category__icontains='airplane')
-    amel_query = Q(aircraft_type__aircraft_class__aircraft_class__icontains='multi engine land') & Q(
-        aircraft_type__aircraft_category__aircraft_category__icontains='airplane')
-    ases_query = Q(aircraft_type__aircraft_class__aircraft_class__icontains='single engine sea') & Q(
-        aircraft_type__aircraft_category__aircraft_category__icontains='airplane')
-    ames_query = Q(aircraft_type__aircraft_class__aircraft_class__icontains='multi engine sea') & Q(
-        aircraft_type__aircraft_category__aircraft_category__icontains='airplane')
-    helo_query = Q(aircraft_type__aircraft_class__aircraft_class__icontains='helicopter') & Q(
-        aircraft_type__aircraft_category__aircraft_category__icontains='rotorcraft')
-    gyro_query = Q(aircraft_type__aircraft_class__aircraft_class__icontains='gyroplane') & Q(
-        aircraft_type__aircraft_category__aircraft_category__icontains='rotorcraft')
+    asel_query = Q(aircraft_type__aircraft_category='A') & Q(aircraft_type__aircraft_class='SEL')
+    amel_query = Q(aircraft_type__aircraft_category='A') & Q(aircraft_type__aircraft_class='MEL')
+    ases_query = Q(aircraft_type__aircraft_category='A') & Q(aircraft_type__aircraft_class='SES')
+    ames_query = Q(aircraft_type__aircraft_category='A') & Q(aircraft_type__aircraft_class='MES')
+    helo_query = Q(aircraft_type__aircraft_category='R') & Q(aircraft_type__aircraft_class='HELO')
+    gyro_query = Q(aircraft_type__aircraft_category='R') & Q(aircraft_type__aircraft_class='GYRO')
 
     flight_queries = {
                     'All': flight,

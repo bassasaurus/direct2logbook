@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+
+<style>
+  .container-outer {
+    overflow: scroll;
+    width: auto;
+    height: 400px;
+  }
+
+  ;
+
+  .container-inner {
+    width: auto;
+  }
+
+  table th {
+    position: sticky;
+    top: 0;
+    background: white;
+  }
+</style>
+
+<div>
+  <form action="" class="" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-group">
+      <h4>Upload .csv</h4>
+      <hr>
+      <div class="row">
+        <div class="col-5">{{ inspect_form.as_table }}</div>
+        <div class="col-3"><button class="" type="submit">Inspect</button></div>
+        {% if request.FILES %}
+        <div class="col-4"><button><a href="{% url 'csv_upload' %}" class="text-dark">Upload</a></button></div>
+        {% endif %}
+      </div>
+    </div>
+  </form>
+</div>
+
+
+<div class="container-outer">
+  <div class="container-inner">
+    <table class="table table-sm custom-table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th class="text-left">Date</th>
+          <th class="text-left">Type</th>
+          <th class="text-left">Reg</th>
+          <th class="text-left">Route</th>
+          <th class="text-right">Duration</th>
+          <th class="text-right">PIC</th>
+          <th class="text-right">SIC</th>
+          <th class="text-right">X Country</th>
+          <th class="text-right">Night</th>
+          <th class="text-right">IFR</th>
+          <th class="text-right">Approaches</th>
+          <th class="text-right">Day Ldg</th>
+          <th class="text-right">Night Ldg</th>
+          <th class="text-right">Sim Inst</th>
+          <th class="text-right">CFI</th>
+          <th class="text-right">Dual</th>
+          <th class="text-right">Solo</th>
+          <th class="text-right">Sim</th>
+          <th class="text-center">Remarks</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if request.FILES %}
+        {% for row in file %}
+        <tr>
+          {% for field in row %}
+          <td>{{ field }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+          <td class="text-left">Formats:<br> <!-- date -->
+            mm-dd-yyyy<br>
+            mm/dd/yyy
+          </td>
+          <td>Abc/123</td> <!-- type -->
+          <td>Abc/123</td> <!-- reg -->
+          <td>ICAO or ATA<br> <!-- route -->
+            MMUN-IAH-DFW-CYOW</td>
+          <td class="text-right">##.#</td> <!-- duration -->
+          <td class="text-right">##.#</td> <!-- pic -->
+          <td class="text-right">##.#</td> <!-- sic -->
+          <td class="text-right">##.#</td> <!-- xc -->
+          <td class="text-right">##.#</td> <!-- night -->
+          <td class="text-right">##.#</td> <!-- ifr -->
+          <td class="text-right">#<br> <!-- appr -->
+            - will default to ILS</td>
+          <td class="text-right">#</td> <!-- day ldg -->
+          <td class="text-right">#</td> <!-- night ldg -->
+          <td class="text-right">##.#</td> <!-- sim inst -->
+          <td class="text-right">##.#</td> <!-- cfi -->
+          <td class="text-right">##.#</td> <!-- dual -->
+          <td class="text-right">##.#</td> <!-- solo -->
+          <td class="text-right">##.#</td> <!-- sim -->
+          <td class="text-right">Text</td> <!-- remarks -->
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% endblock %}
