@@ -1,7 +1,7 @@
 
 import csv
 import io
-from flights.models import Flight, Aircraft, TailNumber, MapData
+from flights.models import Flight, Aircraft, TailNumber, MapData, Approach
 from dateutil.parser import parse
 import re
 
@@ -10,7 +10,7 @@ def assign_ils(row_id):
     if row_id > 0:
         return 'ILS'
     else:
-        return 'None'
+        return ''
 
 
 def convertBool(row_id):
@@ -107,15 +107,12 @@ def csv_import(request, file):
 
         print(flight.date, flight.route, flight.route_data)
 
+        approach = Approach(
+            flight_object=flight,
+            approach_type=assign_ils(row[10]),
+            number=row[10]
+        )
 
-
-
-        # approach = Approach(
-        #     flight_object=flight,
-        #     approach_type=assign_ils(row[10]),
-        #     number=row[10]
-        # )
-        #
-        # approach.save()
+        approach.save()
 
     # Flight.objects.bulk_create(flight_object_list)

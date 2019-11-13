@@ -7,7 +7,17 @@ def format_route(field):
     return field
 
 
-def check_decimal(field):
+def check_float(field):
+
+    return field
+
+
+def check_text(field):
+
+    return field
+
+
+def check_date(field):
 
     return field
 
@@ -41,6 +51,5 @@ def csv_inspect(file):
         ])
 
     new_file.seek(0, 0)  # gives reader a place to start
-
 
     return(new_file)

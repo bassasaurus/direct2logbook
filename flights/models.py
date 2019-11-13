@@ -157,11 +157,13 @@ class Weight(models.Model):
         title = str(self.weight) + ' ' + str(self.total)
         return title
 
+
 CATEGORY_CHOICES = (
             ('', 'None'),
             ('A', 'Airplane'),
             ('R', 'Rotorcraft')
             )
+
 
 CLASS_CHOICES = (
             ('', 'None'),
@@ -172,6 +174,7 @@ CLASS_CHOICES = (
             ('HELO', 'Helicopter'),
             ('GYRO', 'Gyroplane')
             )
+
 
 class Aircraft(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -209,6 +212,7 @@ class Aircraft(models.Model):
     def __str__(self):
         aircraft_type = str(self.aircraft_type)
         return aircraft_type
+
 
 class Flight(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -273,7 +277,7 @@ class TailNumber(models.Model):
 class Approach(models.Model):
 
     APPR_CHOICES=(
-        ('', 'None'),
+        ('', ''),
         ('ILS', 'ILS'),
         ('CATII', 'CAT II'),
         ('CATIII', 'CAT III'),
