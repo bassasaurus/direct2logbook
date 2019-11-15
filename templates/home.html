@@ -2,11 +2,13 @@
 
 {% block content %}
 <hr>
+<div class="nav">
+  <a class="nav-link" href="{% url 'flight_create' %}">New Flight</a>
+  <a class="nav-link" id="pdf" href="{% url 'pdf' user.pk %}">Print Logbook</a>
+  <a class="nav-link" id="csv" href="{% url 'csv_inspect' %}">Upload .csv</a>
+</div>
+<hr>
 <div class="flex-md-row">
-  <div class="flex-md-column" style="padding-top:10px; padding-right:40px;">
-    <h3><a class="text-nowrap text-dark link" style="text-decoration: underline;" href="{% url 'profile' %}"> {{ user.first_name }} {{ user.last_name }}</a></h3>
-    <br>
-  </div>
   <div class="flex-md-column">
     {% if not expiry_date %}
     <h5><a class="text-dark" style="text-decoration: underline;" href="{% url 'profile_update' user.profile.pk %}">Click here to enter your medical certificate info for an expiration date reminder</a></h5>
@@ -19,11 +21,7 @@
     {% endif %}
     {% endif %}
   </div>
-  <p><a id="pdf" href="{% url 'pdf' user.pk %}">Print Logbook</a><p>
-  <p><a id="csv" href="{% url 'csv_download' %}">Download .csv</a></p>
-  <p><a id="csv" href="{% url 'csv_inspect' %}">Upload .csv</a></p>
 </div>
-
 <hr>
 {% if flight_errors or aircraft_errors or tailnumber_errors or aircraft_needs_tailnumber %}
 <div style="margin-top: 15px;" class="row flex-md-row">
@@ -310,19 +308,6 @@
       swal({
         type: 'info',
         title: 'Preparing your logbook.',
-        text: 'Please be patient, This might take several minutes.',
-        footer: 'Dont leave this page.',
-        toast: true,
-        position: 'top',
-        showConfirmButton: false,
-        allowOutsideClick: false,
-        // timer: 50000,
-      })
-    });
-    $('#csv').click(function(e) {
-      swal({
-        type: 'info',
-        title: 'Preparing your .csv download.',
         text: 'Please be patient, This might take several minutes.',
         footer: 'Dont leave this page.',
         toast: true,

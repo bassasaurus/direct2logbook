@@ -19,6 +19,7 @@
 <div class="row">
   <div class="col-12">
     <h3>{{ user.first_name }} {{ user.last_name }}</h3>
+    <hr>
     <a href="{% url 'user_update' user.pk %}">Update name</a><br>
     <a href="{% url 'account_change_password' %}">Change password</a><br>
     <hr>
@@ -64,42 +65,6 @@
 
     {% endif %}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     <hr>
     <h5>Email</h5> {{ user.email }}<br>
     <a href="{% url 'account_email' %}">Update email</a><br>
@@ -116,6 +81,8 @@
     {% if user.profile.over_40 == True %} Over 40 {% else %}{% endif %}
     <p><a class="" href="{% url 'profile_update' user.profile.pk %}">Update medical info</a></p>
 
+    <hr>
+    <p><a id="csv" href="{% url 'csv_download' %}">Download your data.</a></p>
     <hr>
     <p>Questions or problems with the app? Email us <a target="new" href="mailto:support@direct2logbook.com?subject=Support">here</a></p>
     <p>Include a screenshot if possible, and a description of the error. More info is better</p>
@@ -154,6 +121,22 @@
       // error, display the localized error message to your customer
       // using `result.error.message`.
     });
+  });
+</script>
+
+<script>
+  $('#csv').click(function(e) {
+    swal({
+      type: 'info',
+      title: 'Preparing your .csv download.',
+      text: 'Please be patient, This might take several minutes.',
+      footer: 'Dont leave this page.',
+      toast: true,
+      position: 'top',
+      showConfirmButton: false,
+      allowOutsideClick: false,
+      // timer: 50000,
+    })
   });
 </script>
 

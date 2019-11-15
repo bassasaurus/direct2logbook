@@ -138,6 +138,7 @@ class ProfileUpdateView(UpdateView):
         context['parent_name'] = 'Profile'
         context['parent_link'] = reverse('profile')
         context['page_title'] = 'Update Profile'
+        context['home_link'] = reverse('home')
         return context
 
     model = Profile
