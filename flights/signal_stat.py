@@ -90,18 +90,18 @@ def stat_update(sender, instance, dispatch_uid="stat_update", **kwargs):
     stat.landings_stat = zero_if_none(stat.landings_day) + zero_if_none(stat.landings_night) + avoid_none(imported, 'landings_day') + avoid_none(imported, 'landings_night')
 
     try:
-        last_flown = flight.latest('date').date
+        flight_last_flown = flight.latest('date').date
     except ObjectDoesNotExist:
-        last_flown = None
+        flight_last_flown = datetime.date(1900, 1, 1)
 
     try:
-        last_flown = imported.latest('last_flown').last_flown
+        imported_last_flown = imported.latest('last_flown').last_flown
     except ObjectDoesNotExist:
-        last_flown = flight.latest('date').date
+        imported_last_flown = flight.latest('date').date
     finally:
-        last_flown = None
+        imported_last_flown = datetime.date(1900, 1, 1)
 
-    stat.last_flown = last_flown
+    stat.last_flown = max(flight_last_flown, imported_last_flown)
 
     today = datetime.date.today()
 
