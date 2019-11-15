@@ -184,7 +184,7 @@ class HomeView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, Temp
         context = super(HomeView, self).get_context_data(**kwargs)
 
         context['recent'] = Flight.objects.filter(
-            user=user).order_by('-id')[:8]
+            user=user).order_by('-date')[:8]
 
         flight_error_query = Q(map_error__length__gt=0) | Q(duplicate_error__length__gt=0) | Q(
             aircraft_type_error__length__gt=0) | Q(registration_error__length__gt=0) | Q(crew_error__length__gt=0)
