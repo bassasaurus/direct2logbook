@@ -1,10 +1,10 @@
 <div class="row breadcrumb">
-  <div class="col-12">
+  <div class="col-6">
     {% if home_link %}
-    <a href="{{ home_link }}">Home</a> /
+      <a href="{{ home_link }}">Home</a> /
     {% endif %}
     {% if parent_link %}
-    <a href="{{ parent_link }}">{{ parent_name }}</a> / {{ page_title }}{% if is_paginated %} / Page {{ page_obj.number }} {% endif %}
+      <a href="{{ parent_link }}">{{ parent_name }}</a> / {{ page_title }}{% if is_paginated %} / Page {{ page_obj.number }} {% endif %}
     {% else %}
     {{ page_title }}
     {% endif %}
