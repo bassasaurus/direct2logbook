@@ -45,22 +45,22 @@ def total_all_update(sender, instance, dispatch_uid="total_all_update", **kwargs
                     'GYRO': imported.filter(gyro_query),
                 }
 
-    if str(instance.aircraft_type.aircraft_category) == "Airplane" and str(instance.aircraft_type.aircraft_class) == 'Single Engine Land':
+    if str(instance.aircraft_type.aircraft_category) == "A" and str(instance.aircraft_type.aircraft_class) == 'SEL':
         Total.objects.get_or_create(user=instance.user, total='ASEL',)
 
-    elif str(instance.aircraft_type.aircraft_category) == "Airplane" and str(instance.aircraft_type.aircraft_class) == 'Multi Engine Land':
+    elif str(instance.aircraft_type.aircraft_category) == "A" and str(instance.aircraft_type.aircraft_class) == 'MEL':
         Total.objects.get_or_create(user=instance.user, total='AMEL',)
 
-    elif str(instance.aircraft_type.aircraft_category) == "Airplane" and str(instance.aircraft_type.aircraft_class) == 'Single Engine Sea':
+    elif str(instance.aircraft_type.aircraft_category) == "A" and str(instance.aircraft_type.aircraft_class) == 'SES':
         Total.objects.get_or_create(user=instance.user, total='ASES',)
 
-    elif str(instance.aircraft_type.aircraft_category) == "Airplane" and str(instance.aircraft_type.aircraft_class) == 'Multi Engine Sea':
+    elif str(instance.aircraft_type.aircraft_category) == "A" and str(instance.aircraft_type.aircraft_class) == 'MES':
         Total.objects.get_or_create(user=instance.user, total='AMES',)
 
-    elif str(instance.aircraft_type.aircraft_category) == "Rotorcraft" and str(instance.aircraft_type.aircraft_class) == 'Helicopter':
+    elif str(instance.aircraft_type.aircraft_category) == "R" and str(instance.aircraft_type.aircraft_class) == 'HELO':
         Total.objects.get_or_create(user=instance.user, total='HELO',)
 
-    elif str(instance.aircraft_type.aircraft_category) == "Rotorcraft" and str(instance.aircraft_type.aircraft_class) == 'Gyroplane':
+    elif str(instance.aircraft_type.aircraft_category) == "R" and str(instance.aircraft_type.aircraft_class) == 'GYRO':
         Total.objects.get_or_create(user=instance.user, total='GYRO',)
 
     total = Total.objects.filter(user=instance.user)
