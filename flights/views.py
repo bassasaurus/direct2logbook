@@ -493,8 +493,7 @@ class FlightCreate(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, 
         form = self.get_form(form_class)
         approach_form = ApproachFormSet(self.request.POST)
         holding_form = HoldingFormSet(self.request.POST)
-        if (form.is_valid() and approach_form.is_valid() and
-                holding_form.is_valid()):
+        if (form.is_valid() and approach_form.is_valid() and holding_form.is_valid()):
             return self.form_valid(form, approach_form, holding_form)
         else:
             return self.form_invalid(form, approach_form, holding_form)
