@@ -82,33 +82,40 @@ def stripe_webhook_view(request):
         profile.trial_expiring = False
         profile.save()
 
-
     elif event.type == 'customer.subscription.created':
+
         None
+
     elif event.type == 'customer.subscription.deleted':
         # print(event.type)
         profile.active = False
         profile.canceled = True
         profile.save()
+
     elif event.type == 'invoice.created':
         None
         # print(event.type)
-        #send email receipt
+        # send email receipt
+
     elif event.type == 'customer.subscription.trial_will_end':
         # print(event.type)
         profile.trial_expiring = True
         profile.save()
-        #send email warning and make warning on login with link to profile
+        # send email warning and make warning on login with link to profile
+
     elif event.type == 'customer.source.created':
         None
         # print(event.type)
 
     elif event.type == 'invoice.payment_succeeded':
-        None
-        # print(event.type)
-        #send email receipt
+        timestamp = event.data.object.lines['data'][0]['period']['end']
+        profile.end_date = datetime.fromtimestamp(timestamp)
+        profile.active = True
+        # send email receipt
+
     elif event.type == 'customer.source.created':
         None
+
     elif event.type == 'charge.succeeded':
         profile.active = True
         # timestamp = event.current_period_end
@@ -127,6 +134,7 @@ def stripe_webhook_view(request):
         return HttpResponse(status=400)
 
     return HttpResponse(status=200)
+
 
 def success_view(request, user):
 
