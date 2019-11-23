@@ -6,7 +6,7 @@ urlpatterns = [
 
     url(r'^home/$', HomeView.as_view(), name='home'),
     url(r'^$', index_view, name='index'),
-    url(r'^iacra/$', IacraView.as_view(), name='iacra'),
+    # url(r'^iacra/$', IacraView.as_view(), name='iacra'),
 
     #autocomplete urls
     url(r'^aircraft-autocomplete/$', AircraftAutocomplete.as_view(), name='aircraft-autocomplete'),
