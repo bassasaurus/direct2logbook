@@ -330,7 +330,6 @@ class TailNumber(models.Model):
     is_135 = models.NullBooleanField(null=True, blank=True)
     is_91 = models.NullBooleanField(null=True, blank=True)
 
-    reg_error = models.CharField(null=True, blank=True, max_length=50)
 
     class Meta:
         verbose_name_plural = "Tailnumbers"

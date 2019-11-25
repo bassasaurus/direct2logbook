@@ -59,7 +59,7 @@ class AircraftAdmin(admin.ModelAdmin):
     search_fields = ['user']
 
 class TailnumberAdmin(admin.ModelAdmin):
-    list_display = ('registration', 'user', 'pk', 'aircraft', 'is_121', 'is_135', 'is_91', 'reg_error')
+    list_display = ('registration', 'user', 'pk', 'aircraft', 'is_121', 'is_135', 'is_91')
     search_fields = ('registration',)
     empty_value_display = ''
 
