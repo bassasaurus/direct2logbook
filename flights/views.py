@@ -717,6 +717,31 @@ class AircraftDetail(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin
         else:
             context['is_imported'] = False
 
+        if not self.object.piston and not self.object.turbine:
+            context['power_error'] = True
+        else:
+            context['power_error'] = False
+
+        if not self.object.requires_type and not self.object.tailwheel and not self.object.simple and not self.object.compleks and not self.object.high_performance:
+            context['config_error'] = True
+        else:
+            context['config_error'] = False
+
+        if self.object.aircraft_category == '':
+            context['category_error'] = True
+        else:
+            context['category_error'] = False
+
+        if self.object.aircraft_class == '':
+            context['class_error'] = True
+        else:
+            context['class_error'] = False
+
+        if not self.object.superr and not self.object.heavy and not self.object.large and not self.object.medium and not self.object.small and not self.object.light_sport:
+            context['weight_error'] = True
+        else:
+            context['weight_error'] = False
+
         context['title'] = "D-> | " + str(self.object)
         context['page_title'] = str(self.object)
         context['home_link'] = reverse('home')
