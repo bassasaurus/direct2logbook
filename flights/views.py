@@ -199,8 +199,6 @@ class HomeView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, Temp
         tailnumber_error_query = Q(reg_error__length__gt=0)
         context['tailnumber_errors'] = TailNumber.objects.filter(
             user=user).filter(tailnumber_error_query)
-        for tail in TailNumber.objects.filter(user=user).filter(tailnumber_error_query):
-            print(tail, len(tail.reg_error))
 
         aircraft_list = []
         for aircraft in Aircraft.objects.filter(user=user).all():

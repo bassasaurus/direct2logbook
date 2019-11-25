@@ -54,8 +54,7 @@ class FlightAdmin(admin.ModelAdmin):
 
 class AircraftAdmin(admin.ModelAdmin):
     list_display = ('aircraft_type', 'user', 'pk', 'turbine', 'piston', 'requires_type',
-    'tailwheel', 'compleks', 'high_performance', 'aircraft_category', 'aircraft_class', 'image',
-     'power_error', 'config_error', 'weight_error', 'category_error', 'class_error')
+    'tailwheel', 'compleks', 'high_performance', 'aircraft_category', 'aircraft_class', 'image')
 
     search_fields = ['user']
 
