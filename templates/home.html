@@ -44,26 +44,9 @@
 
   {% endif %}
 
-  {% if aircraft_errors %}
-  <div class="col flex-md-column">
-    <table>
-      <thead>
-        <th class="text-nowrap">Aircraft Errors</th>
-      </thead>
-      <tbody>
-        {% for aircraft in aircraft_errors %}
-        <tr>
-          <td><a href="{% url 'aircraft_detail' aircraft.pk %}" style="margin-top: 5px;" class="text-danger text-no-wrap">{{ aircraft }}</a></td><br />
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-  {% else %}
 
-  {% endif %}
 
-  {% if tailnumber_errors or aircraft_needs_tailnumber %}
+  {% if aircraft_needs_tailnumber %}
   <div class="col flex-md-column">
     <table>
       <thead>
@@ -73,11 +56,6 @@
         {% for aircraft in aircraft_needs_tailnumber %}
         <tr>
           <td><a href="{% url 'aircraft_detail' aircraft.pk %}" style="margin-top: 5px;" class="text-danger text-no-wrap">{{ aircraft }}</a></td><br />
-        </tr>
-        {% endfor %}
-        {% for tailnumber in tailnumber_errors %}
-        <tr>
-          <td><a href="{% url 'tailnumber_detail' tailnumber.pk %}" style="margin-top: 5px;" class="text-danger text-no-wrap">{{ tailnumber }}</a></td><br />
         </tr>
         {% endfor %}
     </table>

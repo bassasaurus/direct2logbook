@@ -186,20 +186,6 @@ class HomeView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, Temp
         context['recent'] = Flight.objects.filter(
             user=user).order_by('-date')[:8]
 
-        flight_error_query = Q(map_error__length__gt=0) | Q(duplicate_error__length__gt=0) | Q(
-            aircraft_type_error__length__gt=0) | Q(registration_error__length__gt=0) | Q(crew_error__length__gt=0)
-        context['flight_errors'] = Flight.objects.filter(
-            user=user).filter(flight_error_query)
-
-        aircraft_error_query = Q(config_error__length__gt=0) | Q(power_error__length__gt=0) | Q(
-            weight_error__length__gt=0) | Q(category_error__length__gt=0) | Q(class_error__length__gt=0)
-        context['aircraft_errors'] = Aircraft.objects.filter(
-            user=user).filter(aircraft_error_query)
-
-        tailnumber_error_query = Q(reg_error__length__gt=0)
-        context['tailnumber_errors'] = TailNumber.objects.filter(
-            user=user).filter(tailnumber_error_query)
-
         aircraft_list = []
         for aircraft in Aircraft.objects.filter(user=user).all():
             if TailNumber.objects.filter(user=user).filter(aircraft__aircraft_type=aircraft).exists() or Imported.objects.filter(user=user).filter(aircraft_type=aircraft).exists():
