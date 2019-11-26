@@ -46,7 +46,7 @@
 </div>
 </div>
 
-{% if tailnumber.reg_error|length > 0 %}
+{% if not tailnumber.is_91 and not tailnumber.is_135 and not tailnumber.121 %}
   <div class="modal fade" id="errors">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
@@ -57,7 +57,7 @@
           </button>
         </div>
         <div class="modal-body">
-            <p class="text-danger">{{ tailnumber.reg_error }}</p>
+            <p class="text-danger">Please select FAR 91, 135 or 121</p>
             <hr>
         </div>
       </div>
