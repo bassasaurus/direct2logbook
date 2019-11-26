@@ -48,7 +48,13 @@
 
     <div style="display: inline;">
       {% for tailnumber in aircraft.list %}
-        <a href="{% url 'tailnumber_detail' tailnumber.pk %}">{{ tailnumber.registration }}</a>
+        <a
+        {% if not tailnumber.is_91 and not tailnumber.is_135 and not tailnumber.is_121 %}
+        class="text-danger"
+        {% else %}
+        class=""
+        {% endif %}
+        href="{% url 'tailnumber_detail' tailnumber.pk %}">{{ tailnumber.registration }}</a>
       {% endfor %}
     </div>
     <hr>
