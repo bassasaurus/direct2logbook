@@ -186,22 +186,6 @@ class HomeView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, Temp
         context['recent'] = Flight.objects.filter(
             user=user).order_by('-date')[:8]
 
-        flight_error_query = Q(map_error__length__gt=0) | Q(duplicate_error__length__gt=0) | Q(
-            aircraft_type_error__length__gt=0) | Q(registration_error__length__gt=0) | Q(crew_error__length__gt=0)
-        context['flight_errors'] = Flight.objects.filter(
-            user=user).filter(flight_error_query)
-
-        aircraft_error_query = Q(config_error__length__gt=0) | Q(power_error__length__gt=0) | Q(
-            weight_error__length__gt=0) | Q(category_error__length__gt=0) | Q(class_error__length__gt=0)
-        context['aircraft_errors'] = Aircraft.objects.filter(
-            user=user).filter(aircraft_error_query)
-
-        tailnumber_error_query = Q(reg_error__length__gt=0)
-        context['tailnumber_errors'] = TailNumber.objects.filter(
-            user=user).filter(tailnumber_error_query)
-        for tail in TailNumber.objects.filter(user=user).filter(tailnumber_error_query):
-            print(tail, len(tail.reg_error))
-
         aircraft_list = []
         for aircraft in Aircraft.objects.filter(user=user).all():
             if TailNumber.objects.filter(user=user).filter(aircraft__aircraft_type=aircraft).exists() or Imported.objects.filter(user=user).filter(aircraft_type=aircraft).exists():
@@ -718,6 +702,31 @@ class AircraftDetail(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin
             context['is_imported'] = True
         else:
             context['is_imported'] = False
+
+        if not self.object.piston and not self.object.turbine:
+            context['power_error'] = True
+        else:
+            context['power_error'] = False
+
+        if not self.object.requires_type and not self.object.tailwheel and not self.object.simple and not self.object.compleks and not self.object.high_performance:
+            context['config_error'] = True
+        else:
+            context['config_error'] = False
+
+        if self.object.aircraft_category == '':
+            context['category_error'] = True
+        else:
+            context['category_error'] = False
+
+        if self.object.aircraft_class == '':
+            context['class_error'] = True
+        else:
+            context['class_error'] = False
+
+        if not self.object.superr and not self.object.heavy and not self.object.large and not self.object.medium and not self.object.small and not self.object.light_sport:
+            context['weight_error'] = True
+        else:
+            context['weight_error'] = False
 
         context['title'] = "D-> | " + str(self.object)
         context['page_title'] = str(self.object)

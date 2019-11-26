@@ -10,7 +10,5 @@ class FlightsConfig(AppConfig):
         import flights.signal_extra
 
         import flights.signal_error_flight
-        import flights.signal_error_aircraft
-        import flights.signal_error_tailnumber
 
         import flights.signal_route_data

@@ -19,7 +19,7 @@
 <div class="row">
   <div class="col-12">
     <h4>{{ aircraft.aircraft_type }}</h4>
-    <h6>{{ aircraft.aircraft_category }} {{ aircraft.aircraft_class }}</h6>
+    <h6>{{ aircraft.aircraft_category }}{{ aircraft.aircraft_class }}</h6>
     <h6>
       {% if aircraft.turbine %}Turbine{% endif %}
       {% if aircraft.Piston %}Piston{% endif %}
@@ -55,7 +55,7 @@
 </div>
 
 
-{% if aircraft.power_error or aircraft.config_error %}
+{% if power_error or config_error or weight_error %}
 
   <div class="modal fade" id="errors">
     <div class="modal-dialog" role="document">
@@ -67,24 +67,24 @@
           </button>
         </div>
         <div class="modal-body">
-          {% if aircraft.power_error %}
-            <p class="text-danger">{{ aircraft.power_error }}</p>
+          {% if not aircraft.turbine and not aircraft.piston %}
+            <p class="text-danger">Please select Piston or Turbine</p>
             <hr>
           {% endif %}
-          {% if aircraft.config_error %}
-            <p class="text-danger">{{ aircraft.config_error }}<p>
+          {% if not aircraft.compleks and not aircraft.simple %}
+            <p class="text-danger">Please select Simple or Complex<p>
           <hr>
           {% endif %}
-          {% if aircraft.weight_error %}
-            <p class="text-danger">{{ aircraft.weight_error }}<p>
+          {% if weight_error %}
+            <p class="text-danger">Please choose a weight category<p>
           <hr>
           {% endif %}
-          {% if aircraft.weight_error %}
-            <p class="text-danger">{{ aircraft.category_error }}<p>
+          {% if category_error %}
+            <p class="text-danger">Please choose a Category<p>
           <hr>
           {% endif %}
-          {% if aircraft.weight_error %}
-            <p class="text-danger">{{ aircraft.class_error }}<p>
+          {% if class_error %}
+            <p class="text-danger">Please choose a Class<p>
           <hr>
           {% endif %}
           <a href ="{% url 'aircraft_update' aircraft.pk %}" class="btn btn-outline-secondary">Update</a>
