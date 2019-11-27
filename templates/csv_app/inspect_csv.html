@@ -21,7 +21,7 @@
     background: white;
   }
 </style>
-
+<hr>
 <div>
   <form action="" class="" method="post" enctype="multipart/form-data">
     {% csrf_token %}
@@ -33,7 +33,7 @@
         <div class="col-5">{{ inspect_form.file }}</div>
         <div class="col-3"><button class="btn btn-secondary" type="submit">Inspect</button></div>
         {% if request.FILES %}
-        <div class="col-4"><button class="btn btn-primary"><a href="{% url 'csv_upload' %}" class="text-dark">Upload</a></button></div>
+        <div class="col-4"><button class="btn btn-primary"><a href="{% url 'csv_upload' %}"></a>Upload</button></div>
         {% endif %}
       </div>
     </div>
