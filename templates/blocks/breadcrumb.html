@@ -15,15 +15,15 @@
   <div class="row">
     <div class="col">
       <a class="" href="{% url 'flight_create' %}">New Flight</a>
-      {% if request.path == "/home/" %}
+      {% if 'home' in request.path %}
       |
       <a id="pdf" class="" href="{% url 'pdf' request.user.pk %}">Print PDF</a>
       {% endif %}
-      {% if request.path == "/logbook/" %}
+      {% if 'logbook' in request.path %}
       |
       <a class="" href="{% url 'remarks' %}">Remarks</a>
       {% endif %}
-      {% if request.path == "/aircraft/" %}
+      {% if '/aircraft/' in request.path %}
       |
       <a class="" href="{% url 'aircraft_create' %}">New Aircraft</a>
       |
