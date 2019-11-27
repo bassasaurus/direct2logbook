@@ -283,8 +283,7 @@ class HomeView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, Temp
         context['HELO'] = Total.objects.filter(user=user).get(total='HELO')
         context['GYRO'] = Total.objects.filter(user=user).get(total='GYRO')
 
-        airplane_query = Q(
-            aircraft_type__aircraft_category__aircraft_category__icontains='airplane')
+        airplane_query = Q(aircraft_type__aircraft_category='A')
         airplane_xc_dual = Flight.objects.filter(user=user).filter(
             airplane_query, cross_country=True, dual=True).aggregate(Sum('duration'))
         if not airplane_xc_dual.get('duration__sum'):
@@ -346,8 +345,7 @@ class HomeView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, Temp
                 'landings_night__sum')
 
 # ---------------rotorcraft---------------
-        rotorcraft_query = Q(
-            aircraft_type__aircraft_category__aircraft_category__icontains='rotorcraft')
+        rotorcraft_query = Q(aircraft_type__aircraft_category='R')
         rotorcraft_xc_dual = Flight.objects.filter(user=user).filter(
             rotorcraft_query, cross_country=True, dual=True).aggregate(Sum('duration'))
         if not rotorcraft_xc_dual.get('duration__sum'):
