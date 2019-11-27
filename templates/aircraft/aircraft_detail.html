@@ -35,15 +35,6 @@
   </div>
 </div>
 <hr>
-<div class="row flex-md-row">
-  <div class="col flex-md-column">
-    <div class="btn-group">
-      <a href="{% url 'aircraft_update' aircraft.pk %}" class="text-dark">Update</a>&nbsp|&nbsp
-      <a href="{% url 'aircraft_delete' aircraft.pk %}" class="text-danger">Delete</a>&nbsp|&nbsp
-    </div>
-  </div>
-</div>
-<hr>
 <div class="row">
   <div class="col-12">
     {% if is_imported %}
