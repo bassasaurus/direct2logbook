@@ -1,0 +1,37 @@
+<div class="row">
+  <div class="col-6">
+    {% if home_link %}
+      <a href="{{ home_link }}">Home</a> /
+    {% endif %}
+    {% if parent_link %}
+      <a href="{{ parent_link }}">{{ parent_name }}</a> / {{ page_title }}{% if is_paginated %} / Page {{ page_obj.number }} {% endif %}
+    {% else %}
+    {{ page_title }}
+    {% endif %}
+  </div>
+</div>
+{% if request.path != "/logbook/create/" %}
+  <hr>
+  <div class="row">
+    <div class="col">
+      <a class="" href="{% url 'flight_create' %}">New Flight</a>
+      {% if request.path == "/home/" %}
+      |
+      <a id="pdf" class="" href="{% url 'pdf' request.user.pk %}">Print PDF</a>
+      {% endif %}
+      {% if request.path == "/logbook/" %}
+      |
+      <a class="" href="{% url 'remarks' %}">Remarks</a>
+      {% endif %}
+      {% if request.path == "/aircraft/" %}
+      |
+      <a class="" href="{% url 'aircraft_create' %}">New Aircraft</a>
+      |
+      <a class="" href="{% url 'tailnumber_create' %}">New Tailnumber</a>
+      |
+      <a class="" href="{% url 'imported_create' %}">Import Previous Aircraft</a>
+      {% endif %}
+    </div>
+  </div>
+
+{% endif %}

@@ -1,13 +1,6 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<hr>
-<div>
-
-  <a class="btn btn-primary" href="{% url 'aircraft_create' %}">New Aircraft</a>
-  <a class="btn btn-primary" href="{% url 'tailnumber_create' %}">New Tailnumber</a>
-  <a class="btn btn-secondary" href="{% url 'imported_create' %}">Enter Previous Aircraft</a>
-</div>
 
 <div class="mt-4">
   {% for aircraft in aircraft_needs_tailnumber %}
