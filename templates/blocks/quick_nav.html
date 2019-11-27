@@ -1,0 +1,7 @@
+<div class="nav">
+  <a class="nav-link" href="{% url 'flight_create' %}">New Flight</a>
+  <a class="nav-link" href="{% url 'aircraft_list' %}">Aircraft</a>
+  <a class="nav-link" href="{% url 'flight_by_date' %}">Maps</a>
+  <a class="nav-link" id="pdf" href="{% url 'pdf' user.pk %}">Print Logbook</a>
+  <a class="nav-link" id="csv" href="{% url 'csv_inspect' %}">Upload .csv</a>
+</div>

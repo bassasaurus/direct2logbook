@@ -3,19 +3,12 @@
 {% load static %}
 
 <hr>
-<div class="row flex-md-row">
-  <div class="col flex-md-column">
-    <div class="btn-group">
-      <a href ="{% url 'aircraft_update' aircraft.pk %}" class="btn btn-outline-secondary">Update</a>
-      <a href ="{% url 'aircraft_delete' aircraft.pk %}" class="btn btn-outline-danger">Delete</a>
-      <a href ="{% url 'tailnumber_create' %}" class="btn btn-outline-primary">New Tailnumber</a>
-    </div>
-  </div>
-</div>
+{% if aircraft_needs_tailnumber %}
 <div class="mt-4">
   <p class="text-danger">{{ aircraft_needs_tailnumber }}</p>
 </div>
 <hr>
+{% endif %}
 <div class="row">
   <div class="col-12">
     <h4>{{ aircraft.aircraft_type }}</h4>
@@ -25,7 +18,7 @@
       {% if aircraft.Piston %}Piston{% endif %}
     </h6>
     <h6>
-      {% if aircraft.requires_type %}Type Rating Required {% endif %}
+      {% if aircraft.requires_type %}Type Rating Required |{% endif %}
       {% if aircraft.tailwheel %}Tailwheel {% endif %}
       {% if aircraft.simple %}Simple {% endif %}
       {% if aircraft.compleks %}Complex {% if aircraft.high_performance %}|{% endif %}{% endif %}
@@ -45,7 +38,7 @@
 <div class="row">
   <div class="col-12">
     {% if is_imported %}
-      <h4>No map data available for this aircraft</h4>
+    <h4>No map data available for this aircraft</h4>
     {% else %}
     <div style="margin-top: 10px;" id="mapid" class="col image-shadow custom-popup">
       {% include 'leaflet.html' %}
@@ -57,47 +50,47 @@
 
 {% if power_error or config_error or weight_error %}
 
-  <div class="modal fade" id="errors">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Please correct the following errors</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          {% if not aircraft.turbine and not aircraft.piston %}
-            <p class="text-danger">Please select Piston or Turbine</p>
+<div class="modal fade" id="errors">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Please correct the following errors</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {% if not aircraft.turbine and not aircraft.piston %}
+        <p class="text-danger">Please select Piston or Turbine</p>
+        <hr>
+        {% endif %}
+        {% if not aircraft.compleks and not aircraft.simple %}
+        <p class="text-danger">Please select Simple or Complex<p>
             <hr>
-          {% endif %}
-          {% if not aircraft.compleks and not aircraft.simple %}
-            <p class="text-danger">Please select Simple or Complex<p>
-          <hr>
-          {% endif %}
-          {% if weight_error %}
+            {% endif %}
+            {% if weight_error %}
             <p class="text-danger">Please choose a weight category<p>
-          <hr>
-          {% endif %}
-          {% if category_error %}
-            <p class="text-danger">Please choose a Category<p>
-          <hr>
-          {% endif %}
-          {% if class_error %}
-            <p class="text-danger">Please choose a Class<p>
-          <hr>
-          {% endif %}
-          <a href ="{% url 'aircraft_update' aircraft.pk %}" class="btn btn-outline-secondary">Update</a>
-        </div>
+                <hr>
+                {% endif %}
+                {% if category_error %}
+                <p class="text-danger">Please choose a Category<p>
+                    <hr>
+                    {% endif %}
+                    {% if class_error %}
+                    <p class="text-danger">Please choose a Class<p>
+                        <hr>
+                        {% endif %}
+                        <a href="{% url 'aircraft_update' aircraft.pk %}" class="btn btn-outline-secondary">Update</a>
       </div>
     </div>
   </div>
+</div>
 
 {% endif %}
 
 <script>
   $(function() {
-   $("#errors").modal();
+    $("#errors").modal();
   });
 </script>
 

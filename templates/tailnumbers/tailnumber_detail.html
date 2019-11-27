@@ -3,77 +3,72 @@
 {% load static %}
 
 <hr>
-<div class="btn-group">
-  <a href ="{% url 'tailnumber_update' tailnumber.pk %}" class="btn btn-outline-secondary">Update</a>
-  <a href ="{% url 'tailnumber_delete' tailnumber.pk %}" class="btn btn-outline-danger">Delete</a>
-</div>
-<hr>
 
 <div class="row">
   <div class="col-12">
     <h4>{{ tailnumber.registration }} | {{ tailnumber.aircraft }}
-        {% if tailnumber.is_121 %} | 121 {% else %} {% endif %}
-        {% if tailnumber.is_135 %} | 135 {% else %} {% endif %}
-        {% if tailnumber.is_91 %} | 91 {% else %} {% endif %}
+      {% if tailnumber.is_121 %} | 121 {% else %} {% endif %}
+      {% if tailnumber.is_135 %} | 135 {% else %} {% endif %}
+      {% if tailnumber.is_91 %} | 91 {% else %} {% endif %}
     </h4>
   </div>
 </div>
-    <hr>
+<hr>
 
 <div class="row">
   <div style="" class="col-12">
     <h4>Routes</h4>
+  </div>
+  <div class="col-12">
+    {% if flights|length == 0 %}
+    <h1>No Data</h1>
+    {% else %}
+    <div class="list-inline">
+      {% for flight in flights %}
+      <span class="list-inline-item"><a href="{% url 'flight_detail' flight.pk %}" class="">{{ flight.date }} {{ flight.route }} </a><br></span>
+      {% endfor %}
     </div>
-    <div class="col-12">
-      {% if flights|length == 0 %}
-        <h1>No Data</h1>
-      {% else %}
-        <div class="list-inline">
-          {% for flight in flights %}
-            <span class="list-inline-item"><a href ="{% url 'flight_detail' flight.pk %}" class="">{{ flight.date }} {{ flight.route }} </a><br></span>
-          {% endfor %}
-        </div>
-      {% endif %}
+    {% endif %}
   </div>
 </div>
 <hr>
 
 <div class="row">
   <div class="col-12">
-  <div style="margin-top: 10px;" id="mapid" class="col image-shadow custom-popup">
-    {% include 'leaflet.html' %}
+    <div style="margin-top: 10px;" id="mapid" class="col image-shadow custom-popup">
+      {% include 'leaflet.html' %}
+    </div>
   </div>
 </div>
-</div>
 
-{% if not tailnumber.is_91 and not tailnumber.is_135 and not tailnumber.121 %}
-  <div class="modal fade" id="errors">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Please correct the following errors</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
-        <div class="modal-body">
-            <p class="text-danger">Please select FAR 91, 135 or 121</p>
-            <hr>
-        </div>
+{% if not tailnumber.is_91  and not tailnumber.is_135 and not tailnumber.is_121 %}
+<div class="modal fade" id="errors">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Please correct the following errors</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="text-danger">Please select FAR 91, 135 or 121</p>
+        <hr>
       </div>
     </div>
   </div>
-  {% else %}
+</div>
+{% else %}
 {% endif %}
 
 <script>
   $(function() {
-   $("#errors").modal();
+    $("#errors").modal();
   });
 </script>
 
 {% if new_user_flight or new_user_aircraft or new_user_tailnumber is True %}
-    {% include 'new_user_modal.html' %}
+{% include 'new_user_modal.html' %}
 {% else %}
 {% endif %}
 

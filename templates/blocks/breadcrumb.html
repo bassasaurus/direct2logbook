@@ -1,0 +1,52 @@
+<!-- breadcrumb -->
+<div class="row">
+  <div class="col-6">
+    {% if home_link %}
+    <a href="{{ home_link }}">Home</a> /
+    {% endif %}
+    {% if parent_link %}
+    <a href="{{ parent_link }}">{{ parent_name }}</a> / {{ page_title }}{% if is_paginated %} / Page {{ page_obj.number }} {% endif %}
+    {% else %}
+    {{ page_title }}
+    {% endif %}
+  </div>
+</div>
+
+<!-- contextual nav -->
+{% if "/logbook/create/" not in request.path and "/profile/" not in request.path %}
+<hr>
+<div class="row">
+  <div class="col">
+    {% if '/aircraft/detail/' in request.path %}
+    <a href="{% url 'aircraft_update' aircraft.pk %}" class="text-dark">Update</a>&nbsp|&nbsp
+    <a href="{% url 'aircraft_delete' aircraft.pk %}" class="text-danger">Delete</a>&nbsp|&nbsp
+    {% endif %}
+    {% if '/logbook/detail/' in request.path %}
+    <a href="{% url 'flight_update' flight.pk %}" class="text-dark">Update</a>&nbsp|&nbsp
+    <a href="{% url 'flight_delete' flight.pk %}" class="text-danger">Delete</a>&nbsp|&nbsp
+    {% endif %}
+    {% if '/tailnumbers/detail/' in request.path %}
+    <a href="{% url 'tailnumber_update' tailnumber.pk %}" class="text-dark">Update</a>&nbsp|&nbsp
+    <a href="{% url 'tailnumber_delete' tailnumber.pk %}" class="text-danger">Delete</a>&nbsp|&nbsp
+    {% endif %}
+    <a class="" href="{% url 'flight_create' %}">New Flight</a>
+    {% if 'home' in request.path %}
+    |
+    <a id="pdf" class="" href="{% url 'pdf' request.user.pk %}">Print PDF</a>
+    {% endif %}
+    {% if 'logbook' in request.path and 'remarks' not in request.path %}
+    |
+    <a class="" href="{% url 'remarks' %}">Remarks</a>
+    {% endif %}
+    {% if request.path == '/aircraft/' %}
+    |
+    <a class="" href="{% url 'aircraft_create' %}">New Aircraft</a>
+    |
+    <a class="" href="{% url 'tailnumber_create' %}">New Tailnumber</a>
+    |
+    <a class="" href="{% url 'imported_create' %}">Import Previous Aircraft</a>
+    {% endif %}
+  </div>
+</div>
+
+{% endif %}

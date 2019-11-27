@@ -2,7 +2,6 @@
 
 {% block content %}
 <hr>
-
 {% if passed_end_date is True and not profile.free_access %}
 
 <h5 class="text-danger">Subscription expired</h5>
@@ -82,6 +81,7 @@
     <p><a class="" href="{% url 'profile_update' user.profile.pk %}">Update medical info</a></p>
 
     <hr>
+    <p><a href="{% url 'csv_inspect' %}">Upload from .csv</a></p>
     <p><a id="csv" href="{% url 'csv_download' %}">Download your data.</a></p>
     <hr>
     <p>Questions or problems with the app? Email us <a target="new" href="mailto:support@direct2logbook.com?subject=Support">here</a></p>
