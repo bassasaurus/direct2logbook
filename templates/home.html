@@ -244,14 +244,17 @@
     <!-- Content Panel -->
     <div id="" class="tab-content">
       <div role="tabpanel" class="tab-pane fade show active" id="totals" aria-labelledby="totals-tab">
+        <br>
         {% include 'table_totals.html' %}
       </div>
 
       <div role="tabpanel" class="tab-pane fade" id="stats" aria-labelledby="stats-tab">
+        <br>
         {% include 'table_stats.html' %}
       </div>
 
       <div role="tabpanel" class="tab-pane fade" id="misc" aria-labelledby="misc-tab">
+        <br>
         <div class="row flex-md-row">
           <div class="col flex-md-column" style="">
             {% include 'table_operation.html' %}
@@ -270,7 +273,12 @@
         </div>
       </div>
       <div role="tabpanel" class="tab-pane fade" id="iacra" aria-labelledby="iacra-tab">
-        {% include 'iacra.html' %}
+        <br>
+        <div class="scrolling-wrapper">
+          <div class="card">
+            {% include 'iacra.html' %}
+          </div>
+        </div>
       </div>
     </div>
   </div>
