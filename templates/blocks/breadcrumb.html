@@ -1,3 +1,4 @@
+<!-- breadcrumb -->
 <div class="row">
   <div class="col-6">
     {% if home_link %}
@@ -10,6 +11,8 @@
     {% endif %}
   </div>
 </div>
+
+<!-- contextual nav -->
 {% if "/logbook/create/" not in request.path and "/profile/" not in request.path %}
 <hr>
 <div class="row">
