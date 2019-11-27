@@ -7,8 +7,8 @@
 <div class="row">
   <div class="col-12">
     <div class="btn-group">
-      <a href ="{% url 'flight_update' flight.pk %}" class="text-dark">Update</a>&nbsp|&nbsp
-      <a href ="{% url 'flight_delete' flight.pk %}" class="text-danger">Delete</a>
+      <a href="{% url 'flight_detail' previous_flight.pk %}" class="text-dark">Previous Flight</a>&nbsp|&nbsp
+      <a href="{% url 'flight_detail'  next_flight.pk %}" class="text-dark">Next Flight</a>
     </div>
   </div>
 </div>
@@ -23,13 +23,13 @@
       {% if flight.night %}| Night {{flight.night}}{% endif %}
       {% if flight.instrument %}| IFR {{flight.instrument}}{% endif %}
       {% if flight.approach_set.all %}|
-        {% for approach in flight.approach_set.all %}
-          {{ approach.approach_type }}-{{ approach.number }}
-        {% endfor %}
+      {% for approach in flight.approach_set.all %}
+      {{ approach.approach_type }}-{{ approach.number }}
+      {% endfor %}
       {% endif %}
 
       {% for holding in flight.holding_set.all %}
-        {% if holding.hold %}| Hold-{{ holding.hold_number }} {% endif %}
+      {% if holding.hold %}| Hold-{{ holding.hold_number }} {% endif %}
       {% endfor %}
 
       {% if flight.landings_day %}| {{flight.landings_day}} D{% endif %}
@@ -40,81 +40,87 @@
       {% if flight.solo %}| Solo{% endif %}
     </h6>
     <h6>
-      {% if flight.remarks %}Remarks:<p><h7>{{flight.remarks}}</h7></p>{% endif %}
+      {% if flight.remarks %}Remarks:<p>
+        <h7>{{flight.remarks}}</h7>
+      </p>{% endif %}
     </h6>
 
   </div>
 </div>
-
-
 <hr>
 <div class="row">
   <div class="col-12">
     <div class="btn-group">
-      <a href ="{% url 'flight_detail' previous_flight.pk %}" class="btn btn-sm btn-outline-secondary">Previous Flight</a>
-      <a href ="{% url 'flight_detail'  next_flight.pk %}" class="btn btn-sm btn-outline-secondary">Next Flight</a>
+      <a href="{% url 'flight_update' flight.pk %}" class="text-dark">Update</a>&nbsp|&nbsp
+      <a href="{% url 'flight_delete' flight.pk %}" class="text-danger">Delete</a>
     </div>
   </div>
 </div>
 <hr>
+
+
 <div class="row">
   <div class="col-12">
-  <div style="margin-top: 10px;" id="mapid" class="col image-shadow custom-popup">
-    {% include 'leaflet.html' %}
+    <div style="margin-top: 10px;" id="mapid" class="col image-shadow custom-popup">
+      {% include 'leaflet.html' %}
+    </div>
   </div>
-</div>
 </div>
 
 
 {% if flight.map_error or flight.duplicate_error or flight.aircraft_type_error or flight.registration_error or flight.crew_error or flight.duration < .1 %}
 
-  <div class="modal fade" id="errors">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Please correct the folowing errors.</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">×</span>
-          </button>
-        </div>
-        <div class="modal-body">
-          {% if flight.map_error %}
-            <p class="text-danger">{{ flight.map_error }}</p>
-            <small class="text-muted">Please double check your route entries</small>
-            <hr>
-          {% endif %}
-          {% if flight.duplicate_error %}
-            <p class="text-danger">{{ flight.duplicate_error }}<p>
+<div class="modal fade" id="errors">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Please correct the folowing errors.</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">×</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {% if flight.map_error %}
+        <p class="text-danger">{{ flight.map_error }}</p>
+        <small class="text-muted">Please double check your route entries</small>
+        <hr>
+        {% endif %}
+        {% if flight.duplicate_error %}
+        <p class="text-danger">{{ flight.duplicate_error }}
+          <p>
             <small class="text-muted">Try using ICAO instead of FAA identifiers</small>
             <hr>
-          {% endif %}
-          {% if flight.aircraft_type_error %}
-            <p class="text-danger">{{ flight.aircraft_type_error }}<p>
-            <hr>
-          {% endif %}
-          {% if flight.registration_error %}
-            <p class="text-danger">{{ flight.registration_error }}<p>
-            <hr>
-          {% endif %}
-          {% if flight.crew_error %}
-            <p class="text-danger">{{ flight.crew_error }}<p>
-            <hr>
-          {% endif %}
-          {% if not flight.duration or flight.duration < .1 %}
-            <p class="text-danger">Please check the duration of this flight<p>
-            <hr>
-          {% endif %}
-          <a href ="{% url 'flight_update' flight.pk %}" class="btn btn-sm btn-shadow btn-secondary">Update</a>
-        </div>
+            {% endif %}
+            {% if flight.aircraft_type_error %}
+            <p class="text-danger">{{ flight.aircraft_type_error }}
+              <p>
+                <hr>
+                {% endif %}
+                {% if flight.registration_error %}
+                <p class="text-danger">{{ flight.registration_error }}
+                  <p>
+                    <hr>
+                    {% endif %}
+                    {% if flight.crew_error %}
+                    <p class="text-danger">{{ flight.crew_error }}
+                      <p>
+                        <hr>
+                        {% endif %}
+                        {% if not flight.duration or flight.duration < .1 %}
+                        <p class="text-danger">Please check the duration of this flight<p>
+                            <hr>
+                            {% endif %}
+                            <a href="{% url 'flight_update' flight.pk %}" class="btn btn-sm btn-shadow btn-secondary">Update</a>
       </div>
     </div>
   </div>
-  {% else %}
+</div>
+{% else %}
 {% endif %}
 
 <script>
   $(function() {
-   $("#errors").modal();
+    $("#errors").modal();
   });
 </script>
 {% include 'tablefixer.html' %}
