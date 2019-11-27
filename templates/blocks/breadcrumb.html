@@ -10,7 +10,7 @@
     {% endif %}
   </div>
 </div>
-{% if request.path != "/logbook/create/" %}
+{% if "/logbook/create/" not in request.path and "/profile/" not in request.path %}
 <hr>
 <div class="row">
   <div class="col">
