@@ -58,3 +58,14 @@ a:link:active, a:visited:active {
 .mb-detail{
   margin-bottom: 10px;
 }
+
+
+/* iacra table */
+.scrolling-wrapper {
+  overflow-x: scroll;
+  overflow-y: hidden;
+
+  .card {
+    display: inline-block;
+  }
+}

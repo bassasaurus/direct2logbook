@@ -1,25 +1,6 @@
-{% extends 'base.html' %}
-{% block content %}
-
-{% load static %}
 {% load math_filters %}
-<link rel="stylesheet" type="text/css" href="{% static 'flights/scss/bootstrap/bootstrap.css' %}" />
-<style>
-  td{
-    padding: 5px;
-  }
-  table{
-    margin-top: 20px
-  }
-  .entry{
-    .font-weight-bold;
-    .text-center;
-  }
-</style>
-<hr>
-<div class="container">
-<div class="row">
-	<table width="100%" border="1">
+
+	<table class="table-sm" width="100%" border="1">
   <tbody>
     <tr>
       <th colspan="13" class="text-left">III RECORD OF PILOT TIME</th>
@@ -96,9 +77,9 @@
     </tr>
   </tbody>
 </table>
-</div>
+<br>
 <div class="row justify-content-center align-items-center">
-	<table width="50%" border="1">
+	<table class="table-sm" width="50%" border="1">
 		<thead>
 			<tr>
 			  <th colspan="9" class="text-center">Class Totals</th>
@@ -166,7 +147,3 @@
     </table>
 
     </div>
-  </div>
-</div>
-
-{% endblock %}

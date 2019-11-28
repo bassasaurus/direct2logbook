@@ -235,19 +235,26 @@
       <li class="nav-item">
         <a class="nav-link" href="#misc" role="tab" id="misc-tab" data-toggle="tab" aria-controls="misc">Misc</a>
       </li>
+
+      <li class="nav-item">
+        <a class="nav-link" href="#iacra" role="tab" id="iacra-tab" data-toggle="tab" aria-controls="iacra">IACRA</a>
+      </li>
     </ul>
 
     <!-- Content Panel -->
     <div id="" class="tab-content">
       <div role="tabpanel" class="tab-pane fade show active" id="totals" aria-labelledby="totals-tab">
+        <br>
         {% include 'table_totals.html' %}
       </div>
 
       <div role="tabpanel" class="tab-pane fade" id="stats" aria-labelledby="stats-tab">
+        <br>
         {% include 'table_stats.html' %}
       </div>
 
       <div role="tabpanel" class="tab-pane fade" id="misc" aria-labelledby="misc-tab">
+        <br>
         <div class="row flex-md-row">
           <div class="col flex-md-column" style="">
             {% include 'table_operation.html' %}
@@ -262,6 +269,14 @@
           </div>
           <div class="col flex-md-column" style="">
             {% include 'table_endorsements.html' %}
+          </div>
+        </div>
+      </div>
+      <div role="tabpanel" class="tab-pane fade" id="iacra" aria-labelledby="iacra-tab">
+        <br>
+        <div class="scrolling-wrapper">
+          <div class="card">
+            {% include 'iacra.html' %}
           </div>
         </div>
       </div>
