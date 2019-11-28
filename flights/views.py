@@ -406,6 +406,10 @@ class HomeView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, Temp
             context['rotorcraft_night_ldg_sic'] = round(
                 night_ldg_sic.get('landings_night__sum'), 1)
 
+# ---------------FTD---------------
+# ---------------ATD---------------
+# ---------------FFS---------------
+
         # end iacra
 
         context['amel_vfr_day'] = currency.amel_vfr_day(user)[0]
