@@ -19,7 +19,7 @@ from django.conf.urls.static import static
 from django.conf import settings
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls import handler404, handler500, handler403
-from flights.views import error_404, error_500, error_403
+from flights.views import error_400, error_404, error_500, error_403
 
 urlpatterns = [
 
@@ -34,6 +34,7 @@ urlpatterns = [
     # url(r'^api/docs/', include('rest_framework_docs.urls')),
     ]
 
+handler400 = error_400
 handler403 = error_403
 handler404 = error_404
 handler500 = error_500
