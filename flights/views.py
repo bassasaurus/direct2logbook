@@ -14,14 +14,15 @@ from django.utils.text import capfirst
 from django.forms import inlineformset_factory
 
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DetailView, DeleteView
+from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.dates import YearArchiveView, MonthArchiveView, ArchiveIndexView
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, AccessMixin
 
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 
 from django.core.cache import cache
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 
 from dal import autocomplete
 import datetime
@@ -33,8 +34,6 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.utils.encoding import force_text
 
 CharField.register_lookup(Length, 'length')
-
-zulu_time = datetime.datetime.now().strftime('%Y %b %d %H:%M') + " UTC"
 
 
 def get_deleted_objects(objs):
@@ -59,7 +58,7 @@ def error_404(request, exception):
         'title': '404',
         'home_link': reverse('home')
     }
-    return render(request, 'error_404.html', context)
+    return render(request, '404.html', context)
 
 
 def error_500(request):
@@ -67,15 +66,16 @@ def error_500(request):
         'title': '500',
         'home_link': reverse('home')
     }
-    return render(request, 'error_500.html', context)
+    return render(request, '500.html', context)
 
 
 def error_403(request, exception):
     context = {
         'title': '403',
-        'home_link': reverse('home')
+        'home_link': reverse('home'),
+        'exception': exception
     }
-    return render(request, 'error_403.html', context)
+    return render(request, '403.html', context)
 
 
 class ProfileNotActiveMixin(UserPassesTestMixin):
@@ -91,7 +91,7 @@ class ProfileNotActiveMixin(UserPassesTestMixin):
 
         if profile.active or profile.trial or profile.free_access:
             return True
-        elif profile.canceled and expired == False:
+        elif profile.canceled and expired is False:
             return True
         else:
             return False
@@ -100,16 +100,23 @@ class ProfileNotActiveMixin(UserPassesTestMixin):
         return redirect('profile')
 
 
-class UserObjectsMixin():
-
-    def get_queryset(self):
-        user = self.request.user
-        return super(UserObjectsMixin, self).get_queryset().filter(user=user)
-
-
 class LoginRequiredMixin(LoginRequiredMixin):
     login_url = '/accounts/login'
     # redirect_field_name = None
+
+
+class OwnObjectMixin(UserPassesTestMixin):
+
+    def test_func(self):
+        object = self.get_object()
+        if self.request.user.pk == object.user.pk:
+            return True
+        else:
+            return False
+
+    def handle_no_permission(self):
+
+        return redirect(reverse('home'))
 
 
 def geoJSON_airports_view(request, user_id):
@@ -176,7 +183,7 @@ def index_view(request):
         return render(request, 'index.html', context)
 
 
-class HomeView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, TemplateView):
+class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):
     template_name = 'home.html'
 
     def get_context_data(self, **kwargs):
@@ -475,7 +482,7 @@ class HomeView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, Temp
         return context
 
 
-class FlightArchive(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, ArchiveIndexView):
+class FlightArchive(LoginRequiredMixin, ProfileNotActiveMixin, ArchiveIndexView):
     model = Flight
     date_field = 'date'
     make_object_list = True
@@ -498,7 +505,7 @@ class FlightArchive(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin,
         return context
 
 
-class FlightArchiveYear(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, YearArchiveView):
+class FlightArchiveYear(LoginRequiredMixin, ProfileNotActiveMixin, YearArchiveView):
     model = Flight
     date_field = 'date'
     make_object_list = True
@@ -520,7 +527,7 @@ class FlightArchiveYear(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMi
         return context
 
 
-class FlightArchiveMonth(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, MonthArchiveView):
+class FlightArchiveMonth(LoginRequiredMixin, ProfileNotActiveMixin, MonthArchiveView):
     model = Flight
     date_field = 'date'
     make_object_list = True
@@ -543,15 +550,8 @@ class FlightArchiveMonth(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsM
             user=user).dates('date', 'month')
         return context
 
-# class FlightArchiveDay(LoginRequiredMixin, UserObjectsMixin, DayArchiveView):
-# 	queryset = Flight.objects.all()
-# 	date_field = 'date'
-# 	allow_future = False
 
-# -------------------Flight CRUD-------------------------
-
-
-class RemarksList(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, ListView):
+class RemarksList(LoginRequiredMixin, ProfileNotActiveMixin, ListView):
     model = Flight
     template_name = "flights/remarks.html"
     pagninate_by = 30
@@ -567,7 +567,7 @@ class RemarksList(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, L
         return context
 
 
-class FlightList(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, ListView):
+class FlightList(LoginRequiredMixin, ProfileNotActiveMixin, ListView):
     model = Flight
     template_name = "flight_list.html"
     paginate_by = 40
@@ -585,7 +585,7 @@ class FlightList(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, Li
         return context
 
 
-class FlightCreate(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, CreateView):
+class FlightCreate(LoginRequiredMixin, ProfileNotActiveMixin, CreateView):
     model = Flight
     form_class = FlightForm
     template_name = 'flights/flight_create_form.html'
@@ -656,7 +656,7 @@ class FlightCreate(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, 
         return context
 
 
-class FlightUpdate(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, UpdateView):
+class FlightUpdate(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, UpdateView):
     model = Flight
     form_class = FlightForm
     template_name = 'flights/flight_update_form.html'
@@ -708,7 +708,7 @@ class FlightUpdate(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, 
         return super(FlightUpdate, self).form_valid(form)
 
 
-class FlightDetail(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, DetailView):
+class FlightDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, DetailView):
     model = Flight
     template_name = 'flights/flight_detail.html'
 
@@ -742,7 +742,7 @@ class FlightDetail(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, 
         return context
 
 
-class FlightDelete(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, DeleteView):
+class FlightDelete(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, DeleteView):
     model = Flight
     template_name = 'flights/flight_delete.html'
     success_url = '/logbook/'
@@ -757,25 +757,8 @@ class FlightDelete(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, 
         context['parent_name'] = 'Logbook'
         return context
 
-# -------------------Aircraft CRUD-----------------------
 
-# class AircraftList(LoginRequiredMixin, UserObjectsMixin, ListView):
-#     model = Aircraft
-#     template_name = "aircraft/aircraft_list.html"
-#     aircraft_form = AircraftForm
-#
-#     def get_context_data(self, **kwargs):
-#         user = self.request.user
-#         context = super(AircraftList, self).get_context_data(**kwargs)
-#
-#         context['title'] = "D-> | Aircraft"
-#         context['parent_name'] = 'Home'
-#         context['parent_link'] = reverse('home')
-#         context['page_title'] = "Aircraft"
-#         return context
-
-
-class AircraftCreate(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, CreateView):
+class AircraftCreate(LoginRequiredMixin, ProfileNotActiveMixin, CreateView):
     model = Aircraft
     form_class = AircraftForm
     template_name = "aircraft/aircraft_create_form.html"
@@ -799,7 +782,7 @@ class AircraftCreate(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin
         return context
 
 
-class AircraftUpdate(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, UpdateView):
+class AircraftUpdate(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, UpdateView):
     model = Aircraft
     form_class = AircraftForm
     template_name = 'aircraft/aircraft_update_form.html'
@@ -816,17 +799,16 @@ class AircraftUpdate(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin
         return context
 
 
-class AircraftDetail(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, DetailView):
+class AircraftDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, DetailView):
     model = Aircraft
     form = TailNumberForm
     template_name = 'aircraft/aircraft_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super(AircraftDetail, self).get_context_data(**kwargs)
-        context['tailnumbers'] = TailNumber.objects.all().filter(
-            aircraft=self.object)
+        context['tailnumbers'] = TailNumber.objects.filter(user=self.request.user, aircraft=self.object)
 
-        flights = Flight.objects.all().filter(aircraft_type=self.object)
+        flights = Flight.objects.filter(user=self.request.user, aircraft_type=self.object)
         user = self.request.user
         get_map_data(flights, user)
         context['flights'] = flights
@@ -875,7 +857,7 @@ class AircraftDetail(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin
         return context
 
 
-class AircraftDelete(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, DeleteView):
+class AircraftDelete(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, DeleteView):
     model = Aircraft
     template_name = 'aircraft/aircraft_delete.html'
     success_url = '/aircraft/'
@@ -900,10 +882,13 @@ class AircraftDelete(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin
 
 # ------------------TailNumber CRUD----------------------
 
-class TailNumberList(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, ListView):
+class TailNumberList(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, ListView):
     model = TailNumber
     template_name = "tailnumbers/tailnumber_list.html"
     context_object_name = 'tailnumbers'
+
+    def get_queryset(self):
+        return TailNumber.objects.filter(user=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super(TailNumberList, self).get_context_data(**kwargs)
@@ -942,7 +927,7 @@ class TailNumberList(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin
         return context
 
 
-class TailNumberCreate(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, CreateView):
+class TailNumberCreate(LoginRequiredMixin, ProfileNotActiveMixin, CreateView):
     model = TailNumber
     form_class = TailNumberForm
     template_name = "tailnumbers/tailnumber_create_form.html"
@@ -964,7 +949,7 @@ class TailNumberCreate(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMix
         return context
 
 
-class TailNumberUpdate(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, UpdateView):
+class TailNumberUpdate(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, UpdateView):
     model = TailNumber
     form_class = TailNumberForm
     template_name = 'tailnumbers/tailnumber_update_form.html'
@@ -980,7 +965,7 @@ class TailNumberUpdate(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMix
         return context
 
 
-class TailNumberDetail(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, DetailView):
+class TailNumberDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, DetailView):
     model = TailNumber
     template_name = 'tailnumbers/tailnumber_detail.html'
 
@@ -1020,7 +1005,7 @@ class TailNumberDetail(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMix
         return context
 
 
-class TailNumberDelete(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, DeleteView):
+class TailNumberDelete(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, DeleteView):
     model = TailNumber
     template_name = 'tailnumbers/tailnumber_delete.html'
     success_url = '/aircraft/'
@@ -1036,16 +1021,14 @@ class TailNumberDelete(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMix
         return context
 
 
-class ImportedListView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, ListView):
+class ImportedListView(LoginRequiredMixin, ProfileNotActiveMixin, ListView):
     model = Imported
     template_name = 'imported/imported_list.html'
     context_object_name = 'imported'
 
-    def get_queryset(self, **kwargs):
-        user = self.request.user
-        queryset = super().get_queryset(**kwargs)
-        queryset = Imported.objects.filter(user=user)
-        return queryset
+    def get_queryset(self):
+        return Imported.objects.filter(user=self.request.user)
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1057,7 +1040,7 @@ class ImportedListView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMix
         return context
 
 
-class ImportedCreateView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, CreateView):
+class ImportedCreateView(LoginRequiredMixin, ProfileNotActiveMixin, CreateView):
     model = Imported
     form_class = ImportedForm
     template_name = 'imported/imported_create.html'
@@ -1081,7 +1064,7 @@ class ImportedCreateView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsM
         return context
 
 
-class ImportedUpdateView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, UpdateView):
+class ImportedUpdateView(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, UpdateView):
     model = Imported
     form_class = ImportedForm
     template_name = 'imported/imported_update.html'
@@ -1098,7 +1081,7 @@ class ImportedUpdateView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsM
         return context
 
 
-class ImportedDetailView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, DetailView):
+class ImportedDetailView(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, DetailView):
     model = Imported
     template_name = 'imported/imported_detail.html'
 
@@ -1113,7 +1096,7 @@ class ImportedDetailView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsM
         return context
 
 
-class ImportedDeleteView(ProfileNotActiveMixin, LoginRequiredMixin, UserObjectsMixin, DeleteView):
+class ImportedDeleteView(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, DeleteView):
     model = Imported
     template_name = 'imported/imported_delete.html'
     success_url = '/aircraft/'
