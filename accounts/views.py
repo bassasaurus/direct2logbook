@@ -38,6 +38,7 @@ class OwnObjectUserMixin(UserPassesTestMixin):
 
         return redirect(reverse('profile'))
 
+
 class OwnObjectProfileMixin(UserPassesTestMixin):
 
     def test_func(self):
