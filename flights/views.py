@@ -882,7 +882,7 @@ class AircraftDelete(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, 
 
 # ------------------TailNumber CRUD----------------------
 
-class TailNumberList(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, ListView):
+class TailNumberList(LoginRequiredMixin, ProfileNotActiveMixin, ListView):
     model = TailNumber
     template_name = "tailnumbers/tailnumber_list.html"
     context_object_name = 'tailnumbers'
