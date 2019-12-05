@@ -6,7 +6,7 @@ from django.shortcuts import render, redirect, reverse
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import User
 
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import TemplateView, UpdateView
 
 from accounts.models import Profile
@@ -19,19 +19,42 @@ import stripe
 import os
 import datetime
 
+
 class LoginRequiredMixin(LoginRequiredMixin):
     login_url = '/accounts/login'
     # redirect_field_name = None
 
-class UserObjectsMixin():
 
-    def get_queryset(self):
-        user = self.request.user
-        return super(UserObjectsMixin, self).get_queryset().filter(user=user)
+class OwnObjectUserMixin(UserPassesTestMixin):
 
-class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
+    def test_func(self):
+        object = self.get_object()
+        if self.request.user.pk == object.pk:
+            return True
+        else:
+            return False
+
+    def handle_no_permission(self):
+
+        return redirect(reverse('profile'))
+
+class OwnObjectProfileMixin(UserPassesTestMixin):
+
+    def test_func(self):
+        object = self.get_object()
+        if self.request.user.pk == object.user.pk:
+            return True
+        else:
+            return False
+
+    def handle_no_permission(self):
+
+        return redirect(reverse('profile'))
+
+
+class ProfileView(LoginRequiredMixin, TemplateView):
     model = Profile
-    template_name='profile/profile.html'
+    template_name = 'profile/profile.html'
 
     def session_monthly(self, customer_id):
 
@@ -46,13 +69,15 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
             payment_method_types=['card'],
             subscription_data={
                 'items': [{
-                'plan': plan_monthly,
+                    'plan': plan_monthly,
                 }],
             },
-        success_url='https://www.direct2logbook.com/payments/success/{}'.format(user.pk),
-        cancel_url='https://www.direct2logbook.com/payments/cancel/{}'.format(user.pk),
-        # success_url='http://localhost:8000/payments/success/{}'.format(user.pk),
-        # cancel_url='http://localhost:8000/payments/cancel/{}'.format(user.pk),
+            success_url='https://www.direct2logbook.com/payments/success/{}'.format(
+                user.pk),
+            cancel_url='https://www.direct2logbook.com/payments/cancel/{}'.format(
+                user.pk),
+            # success_url='http://localhost:8000/payments/success/{}'.format(user.pk),
+            # cancel_url='http://localhost:8000/payments/cancel/{}'.format(user.pk),
         )
 
         return session_monthly.id
@@ -70,13 +95,15 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
             payment_method_types=['card'],
             subscription_data={
                 'items': [{
-                'plan': plan_yearly,
+                    'plan': plan_yearly,
                 }],
             },
-        success_url='https://www.direct2logbook.com/payments/success/{}'.format(user.pk),
-        cancel_url='https://www.direct2logbook.com/payments/cancel/{}'.format(user.pk),
-        # success_url='http://localhost:8000/payments/success/{}'.format(user.pk),
-        # cancel_url='http://localhost:8000/payments/cancel/{}'.format(user.pk),
+            success_url='https://www.direct2logbook.com/payments/success/{}'.format(
+                user.pk),
+            cancel_url='https://www.direct2logbook.com/payments/cancel/{}'.format(
+                user.pk),
+            # success_url='http://localhost:8000/payments/success/{}'.format(user.pk),
+            # cancel_url='http://localhost:8000/payments/cancel/{}'.format(user.pk),
         )
 
         return session_yearly.id
@@ -87,13 +114,17 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         profile = Profile.objects.get(user=user)
 
         if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
-            context['STRIPE_PUBLISHABLE_KEY'] = config('STRIPE_TEST_PUBLISHABLE_KEY')
+            context['STRIPE_PUBLISHABLE_KEY'] = config(
+                'STRIPE_TEST_PUBLISHABLE_KEY')
             context['CHECKOUT_SESSION_ID_MONTHLY'] = 'cus_Fkerl0ew4MHGjD'
             context['CHECKOUT_SESSION_ID_YEARLY'] = 'cus_Fkerl0ew4MHGjD'
         else:
-            context['STRIPE_PUBLISHABLE_KEY'] = config('STRIPE_LIVE_PUBLISHABLE_KEY')
-            context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly(profile.customer_id)
-            context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly(profile.customer_id)
+            context['STRIPE_PUBLISHABLE_KEY'] = config(
+                'STRIPE_LIVE_PUBLISHABLE_KEY')
+            context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly(
+                profile.customer_id)
+            context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly(
+                profile.customer_id)
 
         today = datetime.datetime.now()
 
@@ -112,7 +143,7 @@ class ProfileView(LoginRequiredMixin, UserObjectsMixin, TemplateView):
         return context
 
 
-class UserUpdateView(UpdateView):
+class UserUpdateView(LoginRequiredMixin, OwnObjectUserMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(UserUpdateView, self).get_context_data(**kwargs)
@@ -129,7 +160,7 @@ class UserUpdateView(UpdateView):
     success_url = '/accounts/profile/'
 
 
-class ProfileUpdateView(UpdateView):
+class ProfileUpdateView(LoginRequiredMixin, OwnObjectProfileMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super(ProfileUpdateView, self).get_context_data(**kwargs)
@@ -148,7 +179,7 @@ class ProfileUpdateView(UpdateView):
 
 
 # Views from allauth
-class EmailView(EmailView):
+class EmailView(LoginRequiredMixin, EmailView):
 
     def get_context_data(self, **kwargs):
         context = super(EmailView, self).get_context_data(**kwargs)
@@ -160,7 +191,8 @@ class EmailView(EmailView):
         context['page_title'] = 'Update Email'
         return context
 
-class ConnectionsView(ConnectionsView):
+
+class ConnectionsView(LoginRequiredMixin, ConnectionsView):
 
     def get_context_data(self, **kwargs):
         context = super(ConnectionsView, self).get_context_data(**kwargs)
@@ -172,7 +204,8 @@ class ConnectionsView(ConnectionsView):
         context['page_title'] = 'Update Social Accounts'
         return context
 
-class PasswordSetView(PasswordSetView):
+
+class PasswordSetView(LoginRequiredMixin, PasswordSetView):
 
     def get_context_data(self, **kwargs):
         context = super(PasswordSetView, self).get_context_data(**kwargs)
@@ -184,7 +217,8 @@ class PasswordSetView(PasswordSetView):
         context['page_title'] = 'Password Set'
         return context
 
-class PasswordChangeView(PasswordChangeView):
+
+class PasswordChangeView(LoginRequiredMixin, PasswordChangeView):
 
     def get_context_data(self, **kwargs):
         context = super(PasswordChangeView, self).get_context_data(**kwargs)
@@ -196,7 +230,8 @@ class PasswordChangeView(PasswordChangeView):
         context['page_title'] = 'Passsword Change'
         return context
 
-class PasswordResetView(PasswordResetView):
+
+class PasswordResetView(LoginRequiredMixin, PasswordResetView):
 
     def get_context_data(self, **kwargs):
         context = super(PasswordResetView, self).get_context_data(**kwargs)
@@ -208,7 +243,8 @@ class PasswordResetView(PasswordResetView):
         context['page_title'] = 'Password Reset'
         return context
 
-class PasswordResetDoneView(PasswordResetDoneView):
+
+class PasswordResetDoneView(LoginRequiredMixin, PasswordResetDoneView):
 
     def get_context_data(self, **kwargs):
         context = super(PasswordResetDoneView, self).get_context_data(**kwargs)
@@ -220,10 +256,12 @@ class PasswordResetDoneView(PasswordResetDoneView):
         context['page_title'] = 'Password Reset'
         return context
 
-class PasswordResetFromKeyView(PasswordResetFromKeyView):
+
+class PasswordResetFromKeyView(LoginRequiredMixin, PasswordResetFromKeyView):
 
     def get_context_data(self, **kwargs):
-        context = super(PasswordResetFromKeyView, self).get_context_data(**kwargs)
+        context = super(PasswordResetFromKeyView,
+                        self).get_context_data(**kwargs)
 
         context['title'] = "D-> | Change Password"
         context['home_link'] = reverse('home')
@@ -232,10 +270,12 @@ class PasswordResetFromKeyView(PasswordResetFromKeyView):
         context['page_title'] = 'Change Password'
         return context
 
-class PasswordResetFromKeyDoneView(PasswordResetFromKeyDoneView):
+
+class PasswordResetFromKeyDoneView(LoginRequiredMixin, PasswordResetFromKeyDoneView):
 
     def get_context_data(self, **kwargs):
-        context = super(PasswordResetFromKeyView, self).get_context_data(**kwargs)
+        context = super(PasswordResetFromKeyView,
+                        self).get_context_data(**kwargs)
 
         context['title'] = "D-> | Password Changed"
         context['home_link'] = reverse('home')
