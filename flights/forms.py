@@ -27,7 +27,7 @@ class FlightForm(forms.ModelForm):
     class Meta:
         model = Flight
         exclude = ['user']
-        fields = flight_fields()
+        fields = '__all__'
         widgets = {
             'aircraft_type': autocomplete.ModelSelect2(
                 url='aircraft-autocomplete',
@@ -61,7 +61,7 @@ class AircraftForm(forms.ModelForm):
     class Meta:
         model = Aircraft
         exclude = ['user']
-        fields = aircraft_fields()
+        fields = '__all__'
         widgets = {
             'turbine': forms.CheckboxInput(),
             'piston': forms.CheckboxInput(),
@@ -84,7 +84,7 @@ class TailNumberForm(forms.ModelForm):
     class Meta:
         model = TailNumber
         exclude = ['user']
-        fields = tailnumber_fields()
+        fields = '__all__'
         widgets = {
             'aircraft': autocomplete.ModelSelect2(url='aircraft-autocomplete', attrs={'data-placeholder': 'Aircraft *'}),
             'is_121': forms.CheckboxInput(),
@@ -103,6 +103,7 @@ class ImportedForm(forms.ModelForm):
     class Meta:
         model = Imported
         exclude = ['user']
+        fields = '__all__'
         widgets = {
             'aircraft_type': autocomplete.ModelSelect2(url='aircraft-autocomplete', attrs={'data-placeholder': 'Aircraft *'}),
             'is_121': forms.CheckboxInput(),
