@@ -13,7 +13,7 @@ def update_profiles():
 
     for profile in profiles:
 
-        if profile.free_access == True:
+        if profile.free_access:
             pass
         elif len(profile.customer_id) > 0:
             pass
