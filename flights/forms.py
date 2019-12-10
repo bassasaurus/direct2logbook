@@ -2,7 +2,6 @@ from django import forms
 from django.forms import inlineformset_factory
 from flights.models import *
 from django.contrib.auth.models import User
-from flights.fields import *
 from dal import autocomplete
 
 
