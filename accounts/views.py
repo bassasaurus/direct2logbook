@@ -115,17 +115,13 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         profile = Profile.objects.get(user=user)
 
         if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
-            context['STRIPE_PUBLISHABLE_KEY'] = config(
-                'STRIPE_TEST_PUBLISHABLE_KEY')
+            context['STRIPE_PUBLISHABLE_KEY'] = config('STRIPE_TEST_PUBLISHABLE_KEY')
             context['CHECKOUT_SESSION_ID_MONTHLY'] = 'cus_Fkerl0ew4MHGjD'
             context['CHECKOUT_SESSION_ID_YEARLY'] = 'cus_Fkerl0ew4MHGjD'
         else:
-            context['STRIPE_PUBLISHABLE_KEY'] = config(
-                'STRIPE_LIVE_PUBLISHABLE_KEY')
-            context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly(
-                profile.customer_id)
-            context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly(
-                profile.customer_id)
+            context['STRIPE_PUBLISHABLE_KEY'] = config('STRIPE_LIVE_PUBLISHABLE_KEY')
+            context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly(profile.customer_id)
+            context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly(profile.customer_id)
 
         today = datetime.datetime.now()
 
