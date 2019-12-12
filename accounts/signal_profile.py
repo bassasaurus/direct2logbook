@@ -8,13 +8,17 @@ import stripe
 from decouple import config
 from datetime import datetime, timezone
 from datetime import timedelta
-from flights.models import Flight, Aircraft, TailNumber, Weight, Power, Endorsement, Regs, Regs, Stat, Total
+from django.contrib.auth.models import Group
+
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
 
-        name = '{} {}'.format(instance.first_name, instance.last_name )
+        group = Group.objects.get(name='clients')
+        group.user_set.add(instance.user)
+
+        name = '{} {}'.format(instance.first_name, instance.last_name)
 
         stripe.api_key = config('STRIPE_TEST_SECRET_KEY')
 
@@ -24,22 +28,23 @@ def create_user_profile(sender, instance, created, **kwargs):
         timestamp = round(end_date.replace(tzinfo=timezone.utc).timestamp())
 
         customer_response = stripe.Customer.create(
-            description="{} {}".format(instance.first_name, instance.last_name),
+            description="{} {}".format(
+                instance.first_name, instance.last_name),
             name=name,
             email=instance.email
         )
 
         subscription_response = stripe.Subscription.create(
             customer=customer_response.id,
-            collection_method = "send_invoice",
-            days_until_due = 14,
+            collection_method="send_invoice",
+            days_until_due=14,
             cancel_at_period_end=True,
             items=[
                 {
-                    "plan": "plan_Fkf5ex0bvWncFx", #trial plan
+                    "plan": "plan_Fkf5ex0bvWncFx",  # trial plan
                 },
             ],
-            trial_end = timestamp,
+            trial_end=timestamp,
         )
 
         timestamp = subscription_response.trial_end
@@ -55,6 +60,7 @@ def create_user_profile(sender, instance, created, **kwargs):
 
     else:
         None
+
 
 @receiver(post_save, sender=User)
 def save_user_profile(sender, instance, **kwargs):
