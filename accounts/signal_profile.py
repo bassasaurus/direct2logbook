@@ -9,11 +9,14 @@ from decouple import config
 from datetime import datetime, timezone
 from datetime import timedelta
 from django.contrib.auth.models import Group
+from flights.models import Total
 
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
+
+        Total.objects.filter(user=istance.user).create('ALL')
 
         group = Group.objects.get(name='clients')
         group.user_set.add(instance.user)
