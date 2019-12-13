@@ -288,13 +288,13 @@ class HomeView(LoginRequiredMixin, TemplateView):  #ProfileNotActiveMixin
 
         # iacra
 
-        context['total'] = Total.objects.filter(user=user).get(total='All')
-        context['ASEL'] = Total.objects.filter(user=user).get(total='ASEL')
-        context['AMEL'] = Total.objects.filter(user=user).get(total='AMEL')
-        context['ASES'] = Total.objects.filter(user=user).get(total='ASES')
-        context['AMES'] = Total.objects.filter(user=user).get(total='AMES')
-        context['HELO'] = Total.objects.filter(user=user).get(total='HELO')
-        context['GYRO'] = Total.objects.filter(user=user).get(total='GYRO')
+        # context['total'] = Total.objects.filter(user=user).get(total='All')
+        # context['ASEL'] = Total.objects.filter(user=user).get(total='ASEL')
+        # context['AMEL'] = Total.objects.filter(user=user).get(total='AMEL')
+        # context['ASES'] = Total.objects.filter(user=user).get(total='ASES')
+        # context['AMES'] = Total.objects.filter(user=user).get(total='AMES')
+        # context['HELO'] = Total.objects.filter(user=user).get(total='HELO')
+        # context['GYRO'] = Total.objects.filter(user=user).get(total='GYRO')
 
         airplane_query = Q(aircraft_type__aircraft_category='A')
         airplane_xc_dual = Flight.objects.filter(user=user).filter(

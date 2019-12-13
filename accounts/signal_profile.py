@@ -14,12 +14,8 @@ from flights.models import Total
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
+
     if created:
-
-        Total.objects.filter(user=istance.user).create('ALL')
-
-        group = Group.objects.get(name='clients')
-        group.user_set.add(instance.user)
 
         name = '{} {}'.format(instance.first_name, instance.last_name)
 
@@ -37,6 +33,7 @@ def create_user_profile(sender, instance, created, **kwargs):
             email=instance.email
         )
 
+
         subscription_response = stripe.Subscription.create(
             customer=customer_response.id,
             collection_method="send_invoice",
@@ -44,7 +41,7 @@ def create_user_profile(sender, instance, created, **kwargs):
             cancel_at_period_end=True,
             items=[
                 {
-                    "plan": "plan_Fkf5ex0bvWncFx",  # trial plan
+                    "plan": "plan_FkX07tGXr4f3Mh",  # trial plan
                 },
             ],
             trial_end=timestamp,
@@ -60,6 +57,10 @@ def create_user_profile(sender, instance, created, **kwargs):
             end_date=datetime.fromtimestamp(timestamp)
         )
         profile.save()
+
+        user = User.objects.get(pk=instance.pk)
+        total = Total(user=user, total='All')
+        total.save()
 
     else:
         None
