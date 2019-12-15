@@ -294,60 +294,125 @@ class HomeView(LoginRequiredMixin, TemplateView):  #ProfileNotActiveMixin
             asel = Total.objects.filter(user=user).get(total='ASEL')
             asel_total = asel.total_time
             asel_dual = asel.dual
+            asel_solo = asel.solo
             asel_ifr = asel.instrument
             asel_ldg_night = asel.landings_night
+            asel_pic = asel.pilot_in_command
+            asel_sic = asel.second_in_command
         else:
             asel_total = 0
             asel_dual = 0
+            asel_solo = 0
             asel_ifr = 0
             asel_ldg_night = 0
+            asel_pic = 0
+            asel_sic = 0
 
         if Total.objects.filter(user=user, total='AMEL').exists():
             amel = Total.objects.filter(user=user).get(total='AMEL')
             amel_total = amel.total_time
             amel_dual = amel.dual
+            amel_solo = amel.solo
             amel_ifr = amel.instrument
             amel_ldg_night = amel.landings_night
+            amel_pic = amel.pilot_in_command
+            amel_sic = amel.second_in_command
         else:
             amel_total = 0
             amel_dual = 0
+            asel_solo = 0
             amel_ifr = 0
             amel_ldg_night = 0
+            amel_pic = 0
+            amel_sic = 0
 
         if Total.objects.filter(user=user, total='ASES').exists():
             ases = Total.objects.filter(user=user).get(total='ASES')
             ases_total = ases.total_time
-            ases_dual = ases.total_dual
+            ases_dual = ases.dual
+            ases_solo = ases.solo
             ases_ifr = ases.instrument
             ases_ldg_night = ases.landings_night
+            ases_pic = ases.pilot_in_command
+            ases_sic = ases.second_in_command
         else:
             ases_total = 0
             ases_dual = 0
+            ases_solo = 0
             ases_ifr = 0
             ases_ldg_night = 0
+            ases_pic = 0
+            ases_sic = 0
 
         if Total.objects.filter(user=user, total='AMES').exists():
             ames = Total.objects.filter(user=user).get(total='AMES')
             ames_total = ames.total_time
             ames_dual = ames.dual
+            ames_solo = ames.solo
             ames_dual = ames.instrument
             ames_ldg_night = ames.landings_night
+            ames_pic = ames.pilot_in_command
+            ames_sic = ames.second_in_command
         else:
             ames_total = 0
             ames_dual = 0
+            ames_solo = 0
             ames_ifr = 0
             ames_ldg_night = 0
+            ames_pic = 0
+            ames_sic = 0
+
+        if Total.objects.filter(user=user, total='HELO').exists():
+            helo = Total.objects.filter(user=user).get(total='HELO')
+            helo_total = helo.total_time
+            helo_dual = helo.dual
+            gelo_solo = helo.solo
+            helo_dual = helo.instrument
+            helo_ldg_night = helo.landings_night
+            helo_pic = helo.pilot_in_command
+            helo_sic = helo.second_in_command
+        else:
+            helo_total = 0
+            helo_dual = 0
+            helo_solo = 0
+            helo_ifr = 0
+            helo_ldg_night = 0
+            helo_pic = 0
+            helo_sic = 0
+
+        if Total.objects.filter(user=user, total='GYRO').exists():
+            gyro = Total.objects.filter(user=user).get(total='GYRO')
+            gyro_total = gyro.total_time
+            gyro_dual = gyro.dual
+            gyro_solo = gyro.solo
+            gyro_dual = gyro.instrument
+            gyro_ldg_night = gyro.landings_night
+            gyro_pic = helo.pilot_in_command
+            gyro_sic = gyro.second_in_command
+        else:
+            gyro_total = 0
+            gyro_dual = 0
+            gyro_solo = 0
+            gyro_ifr = 0
+            gyro_ldg_night = 0
+            gyro_pic = 0
+            gyro_sic = 0
 
         context['airplane_total'] = asel_total + amel_total + ases_total + ames_total
         context['airplane_dual'] = asel_dual + amel_dual + ases_dual + ames_dual
+        context['airplane_solo'] = asel_solo + amel_solo + ases_solo + ames_solo
         context['airplane_ifr'] = asel_ifr + amel_ifr + ases_ifr + ames_ifr
         context['airplane_ldg_night'] = asel_ldg_night + amel_ldg_night + ases_ldg_night + ames_ldg_night
-        # context['ASEL'] = Total.objects.filter(user=user).get(total='ASEL')
-        # context['AMEL'] = Total.objects.filter(user=user).get(total='AMEL')
-        # context['ASES'] = Total.objects.filter(user=user).get(total='ASES')
-        # context['AMES'] = Total.objects.filter(user=user).get(total='AMES')
-        # context['HELO'] = Total.objects.filter(user=user).get(total='HELO')
-        # context['GYRO'] = Total.objects.filter(user=user).get(total='GYRO')
+        context['airplane_pic'] = asel_pic + amel_pic + ases_pic + ames_pic
+        context['airplane_sic'] = asel_sic + amel_sic + ases_sic + ames_sic
+
+        context['rotor_total'] = helo_total + gyro_total
+        context['rotor_dual'] = helo_dual + gyro_dual
+        context['rotor_solo'] = helo_solo + gyro_solo
+        context['rotor_ifr'] = helo_ifr + gyro_ifr
+        context['rotor_ldg_night'] = helo_ldg_night + gyro_ldg_night
+        context['rotor_pic'] = helo_pic + gyro_pic
+        context['rotor_sic'] = helo_pic + gyro_sic
 
         airplane_query = Q(aircraft_type__aircraft_category='A')
         airplane_xc_dual = Flight.objects.filter(user=user).filter(
