@@ -287,8 +287,61 @@ class HomeView(LoginRequiredMixin, TemplateView):  #ProfileNotActiveMixin
                 datetime.timedelta(180)
 
         # iacra
+        # use .exists() then assign value when queryset is None and build more specific contexts
+        context['total'] = Total.objects.filter(user=user).get(total='All')
 
-        # context['total'] = Total.objects.filter(user=user).get(total='All')
+        if Total.objects.filter(user=user, total='ASEL').exists():
+            asel = Total.objects.filter(user=user).get(total='ASEL')
+            asel_total = asel.total_time
+            asel_dual = asel.dual
+            asel_ifr = asel.instrument
+            asel_ldg_night = asel.landings_night
+        else:
+            asel_total = 0
+            asel_dual = 0
+            asel_ifr = 0
+            asel_ldg_night = 0
+
+        if Total.objects.filter(user=user, total='AMEL').exists():
+            amel = Total.objects.filter(user=user).get(total='AMEL')
+            amel_total = amel.total_time
+            amel_dual = amel.dual
+            amel_ifr = amel.instrument
+            amel_ldg_night = amel.landings_night
+        else:
+            amel_total = 0
+            amel_dual = 0
+            amel_ifr = 0
+            amel_ldg_night = 0
+
+        if Total.objects.filter(user=user, total='ASES').exists():
+            ases = Total.objects.filter(user=user).get(total='ASES')
+            ases_total = ases.total_time
+            ases_dual = ases.total_dual
+            ases_ifr = ases.instrument
+            ases_ldg_night = ases.landings_night
+        else:
+            ases_total = 0
+            ases_dual = 0
+            ases_ifr = 0
+            ases_ldg_night = 0
+
+        if Total.objects.filter(user=user, total='AMES').exists():
+            ames = Total.objects.filter(user=user).get(total='AMES')
+            ames_total = ames.total_time
+            ames_dual = ames.dual
+            ames_dual = ames.instrument
+            ames_ldg_night = ames.landings_night
+        else:
+            ames_total = 0
+            ames_dual = 0
+            ames_ifr = 0
+            ames_ldg_night = 0
+
+        context['airplane_total'] = asel_total + amel_total + ases_total + ames_total
+        context['airplane_dual'] = asel_dual + amel_dual + ases_dual + ames_dual
+        context['airplane_ifr'] = asel_ifr + amel_ifr + ases_ifr + ames_ifr
+        context['airplane_ldg_night'] = asel_ldg_night + amel_ldg_night + ases_ldg_night + ames_ldg_night
         # context['ASEL'] = Total.objects.filter(user=user).get(total='ASEL')
         # context['AMEL'] = Total.objects.filter(user=user).get(total='AMEL')
         # context['ASES'] = Total.objects.filter(user=user).get(total='ASES')
