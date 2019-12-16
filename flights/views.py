@@ -42,7 +42,8 @@ def get_deleted_objects(objs):
 
     def format_callback(obj):
         opts = obj._meta
-        no_edit_link = '%s: %s' % (capfirst(opts.verbose_name), force_text(obj))
+        no_edit_link = '%s: %s' % (
+            capfirst(opts.verbose_name), force_text(obj))
         return no_edit_link
 
     to_delete = collector.nested(format_callback)[1:]
@@ -52,12 +53,14 @@ def get_deleted_objects(objs):
 
     return to_delete, model_count, protected
 
+
 def error_400(request, exception):
     context = {
         'title': '400',
         'home_link': reverse('home')
     }
     return render(request, '400.html', context)
+
 
 def error_404(request, exception):
     context = {
@@ -189,7 +192,7 @@ def index_view(request):
         return render(request, 'index.html', context)
 
 
-class HomeView(LoginRequiredMixin, TemplateView):  #ProfileNotActiveMixin
+class HomeView(LoginRequiredMixin, TemplateView):  # ProfileNotActiveMixin
     template_name = 'home.html'
 
     def get_context_data(self, **kwargs):
@@ -398,11 +401,15 @@ class HomeView(LoginRequiredMixin, TemplateView):  #ProfileNotActiveMixin
             gyro_pic = 0
             gyro_sic = 0
 
-        context['airplane_total'] = asel_total + amel_total + ases_total + ames_total
-        context['airplane_dual'] = asel_dual + amel_dual + ases_dual + ames_dual
-        context['airplane_solo'] = asel_solo + amel_solo + ases_solo + ames_solo
+        context['airplane_total'] = asel_total + \
+            amel_total + ases_total + ames_total
+        context['airplane_dual'] = asel_dual + \
+            amel_dual + ases_dual + ames_dual
+        context['airplane_solo'] = asel_solo + \
+            amel_solo + ases_solo + ames_solo
         context['airplane_ifr'] = asel_ifr + amel_ifr + ases_ifr + ames_ifr
-        context['airplane_ldg_night'] = asel_ldg_night + amel_ldg_night + ases_ldg_night + ames_ldg_night
+        context['airplane_ldg_night'] = asel_ldg_night + \
+            amel_ldg_night + ases_ldg_night + ames_ldg_night
         context['airplane_pic'] = asel_pic + amel_pic + ases_pic + ames_pic
         context['airplane_sic'] = asel_sic + amel_sic + ases_sic + ames_sic
 
@@ -424,7 +431,6 @@ class HomeView(LoginRequiredMixin, TemplateView):  #ProfileNotActiveMixin
         context['ames_sic'] = ames_sic
         context['helo_total'] = helo_total
         context['gyro_total'] = gyro_total
-
 
         airplane_query = Q(aircraft_type__aircraft_category='A')
         airplane_xc_dual = Flight.objects.filter(user=user).filter(
@@ -942,9 +948,11 @@ class AircraftDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, 
 
     def get_context_data(self, **kwargs):
         context = super(AircraftDetail, self).get_context_data(**kwargs)
-        context['tailnumbers'] = TailNumber.objects.filter(user=self.request.user, aircraft=self.object)
+        context['tailnumbers'] = TailNumber.objects.filter(
+            user=self.request.user, aircraft=self.object)
 
-        flights = Flight.objects.filter(user=self.request.user, aircraft_type=self.object)
+        flights = Flight.objects.filter(
+            user=self.request.user, aircraft_type=self.object)
         user = self.request.user
         get_map_data(flights, user)
         context['flights'] = flights
@@ -1164,7 +1172,6 @@ class ImportedListView(LoginRequiredMixin, ProfileNotActiveMixin, ListView):
 
     def get_queryset(self):
         return Imported.objects.filter(user=self.request.user)
-
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
