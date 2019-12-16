@@ -414,6 +414,18 @@ class HomeView(LoginRequiredMixin, TemplateView):  #ProfileNotActiveMixin
         context['rotor_pic'] = helo_pic + gyro_pic
         context['rotor_sic'] = helo_pic + gyro_sic
 
+        context['asel_pic'] = asel_pic
+        context['asel_sic'] = asel_sic
+        context['amel_pic'] = amel_pic
+        context['amel_sic'] = amel_sic
+        context['ases_pic'] = ases_pic
+        context['ases_sic'] = ases_sic
+        context['ames_pic'] = ames_pic
+        context['ames_sic'] = ames_sic
+        context['helo_total'] = helo_total
+        context['gyro_total'] = gyro_total
+
+
         airplane_query = Q(aircraft_type__aircraft_category='A')
         airplane_xc_dual = Flight.objects.filter(user=user).filter(
             airplane_query, cross_country=True, dual=True).aggregate(Sum('duration'))
