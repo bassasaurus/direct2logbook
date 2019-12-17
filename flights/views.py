@@ -369,7 +369,7 @@ class HomeView(LoginRequiredMixin, TemplateView):  # ProfileNotActiveMixin
             helo = Total.objects.filter(user=user).get(total='HELO')
             helo_total = helo.total_time
             helo_dual = helo.dual
-            gelo_solo = helo.solo
+            helo_solo = helo.solo
             helo_ifr = helo.instrument
             helo_ldg_night = helo.landings_night
             helo_pic = helo.pilot_in_command
