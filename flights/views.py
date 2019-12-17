@@ -352,7 +352,7 @@ class HomeView(LoginRequiredMixin, TemplateView):  # ProfileNotActiveMixin
             ames_total = ames.total_time
             ames_dual = ames.dual
             ames_solo = ames.solo
-            ames_dual = ames.instrument
+            ames_ifr = ames.instrument
             ames_ldg_night = ames.landings_night
             ames_pic = ames.pilot_in_command
             ames_sic = ames.second_in_command
