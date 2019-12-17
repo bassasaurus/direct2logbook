@@ -323,7 +323,7 @@ class HomeView(LoginRequiredMixin, TemplateView):  # ProfileNotActiveMixin
         else:
             amel_total = 0
             amel_dual = 0
-            asel_solo = 0
+            amel_solo = 0
             amel_ifr = 0
             amel_ldg_night = 0
             amel_pic = 0
