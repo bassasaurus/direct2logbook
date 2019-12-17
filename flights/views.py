@@ -370,7 +370,7 @@ class HomeView(LoginRequiredMixin, TemplateView):  # ProfileNotActiveMixin
             helo_total = helo.total_time
             helo_dual = helo.dual
             gelo_solo = helo.solo
-            helo_dual = helo.instrument
+            helo_ifr = helo.instrument
             helo_ldg_night = helo.landings_night
             helo_pic = helo.pilot_in_command
             helo_sic = helo.second_in_command
@@ -388,7 +388,7 @@ class HomeView(LoginRequiredMixin, TemplateView):  # ProfileNotActiveMixin
             gyro_total = gyro.total_time
             gyro_dual = gyro.dual
             gyro_solo = gyro.solo
-            gyro_dual = gyro.instrument
+            gyro_ifr = gyro.instrument
             gyro_ldg_night = gyro.landings_night
             gyro_pic = helo.pilot_in_command
             gyro_sic = gyro.second_in_command
