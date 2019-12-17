@@ -9,14 +9,14 @@ from decouple import config
 from datetime import datetime, timezone
 from datetime import timedelta
 from django.contrib.auth.models import Group
+from flights.models import Total
+import os
 
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
-    if created:
 
-        group = Group.objects.get(name='clients')
-        group.user_set.add(instance.user)
+    if created:
 
         name = '{} {}'.format(instance.first_name, instance.last_name)
 
@@ -34,6 +34,11 @@ def create_user_profile(sender, instance, created, **kwargs):
             email=instance.email
         )
 
+        if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
+            plan = 'plan_FkX07tGXr4f3Mh'  # test mode trial
+        else:
+            plan = 'plan_Fkf5ex0bvWncFx'  # production trial
+
         subscription_response = stripe.Subscription.create(
             customer=customer_response.id,
             collection_method="send_invoice",
@@ -41,7 +46,7 @@ def create_user_profile(sender, instance, created, **kwargs):
             cancel_at_period_end=True,
             items=[
                 {
-                    "plan": "plan_Fkf5ex0bvWncFx",  # trial plan
+                    "plan": plan,  # trial plan
                 },
             ],
             trial_end=timestamp,
@@ -57,6 +62,10 @@ def create_user_profile(sender, instance, created, **kwargs):
             end_date=datetime.fromtimestamp(timestamp)
         )
         profile.save()
+
+        user = User.objects.get(pk=instance.pk)
+        total = Total(user=user, total='All')
+        total.save()
 
     else:
         None

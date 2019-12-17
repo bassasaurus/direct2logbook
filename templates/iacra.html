@@ -22,21 +22,21 @@
     </tr>
     <tr>
       <td rowspan="4">Airplane</td>
-      <td rowspan="4" class="text-center">{% addition ASEL.total_time AMEL.total_time ASES.total_time AMES.total_time %}</td>
-      <td rowspan="4" class="text-center">{% addition ASEL.dual AMEL.dual ASES.dual AMES.dual %}</td>
-      <td rowspan="4" class="text-center">{% addition ASEL.solo AMEL.solo ASES.solo AMES.solo %}</td>
+      <td rowspan="4" class="text-center">{{ airplane_total }}</td>
+      <td rowspan="4" class="text-center">{{ airplane_dual }}</td>
+      <td rowspan="4" class="text-center">{{ airplane_solo }}</td>
       <td class="text-center">PIC</td>
       <td rowspan="4" class="text-center">{{ airplane_xc_dual }}</td>
       <td rowspan="4" class="text-center">{{ airplane_xc_solo }}</td>
       <td rowspan="4" class="text-center">{{ airplane_xc_pic_sic }}</td>
-      <td rowspan="4" class="text-center">{% addition ASEL.instrument AMEL.instrument ASES.instrument AMES.instrument %}</td>
+      <td rowspan="4" class="text-center">{{ airplane_ifr }}</td>
       <td rowspan="4" class="text-center">{{ airplane_night_dual }}</td>
-      <td rowspan="4" class="text-center">{% addition ASEL.landings_night AMEL.landings_night ASES.landings_night AMES.landings_night %}</td>
+      <td rowspan="4" class="text-center">{{ airplane_ldg_night }}</td>
       <td rowspan="4" class="text-center">{{ airplane_night_pic_sic }}</td>
       <td class="text-center">PIC</td>
     </tr>
     <tr>
-      <td class="text-center">{% addition ASEL.pilot_in_command AMEL.pilot_in_command ASES.pilot_in_command AMES.pilot_in_command%}</td>
+      <td class="text-center">{{ airplane_pic }}</td>
       <td class="text-center">{{ airplane_night_ldg_pic }}</td>
     </tr>
     <tr>
@@ -45,26 +45,26 @@
 
     </tr>
     <tr>
-      <td class="text-center">{% addition ASEL.second_in_command AMEL.second_in_command ASES.second_in_command AMES.second_in_command%}</td>
+      <td class="text-center">{{ airplane_sic }}</td>
       <td class="text-center">{{ airplane_night_ldg_sic }}</td>
     </tr>
     <tr>
       <td rowspan="4">Rotorcraft</td>
-      <td rowspan="4" class="text-center">{% addition GYRO.total_time HELO.total_time %}</td>
-      <td rowspan="4" class="text-center">{% addition GYRO.dual HELO.dual %}</td>
-      <td rowspan="4" class="text-center">{% addition GYRO.solo HELO.solo %}</td>
+      <td rowspan="4" class="text-center">{{ rotor_total }}</td>
+      <td rowspan="4" class="text-center">{{ rotor_dual }}</td>
+      <td rowspan="4" class="text-center">{{ rotor_solo }}</td>
       <td class="text-center">PIC</td>
       <td rowspan="4" class="text-center">{{ rotorcraft_xc_dual }}</td>
       <td rowspan="4" class="text-center">{{ rotorcraft_xc_solo }}</td>
       <td rowspan="4" class="text-center">{{ rotorcraft_xc_pic_sic }}</td>
-      <td rowspan="4" class="text-center">{% addition HELO.instrument GYRO.instrument %}</td>
+      <td rowspan="4" class="text-center">{{ rotor_ifr }}</td>
       <td rowspan="4" class="text-center">{{ rotorcraft_night_dual }}</td>
-      <td rowspan="4" class="text-center">{% addition HELO.landings_night GYRO.landings_night %}</td>
+      <td rowspan="4" class="text-center">{{ rotor_ldg_night }}</td>
       <td rowspan="4" class="text-center">{{ rotorcraft_night_pic_sic }}</td>
       <td class="text-center">PIC</td>
     </tr>
     <tr>
-      <td></td>
+      <td class="text-center">{{ rotor_pic }}</td>
       <td class="text-center">{{ rotorcraft_night_ldg_pic }}</td>
     </tr>
     <tr>
@@ -72,7 +72,7 @@
       <td class="text-center">SIC</td>
     </tr>
     <tr>
-      <td></td>
+      <td class="text-center">{{ rotor_sic }}</td>
       <td class="text-center">{{ rotorcraft_night_ldg_sic }}</td>
     </tr>
   </tbody>
@@ -95,31 +95,31 @@
     </tr>
     <tr>
       <td class="text-center">PIC</td>
-	    <td class="text-center">{{ ASEL.pilot_in_command }}</td>
+	    <td class="text-center">{{ asel_pic }}</td>
       <td class="text-center">PIC</td>
-      <td class="text-center">{{ AMEL.pilot_in_command }} </td>
+      <td class="text-center">{{ amel_pic }} </td>
 	    <td class="text-center">PIC</td>
-      <td class="text-center">{{ ASES.pilot_in_command }}</td>
+      <td class="text-center">{{ ases_pic }}</td>
 	  <td class="text-center">PIC</td>
-    <td class="text-center">{{ AMES.pilot_in_command }}</td>
+    <td class="text-center">{{ ames_pic }}</td>
     </tr>
         <tr>
           <td class="text-center">SIC</td>
-          <td class="text-center">{{ ASEL.second_in_command }}</td>
+          <td class="text-center">{{ asel_sic }}</td>
           <td class="text-center">SIC</td>
-          <td class="text-center">{{ AMEL.second_in_command }}</td>
+          <td class="text-center">{{ amel_sic }}</td>
           <td class="text-center">SIC</td>
-          <td class="text-center">{{ ASES.second_in_command }}</td>
+          <td class="text-center">{{ ases_sic }}</td>
     	    <td class="text-center">SIC</td>
-          <td class="text-center">{{ AMES.second_in_command }}</td>
+          <td class="text-center">{{ ames_sic }}</td>
         </tr>
         <tr>
           <td rowspan="2" class="text-center">Rotorcraft</td>
           <td colspan="4" class="text-center">Helicopter</td>
           <td colspan="4" class="text-center">Gyroplane</td>
         </tr>
-     	  <td colspan="4" class="text-center">{{ HELO.total_time }}</td>
-    	  <td colspan="4" class="text-center">{{ GYRO.total_time }}</td>
+     	  <td colspan="4" class="text-center">{{ helo_total }}</td>
+    	  <td colspan="4" class="text-center">{{ gyro_total }}</td>
     	<tr>
     	  <td rowspan="2" class="text-center">FFS</td>
     	  <td colspan="2" class="text-center">SE</td>
@@ -131,7 +131,7 @@
     	  <td colspan="2">&nbsp;</td>
     	  <td colspan="4">&nbsp;</td>
     	</tr>
-    	<tr>
+    	<!-- <tr>
     	  <td class="text-center">FTD</td>
     	  <td colspan="2">&nbsp;</td>
     	  <td colspan="2">&nbsp;</td>
@@ -142,7 +142,7 @@
     	  <td colspan="2">&nbsp;</td>
     	  <td colspan="2">&nbsp;</td>
     	  <td colspan="4">&nbsp;</td>
-    	</tr>
+    	</tr> -->
       </tbody>
     </table>
 
