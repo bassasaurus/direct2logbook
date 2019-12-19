@@ -698,6 +698,9 @@ class RemarksList(LoginRequiredMixin, ProfileNotActiveMixin, ListView):
     template_name = "flights/remarks.html"
     pagninate_by = 30
 
+    def get_queryset(self):
+        return Flight.objects.filter(user=self.request.user).order_by('-date')
+
     def get_context_data(self, **kwargs):
         context = super(RemarksList, self).get_context_data(**kwargs)
 
