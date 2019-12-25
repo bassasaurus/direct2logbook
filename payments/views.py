@@ -111,6 +111,7 @@ def stripe_webhook_view(request):
         timestamp = event.data.object.lines['data'][0]['period']['end']
         profile.end_date = datetime.fromtimestamp(timestamp)
         profile.active = True
+        profile.save()
         # send email receipt
 
     elif event.type == 'customer.source.created':
