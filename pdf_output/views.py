@@ -16,7 +16,7 @@ from django.core.mail import send_mail
 
 from django.http import HttpResponse
 from django.template.response import TemplateResponse
-
+from django.urls import reverse
 from django.views.generic import CreateView, UpdateView
 from .models import Signature
 from .forms import SignatureForm
@@ -403,12 +403,6 @@ def PDFView(request, user_id):
     # email.attach('Logbook.pdf', pdf, 'application/pdf')
     # email.send()
 
-
-    # template = TemplateResponse(request, 'pdf_output/waiting.html',)
-    # return template
-
-
-    #for testing
     response = HttpResponse('Check your email', content_type='application/pdf')
     response.write(pdf)
     return response
@@ -417,9 +411,45 @@ def PDFView(request, user_id):
 class SignatureCreate(CreateView):
     model = Signature
     form_class = SignatureForm
+    success_url = 'profile/'
+
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.user = self.request.user
+        object.save()
+        return super(SignatureCreate, self).form_valid(form)
+
+    def get_context_data(self, **kwargs):
+
+        context = super(SignatureCreate, self).get_context_data(**kwargs)
+        context['title'] = "D-> | New Aircraft"
+
+        context['home_link'] = reverse('home')
+        context['page_title'] = "New Aircraft"
+        context['parent_link'] = reverse('aircraft_list')
+        context['parent_name'] = 'Aircraft'
+        return context
 
 
 class SignatureUpdate(UpdateView):
     model = Signature
     form_class = SignatureForm
     template = '/pdf_output/signature_update.html'
+
+
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.user = self.request.user
+        object.save()
+        return super(SignatureCreate, self).form_valid(form)
+
+    def get_context_data(self, **kwargs):
+
+        context = super(SignatureCreate, self).get_context_data(**kwargs)
+        context['title'] = "D-> | New Aircraft"
+
+        context['home_link'] = reverse('home')
+        context['page_title'] = "New Aircraft"
+        context['parent_link'] = reverse('aircraft_list')
+        context['parent_name'] = 'Aircraft'
+        return context
