@@ -108,4 +108,4 @@ ENV/
 .github/
 
 # user files
-.media/
+media/
