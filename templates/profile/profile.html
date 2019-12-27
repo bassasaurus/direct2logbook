@@ -18,6 +18,7 @@
 <div class="row">
   <div class="col-12">
     <h3>{{ user.first_name }} {{ user.last_name }}</h3>
+    <a href="{% url 'signature_create' %}">Upload Signature</a>
     <hr>
     <a href="{% url 'user_update' user.pk %}">Update name</a><br>
     <a href="{% url 'account_change_password' %}">Change password</a><br>

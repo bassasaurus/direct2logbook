@@ -17,6 +17,10 @@ from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.template.response import TemplateResponse
 
+from django.views.generic import CreateView, UpdateView
+from .models import Signature
+from .forms import SignatureForm
+
 def entry(object, flight):
     if not object:
         entry = '-'
@@ -408,3 +412,15 @@ def PDFView(request, user_id):
     response = HttpResponse('Check your email', content_type='application/pdf')
     response.write(pdf)
     return response
+
+
+class SignatureCreate(CreateView):
+    model = Signature
+    form_class = SignatureForm
+    template = '/pdf_output/signature_create.html'
+
+
+class SignatureUpdate(UpdateView):
+    model = Signature
+    form_class = SignatureForm
+    template = '/pdf_output/signature_update.html'
