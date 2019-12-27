@@ -3,8 +3,19 @@
 {% block content %}
 
 <hr>
-<h4>Updload Signature</h4>
-<hr>
-{{ form.as_p }}
+<div class="row justify-content-center">
+  <div class="col-12">
+    <form action="" class="" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="form-group">
+        <h4>Upload Signature</h4>
+        <hr>
+        {{ form.as_p }}
+        <hr>
+        <button class="btn-shadow btn-shadow-dark btn-block" type="submit">Submit</button>
+    </form>
+  </div>
+</div>
+
 
 {% endblock %}

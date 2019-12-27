@@ -417,7 +417,6 @@ def PDFView(request, user_id):
 class SignatureCreate(CreateView):
     model = Signature
     form_class = SignatureForm
-    template = '/pdf_output/signature_create.html'
 
 
 class SignatureUpdate(UpdateView):
