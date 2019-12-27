@@ -411,7 +411,7 @@ def PDFView(request, user_id):
 class SignatureCreate(CreateView):
     model = Signature
     form_class = SignatureForm
-    success_url = 'profile/'
+    success_url = '/accounts/profile'
 
     def form_valid(self, form):
         object = form.save(commit=False)
@@ -435,6 +435,7 @@ class SignatureUpdate(UpdateView):
     model = Signature
     form_class = SignatureForm
     template = '/pdf_output/signature_update.html'
+    success_url = '/accounts/profile/'
 
 
     def form_valid(self, form):
