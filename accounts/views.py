@@ -2,6 +2,7 @@
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect, reverse
+from django.core.exceptions import ObjectDoesNotExist
 
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import User
@@ -11,6 +12,7 @@ from django.views.generic import TemplateView, UpdateView
 
 from accounts.models import Profile
 from accounts.forms import ProfileForm, UserForm
+from pdf_output.models import Signature
 
 from allauth.account.views import EmailView, PasswordSetView, PasswordChangeView, PasswordResetView, PasswordResetDoneView, PasswordResetFromKeyView, PasswordResetFromKeyDoneView
 from allauth.socialaccount.views import ConnectionsView
@@ -130,6 +132,13 @@ class ProfileView(LoginRequiredMixin, TemplateView):
             context['passed_end_date'] = False
         else:
             context['passed_end_date'] = True
+
+        try:
+            signature = Signature.objects.get(user=user)
+            context['signature'] = signature
+        except ObjectDoesNotExist:
+            context['signature'] = False
+
         context['profile'] = Profile.objects.get(user=user)
         context['customer_id'] = profile.customer_id
         context['user_email'] = str(user.email)
