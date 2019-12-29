@@ -444,7 +444,7 @@ class SignatureCreateView(CreateView):
 class SignatureUpdateView(UpdateView):
     model = Signature
     form_class = SignatureForm
-    template = '/pdf_output/signature_update.html'
+    template_name = 'pdf_output/signature_update.html'
     success_url = '/accounts/profile/'
 
     def get_context_data(self, **kwargs):
@@ -458,14 +458,15 @@ class SignatureUpdateView(UpdateView):
         context['parent_name'] = 'Profile'
         return context
 
-class SignatureDetailView(DetailView):
+
+class SignatureDeleteView(DetailView):
     model = Signature
-    template = '/pdf_output/signature_detail.html'
+    template = '/pdf_output/signature_delete.html'
     success_url = '/accounts/profile/'
 
     def get_context_data(self, **kwargs):
 
-        context = super(SignatureDetailView, self).get_context_data(**kwargs)
+        context = super(SignatureDeleteView, self).get_context_data(**kwargs)
         context['title'] = "D-> | New Aircraft"
 
         context['home_link'] = reverse('home')
