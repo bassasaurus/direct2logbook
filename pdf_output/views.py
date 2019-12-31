@@ -17,7 +17,7 @@ from django.core.mail import send_mail
 from django.http import HttpResponse
 from django.template.response import TemplateResponse
 from django.urls import reverse
-from django.views.generic import CreateView, UpdateView, DetailView
+from django.views.generic import CreateView, UpdateView, DetailView, DeleteView
 from .models import Signature
 from .forms import SignatureForm
 
@@ -459,7 +459,7 @@ class SignatureUpdateView(UpdateView):
         return context
 
 
-class SignatureDeleteView(DetailView):
+class SignatureDeleteView(DeleteView):
     model = Signature
     template = '/pdf_output/signature_delete.html'
     success_url = '/accounts/profile/'
