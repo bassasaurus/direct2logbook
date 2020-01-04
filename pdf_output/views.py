@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 import datetime
 from io import BytesIO
 from os import path
+from logbook import settings
 
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, legal, landscape
@@ -132,7 +133,13 @@ def PDFView(request, user_id):
         canvas.setFont('Helvetica-Oblique', 7)
         canvas.drawString(800, 30, "Powered by Direct2Logbook.com and ReportLab")
 
-        canvas.drawImage('/Users/blakepowell/django_/direct2logbook/media/user_1/signature_3.png', 230, 50, width=100, height=40)
+        sig = Signature.objects.get(user=request.user)
+        signature = sig.signature
+
+        signature_path = settings.MEDIA_ROOT + '/' + str(signature)
+        print(signature_path)
+
+        canvas.drawImage(str(signature_path), 240, 50, width=100, height=40)
 
         canvas.setFont('Helvetica', 10)
         canvas.drawString(
