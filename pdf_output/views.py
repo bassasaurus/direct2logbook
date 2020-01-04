@@ -82,64 +82,8 @@ class SignatureDeleteView(DeleteView):
         return context
 
 
-def entry(object, flight):
-    if not object:
-        entry = '-'
-    elif object:
-        entry = str(flight.duration)
-    else:
-        entry = str(object)
-    return entry
-
-
-def title_page(canvas, doc):
-    canvas.saveState()
-
-    canvas.drawImage('pdf_output/wings.png', 103, 205, width=800, height=229)
-
-    canvas.setFont('Helvetica-Oblique', 7)
-    canvas.drawString(800, 30, "Powered by Direct2Logbook.com and ReportLab")
-
-    canvas.setFont('Helvetica', 10)
-    page_number_text = "%d" % (doc.page)
-    canvas.drawCentredString(
-        14 * inch / 2,
-        30,
-        page_number_text
-    )
-    canvas.restoreState()
-
-
-def add_later_page_number(canvas, doc):
-
-    canvas.saveState()
-
-    canvas.setFont('Helvetica-Oblique', 7)
-    canvas.drawString(800, 30, "Powered by Direct2Logbook.com and ReportLab")
-
-    canvas.drawImage('/Users/blakepowell/django_/direct2logbook/media/user_1/signature_3.png', 230, 50, width=100, height=40)
-
-    canvas.setFont('Helvetica', 10)
-    canvas.drawString(
-        30, 50, "I certify that the entries in this logbook are true.")
-
-    canvas.setStrokeColorRGB(0, 0, 0)
-    canvas.setLineWidth(0.5)
-    canvas.line(240, 50, 480, 50)
-
-    canvas.setFont('Helvetica', 10)
-    page_number_text = "%d" % (doc.page)
-    canvas.drawCentredString(
-        14 * inch / 2,
-        30,
-        page_number_text
-    )
-    canvas.restoreState()
-
-
 @login_required
 def PDFView(request, user_id):
-
 
     user = request.user
     buffer = BytesIO()
@@ -154,7 +98,58 @@ def PDFView(request, user_id):
 
     story = []
 
+    def entry(object, flight):
+        if not object:
+            entry = '-'
+        elif object:
+            entry = str(flight.duration)
+        else:
+            entry = str(object)
+        return entry
+
     # cover page starts here
+    def title_page(canvas, doc):
+        canvas.saveState()
+
+        canvas.drawImage('pdf_output/wings.png', 103, 205, width=800, height=229)
+
+        canvas.setFont('Helvetica-Oblique', 7)
+        canvas.drawString(800, 30, "Powered by Direct2Logbook.com and ReportLab")
+
+        canvas.setFont('Helvetica', 10)
+        page_number_text = "%d" % (doc.page)
+        canvas.drawCentredString(
+            14 * inch / 2,
+            30,
+            page_number_text
+        )
+        canvas.restoreState()
+
+    def add_later_page_number(canvas, doc):
+
+        canvas.saveState()
+
+        canvas.setFont('Helvetica-Oblique', 7)
+        canvas.drawString(800, 30, "Powered by Direct2Logbook.com and ReportLab")
+
+        canvas.drawImage('/Users/blakepowell/django_/direct2logbook/media/user_1/signature_3.png', 230, 50, width=100, height=40)
+
+        canvas.setFont('Helvetica', 10)
+        canvas.drawString(
+            30, 50, "I certify that the entries in this logbook are true.")
+
+        canvas.setStrokeColorRGB(0, 0, 0)
+        canvas.setLineWidth(0.5)
+        canvas.line(240, 50, 480, 50)
+
+        canvas.setFont('Helvetica', 10)
+        page_number_text = "%d" % (doc.page)
+        canvas.drawCentredString(
+            14 * inch / 2,
+            30,
+            page_number_text
+        )
+        canvas.restoreState()
     spacer15 = Spacer(1, 1.5 * inch)
     spacer10 = Spacer(1, 1.0 * inch)
     spacer025 = Spacer(1, .25 * inch)
