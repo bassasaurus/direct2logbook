@@ -1,7 +1,9 @@
 from flights.models import Flight, Total, Stat, Regs, Power, Weight, Endorsement
+from pdf_output.models import Signature
 from django.contrib.auth.decorators import login_required
 import datetime
 from io import BytesIO
+from os import path
 
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, legal, landscape
@@ -22,10 +24,68 @@ from .models import Signature
 from .forms import SignatureForm
 
 
+class SignatureCreateView(CreateView):
+    model = Signature
+    form_class = SignatureForm
+    success_url = '/accounts/profile'
+
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.user = self.request.user
+        object.save()
+        return super(SignatureCreateView, self).form_valid(form)
+
+    def get_context_data(self, **kwargs):
+
+        context = super(SignatureCreateView, self).get_context_data(**kwargs)
+        context['title'] = "D-> | Upload Signature"
+
+        context['home_link'] = reverse('home')
+        context['page_title'] = "Upload Signature"
+        context['parent_link'] = reverse('profile')
+        context['parent_name'] = 'Profile'
+        return context
+
+
+class SignatureUpdateView(UpdateView):
+    model = Signature
+    form_class = SignatureForm
+    template_name = 'pdf_output/signature_update.html'
+    success_url = '/accounts/profile/'
+
+    def get_context_data(self, **kwargs):
+
+        context = super(SignatureUpdateView, self).get_context_data(**kwargs)
+        context['title'] = "D-> | Update Signature"
+
+        context['home_link'] = reverse('profile')
+        context['page_title'] = "Update Signature"
+        context['parent_link'] = reverse('profile')
+        context['parent_name'] = 'Profile'
+        return context
+
+
+class SignatureDeleteView(DeleteView):
+    model = Signature
+    template = '/pdf_output/signature_delete.html'
+    success_url = '/accounts/profile/'
+
+    def get_context_data(self, **kwargs):
+
+        context = super(SignatureDeleteView, self).get_context_data(**kwargs)
+        context['title'] = "D-> | New Aircraft"
+
+        context['home_link'] = reverse('home')
+        context['page_title'] = "Upload Signature"
+        context['parent_link'] = reverse('profile')
+        context['parent_name'] = 'Profile'
+        return context
+
+
 def entry(object, flight):
     if not object:
         entry = '-'
-    elif object == True:
+    elif object:
         entry = str(flight.duration)
     else:
         entry = str(object)
@@ -51,10 +111,13 @@ def title_page(canvas, doc):
 
 
 def add_later_page_number(canvas, doc):
+
     canvas.saveState()
 
     canvas.setFont('Helvetica-Oblique', 7)
     canvas.drawString(800, 30, "Powered by Direct2Logbook.com and ReportLab")
+
+    canvas.drawImage('/Users/blakepowell/django_/direct2logbook/media/user_1/signature_3.png', 230, 50, width=100, height=40)
 
     canvas.setFont('Helvetica', 10)
     canvas.drawString(
@@ -76,6 +139,7 @@ def add_later_page_number(canvas, doc):
 
 @login_required
 def PDFView(request, user_id):
+
 
     user = request.user
     buffer = BytesIO()
@@ -325,8 +389,8 @@ def PDFView(request, user_id):
 
     # logbook starts here
 
-    flight_objects = Flight.objects.filter(user=user).order_by('-date')
-    # flight_objects = Flight.objects.filter(user=user).order_by('-date')[:200]
+    # flight_objects = Flight.objects.filter(user=user).order_by('-date')
+    flight_objects = Flight.objects.filter(user=user).order_by('-date')[:100]
 
     logbook_data = []
 
@@ -358,7 +422,7 @@ def PDFView(request, user_id):
 
         hold = ''
         for holding in flight.holding_set.all():
-            if holding.hold == True:
+            if holding.hold:
                 hold = 'Yes'
             else:
                 hold = '-'
@@ -416,61 +480,3 @@ def PDFView(request, user_id):
     response = HttpResponse('Check your email', content_type='application/pdf')
     response.write(pdf)
     return response
-
-
-class SignatureCreateView(CreateView):
-    model = Signature
-    form_class = SignatureForm
-    success_url = '/accounts/profile'
-
-    def form_valid(self, form):
-        object = form.save(commit=False)
-        object.user = self.request.user
-        object.save()
-        return super(SignatureCreateView, self).form_valid(form)
-
-    def get_context_data(self, **kwargs):
-
-        context = super(SignatureCreateView, self).get_context_data(**kwargs)
-        context['title'] = "D-> | Upload Signature"
-
-        context['home_link'] = reverse('home')
-        context['page_title'] = "Upload Signature"
-        context['parent_link'] = reverse('profile')
-        context['parent_name'] = 'Profile'
-        return context
-
-
-class SignatureUpdateView(UpdateView):
-    model = Signature
-    form_class = SignatureForm
-    template_name = 'pdf_output/signature_update.html'
-    success_url = '/accounts/profile/'
-
-    def get_context_data(self, **kwargs):
-
-        context = super(SignatureUpdateView, self).get_context_data(**kwargs)
-        context['title'] = "D-> | Update Signature"
-
-        context['home_link'] = reverse('profile')
-        context['page_title'] = "Update Signature"
-        context['parent_link'] = reverse('profile')
-        context['parent_name'] = 'Profile'
-        return context
-
-
-class SignatureDeleteView(DeleteView):
-    model = Signature
-    template = '/pdf_output/signature_delete.html'
-    success_url = '/accounts/profile/'
-
-    def get_context_data(self, **kwargs):
-
-        context = super(SignatureDeleteView, self).get_context_data(**kwargs)
-        context['title'] = "D-> | New Aircraft"
-
-        context['home_link'] = reverse('home')
-        context['page_title'] = "Upload Signature"
-        context['parent_link'] = reverse('profile')
-        context['parent_name'] = 'Profile'
-        return context
