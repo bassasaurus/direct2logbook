@@ -20,11 +20,7 @@ from decouple import config
 import stripe
 import os
 import datetime
-
-
-class LoginRequiredMixin(LoginRequiredMixin):
-    login_url = '/accounts/login'
-    # redirect_field_name = None
+from flights.views import LoginRequiredMixin
 
 
 class OwnObjectUserMixin(UserPassesTestMixin):

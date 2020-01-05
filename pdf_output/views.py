@@ -23,9 +23,11 @@ from django.urls import reverse
 from django.views.generic import CreateView, UpdateView, DetailView, DeleteView
 from .models import Signature
 from .forms import SignatureForm
+from django.contrib.auth.mixins import UserPassesTestMixin
+from flights.views import LoginRequiredMixin
 
 
-class SignatureCreateView(CreateView):
+class SignatureCreateView(LoginRequiredMixin, CreateView):
     model = Signature
     form_class = SignatureForm
     success_url = '/accounts/profile'
@@ -48,7 +50,7 @@ class SignatureCreateView(CreateView):
         return context
 
 
-class SignatureUpdateView(UpdateView):
+class SignatureUpdateView(LoginRequiredMixin, UpdateView):
     model = Signature
     form_class = SignatureForm
     template_name = 'pdf_output/signature_update.html'
@@ -66,7 +68,7 @@ class SignatureUpdateView(UpdateView):
         return context
 
 
-class SignatureDeleteView(DeleteView):
+class SignatureDeleteView(LoginRequiredMixin, DeleteView):
     model = Signature
     template = '/pdf_output/signature_delete.html'
     success_url = '/accounts/profile/'
