@@ -25,6 +25,7 @@ from .models import Signature
 from .forms import SignatureForm
 from django.contrib.auth.mixins import UserPassesTestMixin
 from flights.views import LoginRequiredMixin
+import os
 
 
 class SignatureCreateView(LoginRequiredMixin, CreateView):
@@ -135,13 +136,13 @@ def PDFView(request, user_id):
         canvas.setFont('Helvetica-Oblique', 7)
         canvas.drawString(800, 30, "Powered by Direct2Logbook.com and ReportLab")
 
-        sig = Signature.objects.get(user=request.user)
-        signature = sig.signature
-
-        signature_path = settings.MEDIA_ROOT + '/' + str(signature)
-        print(signature_path)
-
-        canvas.drawImage(str(signature_path), 240, 50, width=100, height=40)
+        if Signature.objects.filter(user=request.user).exists():
+            sig = Signature.objects.get(user=request.user)
+            signature = sig.signature
+            signature_path = settings.MEDIA_ROOT + '/' + str(signature)
+            canvas.drawImage(str(signature_path), 240, 50, width=100, height=40)
+        else:
+            None
 
         canvas.setFont('Helvetica', 10)
         canvas.drawString(
@@ -393,8 +394,10 @@ def PDFView(request, user_id):
 
     # logbook starts here
 
-    # flight_objects = Flight.objects.filter(user=user).order_by('-date')
-    flight_objects = Flight.objects.filter(user=user).order_by('-date')[:100]
+    if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
+        flight_objects = Flight.objects.filter(user=user).order_by('-date')[:100]
+    else:
+        flight_objects = Flight.objects.filter(user=user).order_by('-date')
 
     logbook_data = []
 
