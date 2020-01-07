@@ -27,6 +27,9 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from flights.views import LoginRequiredMixin
 import os
 
+from celery import Celery
+app = Celery('logbook')
+
 
 class SignatureCreateView(LoginRequiredMixin, CreateView):
     model = Signature
@@ -87,6 +90,7 @@ class SignatureDeleteView(LoginRequiredMixin, DeleteView):
 
 
 @login_required
+@app.task(name='pdf_generation')
 def PDFView(request, user_id):
 
     user = request.user
