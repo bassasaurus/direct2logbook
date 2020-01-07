@@ -1,4 +1,6 @@
 from decouple import config
+from os.path import abspath, dirname
+import os
 
 print('development settings')
 # Database
@@ -26,6 +28,12 @@ DATABASES = {
         'HOST': DB_HOST,
     }
 }
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DJANGO_ROOT = dirname(dirname(abspath(__file__)))
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' #disable/setup for production
 
