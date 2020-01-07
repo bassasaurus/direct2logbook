@@ -426,7 +426,8 @@ def PDFView(request, user_id):
         for approach in flight.approach_set.all():
             appr = appr + str(approach.approach_type) + \
                 '-' + str(approach.number) + ' '
-
+            print(appr)
+            
         hold = ''
         for holding in flight.holding_set.all():
             if holding.hold:
