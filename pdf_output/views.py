@@ -1,7 +1,10 @@
 from flights.models import Flight, Total, Stat, Regs, Power, Weight, Endorsement
+from pdf_output.models import Signature
 from django.contrib.auth.decorators import login_required
 import datetime
 from io import BytesIO
+from os import path
+from logbook import settings
 
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, legal, landscape
@@ -16,54 +19,70 @@ from django.core.mail import send_mail
 
 from django.http import HttpResponse
 from django.template.response import TemplateResponse
+from django.urls import reverse
+from django.views.generic import CreateView, UpdateView, DetailView, DeleteView
+from .models import Signature
+from .forms import SignatureForm
+from django.contrib.auth.mixins import UserPassesTestMixin
+from flights.views import LoginRequiredMixin
 
-def entry(object, flight):
-    if not object:
-        entry = '-'
-    elif object == True:
-        entry = str(flight.duration)
-    else:
-        entry = str(object)
-    return entry
 
-def title_page(canvas, doc):
-    canvas.saveState()
+class SignatureCreateView(LoginRequiredMixin, CreateView):
+    model = Signature
+    form_class = SignatureForm
+    success_url = '/accounts/profile'
 
-    canvas.drawImage('pdf_output/wings.png', 103, 205, width=800, height=229)
+    def form_valid(self, form):
+        object = form.save(commit=False)
+        object.user = self.request.user
+        object.save()
+        return super(SignatureCreateView, self).form_valid(form)
 
-    canvas.setFont('Helvetica-Oblique', 7)
-    canvas.drawString(800, 30, "Powered by Direct2Logbook.com and ReportLab")
+    def get_context_data(self, **kwargs):
 
-    canvas.setFont('Helvetica', 10)
-    page_number_text = "%d" % (doc.page)
-    canvas.drawCentredString(
-     14 * inch/2,
-     30,
-     page_number_text
-    )
-    canvas.restoreState()
+        context = super(SignatureCreateView, self).get_context_data(**kwargs)
+        context['title'] = "D-> | Upload Signature"
 
-def add_later_page_number(canvas, doc):
-    canvas.saveState()
+        context['home_link'] = reverse('home')
+        context['page_title'] = "Upload Signature"
+        context['parent_link'] = reverse('profile')
+        context['parent_name'] = 'Profile'
+        return context
 
-    canvas.setFont('Helvetica-Oblique', 7)
-    canvas.drawString(800, 30, "Powered by Direct2Logbook.com and ReportLab")
 
-    canvas.setFont('Helvetica', 10)
-    canvas.drawString(30, 50, "I certify that the entries in this logbook are true.")
+class SignatureUpdateView(LoginRequiredMixin, UpdateView):
+    model = Signature
+    form_class = SignatureForm
+    template_name = 'pdf_output/signature_update.html'
+    success_url = '/accounts/profile/'
 
-    canvas.setStrokeColorRGB(0, 0, 0)
-    canvas.setLineWidth(0.5)
-    canvas.line(240, 50, 480, 50)
+    def get_context_data(self, **kwargs):
 
-    canvas.setFont('Helvetica', 10)
-    page_number_text = "%d" % (doc.page)
-    canvas.drawCentredString(
-        14 * inch/2,
-        30,
-        page_number_text
-    )
-    canvas.restoreState()
+        context = super(SignatureUpdateView, self).get_context_data(**kwargs)
+        context['title'] = "D-> | Update Signature"
+
+        context['home_link'] = reverse('profile')
+        context['page_title'] = "Update Signature"
+        context['parent_link'] = reverse('profile')
+        context['parent_name'] = 'Profile'
+        return context
+
+
+class SignatureDeleteView(LoginRequiredMixin, DeleteView):
+    model = Signature
+    template = '/pdf_output/signature_delete.html'
+    success_url = '/accounts/profile/'
+
+    def get_context_data(self, **kwargs):
+
+        context = super(SignatureDeleteView, self).get_context_data(**kwargs)
+        context['title'] = "D-> | New Aircraft"
+
+        context['home_link'] = reverse('home')
+        context['page_title'] = "Upload Signature"
+        context['parent_link'] = reverse('profile')
+        context['parent_name'] = 'Profile'
+        return context
 
 
 @login_required
@@ -74,43 +93,102 @@ def PDFView(request, user_id):
     doc = SimpleDocTemplate(buffer,
                             pagesize=landscape(legal),
                             verbosity=1,
-                            leftMargin=0.25*inch,
-                            rightMargin=0.25*inch,
-                            topMargin=0.5*inch,
-                            bottomMargin=1.25*inch)
+                            leftMargin=0.25 * inch,
+                            rightMargin=0.25 * inch,
+                            topMargin=0.5 * inch,
+                            bottomMargin=1.25 * inch)
     styles = getSampleStyleSheet()
 
     story = []
 
-    #cover page starts here
-    spacer15= Spacer(1, 1.5*inch)
-    spacer10= Spacer(1, 1.0*inch)
-    spacer025= Spacer(1, .25*inch)
-    spacer050= Spacer(1, .50*inch)
+    def entry(object, flight):
+        if not object:
+            entry = '-'
+        elif object:
+            entry = str(flight.duration)
+        else:
+            entry = str(object)
+        return entry
+
+    # cover page starts here
+    def title_page(canvas, doc):
+        canvas.saveState()
+
+        canvas.drawImage('pdf_output/wings.png', 103, 205, width=800, height=229)
+
+        canvas.setFont('Helvetica-Oblique', 7)
+        canvas.drawString(800, 30, "Powered by Direct2Logbook.com and ReportLab")
+
+        canvas.setFont('Helvetica', 10)
+        page_number_text = "%d" % (doc.page)
+        canvas.drawCentredString(
+            14 * inch / 2,
+            30,
+            page_number_text
+        )
+        canvas.restoreState()
+
+    def add_later_page_number(canvas, doc):
+
+        canvas.saveState()
+
+        canvas.setFont('Helvetica-Oblique', 7)
+        canvas.drawString(800, 30, "Powered by Direct2Logbook.com and ReportLab")
+
+        sig = Signature.objects.get(user=request.user)
+        signature = sig.signature
+
+        signature_path = settings.MEDIA_ROOT + '/' + str(signature)
+        print(signature_path)
+
+        canvas.drawImage(str(signature_path), 240, 50, width=100, height=40)
+
+        canvas.setFont('Helvetica', 10)
+        canvas.drawString(
+            30, 50, "I certify that the entries in this logbook are true.")
+
+        canvas.setStrokeColorRGB(0, 0, 0)
+        canvas.setLineWidth(0.5)
+        canvas.line(240, 50, 480, 50)
+
+        canvas.setFont('Helvetica', 10)
+        page_number_text = "%d" % (doc.page)
+        canvas.drawCentredString(
+            14 * inch / 2,
+            30,
+            page_number_text
+        )
+        canvas.restoreState()
+    spacer15 = Spacer(1, 1.5 * inch)
+    spacer10 = Spacer(1, 1.0 * inch)
+    spacer025 = Spacer(1, .25 * inch)
+    spacer050 = Spacer(1, .50 * inch)
 
     story.append(spacer15)
     story.append(spacer025)
-    text = "<para size=50 align=center>Logbook for {} {}</para>".format(user.first_name, user.last_name)
-    title =  Paragraph(text, style=styles["Normal"])
+    text = "<para size=50 align=center>Logbook for {} {}</para>".format(
+        user.first_name, user.last_name)
+    title = Paragraph(text, style=styles["Normal"])
     story.append(title)
     story.append(spacer15)
     story.append(spacer15)
 
-    text = "<para size=15 align=center>Data current as of {}</para>".format(datetime.date.today().strftime("%m/%d/%Y"))
-    title =  Paragraph(text, style=styles["Normal"])
+    text = "<para size=15 align=center>Data current as of {}</para>".format(
+        datetime.date.today().strftime("%m/%d/%Y"))
+    title = Paragraph(text, style=styles["Normal"])
     story.append(title)
     story.append(PageBreak())
 
-    #summary page starts here
-    spacer = Spacer(1, 0.25*inch)
+    # summary page starts here
+    spacer = Spacer(1, 0.25 * inch)
     text = "<para size=15 align=left><u><b>Category and Class Summary</b></u></para>"
     cat_class_title = Paragraph(text, style=styles["Normal"])
     story.append(cat_class_title)
     story.append(spacer)
 
-    #total table
+    # total table
     total_objects = Total.objects.filter(user=user)
-    totals_that_exist =[]
+    totals_that_exist = []
     for total in total_objects:
         if total.total_time > 0.0:
             totals_that_exist.append(str(total.total))
@@ -119,33 +197,36 @@ def PDFView(request, user_id):
     for total in totals_that_exist:
         total = Total.objects.filter(user=user).get(total=total)
         row = [str(total.total), str(total.total_time), str(total.pilot_in_command), str(total.second_in_command), str(total.cross_country),
-                str(total.instructor), str(total.dual), str(total.solo), str(total.instrument), str(total.night), str(total.simulated_instrument),
-                str(total.simulator), str(total.landings_day), str(total.landings_night), str(total.landings_day + total.landings_night),
-                str(total.last_flown.strftime("%m/%d/%Y")), str(total.last_30), str(total.last_60), str(total.last_90), str(total.last_180),
-                str(total.last_yr), str(total.last_2yr), str(total.ytd) ]
+               str(total.instructor), str(total.dual), str(total.solo), str(
+                   total.instrument), str(total.night), str(total.simulated_instrument),
+               str(total.simulator), str(total.landings_day), str(
+                   total.landings_night), str(total.landings_day + total.landings_night),
+               str(total.last_flown.strftime("%m/%d/%Y")), str(total.last_30), str(
+                   total.last_60), str(total.last_90), str(total.last_180),
+               str(total.last_yr), str(total.last_2yr), str(total.ytd)]
 
         total_data.append(row)
 
-    total_header = [ "Cat/Class", "Time", "PIC", "SIC", "XC", "CFI", "Dual", "Solo",
+    total_header = ["Cat/Class", "Time", "PIC", "SIC", "XC", "CFI", "Dual", "Solo",
                     "IFR", "Night", "Hood", "Sim", "D Ldg", "N Ldg", "Total Ldg",
                     "Last Flown", "30", "60", "90", "6mo", "1yr", "2yr", "Ytd"]
 
     total_data.insert(0, total_header)
     total_table = Table(total_data, hAlign='LEFT')
     cat_class_tablestyle = TableStyle([
-                        ('FONT', (0,0), (-1,0), 'Helvetica-Bold', 10),
-                        ('LINEBELOW',(0,0),(-1,0),1.0,colors.black),
-                        ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
-                        ('LINEBELOW',(0,0),(-1,-1),.25,colors.black),
-                        ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
-                        ])
+        ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold', 10),
+        ('LINEBELOW', (0, 0), (-1, 0), 1.0, colors.black),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+        ('LINEBELOW', (0, 0), (-1, -1), .25, colors.black),
+        ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+    ])
     total_table.setStyle(cat_class_tablestyle)
 
     story.append(total_table)
 
     story.append(spacer)
 
-    #misc tables start here
+    # misc tables start here
 
     # role_table
     role_objects = Power.objects.filter(user=user)
@@ -158,39 +239,39 @@ def PDFView(request, user_id):
     role_data.insert(0, role_header)
     role_table = Table(role_data, hAlign="LEFT")
     role_tablestyle = TableStyle([
-                        ('FONT', (0,0), (-1,0), 'Helvetica-Bold', 10),
-                        ('LINEBELOW',(0,0),(-1,0),1.0,colors.black),
-                        ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
-                        ('LINEBELOW',(0,0),(-1,-1),.25,colors.black),
-                        ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
-                        ])
+        ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold', 10),
+        ('LINEBELOW', (0, 0), (-1, 0), 1.0, colors.black),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+        ('LINEBELOW', (0, 0), (-1, -1), .25, colors.black),
+        ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+    ])
     role_table.setStyle(role_tablestyle)
 
-
-    #regs_table
+    # regs_table
     regs_objects = Regs.objects.filter(user=user)
     regs_data = []
     for regs in regs_objects:
-        row = [str(regs.reg_type), str(regs.pilot_in_command), str(regs.second_in_command)]
+        row = [str(regs.reg_type), str(regs.pilot_in_command),
+               str(regs.second_in_command)]
         regs_data.append(row)
 
     regs_header = ["FAR", "PIC", "SIC"]
     regs_data.insert(0, regs_header)
     regs_table = Table(regs_data, hAlign='LEFT')
     reg_tablestyle = TableStyle([
-                        ('FONT', (0,0), (-1,0), 'Helvetica-Bold', 10),
-                        ('LINEBELOW',(0,0),(-1,0),1.0,colors.black),
-                        ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
-                        ('LINEBELOW',(0,0),(-1,-1),.25,colors.black),
-                        ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
-                        ])
+        ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold', 10),
+        ('LINEBELOW', (0, 0), (-1, 0), 1.0, colors.black),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+        ('LINEBELOW', (0, 0), (-1, -1), .25, colors.black),
+        ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
+    ])
 
     regs_table.setStyle(reg_tablestyle)
 
-    #weight_table
+    # weight_table
     weight_objects = Weight.objects.filter(user=user)
 
-    weights_that_exist =[]
+    weights_that_exist = []
     for weight in weight_objects:
         if weight.total > 0.0:
             weights_that_exist.append(weight)
@@ -205,20 +286,20 @@ def PDFView(request, user_id):
     weight_data.insert(0, weight_header)
     weight_table = Table(weight_data, hAlign='LEFT')
     weight_tablestyle = TableStyle([
-                        ('FONT', (0,0), (-1,0), 'Helvetica-Bold', 10),
-                        ('LINEBELOW',(0,0),(-1,0),1.0,colors.black),
-                        ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
-                        ('LINEBELOW',(0,0),(-1,-1),.25,colors.black),
-                        ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
-                        ])
+        ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold', 10),
+        ('LINEBELOW', (0, 0), (-1, 0), 1.0, colors.black),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+        ('LINEBELOW', (0, 0), (-1, -1), .25, colors.black),
+        ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+    ])
 
     weight_table.setStyle(weight_tablestyle)
 
-    #endoresment_table
+    # endoresment_table
 
     endorsement_objects = Endorsement.objects.filter(user=user)
 
-    endorsements_that_exist =[]
+    endorsements_that_exist = []
     for endorsement in endorsement_objects:
         if endorsement.total > 0.0:
             endorsements_that_exist.append(endorsement)
@@ -233,16 +314,16 @@ def PDFView(request, user_id):
     endorsement_data.insert(0, endorsement_header)
     endorsement_table = Table(endorsement_data, hAlign='LEFT')
     endorsement_tablestyle = TableStyle([
-                        ('FONT', (0,0), (-1,0), 'Helvetica-Bold', 10),
-                        ('LINEBELOW',(0,0),(-1,0),1.0,colors.black),
-                        ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
-                        ('LINEBELOW',(0,0),(-1,-1),.25,colors.black),
-                        ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
-                        ])
+        ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold', 10),
+        ('LINEBELOW', (0, 0), (-1, 0), 1.0, colors.black),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+        ('LINEBELOW', (0, 0), (-1, -1), .25, colors.black),
+        ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+    ])
 
     endorsement_table.setStyle(endorsement_tablestyle)
 
-    #misc_table
+    # misc_table
     text = "<para size=15 align=left><u><b>Misc Summary</b></u></para>"
     misc_title = Paragraph(text, style=styles["Normal"])
     story.append(misc_title)
@@ -250,13 +331,13 @@ def PDFView(request, user_id):
 
     misc_data = [
                 [role_table, regs_table, weight_table, endorsement_table]
-                ]
+    ]
 
     misc_table = Table(misc_data, hAlign="LEFT")
     story.append(misc_table)
     story.append(spacer)
 
-    #aircraft stats table
+    # aircraft stats table
 
     text = "<para size=15 align=left><u><b>Aircraft Summary</b></u></para>"
     aircraft_stats_title = Paragraph(text, style=styles["Normal"])
@@ -270,55 +351,55 @@ def PDFView(request, user_id):
 
     stat_data = []
     for stat in stat_objects:
-        #avoids None failure when user hasn't logged time in aircraft
-        date_condition = [stat.last_flown, stat.last_30, stat.last_60, stat.last_90, stat.last_180, stat.last_yr, stat.last_2yr, stat.ytd]
+        # avoids None failure when user hasn't logged time in aircraft
+        date_condition = [stat.last_flown, stat.last_30, stat.last_60,
+                          stat.last_90, stat.last_180, stat.last_yr, stat.last_2yr, stat.ytd]
         if None not in date_condition:
 
             row = [str(stat.aircraft_type), str(stat.total_time), str(stat.pilot_in_command), str(stat.second_in_command), str(stat.cross_country),
-                    str(stat.instructor), str(stat.dual), str(stat.solo), str(stat.instrument), str(stat.night), str(stat.simulated_instrument),
-                    str(stat.simulator), str(stat.landings_day), str(stat.landings_night),
-                    str(stat.last_flown.strftime("%m/%d/%Y")), str(stat.last_30), str(stat.last_60), str(stat.last_90), str(stat.last_180),
-                    str(stat.last_yr), str(stat.last_2yr), str(stat.ytd) ]
+                   str(stat.instructor), str(stat.dual), str(stat.solo), str(
+                       stat.instrument), str(stat.night), str(stat.simulated_instrument),
+                   str(stat.simulator), str(
+                       stat.landings_day), str(stat.landings_night),
+                   str(stat.last_flown.strftime("%m/%d/%Y")), str(stat.last_30), str(
+                       stat.last_60), str(stat.last_90), str(stat.last_180),
+                   str(stat.last_yr), str(stat.last_2yr), str(stat.ytd)]
             stat_data.append(row)
 
         else:
             pass
 
-
-
-    stat_header = [ "Type", "Time", "PIC", "SIC", "XC", "CFI", "Dual", "Solo",
-                    "IFR", "Night", "Hood", "Sim", "D Ldg", "N Ldg",
-                    "Last Flown", "30", "60", "90", "6mo", "1yr", "2yr", "Ytd"]
+    stat_header = ["Type", "Time", "PIC", "SIC", "XC", "CFI", "Dual", "Solo",
+                   "IFR", "Night", "Hood", "Sim", "D Ldg", "N Ldg",
+                   "Last Flown", "30", "60", "90", "6mo", "1yr", "2yr", "Ytd"]
 
     stat_data.insert(0, stat_header)
 
-
-
     stat_table = Table(stat_data, repeatRows=(1), hAlign='LEFT')
     stat_tablestyle = TableStyle([
-                        ('FONT', (0,0), (-1,0), 'Helvetica-Bold', 10),
-                        ('LINEBELOW',(0,0),(-1,0),1.0,colors.black),
-                        ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
-                        ('LINEBELOW',(0,0),(-1,-1),.25,colors.black),
-                        ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
-                        ])
+        ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold', 10),
+        ('LINEBELOW', (0, 0), (-1, 0), 1.0, colors.black),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+        ('LINEBELOW', (0, 0), (-1, -1), .25, colors.black),
+        ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
+    ])
     stat_table.setStyle(stat_tablestyle)
 
     story.append(stat_table)
 
     story.append(spacer)
 
-
     # story.append(PageBreak())
 
     # logbook starts here
 
-    flight_objects = Flight.objects.filter(user=user).order_by('-date')
-    # flight_objects = Flight.objects.filter(user=user).order_by('-date')[:200]
+    # flight_objects = Flight.objects.filter(user=user).order_by('-date')
+    flight_objects = Flight.objects.filter(user=user).order_by('-date')[:100]
 
     logbook_data = []
 
-    logbook_header = ['Date', 'Type', 'Reg', 'Route', 'Block', 'PIC', 'SIC', 'XC', 'Night', 'IFR', 'Appr', 'Hold', 'D Ldg', 'N Ldg', 'Hood', 'CFI', 'Dual', 'Solo', 'Sim' ]
+    logbook_header = ['Date', 'Type', 'Reg', 'Route', 'Block', 'PIC', 'SIC', 'XC', 'Night',
+                      'IFR', 'Appr', 'Hold', 'D Ldg', 'N Ldg', 'Hood', 'CFI', 'Dual', 'Solo', 'Sim']
 
     for flight in flight_objects:
 
@@ -340,16 +421,18 @@ def PDFView(request, user_id):
 
         appr = ''
         for approach in flight.approach_set.all():
-            appr = appr + str(approach.approach_type) + '-' + str(approach.number) + ' '
+            appr = appr + str(approach.approach_type) + \
+                '-' + str(approach.number) + ' '
 
         hold = ''
         for holding in flight.holding_set.all():
-            if holding.hold == True:
+            if holding.hold:
                 hold = 'Yes'
             else:
                 hold = '-'
 
-        row = [Date, str(flight.aircraft_type), str(flight.registration), str(flight.route), str(flight.duration), PIC, SIC, XC, Night, IFR, appr, hold, Day_LDG, Night_LDG, Hood, CFI, Dual, Solo, Sim]
+        row = [Date, str(flight.aircraft_type), str(flight.registration), str(flight.route), str(
+            flight.duration), PIC, SIC, XC, Night, IFR, appr, hold, Day_LDG, Night_LDG, Hood, CFI, Dual, Solo, Sim]
 
         logbook_data.append(row)
 
@@ -358,34 +441,33 @@ def PDFView(request, user_id):
     logbook_table = LongTable(logbook_data, repeatRows=(1), hAlign='LEFT')
 
     logbook_tablestyle = TableStyle([
-                        ('FONT', (0,0), (-1,0), 'Helvetica-Bold', 10),
-                        ('LINEBELOW',(0,0),(-1,0),1.0,colors.black),
-                        ('TEXTCOLOR',(0,0),(-1,-1),colors.black),
-                        ('LINEBELOW',(0,0),(-1,-1),.25,colors.black),
-                        ('ALIGN', (4, 0), (-1, -1), 'RIGHT'),
-                        ])
+        ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold', 10),
+        ('LINEBELOW', (0, 0), (-1, 0), 1.0, colors.black),
+        ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
+        ('LINEBELOW', (0, 0), (-1, -1), .25, colors.black),
+        ('ALIGN', (4, 0), (-1, -1), 'RIGHT'),
+    ])
     logbook_table.setStyle(logbook_tablestyle)
 
     styles = getSampleStyleSheet()
 
-    text= "<para size=15 align=left><u><b>Logbook</b></u></para>"
+    text = "<para size=15 align=left><u><b>Logbook</b></u></para>"
     logbook_title = Paragraph(text, style=styles["Normal"])
     story.append(logbook_title)
     story.append(spacer)
 
     story.append(logbook_table)
 
-    #build pdf
+    # build pdf
     # doc.multiBuild(story, onFirstPage=myFirstPage, onLaterPages=myLaterPages)
-    doc.multiBuild(story, onFirstPage=title_page, onLaterPages=add_later_page_number)
+    doc.multiBuild(story, onFirstPage=title_page,
+                   onLaterPages=add_later_page_number)
     # doc.build(story)
     # Get the value of the BytesIO buffer and write it to the response.
     pdf = buffer.getvalue()
     buffer.close()
 
-
-
-    #email message/attachment
+    # email message/attachment
     # subject = "Logbook for {} {}".format(user.first_name, user.last_name)
     # user_email = user.email
     # email = EmailMessage(
@@ -399,12 +481,6 @@ def PDFView(request, user_id):
     # email.attach('Logbook.pdf', pdf, 'application/pdf')
     # email.send()
 
-
-    # template = TemplateResponse(request, 'pdf_output/waiting.html',)
-    # return template
-
-
-    #for testing
     response = HttpResponse('Check your email', content_type='application/pdf')
     response.write(pdf)
     return response

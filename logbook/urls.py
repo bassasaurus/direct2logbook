@@ -32,7 +32,7 @@ urlpatterns = [
     url(r'^', include('csv_app.urls')),
     # url(r'^api/', include('api.urls')),
     # url(r'^api/docs/', include('rest_framework_docs.urls')),
-    ]
+    ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 handler400 = error_400
 handler403 = error_403
