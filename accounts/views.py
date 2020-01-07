@@ -130,7 +130,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
             context['passed_end_date'] = True
 
         try:
-            signature = Signature.objects.get(user=user)
+            signature = Signature.objects.filter(user=user).latest()
             context['signature'] = signature
         except ObjectDoesNotExist:
             context['signature'] = False
