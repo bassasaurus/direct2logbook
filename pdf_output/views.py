@@ -12,7 +12,7 @@ from .forms import SignatureForm
 from django.contrib.auth.mixins import UserPassesTestMixin
 from flights.views import LoginRequiredMixin
 
-from .pdf_generate import pdf_generate
+from .pdf_generate_task import pdf_generate
 
 from celery import Celery
 
@@ -78,8 +78,9 @@ class SignatureDeleteView(LoginRequiredMixin, DeleteView):
 @login_required
 def PDFView(request, user_id):
 
-    user = request.user.id
-    pdf_generate.delay(user)
+    user_pk = request.user.pk
+
+    pdf_generate.delay(user_pk)
 
     response = HttpResponse('Check your email')
     # response.write(pdf)

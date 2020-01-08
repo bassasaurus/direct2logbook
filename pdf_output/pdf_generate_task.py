@@ -15,6 +15,7 @@ from reportlab.lib.units import inch, mm
 
 from django.core.mail import EmailMessage
 from django.core.mail import send_mail
+from django.contrib.auth.models import User
 
 import datetime
 from os import path
@@ -23,8 +24,12 @@ from logbook import settings
 from .models import Signature
 from flights.models import Flight, Total, Stat, Regs, Power, Weight, Endorsement
 
+
 @app.task
-def pdf_generate(user):
+def pdf_generate(user_pk):
+
+    user = User.objects.get(pk=user_pk)
+    print(user)
 
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer,
@@ -51,10 +56,12 @@ def pdf_generate(user):
     def title_page(canvas, doc):
         canvas.saveState()
 
-        canvas.drawImage('pdf_output/wings.png', 103, 205, width=800, height=229)
+        canvas.drawImage('pdf_output/wings.png', 103,
+                         205, width=800, height=229)
 
         canvas.setFont('Helvetica-Oblique', 7)
-        canvas.drawString(800, 30, "Powered by Direct2Logbook.com and ReportLab")
+        canvas.drawString(
+            800, 30, "Powered by Direct2Logbook.com and ReportLab")
 
         canvas.setFont('Helvetica', 10)
         page_number_text = "%d" % (doc.page)
@@ -70,13 +77,15 @@ def pdf_generate(user):
         canvas.saveState()
 
         canvas.setFont('Helvetica-Oblique', 7)
-        canvas.drawString(800, 30, "Powered by Direct2Logbook.com and ReportLab")
+        canvas.drawString(
+            800, 30, "Powered by Direct2Logbook.com and ReportLab")
 
-        if Signature.objects.filter(user=request.user).exists():
-            sig = Signature.objects.get(user=request.user)
+        if Signature.objects.filter(user=user).exists():
+            sig = Signature.objects.get(user=user)
             signature = sig.signature
             signature_path = settings.MEDIA_ROOT + '/' + str(signature)
-            canvas.drawImage(str(signature_path), 240, 50, width=100, height=40)
+            canvas.drawImage(str(signature_path), 240,
+                             50, width=100, height=40)
         else:
             None
 
@@ -284,7 +293,7 @@ def pdf_generate(user):
     today = datetime.date.today()
     last_5yr = today - datetime.timedelta(days=1825)
     # stat_objects = Stat.objects.filter(last_flown__gte=last_5yr)
-    stat_objects = Stat.objects.filter(user=user).all()
+    stat_objects = Stat.objects.filter(user=user)
 
     stat_data = []
     for stat in stat_objects:
@@ -331,7 +340,8 @@ def pdf_generate(user):
     # logbook starts here
 
     if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
-        flight_objects = Flight.objects.filter(user=user).order_by('-date')[:100]
+        flight_objects = Flight.objects.filter(
+            user=user).order_by('-date')[:100]
     else:
         flight_objects = Flight.objects.filter(user=user).order_by('-date')
 
@@ -410,12 +420,12 @@ def pdf_generate(user):
     subject = "Logbook for {} {}".format(user.first_name, user.last_name)
     user_email = user.email
     email = EmailMessage(
-    subject,
-    'Good luck on your interview!',
-    'noreply@direct2logbook.com',
-    [user_email],
-    reply_to=['noreply@direct2logbook.com'],
-    headers={'Message-ID': 'logbook'},
+        subject,
+        'Good luck on your interview!',
+        'noreply@direct2logbook.com',
+        [user_email],
+        reply_to=['noreply@direct2logbook.com'],
+        headers={'Message-ID': 'logbook'},
     )
     email.attach('Logbook.pdf', pdf, 'application/pdf')
     email.send()
