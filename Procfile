@@ -1,3 +1,3 @@
 web: gunicorn logbook.wsgi
 
-worker: celery worker --logbook=tasks.app
+worker: celery worker --direct2logbook=logbook.app
