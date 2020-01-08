@@ -6,7 +6,7 @@ from decouple import config
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
-if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS') is None:
+if not os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
     sentry_sdk.init(
         dsn="https://e3f79fa21e484fe6b58a2e227a5bbce5@sentry.io/1515848",
         integrations=[DjangoIntegration()]
@@ -76,8 +76,11 @@ INSTALLED_APPS = [
     'columns',
     'extra_views',
     'anymail',
-    'storages'
+    'storages',
+    'django_celery_results'
 ]
+
+CELERY_RESULT_BACKEND = 'django-db'
 
 AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
@@ -237,7 +240,7 @@ if not os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
     AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
     AWS_DEFAULT_ACL = None
     AWS_S3_FILE_OVERWRITE = False
-    
+
 else:
     None
 

@@ -27,8 +27,7 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from flights.views import LoginRequiredMixin
 import os
 
-from celery import Celery
-app = Celery('logbook')
+from logbook.celery import app
 
 
 class SignatureCreateView(LoginRequiredMixin, CreateView):

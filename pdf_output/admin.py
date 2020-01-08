@@ -2,9 +2,9 @@ from django.contrib import admin
 from .models import *
 
 
-class CSVAdmin(admin.ModelAdmin):
-    list_display = ('user', 'signature')  # add signature
+class PDFAdmin(admin.ModelAdmin):
+    list_display = ('user', 'signature', 'created_at', 'updated_at')
     empty_value_display = ''
 
 
-admin.site.register(Signature, CSVAdmin)
+admin.site.register(Signature, PDFAdmin)
