@@ -5,6 +5,7 @@ from decouple import config
 
 # start worker:
 # celery -A logbook worker -l info
+# http://localhost:15672/
 
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'logbook.settings')
