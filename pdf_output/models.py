@@ -12,9 +12,10 @@ def user_directory_path(instance, filename):
 
 class Signature(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    date = models.DateField(default=timezone.now(), db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     signature = models.ImageField(upload_to=user_directory_path)
 
     class Meta:
-        ordering = ['-date', 'user']
+        ordering = ['-created_at', 'user']
         get_latest_by = ['signature']

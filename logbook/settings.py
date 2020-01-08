@@ -6,7 +6,7 @@ from decouple import config
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
-if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS') is None:
+if not os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
     sentry_sdk.init(
         dsn="https://e3f79fa21e484fe6b58a2e227a5bbce5@sentry.io/1515848",
         integrations=[DjangoIntegration()]
@@ -76,8 +76,12 @@ INSTALLED_APPS = [
     'columns',
     'extra_views',
     'anymail',
-    'storages'
+    'storages',
+    'django_celery_results',
+    'django_celery_beat'
 ]
+
+CELERY_RESULT_BACKEND = 'django-db'
 
 AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
@@ -229,12 +233,17 @@ STATICFILES_FINDERS = [
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
-AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
-AWS_DEFAULT_ACL = None
-AWS_S3_FILE_OVERWRITE = False
+if not os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
+
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
+    AWS_DEFAULT_ACL = None
+    AWS_S3_FILE_OVERWRITE = False
+
+else:
+    None
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'

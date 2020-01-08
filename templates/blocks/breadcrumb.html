@@ -32,7 +32,7 @@
     <a class="" href="{% url 'flight_create' %}">New Flight</a>
     {% if 'home' in request.path %}
     |
-    <a id="pdf" class="" href="{% url 'pdf' request.user.pk %}">Print PDF</a>
+    <a id="" class="" target="new" href="{% url 'pdf' request.user.pk %}">Print PDF</a>
     {% endif %}
     {% if 'logbook' in request.path and 'remarks' not in request.path %}
     |
