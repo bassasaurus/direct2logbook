@@ -83,7 +83,8 @@ def pdf_generate(user_pk):
         if Signature.objects.filter(user=user).exists():
             sig = Signature.objects.get(user=user)
             signature = sig.signature
-            signature_path = settings.MEDIA_URL + str(signature)
+            signature_path = str(signature)
+            print(signature_path)
             canvas.drawImage(str(signature_path), 240,
                              50, width=100, height=40)
         else:
