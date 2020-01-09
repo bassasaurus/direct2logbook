@@ -10,7 +10,7 @@ from decouple import config
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'logbook.settings')
 
-app = Celery('logbook', broker=config('CLOUDAMQP_URL',))
+app = Celery('logbook', broker=config('CLOUDAMQP_URL', 'amqp://localhost'))
 
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.
