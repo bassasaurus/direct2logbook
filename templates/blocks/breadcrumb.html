@@ -1,6 +1,6 @@
 <!-- breadcrumb -->
 <div class="row breadcrumb">
-  <div class="col-6">
+  <div class="col-9">
     {% if home_link %}
     <a href="{{ home_link }}">Home</a> /
     {% endif %}
@@ -9,6 +9,9 @@
     {% else %}
     {{ page_title }}
     {% endif %}
+  </div>
+  <div class="col-3">
+    {% now "M j Y H:i" %}Z
   </div>
 </div>
 
