@@ -7,6 +7,8 @@ from decouple import config
 # celery -A logbook worker -l info
 # http://localhost:15672/
 
+# heroku run celery -A logbook worker -l info --app direct2logbook
+
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'logbook.settings')
 
