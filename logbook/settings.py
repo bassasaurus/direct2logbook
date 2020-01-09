@@ -233,7 +233,12 @@ STATICFILES_FINDERS = [
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
-if not os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
+if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
+
+    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+    MEDIA_URL = '/media/'
+
+else:
 
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
     AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
@@ -242,12 +247,7 @@ if not os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
     AWS_DEFAULT_ACL = None
     AWS_S3_FILE_OVERWRITE = False
     MEDIA_URL = config('MEDIA_URL')
-
-else:
-    None
-
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
+    print(MEDIA_URL)
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
