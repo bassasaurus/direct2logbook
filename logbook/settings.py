@@ -247,7 +247,6 @@ else:
     AWS_DEFAULT_ACL = None
     AWS_S3_FILE_OVERWRITE = False
     MEDIA_URL = config('MEDIA_URL')
-    print(MEDIA_URL)
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
