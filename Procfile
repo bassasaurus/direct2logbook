@@ -1,3 +1,4 @@
 web: gunicorn logbook.wsgi
 
-worker: celery worker --direct2logbook=logbook.app
+
+worker: celery -A /direct2logbook/logbook/celery.py --loglevel=INFO
