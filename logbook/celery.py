@@ -3,14 +3,6 @@ import os
 from celery import Celery
 from decouple import config
 
-# start worker:
-# celery -A logbook worker -l info
-# http://localhost:15672/
-
-# heroku run celery -A logbook worker -l info --app direct2logbook
-
-# heroku logs -t -p worker
-
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'logbook.settings')
 
@@ -29,3 +21,12 @@ app.autodiscover_tasks()
 @app.task(bind=True)
 def debug_task(self):
     print('Request: {0!r}'.format(self.request))
+
+
+
+# start worker:
+# celery -A logbook worker -l info
+# http://localhost:15672/
+
+# heroku run celery -A logbook worker -l info --app direct2logbook
+# heroku logs -t -p worker

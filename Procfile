@@ -1,3 +1,3 @@
 web: gunicorn logbook.wsgi
 
-worker: celery -A logbook.celery --loglevel=INFO
+worker: logbook -A logbook.celery --loglevel=INFO
