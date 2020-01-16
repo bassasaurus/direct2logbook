@@ -1,5 +1,6 @@
 <!-- breadcrumb -->
-<div class="row breadcrumb">
+<div class="d-flex justify-content-end">{% now "M j, Y | H:i" %} UTC</div>
+<div class="flex-row breadcrumb">
   <div class="col-9">
     {% if home_link %}
     <a href="{{ home_link }}">Home</a> /
@@ -9,9 +10,6 @@
     {% else %}
     {{ page_title }}
     {% endif %}
-  </div>
-  <div class="col-3">
-    {% now "M j, Y | H:i" %} UTC
   </div>
 </div>
 
