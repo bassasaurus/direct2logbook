@@ -291,18 +291,12 @@
   {% endif %}
 
   <script>
-    $('#pdf').click(function(e) {
-      swal({
-        type: 'info',
-        title: 'Preparing your logbook.',
-        text: 'Please be patient, This might take several minutes.',
-        footer: 'Dont leave this page.',
-        toast: true,
-        position: 'top',
-        showConfirmButton: false,
-        allowOutsideClick: false,
-        // timer: 50000,
-      })
+    $("#pdf").click(function(){
+      $.ajax({
+        type: "GET",
+        url: "{% url 'pdf' user.id %}",
+        success: Swal.fire("Check your email."),
+      });
     });
   </script>
 
