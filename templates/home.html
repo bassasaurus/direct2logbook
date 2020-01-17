@@ -295,7 +295,10 @@
       $.ajax({
         type: "GET",
         url: "{% url 'pdf' user.id %}",
-        success: Swal.fire("Check your email."),
+        success: Swal.fire(
+          'Your logbook will be sent to:',
+          '{{ user.email }}',
+          'success'),
       });
     });
   </script>
