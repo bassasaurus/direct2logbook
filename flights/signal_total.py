@@ -4,15 +4,16 @@ from django.core.exceptions import ObjectDoesNotExist
 from flights.queryset_helpers import avoid_none
 from logbook.celery import app
 
-@app.task
-def total_all_update(instance, **kwargs):
 
-    counter = 1
+@app.task
+def total_all_update(instance):
+
+    print(instance)
 
     from flights.models import Total, Flight, Imported
 
-    flight = Flight.objects.filter(user=instance.user)
-    imported = Imported.objects.filter(user=instance.user)
+    flight = Flight.objects.filter(user=user)
+    imported = Imported.objects.filter(user=user)
 
     asel_query = Q(aircraft_type__aircraft_category='A') & Q(aircraft_type__aircraft_class='SEL')
     amel_query = Q(aircraft_type__aircraft_category='A') & Q(aircraft_type__aircraft_class='MEL')
@@ -132,6 +133,4 @@ def total_all_update(instance, **kwargs):
         ytd = flight.filter(date__lte=today, date__gte=ytd)
         object.ytd = avoid_none(ytd, 'duration') + avoid_none(imported, 'ytd')
 
-        counter += 1
-        print(counter)
         object.save()

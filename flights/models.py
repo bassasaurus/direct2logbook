@@ -9,7 +9,9 @@ from picklefield.fields import PickledObjectField
 from django.core.validators import MinValueValidator, RegexValidator
 
 from flights.signal_total import total_all_update
-
+import celery
+from django.core.serializers.json import DjangoJSONEncoder
+from django.core.serializers import serialize
 
 BOOL_CHOICES = ((True, 'Yes'), (False, 'No', None, ''))
 
@@ -25,6 +27,13 @@ def user_directory_path(instance, filename):
     return 'user_{0}/{1}'.format(instance.user.id, filename)
 
 # FAA data from http://www.faa.gov/airports/airport_safety/airportdata_5010/menu/nfdcfacilitiesexport.cfm?Region=&District=&State=&County=&City=&Use=PU&Certification=
+
+
+class LazyEncoder(DjangoJSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, models.Model):
+            return str(obj)
+        return super().default(obj)
 
 
 class MapData(models.Model):
@@ -324,11 +333,13 @@ class Flight(models.Model):
 
     def save(self):
         super(Flight, self).save()
-        total_all_update(self)
+        data = serialize('json', Flight.objects.filter(pk=self.pk), cls=LazyEncoder)
+        total_all_update.delay(data)
 
     def delete(self):
         super(Flight, self).delete()
-        total_all_update(self)
+        data = serialize('json', Flight.objects.filter(pk=self.pk), cls=LazyEncoder)
+        total_all_update.delay(data)
 
 
 class TailNumber(models.Model):
