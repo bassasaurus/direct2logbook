@@ -12,6 +12,8 @@ from flights.signal_total import total_all_update
 import celery
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.serializers import serialize
+import json
+import pprint
 
 BOOL_CHOICES = ((True, 'Yes'), (False, 'No', None, ''))
 

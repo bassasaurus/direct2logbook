@@ -3,16 +3,22 @@ import datetime
 from django.core.exceptions import ObjectDoesNotExist
 from flights.queryset_helpers import avoid_none
 from logbook.celery import app
+import json
+from django.core import serializers
 
 
 @app.task
-def total_all_update(instance):
-
-    print(instance)
+def total_all_update(data):
 
     from flights.models import Total, Flight, Imported
 
+    for obj in serializers.deserialize("json", data):
+        user = obj.object.user
+        pk = obj.object.pk
+
     flight = Flight.objects.filter(user=user)
+    instance = Flight.objects.get(pk=pk)
+    
     imported = Imported.objects.filter(user=user)
 
     asel_query = Q(aircraft_type__aircraft_category='A') & Q(aircraft_type__aircraft_class='SEL')
