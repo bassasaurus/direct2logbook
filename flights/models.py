@@ -8,6 +8,8 @@ from picklefield.fields import PickledObjectField
 
 from django.core.validators import MinValueValidator, RegexValidator
 
+from flights.signal_total import total_all_update
+
 
 BOOL_CHOICES = ((True, 'Yes'), (False, 'No', None, ''))
 
@@ -319,6 +321,14 @@ class Flight(models.Model):
 
     def __str__(self):
         return "{} | {}".format(self.date, self.route)
+
+    def save(self):
+        super(Flight, self).save()
+        total_all_update(self)
+
+    def delete(self):
+        super(Flight, self).delete()
+        total_all_update(self)
 
 
 class TailNumber(models.Model):

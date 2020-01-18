@@ -1,19 +1,15 @@
-from flights.models import Total, Flight, Imported
-
-from django.db.models.signals import post_save, post_delete
 from django.db.models import Q
 import datetime
-
 from django.core.exceptions import ObjectDoesNotExist
 from flights.queryset_helpers import avoid_none
-from django.dispatch import receiver
+from logbook.celery import app
 
+@app.task
+def total_all_update(instance, **kwargs):
 
-@receiver(post_save, sender=Flight)
-@receiver(post_delete, sender=Flight)
-@receiver(post_save, sender=Imported)
-@receiver(post_delete, sender=Imported)
-def total_all_update(sender, instance, dispatch_uid="total_all_update", **kwargs):
+    counter = 1
+
+    from flights.models import Total, Flight, Imported
 
     flight = Flight.objects.filter(user=instance.user)
     imported = Imported.objects.filter(user=instance.user)
@@ -71,6 +67,7 @@ def total_all_update(sender, instance, dispatch_uid="total_all_update", **kwargs
         imported = imported_queries[key]
 
         object.total_time = avoid_none(flight, 'duration') + avoid_none(imported, 'total_time')
+        print(object.total_time)
 
         object.pilot_in_command = avoid_none(flight.filter(pilot_in_command=True), 'duration') + avoid_none(imported, 'pilot_in_command')
 
@@ -135,4 +132,6 @@ def total_all_update(sender, instance, dispatch_uid="total_all_update", **kwargs
         ytd = flight.filter(date__lte=today, date__gte=ytd)
         object.ytd = avoid_none(ytd, 'duration') + avoid_none(imported, 'ytd')
 
+        counter += 1
+        print(counter)
         object.save()

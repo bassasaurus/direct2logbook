@@ -3,29 +3,29 @@
 
 <div class="form-group">
   <div class="input-group-sm">
-    {{ form.date.errors }}
     {{ form.date |attr:"autocomplete:off" |attr:"placeholder:Date *" |add_class:"form-control"}}
+    {{ form.date.errors }}
   </div>
 </div>
 <div class="form-group">
   <div class="input-group-sm">
-  {{ form.aircraft_type.errors }}
   {{ form.aircraft_type }}
+  {{ form.aircraft_type.errors }}
   <div><a target="new" href="{% url 'aircraft_create' %}"> New Aircraft</a></div>
 </div>
 </div>
   <div class="form-group">
   <div class="input-group-sm">
-    {{ form.registration.errors }}
     {{ form.registration }}
+    {{ form.registration.errors }}
     <div><a target="new" href="{% url 'tailnumber_create' %}"> New Tailnumber</a></div>
   </div>
 </div>
 <div class="form-group">
   <div class="input-group-sm">
     <label class="text-muted">Route</label>
-    {{ form.route.errors }}
     {{ form.route |attr:"id:route" |attr:"autocomplete:off" |attr:"placeholder:XXX-XXXX-*" |add_class:"form-control"}}
+    {{ form.route.errors }}
     <small class="form-text text-muted">Use ATA or ICAO and space between to autoformat</small>
   </div>
 </div>
@@ -33,8 +33,8 @@
 <div class="form-group">
   <div class="input-group-sm">
     <label class="text-muted">Duration</label>
-    {{ form.duration.errors }}
     {{ form.duration |attr:"placeholder:X.X" |add_class:"form-control"}}
+    {{ form.duration.errors }}
     <small class="form-text text-muted">Positive number greater than .1</small>
   </div>
 </div>
@@ -105,7 +105,6 @@
     <p class="text-danger">{{ inlines.non_form_errors }}<p>
     <div id="approach_form" class="">
       <table>
-        {{ form.errors }}
         {% for form in approaches %}
           <tr class="formset_row">
             {{ form.id }}
