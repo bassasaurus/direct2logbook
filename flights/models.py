@@ -226,25 +226,26 @@ class Weight(models.Model):
         return title
 
 
-CATEGORY_CHOICES = (
-    ('', 'None'),
-    ('A', 'Airplane'),
-    ('R', 'Rotorcraft')
-)
-
-
-CLASS_CHOICES = (
-    ('', 'None'),
-    ('SEL', 'Single-Engine Land'),
-    ('MEL', 'Multi-Engine Land'),
-    ('SES', 'Single-Engine Sea'),
-    ('MES', 'Mult-Engine Sea'),
-    ('HELO', 'Helicopter'),
-    ('GYRO', 'Gyroplane')
-)
-
 
 class Aircraft(models.Model):
+
+    CATEGORY_CHOICES = (
+        ('', 'None'),
+        ('A', 'Airplane'),
+        ('R', 'Rotorcraft')
+    )
+
+
+    CLASS_CHOICES = (
+        ('', 'None'),
+        ('SEL', 'Single-Engine Land'),
+        ('MEL', 'Multi-Engine Land'),
+        ('SES', 'Single-Engine Sea'),
+        ('MES', 'Mult-Engine Sea'),
+        ('HELO', 'Helicopter'),
+        ('GYRO', 'Gyroplane')
+    )
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     aircraft_type = models.CharField(db_index=True, max_length=10)
     turbine = models.BooleanField(default=False)
@@ -334,14 +335,15 @@ class Flight(models.Model):
         return "{} | {}".format(self.date, self.route)
 
     def save(self):
-        super(Flight, self).save()
+        super(Flight, self).save() # must be saved prior
         data = serialize('json', Flight.objects.filter(pk=self.pk), cls=LazyEncoder)
         total_all_update.delay(data)
 
     def delete(self):
-        super(Flight, self).delete()
         data = serialize('json', Flight.objects.filter(pk=self.pk), cls=LazyEncoder)
         total_all_update.delay(data)
+        super(Flight, self).delete() # must be deleted prior to get reduced total
+
 
 
 class TailNumber(models.Model):

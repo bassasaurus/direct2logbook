@@ -15,10 +15,16 @@ def total_all_update(data):
     for obj in serializers.deserialize("json", data):
         user = obj.object.user
         pk = obj.object.pk
+        aircaft_type = obj.object.aircraft_type
 
     flight = Flight.objects.filter(user=user)
-    instance = Flight.objects.get(pk=pk)
-    
+
+    try:
+        instance = Flight.objects.get(pk=pk)
+
+    except ObjectDoesNotExist:
+        instance = Flight.objects.get(user=user, aircraft_type=aircraft_type).latest('date')
+
     imported = Imported.objects.filter(user=user)
 
     asel_query = Q(aircraft_type__aircraft_category='A') & Q(aircraft_type__aircraft_class='SEL')
