@@ -1,4 +1,3 @@
-from django.db.models import Q
 import datetime
 from django.core.exceptions import ObjectDoesNotExist
 from flights.queryset_helpers import avoid_none
@@ -16,7 +15,6 @@ def total_all_update(data):
         user = obj.object.user
         pk = obj.object.pk
         aircraft_type = obj.object.aircraft_type
-
 
     flight = Flight.objects.filter(user=user)
 
