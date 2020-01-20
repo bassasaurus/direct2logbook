@@ -3,7 +3,7 @@ import datetime
 from django.core.exceptions import ObjectDoesNotExist
 from flights.queryset_helpers import avoid_none
 from logbook.celery import app
-import json
+
 from django.core import serializers
 
 
@@ -15,43 +15,34 @@ def total_all_update(data):
     for obj in serializers.deserialize("json", data):
         user = obj.object.user
         pk = obj.object.pk
-        aircaft_type = obj.object.aircraft_type
+        aircraft_type = obj.object.aircraft_type
+
+        print(aircraft_type)
 
     flight = Flight.objects.filter(user=user)
 
-    try:
-        instance = Flight.objects.get(pk=pk)
-
-    except ObjectDoesNotExist:
-        instance = Flight.objects.get(user=user, aircraft_type=aircraft_type).latest('date')
+    instance = Flight.objects.get(pk=pk)
 
     imported = Imported.objects.filter(user=user)
 
-    asel_query = Q(aircraft_type__aircraft_category='A') & Q(aircraft_type__aircraft_class='SEL')
-    amel_query = Q(aircraft_type__aircraft_category='A') & Q(aircraft_type__aircraft_class='MEL')
-    ases_query = Q(aircraft_type__aircraft_category='A') & Q(aircraft_type__aircraft_class='SES')
-    ames_query = Q(aircraft_type__aircraft_category='A') & Q(aircraft_type__aircraft_class='MES')
-    helo_query = Q(aircraft_type__aircraft_category='R') & Q(aircraft_type__aircraft_class='HELO')
-    gyro_query = Q(aircraft_type__aircraft_category='R') & Q(aircraft_type__aircraft_class='GYRO')
-
     flight_queries = {
                     'All': flight,
-                    'ASEL': flight.filter(asel_query),
-                    'AMEL': flight.filter(amel_query),
-                    'ASES': flight.filter(ases_query),
-                    'AMES': flight.filter(ames_query),
-                    'HELO': flight.filter(helo_query),
-                    'GYRO': flight.filter(gyro_query),
+                    'ASEL': flight.filter(aircraft_type__aircraft_category='A').filter(aircraft_type__aircraft_class='SEL'),
+                    'AMEL': flight.filter(aircraft_type__aircraft_category='A').filter(aircraft_type__aircraft_class='MEL'),
+                    'ASES': flight.filter(aircraft_type__aircraft_category='A').filter(aircraft_type__aircraft_class='SES'),
+                    'AMES': flight.filter(aircraft_type__aircraft_category='A').filter(aircraft_type__aircraft_class='MES'),
+                    'HELO': flight.filter(aircraft_type__aircraft_category='R').filter(aircraft_type__aircraft_class='HELO'),
+                    'GYRO': flight.filter(aircraft_type__aircraft_category='R').filter(aircraft_type__aircraft_class='GYRO'),
                 }
 
     imported_queries = {
                     'All': imported,
-                    'ASEL': imported.filter(asel_query),
-                    'AMEL': imported.filter(amel_query),
-                    'ASES': imported.filter(ases_query),
-                    'AMES': imported.filter(ames_query),
-                    'HELO': imported.filter(helo_query),
-                    'GYRO': imported.filter(gyro_query),
+                    'ASEL': imported.filter(aircraft_type__aircraft_category='A').filter(aircraft_type__aircraft_class='SEL'),
+                    'AMEL': imported.filter(aircraft_type__aircraft_category='A').filter(aircraft_type__aircraft_class='MEL'),
+                    'ASES': imported.filter(aircraft_type__aircraft_category='A').filter(aircraft_type__aircraft_class='SES'),
+                    'AMES': imported.filter(aircraft_type__aircraft_category='A').filter(aircraft_type__aircraft_class='MES'),
+                    'HELO': imported.filter(aircraft_type__aircraft_category='R').filter(aircraft_type__aircraft_class='HELO'),
+                    'GYRO': imported.filter(aircraft_type__aircraft_category='R').filter(aircraft_type__aircraft_class='GYRO'),
                 }
 
     if str(instance.aircraft_type.aircraft_category) == "A" and str(instance.aircraft_type.aircraft_class) == 'SEL':
@@ -80,7 +71,8 @@ def total_all_update(data):
         imported = imported_queries[key]
 
         object.total_time = avoid_none(flight, 'duration') + avoid_none(imported, 'total_time')
-        print(object.total_time)
+
+        print(object, object.total_time)
 
         object.pilot_in_command = avoid_none(flight.filter(pilot_in_command=True), 'duration') + avoid_none(imported, 'pilot_in_command')
 
