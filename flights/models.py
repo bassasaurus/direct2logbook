@@ -1,15 +1,14 @@
 
 from django.db import models
 from django.urls import reverse
-
 from django.contrib.auth.models import User
-
 from picklefield.fields import PickledObjectField
-
 from django.core.validators import MinValueValidator, RegexValidator
-from flights.signal_total import total_all_update
+from flights.task_total import total_update
+from flights.task_stat import stat_update
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.serializers import serialize
+
 
 BOOL_CHOICES = ((True, 'Yes'), (False, 'No', None, ''))
 
@@ -332,12 +331,13 @@ class Flight(models.Model):
     def save(self):
         super(Flight, self).save()  # must be saved prior
         data = serialize('json', Flight.objects.filter(pk=self.pk), cls=LazyEncoder)
-        total_all_update.delay(data)
+        total_update.delay(data)
+        stat_update.delay(data)
 
     def delete(self):
         data = serialize('json', Flight.objects.filter(pk=self.pk), cls=LazyEncoder)
         super(Flight, self).delete()
-        total_all_update.delay(data)  # trigger exception in async to reaggregate flight.duration
+        total_update.delay(data)  # trigger exception in async to reaggregate flight.duration
 
 
 class TailNumber(models.Model):

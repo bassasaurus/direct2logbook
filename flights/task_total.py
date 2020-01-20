@@ -2,12 +2,11 @@ import datetime
 from django.core.exceptions import ObjectDoesNotExist
 from flights.queryset_helpers import avoid_none
 from logbook.celery import app
-
 from django.core import serializers
 
 
 @app.task
-def total_all_update(data):
+def total_update(data):
 
     from flights.models import Total, Flight, Imported
 
