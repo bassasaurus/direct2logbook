@@ -17,7 +17,6 @@ def total_all_update(data):
         pk = obj.object.pk
         aircraft_type = obj.object.aircraft_type
 
-        print(aircraft_type)
 
     flight = Flight.objects.filter(user=user)
 
@@ -25,7 +24,6 @@ def total_all_update(data):
         instance = Flight.objects.get(pk=pk)
     except ObjectDoesNotExist:
         instance = Flight.objects.filter(user=user, aircraft_type=aircraft_type).latest('date')
-        print(instance, 'No existo')
 
     imported = Imported.objects.filter(user=user)
 
@@ -75,8 +73,6 @@ def total_all_update(data):
         imported = imported_queries[key]
 
         object.total_time = avoid_none(flight, 'duration') + avoid_none(imported, 'total_time')
-
-        print(object, object.total_time)
 
         object.pilot_in_command = avoid_none(flight.filter(pilot_in_command=True), 'duration') + avoid_none(imported, 'pilot_in_command')
 

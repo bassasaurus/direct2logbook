@@ -341,7 +341,7 @@ class Flight(models.Model):
     def delete(self):
         data = serialize('json', Flight.objects.filter(pk=self.pk), cls=LazyEncoder)
         super(Flight, self).delete()
-        total_all_update.delay(data)
+        total_all_update.delay(data)  # trigger exception in async to reaggregate flight.duration
 
 
 class TailNumber(models.Model):
