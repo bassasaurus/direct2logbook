@@ -21,7 +21,11 @@ def total_all_update(data):
 
     flight = Flight.objects.filter(user=user)
 
-    instance = Flight.objects.get(pk=pk)
+    try:
+        instance = Flight.objects.get(pk=pk)
+    except ObjectDoesNotExist:
+        instance = Flight.objects.filter(user=user, aircraft_type=aircraft_type).latest('date')
+        print(instance, 'No existo')
 
     imported = Imported.objects.filter(user=user)
 

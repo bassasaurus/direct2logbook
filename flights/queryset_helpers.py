@@ -10,7 +10,7 @@ def avoid_none(queryset, field):
     if not queryset.get(field__sum):
         return 0
     else:
-        return round(queryset.get(field__sum), 1)
+        return float(queryset.get(field__sum))
 
 
 def zero_if_none(object):

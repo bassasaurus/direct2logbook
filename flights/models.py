@@ -340,8 +340,8 @@ class Flight(models.Model):
 
     def delete(self):
         data = serialize('json', Flight.objects.filter(pk=self.pk), cls=LazyEncoder)
-        total_all_update.delay(data)
         super(Flight, self).delete()
+        total_all_update.delay(data)
 
 
 class TailNumber(models.Model):
