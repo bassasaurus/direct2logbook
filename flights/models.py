@@ -482,6 +482,14 @@ class Imported(models.Model):
         title = str(self.aircraft_type)
         return title
 
-    def save(self, *args, **kwargs):
+    def save(self):
+        super(Flight, self).save()  # must be saved prior
+        data = serialize('json', Flight.objects.filter(pk=self.pk), cls=LazyEncoder)
+        total_update.delay(data)
+        stat_update.delay(data)
 
-        super().save(*args, **kwargs)
+    def delete(self):
+        data = serialize('json', Flight.objects.filter(pk=self.pk), cls=LazyEncoder)
+        super(Flight, self).delete()
+        total_update.delay(data)  # trigger exception in async to reaggregate flight.duration
+        stat_update.delay(data)
