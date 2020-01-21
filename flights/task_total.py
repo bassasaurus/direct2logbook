@@ -17,7 +17,7 @@ def total_update(data):
         aircraft_type = obj.object.aircraft_type
 
         if "flights.flight" in str(data):
-            print('flight')
+
             try:
                 instance = Flight.objects.get(pk=pk)
 
