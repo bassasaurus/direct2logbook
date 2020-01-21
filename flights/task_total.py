@@ -11,17 +11,30 @@ def total_update(data):
     from flights.models import Total, Flight, Imported
 
     for obj in serializers.deserialize("json", data):
+
         user = obj.object.user
         pk = obj.object.pk
         aircraft_type = obj.object.aircraft_type
 
+        if "flights.flight" in str(data):
+            print('flight')
+            try:
+                instance = Flight.objects.get(pk=pk)
+
+            except ObjectDoesNotExist and "flights.imported" not in data:
+
+                instance = Flight.objects.filter(user=user, aircraft_type=aircraft_type).latest('date')
+
+        elif "flights.imported" in str(data):
+
+            try:
+                instance = Imported.objects.get(pk=pk)
+
+            except ObjectDoesNotExist:
+
+                instance = Imported.objects.filter(user=user).latest('last_flown')
+
     flight = Flight.objects.filter(user=user)
-
-    try:
-        instance = Flight.objects.get(pk=pk)
-    except ObjectDoesNotExist:
-        instance = Flight.objects.filter(user=user, aircraft_type=aircraft_type).latest('date')
-
     imported = Imported.objects.filter(user=user)
 
     flight_queries = {
@@ -45,24 +58,24 @@ def total_update(data):
                 }
 
     if str(instance.aircraft_type.aircraft_category) == "A" and str(instance.aircraft_type.aircraft_class) == 'SEL':
-        Total.objects.get_or_create(user=instance.user, total='ASEL',)
+        Total.objects.get_or_create(user=user, total='ASEL',)
 
     elif str(instance.aircraft_type.aircraft_category) == "A" and str(instance.aircraft_type.aircraft_class) == 'MEL':
-        Total.objects.get_or_create(user=instance.user, total='AMEL',)
+        Total.objects.get_or_create(user=user, total='AMEL',)
 
     elif str(instance.aircraft_type.aircraft_category) == "A" and str(instance.aircraft_type.aircraft_class) == 'SES':
-        Total.objects.get_or_create(user=instance.user, total='ASES',)
+        Total.objects.get_or_create(user=user, total='ASES',)
 
     elif str(instance.aircraft_type.aircraft_category) == "A" and str(instance.aircraft_type.aircraft_class) == 'MES':
-        Total.objects.get_or_create(user=instance.user, total='AMES',)
+        Total.objects.get_or_create(user=user, total='AMES',)
 
     elif str(instance.aircraft_type.aircraft_category) == "R" and str(instance.aircraft_type.aircraft_class) == 'HELO':
-        Total.objects.get_or_create(user=instance.user, total='HELO',)
+        Total.objects.get_or_create(user=user, total='HELO',)
 
     elif str(instance.aircraft_type.aircraft_category) == "R" and str(instance.aircraft_type.aircraft_class) == 'GYRO':
-        Total.objects.get_or_create(user=instance.user, total='GYRO',)
+        Total.objects.get_or_create(user=user, total='GYRO',)
 
-    total = Total.objects.filter(user=instance.user)
+    total = Total.objects.filter(user=user)
 
     for object in total:
         key = str(object.total)

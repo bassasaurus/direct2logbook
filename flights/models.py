@@ -483,13 +483,13 @@ class Imported(models.Model):
         return title
 
     def save(self):
-        super(Flight, self).save()  # must be saved prior
-        data = serialize('json', Flight.objects.filter(pk=self.pk), cls=LazyEncoder)
+        super(Imported, self).save()  # must be saved prior
+        data = serialize('json', Imported.objects.filter(pk=self.pk), cls=LazyEncoder)
         total_update.delay(data)
         stat_update.delay(data)
 
     def delete(self):
-        data = serialize('json', Flight.objects.filter(pk=self.pk), cls=LazyEncoder)
-        super(Flight, self).delete()
+        data = serialize('json', Imported.objects.filter(pk=self.pk), cls=LazyEncoder)
+        super(Imported, self).delete()
         total_update.delay(data)  # trigger exception in async to reaggregate flight.duration
         stat_update.delay(data)
