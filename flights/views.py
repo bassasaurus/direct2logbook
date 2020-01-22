@@ -192,7 +192,7 @@ def index_view(request):
         return render(request, 'index.html', context)
 
 
-class HomeView(LoginRequiredMixin, TemplateView):  # ProfileNotActiveMixin
+class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # ProfileNotActiveMixin
     template_name = 'home.html'
 
     def get_context_data(self, **kwargs):
