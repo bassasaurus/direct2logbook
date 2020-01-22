@@ -17,6 +17,7 @@ else:
     stripe.api_key = config('STRIPE_LIVE_SECRET_KEY')
     endpoint_secret = config('endpoint_live_secret')
 
+
 @csrf_exempt
 def stripe_webhook_view(request):
 
@@ -34,9 +35,11 @@ def stripe_webhook_view(request):
         event = stripe.Webhook.construct_event(
           payload, sig_header, endpoint_secret
         )
+
     except ValueError as e:
         # Invalid payload
         return HttpResponse(status=400)
+
     except stripe.error.SignatureVerificationError as e:
         # Invalid signature
         return HttpResponse(status=400)
@@ -124,6 +127,7 @@ def stripe_webhook_view(request):
         profile.save()
 
     elif event.type == 'charge.failed':
+        profile.expired = True
         profile.active = False
         profile.monthly = False
         profile.yearly = False
