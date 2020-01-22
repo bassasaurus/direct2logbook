@@ -10,10 +10,8 @@
 <hr>
 
 {% if imported %}
-  <div class="row flex-med-row>">
-    <div class="">
+  <div class="row">
     {% include 'table_imported.html' %}
-    </div>
   </div>
 <hr>
 {% endif %}
@@ -53,6 +51,7 @@
 
 </div>
 
+{% include 'tablefixer.html' %}
 {% if new_user_flight or new_user_aircraft or new_user_tailnumber is True %}
   {% include 'new_user_modal.html' %}
 {% endif %}

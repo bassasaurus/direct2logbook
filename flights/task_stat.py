@@ -17,8 +17,15 @@ def stat_update(data):
     stat = Stat.objects.get_or_create(user=user, aircraft_type=aircraft_type)
     stat = stat[0]
 
-    flight = Flight.objects.filter(user=user).filter(aircraft_type=aircraft_type)
-    imported = Imported.objects.filter(user=user).filter(aircraft_type=aircraft_type)
+    if aircraft_type not in Flight.objects.filter(user=user).filter(aircraft_type=aircraft_type):
+        flight = Flight.objects.filter(user=user).none()
+    else:
+        flight = Flight.objects.filter(user=user).filter(aircraft_type=aircraft_type)
+
+    if aircraft_type not in Imported.objects.filter(user=user).filter(aircraft_type=aircraft_type):
+        imported = Imported.objects.filter(user=user).none()
+    else:
+        imported = Imported.objects.filter(user=user).filter(aircraft_type=aircraft_type)
 
     stat.total_time = avoid_none(flight, 'duration') + avoid_none(imported, 'total_time')
 
@@ -48,17 +55,15 @@ def stat_update(data):
 
     stat.landings_stat = zero_if_none(stat.landings_day) + zero_if_none(stat.landings_night) + avoid_none(imported, 'landings_day') + avoid_none(imported, 'landings_night')
 
-    try:
+    if not flight:
+        pass
+    else:
         flight_last_flown = flight.latest('date').date
-    except ObjectDoesNotExist:
-        flight_last_flown = datetime.date(1900, 1, 1)
 
-    try:
+    if not imported:
+        pass
+    else:
         imported_last_flown = imported.latest('last_flown').last_flown
-    except ObjectDoesNotExist:
-        imported_last_flown = flight.latest('date').date
-    finally:
-        imported_last_flown = datetime.date(1900, 1, 1)
 
     stat.last_flown = max(flight_last_flown, imported_last_flown)
 
