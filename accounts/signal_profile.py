@@ -20,7 +20,7 @@ def create_user_profile(sender, instance, created, **kwargs):
 
         name = '{} {}'.format(instance.first_name, instance.last_name)
 
-        stripe.api_key = config('STRIPE_TEST_SECRET_KEY')
+        stripe.api_key = config('STRIPE_TEST_SECRET_KEY', cast=bool)
 
         now = datetime.now()
         trial_period = timedelta(days=14)
