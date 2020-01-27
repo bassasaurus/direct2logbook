@@ -6,11 +6,13 @@ from decouple import config
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
-if not os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
+if not config('DJANGO_DEVELOPMENT_SETTINGS', cast=bool):
     sentry_sdk.init(
         dsn="https://e3f79fa21e484fe6b58a2e227a5bbce5@sentry.io/1515848",
         integrations=[DjangoIntegration()]
     )
+else:
+    print('Sentry not active')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -289,5 +291,5 @@ DEFAULT_FROM_EMAIL = "no-reply@direct2logbook.com"
 
 CSRF_USE_SESSIONS = True
 
-if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
+if config('DJANGO_DEVELOPMENT_SETTINGS', cast=bool):
     from .development import *

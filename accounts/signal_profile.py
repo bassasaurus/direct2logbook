@@ -20,7 +20,11 @@ def create_user_profile(sender, instance, created, **kwargs):
 
         name = '{} {}'.format(instance.first_name, instance.last_name)
 
-        stripe.api_key = config('STRIPE_TEST_SECRET_KEY')
+        if config('DJANGO_DEVELOPMENT_SETTINGS', cast=bool):
+            stripe.api_key = config('STRIPE_TEST_SECRET_KEY')
+            print('Stripe test key')
+        else:
+            stripe.api_key = config('STRIPE_LIVE_SECRET_KEY')
 
         now = datetime.now()
         trial_period = timedelta(days=14)
@@ -34,7 +38,7 @@ def create_user_profile(sender, instance, created, **kwargs):
             email=instance.email
         )
 
-        if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
+        if config('DJANGO_DEVELOPMENT_SETTINGS', cast=bool):
             plan = 'plan_FkX07tGXr4f3Mh'  # test mode trial
         else:
             plan = 'plan_Fkf5ex0bvWncFx'  # production trial
@@ -64,6 +68,7 @@ def create_user_profile(sender, instance, created, **kwargs):
         profile.save()
 
         user = User.objects.get(pk=instance.pk)
+        # add user to group here
         total = Total(user=user, total='All')
         total.save()
 
