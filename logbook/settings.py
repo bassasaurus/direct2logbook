@@ -83,8 +83,6 @@ INSTALLED_APPS = [
     'django_celery_beat'
 ]
 
-CELERY_RESULT_BACKEND = 'django-db'
-
 AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
     'django.contrib.auth.backends.ModelBackend',
