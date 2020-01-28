@@ -340,7 +340,7 @@ def pdf_generate(user_pk):
 
     # logbook starts here
 
-    if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
+    if config('DJANGO_DEVELOPMENT_SETTINGS', cast=bool):
         flight_objects = Flight.objects.filter(
             user=user).order_by('-date')[:100]
     else:
