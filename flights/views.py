@@ -1,7 +1,6 @@
 from flights.models import *
 from accounts.models import Profile
 
-
 from flights.forms import *
 from django.db.models import Sum, Q, F
 from django.db.models.functions import Length
@@ -24,6 +23,9 @@ from django.shortcuts import render, redirect
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 
+from django.db import IntegrityError
+from django.shortcuts import render_to_response
+
 from dal import autocomplete
 import datetime
 
@@ -32,6 +34,8 @@ import flights.currency as currency
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.utils.encoding import force_text
+
+from django.contrib import messages
 
 CharField.register_lookup(Length, 'length')
 
@@ -1080,9 +1084,19 @@ class TailNumberCreate(LoginRequiredMixin, ProfileNotActiveMixin, CreateView):
     template_name = "tailnumbers/tailnumber_create_form.html"
 
     def form_valid(self, form):
-        object = form.save(commit=False)
-        object.user = self.request.user
-        object.save()
+        try:
+            object = form.save(commit=False)
+            object.user = self.request.user
+            object.save()
+        except IntegrityError as e:
+            return render_to_response(
+                    reverse(
+                        'home', messages.add_message(
+                        self.request, messages.INFO, str(e.__cause__)
+                            )
+                        )
+                    )
+
         return super(TailNumberCreate, self).form_valid(form)
 
     def get_context_data(self, **kwargs):

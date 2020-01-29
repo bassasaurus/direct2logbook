@@ -43,7 +43,12 @@
   <div style="margin-top: 115px;">
     <div class="container">
       <div style="margin-top: 25px">
+        {% for message in messages %}
+          <p class="text-danger">{{ message }}<p>
+        {% endfor %}
         {% include 'blocks/breadcrumb.html' %}
+        {% if messages %}
+{% endif %}
         {% block content %}
         {% endblock %}
       </div>
