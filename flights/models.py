@@ -333,7 +333,11 @@ class TailNumber(models.Model):
     class Meta:
         verbose_name_plural = "Tailnumbers"
         ordering = ['user', 'aircraft', 'registration']
-        unique_together = ('user', 'registration')
+        constraints = [
+            models.UniqueConstraint(
+            fields=['user', 'registration'],
+            name='unique tailnumber')
+            ]
 
     def __str__(self):
         registration = str(self.registration)
