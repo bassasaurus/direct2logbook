@@ -44,7 +44,7 @@
     <div class="container">
       <div style="margin-top: 25px">
         {% for message in messages %}
-          <p class="text-danger">{{ message }}<p>
+          <div class="alert alert-danger" role="alert">{{ message }}</div>
         {% endfor %}
         {% include 'blocks/breadcrumb.html' %}
         {% if messages %}

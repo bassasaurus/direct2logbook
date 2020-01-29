@@ -1083,22 +1083,6 @@ class TailNumberCreate(LoginRequiredMixin, ProfileNotActiveMixin, CreateView):
     form_class = TailNumberForm
     template_name = "tailnumbers/tailnumber_create_form.html"
 
-    def form_valid(self, form):
-        try:
-            object = form.save(commit=False)
-            object.user = self.request.user
-            object.save()
-        except IntegrityError as e:
-            return render_to_response(
-                    reverse(
-                        'home', messages.add_message(
-                        self.request, messages.INFO, str(e.__cause__)
-                            )
-                        )
-                    )
-
-        return super(TailNumberCreate, self).form_valid(form)
-
     def get_context_data(self, **kwargs):
         context = super(TailNumberCreate, self).get_context_data(**kwargs)
 
@@ -1108,6 +1092,17 @@ class TailNumberCreate(LoginRequiredMixin, ProfileNotActiveMixin, CreateView):
         context['parent_link'] = reverse('aircraft_list')
         context['parent_name'] = 'Aircraft'
         return context
+
+    def form_valid(self, form):
+        try:
+            object = form.save(commit=False)
+            object.user = self.request.user
+            object.save()
+        except IntegrityError as e:
+            messages.add_message(self.request, messages.INFO, str(e.__cause__))
+            return render(self.request, 'tailnumbers/tailnumber_create_form.html', context=self.get_context_data())
+
+        return super(TailNumberCreate, self).form_valid(form)
 
 
 class TailNumberUpdate(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, UpdateView):
