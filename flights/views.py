@@ -1,7 +1,6 @@
 from flights.models import *
 from accounts.models import Profile
 
-
 from flights.forms import *
 from django.db.models import Sum, Q, F
 from django.db.models.functions import Length
@@ -24,6 +23,9 @@ from django.shortcuts import render, redirect
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 
+from django.db import IntegrityError
+from django.shortcuts import render_to_response
+
 from dal import autocomplete
 import datetime
 
@@ -32,6 +34,8 @@ import flights.currency as currency
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.utils.encoding import force_text
+
+from django.contrib import messages
 
 CharField.register_lookup(Length, 'length')
 
@@ -1079,12 +1083,6 @@ class TailNumberCreate(LoginRequiredMixin, ProfileNotActiveMixin, CreateView):
     form_class = TailNumberForm
     template_name = "tailnumbers/tailnumber_create_form.html"
 
-    def form_valid(self, form):
-        object = form.save(commit=False)
-        object.user = self.request.user
-        object.save()
-        return super(TailNumberCreate, self).form_valid(form)
-
     def get_context_data(self, **kwargs):
         context = super(TailNumberCreate, self).get_context_data(**kwargs)
 
@@ -1094,6 +1092,17 @@ class TailNumberCreate(LoginRequiredMixin, ProfileNotActiveMixin, CreateView):
         context['parent_link'] = reverse('aircraft_list')
         context['parent_name'] = 'Aircraft'
         return context
+
+    def form_valid(self, form):
+        try:
+            object = form.save(commit=False)
+            object.user = self.request.user
+            object.save()
+        except IntegrityError:
+            messages.add_message(self.request, messages.ERROR, "Duplicate tailnumber found.")
+            return render(self.request, 'tailnumbers/tailnumber_create_form.html', context=self.get_context_data())
+
+        return super(TailNumberCreate, self).form_valid(form)
 
 
 class TailNumberUpdate(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, UpdateView):

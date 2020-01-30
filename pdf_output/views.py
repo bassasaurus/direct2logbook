@@ -15,6 +15,7 @@ from flights.views import LoginRequiredMixin
 from .pdf_generate_task import pdf_generate
 
 from celery import Celery
+from django.contrib import messages
 
 
 class SignatureCreateView(LoginRequiredMixin, CreateView):
@@ -84,5 +85,5 @@ def PDFView(request, user_id):
 
     response = HttpResponse('Check your email')
     # response.write(pdf)
-
+    # messages.add_message(request, messages.SUCCESS, "Logbook successfully created.")
     return response

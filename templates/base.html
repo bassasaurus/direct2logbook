@@ -43,6 +43,14 @@
   <div style="margin-top: 115px;">
     <div class="container">
       <div style="margin-top: 25px">
+        {% for message in messages %}
+          {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+            <div class="alert alert-danger" role="alert">{{ message }}</div>
+          {% endif %}
+          {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+            <div class="alert alert-success" role="alert">{{ message }}</div>
+          {% endif %}
+        {% endfor %}
         {% include 'blocks/breadcrumb.html' %}
         {% block content %}
         {% endblock %}
