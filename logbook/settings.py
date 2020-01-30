@@ -30,7 +30,7 @@ SECURE_SSL_REDIRECT = False
 
 SECRET_KEY = config('SECRET_KEY')
 
-SITE_ID = 4
+SITE_ID = 8
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
