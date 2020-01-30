@@ -1098,8 +1098,8 @@ class TailNumberCreate(LoginRequiredMixin, ProfileNotActiveMixin, CreateView):
             object = form.save(commit=False)
             object.user = self.request.user
             object.save()
-        except IntegrityError as e:
-            messages.add_message(self.request, messages.INFO, str(e.__cause__))
+        except IntegrityError:
+            messages.add_message(self.request, messages.ERROR, "Duplicate tailnumber found.")
             return render(self.request, 'tailnumbers/tailnumber_create_form.html', context=self.get_context_data())
 
         return super(TailNumberCreate, self).form_valid(form)
