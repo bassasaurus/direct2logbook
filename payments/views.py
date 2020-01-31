@@ -5,7 +5,7 @@ from decouple import config
 from django.views.decorators.csrf import csrf_exempt
 import stripe
 from django.urls import reverse
-from accounts.models import Profile
+from profile.models import Profile
 from datetime import datetime
 from django.contrib.auth.models import User
 import os
