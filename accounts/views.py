@@ -2,7 +2,6 @@ from django.shortcuts import redirect, reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.views.generic import TemplateView, UpdateView
-
 from .models import Profile
 from .forms import ProfileForm
 from pdf_output.models import Signature
