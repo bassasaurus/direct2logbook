@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # apps
+    'profile',
     'accounts',
     'flights',
     'pdf_output',

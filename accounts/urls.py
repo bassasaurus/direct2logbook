@@ -1,11 +1,8 @@
 from django.conf.urls import url
-from accounts.views import ProfileView, ProfileUpdateView, UserUpdateView, EmailView, ConnectionsView, PasswordSetView, PasswordChangeView, PasswordResetView, PasswordResetDoneView, PasswordResetFromKeyView, PasswordResetFromKeyDoneView
+from .views import UserUpdateView, EmailView, ConnectionsView, PasswordSetView, PasswordChangeView, PasswordResetView, PasswordResetDoneView, PasswordResetFromKeyView, PasswordResetFromKeyDoneView
+
 
 urlpatterns = [
-    # url(r'^accounts/signup/$', signup, name='signup'),
-    url(r'^accounts/profile/$', ProfileView.as_view(), name='profile'),
-    url(r'^accounts/profile/update/(?P<pk>\d+)/$',
-        ProfileUpdateView.as_view(), name='profile_update'),
     url(r'^accounts/user/update/(?P<pk>\d+)/$',
         UserUpdateView.as_view(), name='user_update'),
     # override allauth urls
@@ -25,5 +22,4 @@ urlpatterns = [
         name="account_reset_password_from_key"),
     url(r"^password/reset/key/done/$", PasswordResetFromKeyDoneView.as_view(),
         name="account_reset_password_from_key_done"),
-
 ]

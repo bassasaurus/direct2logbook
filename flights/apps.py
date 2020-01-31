@@ -5,8 +5,7 @@ class FlightsConfig(AppConfig):
     name = 'flights'
 
     def ready(self):
-        import accounts.signal_profile
-        
+
         import flights.signal_stat
         import flights.signal_total
         import flights.signal_extra
