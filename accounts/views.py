@@ -4,7 +4,7 @@ from django.views.generic import UpdateView
 from allauth.account.views import EmailView, PasswordSetView, PasswordChangeView, PasswordResetView, PasswordResetDoneView, PasswordResetFromKeyView, PasswordResetFromKeyDoneView
 from allauth.socialaccount.views import ConnectionsView
 from flights.views import LoginRequiredMixin
-from accounts.views import OwnObjectUserMixin
+from profile.views import OwnObjectUserMixin
 from .forms import UserForm
 
 
