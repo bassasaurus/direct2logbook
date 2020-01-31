@@ -1,5 +1,5 @@
 from flights.models import *
-from accounts.models import Profile
+from profile.models import Profile
 
 from flights.forms import *
 from django.db.models import Sum, Q, F
