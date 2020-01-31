@@ -62,6 +62,7 @@ INSTALLED_APPS = [
 
     # apps
     'accounts',
+    'authentication',
     'flights',
     'pdf_output',
     'csv_app',
