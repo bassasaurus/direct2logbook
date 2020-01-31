@@ -1,5 +1,5 @@
 from django.conf.urls import url
-from accounts.views import ProfileView, ProfileUpdateView, UserUpdateView, EmailView, ConnectionsView, PasswordSetView, PasswordChangeView, PasswordResetView, PasswordResetDoneView, PasswordResetFromKeyView, PasswordResetFromKeyDoneView
+from .views import UserUpdateView, EmailView, ConnectionsView, PasswordSetView, PasswordChangeView, PasswordResetView, PasswordResetDoneView, PasswordResetFromKeyView, PasswordResetFromKeyDoneView
 
 
 urlpatterns = [
