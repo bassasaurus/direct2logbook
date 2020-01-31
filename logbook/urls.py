@@ -23,7 +23,7 @@ from flights.views import error_400, error_404, error_500, error_403
 
 urlpatterns = [
 
-    url(r'^', include('accounts.urls')),
+    url(r'^', include('profile.urls')),
     url(r'^accounts/', include('allauth.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^', include('flights.urls')),
