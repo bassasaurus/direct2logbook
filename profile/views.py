@@ -46,8 +46,8 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 
     def session_monthly(self, customer_id):
 
-        if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
-            plan_monthly = 'plan_FZhtfxftM44uHz'
+        if config('DJANGO_DEVELOPMENT_SETTINGS', cast=bool):
+            plan_monthly = 'plan_FZhtfxftM44uHz' # test
         else:
             plan_monthly = 'plan_FZi0hBf46jbYVt'
 
@@ -72,7 +72,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 
     def session_yearly(self, customer_id):
 
-        if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
+        if config('DJANGO_DEVELOPMENT_SETTINGS', cast=bool):
             plan_yearly = 'plan_FaRGVsApeXu8bS'
         else:
             plan_yearly = 'plan_FbBfx5Pbam2QRa'
@@ -101,11 +101,11 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         user = self.request.user
         profile = Profile.objects.get(user=user)
 
-        if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
+        if config('DJANGO_DEVELOPMENT_SETTINGS', cast=bool):
             context['STRIPE_PUBLISHABLE_KEY'] = config(
                 'STRIPE_TEST_PUBLISHABLE_KEY')
-            context['CHECKOUT_SESSION_ID_MONTHLY'] = 'cus_Fkerl0ew4MHGjD'
-            context['CHECKOUT_SESSION_ID_YEARLY'] = 'cus_Fkerl0ew4MHGjD'
+            context['CHECKOUT_SESSION_ID_MONTHLY'] = profile.customer_id  # test user in stripe dashboard
+            context['CHECKOUT_SESSION_ID_YEARLY'] = profile.customer_id  # test user in stripe dashboard
         else:
             context['STRIPE_PUBLISHABLE_KEY'] = config('STRIPE_LIVE_PUBLISHABLE_KEY')
             context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly(profile.customer_id)
