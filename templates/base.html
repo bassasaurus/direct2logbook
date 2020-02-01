@@ -24,6 +24,8 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <!-- custom css -->
   <link rel="stylesheet" type="text/css" href="{% static 'css/custom.css' %}" />
+  <!-- animate.css -->
+  <link rel="stylesheet" type="text/css" href="{% static 'css/animate.css' %}" />
   <!-- sweetalert2 -->
   <!-- Include a polyfill for ES6 Promises (optional) for IE11, UC Browser and Android browser support -->
   <script src="https://cdn.jsdelivr.net/npm/promise-polyfill@8/dist/polyfill.js"></script>
@@ -48,7 +50,7 @@
             <div class="alert alert-danger" role="alert">{{ message }}</div>
           {% endif %}
           {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
-            <div class="alert alert-success" role="alert">{{ message }}</div>
+            <div class="text-success" data-animate="fadeOutUp" data-animate-duration="3" role="alert">{{ message }}</div>
           {% endif %}
         {% endfor %}
         {% include 'blocks/breadcrumb.html' %}
