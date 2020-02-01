@@ -91,7 +91,6 @@ AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',
 )
 
-# ACCOUNT_USER_MODEL_USERNAME_FIELD = 'email'
 ACCOUNT_USERNAME_REQUIRED = False
 
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
@@ -106,8 +105,6 @@ ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 216000  # 1 hour
 ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_ADAPTER = 'allauth.account.adapter.DefaultAccountAdapter'
-
-
 ACCOUNT_USERNAME_BLACKLIST = ['admin', 'pigarkle', 'test']
 
 ACCOUNT_FORMS = {
