@@ -10,7 +10,8 @@ from datetime import datetime
 from django.contrib.auth.models import User
 import os
 
-if os.environ.get('DJANGO_DEVELOPMENT_SETTINGS'):
+
+if config('DJANGO_DEVELOPMENT_SETTINGS', cast=bool):
     stripe.api_key = config('STRIPE_TEST_SECRET_KEY')
     endpoint_secret = config('endpoint_test_secret')
 else:

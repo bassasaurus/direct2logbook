@@ -47,7 +47,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
     def session_monthly(self, customer_id):
 
         if config('DJANGO_DEVELOPMENT_SETTINGS', cast=bool):
-            plan_monthly = 'plan_FZhtfxftM44uHz' # test
+            plan_monthly = 'plan_FZhtfxftM44uHz'  # test
         else:
             plan_monthly = 'plan_FZi0hBf46jbYVt'
 
