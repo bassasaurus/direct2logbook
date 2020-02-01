@@ -29,7 +29,7 @@
       {% endif %}
 
       {% for holding in flight.holding_set.all %}
-      {% if holding.hold %}| Hold-{{ holding.hold_number }} {% endif %}
+      {% if holding.hold %}| Hold {% endif %}
       {% endfor %}
 
       {% if flight.landings_day %}| {{flight.landings_day}} D{% endif %}
