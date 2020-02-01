@@ -22,11 +22,9 @@
       {% if flight.cross_country %}| XC{% endif %}
       {% if flight.night %}| Night {{flight.night}}{% endif %}
       {% if flight.instrument %}| IFR {{flight.instrument}}{% endif %}
-      {% if flight.approach_set.all %}|
       {% for approach in flight.approach_set.all %}
       {{ approach.approach_type }}-{{ approach.number }}
       {% endfor %}
-      {% endif %}
 
       {% for holding in flight.holding_set.all %}
       {% if holding.hold %}| Hold {% endif %}
