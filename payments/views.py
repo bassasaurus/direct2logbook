@@ -36,29 +36,30 @@ def stripe_webhook_view(request):
           payload, sig_header, endpoint_secret
         )
 
-    except ValueError as e:
+    except ValueError:
         # Invalid payload
         return HttpResponse(status=400)
 
-    except stripe.error.SignatureVerificationError as e:
+    except stripe.error.SignatureVerificationError:
         # Invalid signature
         return HttpResponse(status=400)
 
     try:
         event = stripe.Event.construct_from(
-        json.loads(payload), stripe.api_key
-        )
-    except ValueError as e:
+            json.loads(payload), stripe.api_key
+            )
+    except ValueError:
         # Invalid payload
         return HttpResponse(status=400)
 
-    profile = Profile.objects.get(customer_id = event.data.object.customer)
+    profile = Profile.objects.get(customer_id=event.data.object.customer)
 
     if event.type == 'checkout.session.completed':
 
         subscription_id = event.data.object.subscription
-        #end trial
-        modified_subscription_response = stripe.Subscription.modify(subscription_id,
+        # end trial
+        stripe.Subscription.modify(
+                    subscription_id,
                     trial_end='now',
                     cancel_at_period_end=False,
                     )
@@ -162,7 +163,8 @@ def success_view(request, user):
         'end_date': end_date
     }
 
-    return render(request,'payments/success.html', context)
+    return render(request, 'payments/success.html', context)
+
 
 def canceled_view(request):
     context = {
@@ -171,7 +173,8 @@ def canceled_view(request):
         'parent_link': reverse('profile'),
         'parent_name': 'Profile'
     }
-    return render(request,'payments/canceled.html', context)
+    return render(request, 'payments/canceled.html', context)
+
 
 def subscription_cancel_view(request):
 

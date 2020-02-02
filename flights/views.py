@@ -1,7 +1,7 @@
-from flights.models import *
+from flights.models import Flight, Aircraft, TailNumber, Approach, Holding, Imported, Total, Stat, Regs, Weight, Power, Endorsement
 from profile.models import Profile
 
-from flights.forms import *
+from flights.forms import FlightForm, AircraftForm, TailNumberForm, ImportedForm, ApproachFormSet, HoldingFormSet
 from django.db.models import Sum, Q, F
 from django.db.models.functions import Length
 from django.db.models import CharField
@@ -13,18 +13,16 @@ from django.utils.text import capfirst
 from django.forms import inlineformset_factory
 
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DetailView, DeleteView
-from django.views.generic.detail import SingleObjectMixin
 from django.views.generic.dates import YearArchiveView, MonthArchiveView, ArchiveIndexView
-from django.contrib.auth.mixins import LoginRequiredMixin, AccessMixin
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, reverse
 
 from django.core.cache import cache
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core.exceptions import ObjectDoesNotExist
 
 from django.db import IntegrityError
-from django.shortcuts import render_to_response
 
 from dal import autocomplete
 import datetime
@@ -394,7 +392,7 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
             gyro_solo = gyro.solo
             gyro_ifr = gyro.instrument
             gyro_ldg_night = gyro.landings_night
-            gyro_pic = helo.pilot_in_command
+            gyro_pic = gyro.pilot_in_command
             gyro_sic = gyro.second_in_command
         else:
             gyro_total = 0
@@ -423,7 +421,7 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
         context['rotor_ifr'] = helo_ifr + gyro_ifr
         context['rotor_ldg_night'] = helo_ldg_night + gyro_ldg_night
         context['rotor_pic'] = helo_pic + gyro_pic
-        context['rotor_sic'] = helo_pic + gyro_sic
+        context['rotor_sic'] = helo_sic + gyro_sic
 
         context['asel_pic'] = asel_pic
         context['asel_sic'] = asel_sic
