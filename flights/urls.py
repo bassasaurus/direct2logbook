@@ -1,19 +1,28 @@
-from django.conf.urls import url, include
+from django.conf.urls import url
 
-from flights.views import *
+from flights.views import (
+                            HomeView, index_view, AircraftAutocomplete, TailNumberAutocomplete,
+                            geoJSON_routes_view, geoJSON_airports_view,
+                            FlightArchive, FlightArchiveYear, FlightArchiveMonth,
+                            FlightList, FlightCreate, FlightUpdate, FlightDetail, FlightDelete, RemarksList,
+                            TailNumberList, TailNumberCreate, TailNumberUpdate, TailNumberDetail, TailNumberDelete,
+                            AircraftCreate, AircraftUpdate, AircraftDetail, AircraftDelete,
+                            ImportedListView, ImportedCreateView, ImportedUpdateView, ImportedDetailView, ImportedDeleteView
+
+                            )
 
 urlpatterns = [
 
     url(r'^home/$', HomeView.as_view(), name='home'),
     url(r'^$', index_view, name='index'),
 
-    #autocomplete urls
+    # autocomplete urls
     url(r'^aircraft-autocomplete/$', AircraftAutocomplete.as_view(), name='aircraft-autocomplete'),
     url(r'^tailnumber-autocomplete/$', TailNumberAutocomplete.as_view(), name='tailnumber-autocomplete'),
     url(r'^geojson/airports/(?P<user_id>\d+)/$', geoJSON_airports_view, name='geojson_airports'),
     url(r'^geojson/routes/(?P<user_id>\d+)/$', geoJSON_routes_view, name='geojson_routes'),
 
-    #date view urls
+    # date view urls
     # Lists all avialable years
     url(r'^flights/by_date/$', FlightArchive.as_view(), name='flight_by_date'),
     # Example: flights/2012/
@@ -23,7 +32,7 @@ urlpatterns = [
     # Example: flights/2012/nov/15
     # url(r'^flights/by_date/(?P<year>[0-9]{4})/(?P<month>[-\w]+)/(?P<day>[0-9]+)/$', FlightArchiveDay.as_view(), name='flight_by_day'),
 
-    #model CRUD urls
+    # model CRUD urls
     url(r'^logbook/$', FlightList.as_view(), name='flight_list'),
     url(r'^logbook/create/$', FlightCreate.as_view(), name='flight_create'),
     url(r'^logbook/update/(?P<pk>\d+)/$', FlightUpdate.as_view(), name='flight_update'),
@@ -37,7 +46,7 @@ urlpatterns = [
     url(r'^aircraft/detail/(?P<pk>\d+)/$', AircraftDetail.as_view(), name='aircraft_detail'),
     url(r'^aircraft/delete/(?P<pk>\d+)/$', AircraftDelete.as_view(), name='aircraft_delete'),
 
-     # url(r'^tailnumbers/$', TailNumberList.as_view(), name='tailnumber_list'),
+    # url(r'^tailnumbers/$', TailNumberList.as_view(), name='tailnumber_list'),
     url(r'^tailnumbers/create/$', TailNumberCreate.as_view(), name='tailnumber_create'),
     url(r'^tailnumbers/update/(?P<pk>\d+)/$', TailNumberUpdate.as_view(), name='tailnumber_update'),
     url(r'^tailnumbers/detail/(?P<pk>\d+)/$', TailNumberDetail.as_view(), name='tailnumber_detail'),

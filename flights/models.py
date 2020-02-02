@@ -335,9 +335,9 @@ class TailNumber(models.Model):
         ordering = ['user', 'aircraft', 'registration']
         constraints = [
             models.UniqueConstraint(
-            fields=['user', 'registration'],
-            name='unique tailnumber')
-            ]
+                fields=['user', 'registration'],
+                name='unique tailnumber')
+                ]
 
     def __str__(self):
         registration = str(self.registration)

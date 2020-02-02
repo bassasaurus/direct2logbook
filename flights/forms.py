@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import inlineformset_factory
-from flights.models import *
+from flights.models import Flight, Aircraft, TailNumber, Imported, Holding, Approach
 from django.contrib.auth.models import User
 from dal import autocomplete
 
@@ -51,6 +51,7 @@ class FlightForm(forms.ModelForm):
 
 ApproachFormSet = inlineformset_factory(Flight, Approach, fields=(
     'approach_type', 'number'), max_num=4, extra=1)
+
 HoldingFormSet = inlineformset_factory(
     Flight, Holding, fields=('hold',), max_num=1, extra=1)
 

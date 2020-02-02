@@ -7,7 +7,6 @@ from .forms import ProfileForm
 from pdf_output.models import Signature
 from decouple import config
 import stripe
-import os
 import datetime
 from flights.views import LoginRequiredMixin
 
