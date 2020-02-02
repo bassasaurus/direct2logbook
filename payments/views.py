@@ -8,7 +8,6 @@ from django.urls import reverse
 from profile.models import Profile
 from datetime import datetime
 from django.contrib.auth.models import User
-import os
 
 
 if config('DJANGO_DEVELOPMENT_SETTINGS', cast=bool):
