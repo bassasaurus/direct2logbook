@@ -6,6 +6,10 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.contrib.auth.models import User
 
+
+admin.site.site_title = 'Direct2Logbook Admin'
+admin.site.site_header = 'Direct2Logbook Admin'
+
 class EmailRequiredMixin(object):
     def __init__(self, *args, **kwargs):
         super(EmailRequiredMixin, self).__init__(*args, **kwargs)
@@ -53,6 +57,7 @@ class FlightAdmin(admin.ModelAdmin):
     empty_value_display = ''
 
     list_filter = ('user',)
+    search_fields = ['route',]
 
 class AircraftAdmin(admin.ModelAdmin):
     list_display = ('aircraft_type', 'user', 'pk', 'turbine', 'piston', 'requires_type',
