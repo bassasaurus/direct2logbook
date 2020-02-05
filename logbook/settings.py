@@ -5,11 +5,13 @@ from decouple import config
 
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.celery import CeleryIntegration
+
 
 if not config('DJANGO_DEVELOPMENT_SETTINGS', cast=bool):
     sentry_sdk.init(
         dsn="https://e3f79fa21e484fe6b58a2e227a5bbce5@sentry.io/1515848",
-        integrations=[DjangoIntegration()]
+        integrations=[DjangoIntegration(), CeleryIntegration()]
     )
 else:
     print('Sentry not active')
