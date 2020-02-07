@@ -1,9 +1,23 @@
 import os
 from os.path import abspath, dirname
+
 from decouple import config
 
+import sentry_sdk
+from sentry_sdk.integrations.django import DjangoIntegration
+from sentry_sdk.integrations.celery import CeleryIntegration
+
+
+if not config('DJANGO_DEVELOPMENT_SETTINGS', cast=bool):
+    sentry_sdk.init(
+        dsn="https://e3f79fa21e484fe6b58a2e227a5bbce5@sentry.io/1515848",
+        integrations=[DjangoIntegration(), CeleryIntegration()]
+    )
+else:
+    print('Sentry not active')
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DJANGO_ROOT = dirname(dirname(abspath(__file__)))
 
@@ -15,12 +29,14 @@ SECURE_SSL_REDIRECT = False
 
 # SECURITY WARNING: keep the secret key used in production secret!
 
+
 SECRET_KEY = config('SECRET_KEY')
 
 SITE_ID = 8
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
+DEBUG = False
 ALLOWED_HOSTS = ["*"]
 
 # APPEND_SLASH = False
@@ -255,7 +271,7 @@ LOGGING = {
         'file': {
             'level': 'WARNING',
             'class': 'logging.FileHandler',
-            'filename': DJANGO_ROOT + '/debug.log',
+            'filename': DJANGO_ROOT + '/logbook/debug.log',
         },
     },
     'loggers': {
@@ -267,4 +283,20 @@ LOGGING = {
     },
 }
 
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' #disable/setup for production
+
+ANYMAIL = {
+    # (exact settings here depend on your ESP...)
+    "MAILGUN_API_KEY": config('MAILGUN_API_KEY'),
+    "MAILGUN_SENDER_DOMAIN": 'mg.direct2logbook.com',  # your Mailgun domain, if needed
+}
+
+# or sendgrid.EmailBackend, or...
+EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
+# if you don't already have this in settings
+DEFAULT_FROM_EMAIL = "no-reply@direct2logbook.com"
+
 CSRF_USE_SESSIONS = True
+
+if config('DJANGO_DEVELOPMENT_SETTINGS', cast=bool):
+    from .development import *
