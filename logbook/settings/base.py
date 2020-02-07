@@ -17,9 +17,11 @@ else:
     print('Sentry not active')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+print('base dir', BASE_DIR)
 
 DJANGO_ROOT = dirname(dirname(abspath(__file__)))
+print('django root', DJANGO_ROOT)
 
 SECURE_SSL_REDIRECT = False
 
@@ -36,7 +38,7 @@ SITE_ID = 8
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-DEBUG = False
+
 ALLOWED_HOSTS = ["*"]
 
 # APPEND_SLASH = False
@@ -271,7 +273,7 @@ LOGGING = {
         'file': {
             'level': 'WARNING',
             'class': 'logging.FileHandler',
-            'filename': DJANGO_ROOT + '/logbook/debug.log',
+            'filename': DJANGO_ROOT + '/debug.log',
         },
     },
     'loggers': {
@@ -297,6 +299,3 @@ EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
 DEFAULT_FROM_EMAIL = "no-reply@direct2logbook.com"
 
 CSRF_USE_SESSIONS = True
-
-if config('DJANGO_DEVELOPMENT_SETTINGS', cast=bool):
-    from .development import *
