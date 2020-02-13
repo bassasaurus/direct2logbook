@@ -9,8 +9,7 @@ https://docs.djangoproject.com/en/1.10/howto/deployment/wsgi/
 
 import os
 from django.core.wsgi import get_wsgi_application
-from decouple import config
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", config('PATH_TO_SETTINGS'))
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", 'logbook.settings.prod')
 
 application = get_wsgi_application()
