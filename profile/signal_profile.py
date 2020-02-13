@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .models import Profile
@@ -65,7 +65,10 @@ def create_user_profile(sender, instance, created, **kwargs):
         profile.save()
 
         user = User.objects.get(pk=instance.pk)
-        # add user to group here
+        
+        clients = Group.objects.get(name='clients')
+        user.groups.add(clients)
+
         total = Total(user=user, total='All')
         total.save()
 
