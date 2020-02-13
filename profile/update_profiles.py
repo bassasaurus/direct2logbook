@@ -60,5 +60,7 @@ def update_profiles():
             profile.trial_expiring = False
             profile.end_date = datetime.fromtimestamp(timestamp)
 
+
+
         profile.save(update_fields=['customer_id', 'subscription_id',
                                     'active', 'trial', 'free_access', 'trial_expiring', 'end_date'])
