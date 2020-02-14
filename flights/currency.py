@@ -10,21 +10,26 @@ ames_query = Q(aircraft_type__aircraft_category='A') & Q(aircraft_type__aircraft
 helo_query = Q(aircraft_type__aircraft_category='R') & Q(aircraft_type__aircraft_class='HELO')
 gyro_query = Q(aircraft_type__aircraft_category='R') & Q(aircraft_type__aircraft_class='GYRO')
 
+today = datetime.date.today()
+last_12 = today - datetime.timedelta(days=365)
+type_currency_query = Q(aircraft_type__requires_type=True) & Q(Flight.objects.filter(date__gte=last_12))
+
 
 # type currency
 def type_currency_day(user):
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
-    type_ratings = Flight.objects.filter(user=user).filter(aircraft_type__requires_type=True).filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_day'))
-    if not type_ratings.get('landings_day__sum'):
-        type_ratings = 0
+    type_rating_ac = Flight.objects.filter(user=user).filter(type_currency_query)
+    type_ratings_day_ldg = type_rating_ac.filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_day'))
+    if not type_ratings_day_ldg.get('landings_day__sum'):
+        type_ratings_day_ldg = 0
     else:
-        type_ratings = type_ratings.get('landings_day__sum')
-    if type_ratings < 3:
-        type_ratings = False
+        type_ratings_day_ldg = type_ratings_day_ldg.get('landings_day__sum')
+    if type_ratings_day_ldg < 3:
+        current = False
     else:
         current = True
-    return type_ratings, current
+    return type_rating_ac, type_ratings_day_ldg, current
 
 
 def type_currency_night(user):
@@ -32,14 +37,14 @@ def type_currency_night(user):
     last_90 = today - datetime.timedelta(days=90)
     type_ratings = Flight.objects.filter(user=user).filter(aircraft_type__requires_type=True).filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_night'))
     if not type_ratings.get('landings_night__sum'):
-        type_ratings = 0
+        type_ratings_night = 0
     else:
-        type_ratings = type_ratings.get('landings_night__sum')
-    if type_ratings < 3:
-        type_ratings = False
+        type_ratings_night = type_ratings.get('landings_night__sum')
+    if type_ratings_night < 3:
+        current = False
     else:
         current = True
-    return type_ratings, current
+    return type_ratings, type_ratings_night, current
 
 # amel currency
 def amel_vfr_day(user):

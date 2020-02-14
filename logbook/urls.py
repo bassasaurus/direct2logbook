@@ -24,6 +24,7 @@ urlpatterns = [
 
     url(r'^', include('profile.urls')),
     url(r'^', include('accounts.urls')),
+    url(r'^', include('home.urls')),
     url(r'^accounts/', include('allauth.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^', include('flights.urls')),
