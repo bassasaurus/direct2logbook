@@ -8,9 +8,10 @@ from django.urls import reverse
 from profile.models import Profile
 from datetime import datetime
 from django.contrib.auth.models import User
+from logbook import settings
 
 
-if config('DJANGO_DEVELOPMENT_SETTINGS', cast=bool):
+if settings.DEBUG:
     stripe.api_key = config('STRIPE_TEST_SECRET_KEY')
     endpoint_secret = config('endpoint_test_secret')
 else:
