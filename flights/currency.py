@@ -10,6 +10,37 @@ ames_query = Q(aircraft_type__aircraft_category='A') & Q(aircraft_type__aircraft
 helo_query = Q(aircraft_type__aircraft_category='R') & Q(aircraft_type__aircraft_class='HELO')
 gyro_query = Q(aircraft_type__aircraft_category='R') & Q(aircraft_type__aircraft_class='GYRO')
 
+
+# type currency
+def type_currency_day(user):
+    today = datetime.date.today()
+    last_90 = today - datetime.timedelta(days=90)
+    type_ratings = Flight.objects.filter(user=user).filter(aircraft_type__requires_type=True).filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_day'))
+    if not type_ratings.get('landings_day__sum'):
+        type_ratings = 0
+    else:
+        type_ratings = type_ratings.get('landings_day__sum')
+    if type_ratings < 3:
+        type_ratings = False
+    else:
+        current = True
+    return type_ratings, current
+
+
+def type_currency_night(user):
+    today = datetime.date.today()
+    last_90 = today - datetime.timedelta(days=90)
+    type_ratings = Flight.objects.filter(user=user).filter(aircraft_type__requires_type=True).filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_night'))
+    if not type_ratings.get('landings_night__sum'):
+        type_ratings = 0
+    else:
+        type_ratings = type_ratings.get('landings_night__sum')
+    if type_ratings < 3:
+        type_ratings = False
+    else:
+        current = True
+    return type_ratings, current
+
 # amel currency
 def amel_vfr_day(user):
     today = datetime.date.today()
