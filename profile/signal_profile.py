@@ -6,8 +6,8 @@ from decouple import config
 import stripe
 from datetime import datetime, timezone
 from datetime import timedelta
-from django.contrib.auth.models import Group
 from flights.models import Total
+from logbook import settings
 
 
 @receiver(post_save, sender=User)
@@ -17,9 +17,8 @@ def create_user_profile(sender, instance, created, **kwargs):
 
         name = '{} {}'.format(instance.first_name, instance.last_name)
 
-        if config('DJANGO_DEVELOPMENT_SETTINGS', cast=bool):
+        if settings.DEBUG:
             stripe.api_key = config('STRIPE_TEST_SECRET_KEY')
-            print('Stripe test key')
         else:
             stripe.api_key = config('STRIPE_LIVE_SECRET_KEY')
 
@@ -35,7 +34,7 @@ def create_user_profile(sender, instance, created, **kwargs):
             email=instance.email
         )
 
-        if config('DJANGO_DEVELOPMENT_SETTINGS', cast=bool):
+        if settings.DEBUG:
             plan = 'plan_FkX07tGXr4f3Mh'  # test mode trial
         else:
             plan = 'plan_Fkf5ex0bvWncFx'  # production trial
@@ -65,7 +64,7 @@ def create_user_profile(sender, instance, created, **kwargs):
         profile.save()
 
         user = User.objects.get(pk=instance.pk)
-        
+
         clients = Group.objects.get(name='clients')
         user.groups.add(clients)
 
