@@ -2,7 +2,7 @@ from flights.models import Flight, TailNumber, Aircraft, Total, Imported, Stat, 
 from flights.views import LoginRequiredMixin, ProfileNotActiveMixin
 from django.views.generic import TemplateView
 import datetime
-import flights.currency as currency
+from .currency import amel_vfr_day, amel_vfr_night, asel_vfr_day, asel_vfr_night, ases_vfr_day, ases_vfr_night, ames_vfr_day, ames_vfr_night, helo_vfr_day, helo_vfr_night, gyro_vfr_day, gyro_vfr_night, medical_duration
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q, Sum, F
 from django.shortcuts import render, redirect
@@ -15,11 +15,11 @@ def index_view(request):
     if request.user.is_authenticated:
         return redirect('home')
     else:
-        return render(request, 'index.html', context)
+        return render(request, 'home/index.html', context)
 
 
 class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # ProfileNotActiveMixin
-    template_name = 'home.html'
+    template_name = 'home/home.html'
 
     def get_context_data(self, **kwargs):
         user = self.request.user
@@ -387,43 +387,43 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
 
         # end iacra
 
-        # context['type_currency_day'] = currency.type_currency_day(user)[1]
-        # context['type_currency_type'] = currency.type_currency_day(user)[0]
-        # context['type_current'] = currency.type_currency_day(user)[2]
-        # context['type_currency_night'] = currency.type_currency_night(user)[0]
+        # context['type_currency_day'] = type_currency_day(user)[1]
+        # context['type_currency_type'] = type_currency_day(user)[0]
+        # context['type_current'] = type_currency_day(user)[2]
+        # context['type_currency_night'] = type_currency_night(user)[0]
 
-        context['amel_vfr_day'] = currency.amel_vfr_day(user)[0]
-        context['amel_vfr_day_current'] = currency.amel_vfr_day(user)[1]
-        context['amel_vfr_night'] = currency.amel_vfr_night(user)[0]
-        context['amel_vfr_night_current'] = currency.amel_vfr_night(user)[1]
+        context['amel_vfr_day'] = amel_vfr_day(user)[0]
+        context['amel_vfr_day_current'] = amel_vfr_day(user)[1]
+        context['amel_vfr_night'] = amel_vfr_night(user)[0]
+        context['amel_vfr_night_current'] = amel_vfr_night(user)[1]
 
-        context['asel_vfr_day'] = currency.asel_vfr_day(user)[0]
-        context['asel_vfr_day_current'] = currency.asel_vfr_day(user)[1]
-        context['asel_vfr_night'] = currency.asel_vfr_night(user)[0]
-        context['asel_vfr_night_current'] = currency.asel_vfr_night(user)[1]
+        context['asel_vfr_day'] = asel_vfr_day(user)[0]
+        context['asel_vfr_day_current'] = asel_vfr_day(user)[1]
+        context['asel_vfr_night'] = asel_vfr_night(user)[0]
+        context['asel_vfr_night_current'] = asel_vfr_night(user)[1]
 
-        context['ases_vfr_day'] = currency.ases_vfr_day(user)[0]
-        context['ases_vfr_day_current'] = currency.ases_vfr_day(user)[1]
-        context['ases_vfr_night'] = currency.ases_vfr_night(user)[0]
-        context['ases_vfr_night_current'] = currency.ases_vfr_night(user)[1]
+        context['ases_vfr_day'] = ases_vfr_day(user)[0]
+        context['ases_vfr_day_current'] = ases_vfr_day(user)[1]
+        context['ases_vfr_night'] = ases_vfr_night(user)[0]
+        context['ases_vfr_night_current'] = ases_vfr_night(user)[1]
 
-        context['ames_vfr_day'] = currency.ames_vfr_day(user)[0]
-        context['ames_vfr_day_current'] = currency.ames_vfr_day(user)[1]
-        context['ames_vfr_night'] = currency.ames_vfr_night(user)[0]
-        context['ames_vfr_night_current'] = currency.ames_vfr_night(user)[1]
+        context['ames_vfr_day'] = ames_vfr_day(user)[0]
+        context['ames_vfr_day_current'] = ames_vfr_day(user)[1]
+        context['ames_vfr_night'] = ames_vfr_night(user)[0]
+        context['ames_vfr_night_current'] = ames_vfr_night(user)[1]
 
-        context['helo_vfr_day'] = currency.helo_vfr_day(user)[0]
-        context['helo_vfr_day_current'] = currency.helo_vfr_day(user)[1]
-        context['helo_vfr_night'] = currency.helo_vfr_night(user)[0]
-        context['helo_vfr_night_current'] = currency.helo_vfr_night(user)[1]
+        context['helo_vfr_day'] = helo_vfr_day(user)[0]
+        context['helo_vfr_day_current'] = helo_vfr_day(user)[1]
+        context['helo_vfr_night'] = helo_vfr_night(user)[0]
+        context['helo_vfr_night_current'] = helo_vfr_night(user)[1]
 
-        context['gyro_vfr_day'] = currency.gyro_vfr_day(user)[0]
-        context['gyro_vfr_day_current'] = currency.gyro_vfr_day(user)[1]
-        context['gyro_vfr_night'] = currency.gyro_vfr_night(user)[0]
-        context['gyro_vfr_night_current'] = currency.gyro_vfr_night(user)[1]
+        context['gyro_vfr_day'] = gyro_vfr_day(user)[0]
+        context['gyro_vfr_day_current'] = gyro_vfr_day(user)[1]
+        context['gyro_vfr_night'] = gyro_vfr_night(user)[0]
+        context['gyro_vfr_night_current'] = gyro_vfr_night(user)[1]
 
-        context['expiry_date'] = currency.medical_duration(user)[0]
-        context['this_month'] = currency.medical_duration(user)[1]
+        context['expiry_date'] = medical_duration(user)[0]
+        context['this_month'] = medical_duration(user)[1]
 
         if len(Aircraft.objects.filter(user=user)) == 0:
             context['new_user_aircraft'] = True
