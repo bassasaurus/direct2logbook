@@ -31,4 +31,4 @@ DJANGO_ROOT = dirname(dirname(abspath(__file__)))
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # disable/setup for production
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # disable/setup for production
