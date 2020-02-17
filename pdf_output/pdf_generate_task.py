@@ -83,14 +83,14 @@ def pdf_generate(user_pk):
         canvas.drawString(
             800, 30, "Powered by Direct2Logbook.com and ReportLab")
 
-        # if Signature.objects.filter(user=user).exists():
-        #     sig = Signature.objects.get(user=user)
-        #     signature_path = sig.signature.url
-        #     print(signature_path)
-        #     canvas.drawImage(str(signature_path), 240,
-        #                      50, width=100, height=40)
-        # else:
-        #     None
+        if Signature.objects.filter(user=user).exists():
+            sig = Signature.objects.get(user=user)
+            signature_path = sig.signature.url
+            print(signature_path)
+            canvas.drawImage(str(signature_path), 240,
+                             50, width=100, height=40)
+        else:
+            None
 
         canvas.setFont('Helvetica', 10)
         canvas.drawString(
