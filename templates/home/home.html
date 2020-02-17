@@ -2,7 +2,10 @@
 
 {% block content %}
 
-{{ type_currency_day }}
+{% for ac in type_currency_day %}
+  {{ type_currency_day }}
+{% endfor %}
+
 
 {{ type_currency_night }}
 <hr>

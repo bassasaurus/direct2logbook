@@ -2,7 +2,7 @@ from flights.models import Flight, TailNumber, Aircraft, Total, Imported, Stat, 
 from flights.views import LoginRequiredMixin, ProfileNotActiveMixin
 from django.views.generic import TemplateView
 import datetime
-from .currency import amel_vfr_day, amel_vfr_night, asel_vfr_day, asel_vfr_night, ases_vfr_day, ases_vfr_night, ames_vfr_day, ames_vfr_night, helo_vfr_day, helo_vfr_night, gyro_vfr_day, gyro_vfr_night, medical_duration
+from .currency import amel_vfr_day, amel_vfr_night, asel_vfr_day, asel_vfr_night, ases_vfr_day, ases_vfr_night, ames_vfr_day, ames_vfr_night, helo_vfr_day, helo_vfr_night, gyro_vfr_day, gyro_vfr_night, medical_duration, type_currency_day
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q, Sum, F
 from django.shortcuts import render, redirect
@@ -387,9 +387,8 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
 
         # end iacra
 
-        # context['type_currency_day'] = type_currency_day(user)[1]
-        # context['type_currency_type'] = type_currency_day(user)[0]
-        # context['type_current'] = type_currency_day(user)[2]
+        context['type_currency_day'] = type_currency_day(user)
+
         # context['type_currency_night'] = type_currency_night(user)[0]
 
         context['amel_vfr_day'] = amel_vfr_day(user)[0]
