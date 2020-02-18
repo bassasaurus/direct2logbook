@@ -3,6 +3,7 @@ from django.db.models import Sum, Q
 import datetime
 from dateutil.relativedelta import relativedelta
 
+
 asel_query = Q(aircraft_type__aircraft_category='A') & Q(aircraft_type__aircraft_class='SEL')
 amel_query = Q(aircraft_type__aircraft_category='A') & Q(aircraft_type__aircraft_class='MEL')
 ases_query = Q(aircraft_type__aircraft_category='A') & Q(aircraft_type__aircraft_class='SES')
@@ -20,10 +21,70 @@ type_rating = Q(aircraft_type__requires_type=True) & Q(date__gte=last_yr)
 # type currency
 def type_currency_day(user):
 
+    recent_aircraft = {}
     flights = Flight.objects.filter(user=user).filter(type_rating)
 
+    ac_set = set()
+
+    type_currency_day = dict()
+
     for flight in flights:
-        print(flight.aircraft_type)
+
+        ac_set.add(flight.aircraft_type)
+
+    for aircraft in ac_set:
+
+        type_currency_day[str(aircraft)] = 0, False
+
+        landings = Flight.objects.filter(user=user).filter(aircraft_type=aircraft).filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_day'))
+
+        if landings.get('landings_day__sum'):
+            landings = landings.get('landings_day__sum')
+            if landings >= 3:
+                current = True
+        else:
+            landings = 0
+            current = False
+
+        type_currency_day[str(aircraft)] = landings, current
+
+    print(type_currency_day)
+    return type_currency_day
+
+
+def type_currency_night(user):
+
+    recent_aircraft = {}
+    flights = Flight.objects.filter(user=user).filter(type_rating)
+
+    ac_set = set()
+
+    type_currency_night = dict()
+
+    for flight in flights:
+
+        ac_set.add(flight.aircraft_type)
+
+    for aircraft in ac_set:
+
+        type_currency_night[str(aircraft)] = 0, False
+
+        landings = Flight.objects.filter(user=user).filter(aircraft_type=aircraft).filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_night'))
+
+        if landings.get('landings_night__sum'):
+            landings = landings.get('landings_night__sum')
+            if landings >= 3:
+                current = True
+        else:
+            landings = 0
+            current = False
+
+        type_currency_night[str(aircraft)] = landings, current
+
+    print(type_currency_night)
+    return type_currency_night
+
+
 
 
 # amel currency
