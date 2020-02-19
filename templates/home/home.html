@@ -2,12 +2,6 @@
 
 {% block content %}
 
-{% for ac in type_currency_day %}
-  {{ type_currency_day }}
-{% endfor %}
-
-
-{{ type_currency_night }}
 <hr>
 <div class="flex-md-row">
   <div class="flex-md-column">
@@ -187,6 +181,15 @@
         </tr>
         {% else %}
         {% endif %}
+
+        {% for k, v in type_currency_day.items %}
+          {{ k }}, {{ v.0 }}, {{ v.1 }}
+        {% endfor %}
+
+        {% for k, v in type_currency_night.items %}
+          {{ k }}, {{ v.0 }}, {{ v.1 }}
+        {% endfor %}
+
       </table>
     </div>
   </div>
