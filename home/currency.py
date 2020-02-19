@@ -12,21 +12,21 @@ helo_query = Q(aircraft_type__aircraft_category='R') & Q(aircraft_type__aircraft
 gyro_query = Q(aircraft_type__aircraft_category='R') & Q(aircraft_type__aircraft_class='GYRO')
 
 today = datetime.date.today()
-last_yr = today - datetime.timedelta(days=365)
+last_2yr = today - datetime.timedelta(days=730)
 last_90 = today - datetime.timedelta(days=90)
 
-type_rating = Q(aircraft_type__requires_type=True) & Q(date__gte=last_yr)
+type_rating = Q(aircraft_type__requires_type=True) & Q(date__gte=last_2yr)
 
 
 # type currency
-def type_currency_day(user):
+def type_currency(user):
 
     recent_aircraft = {}
     flights = Flight.objects.filter(user=user).filter(type_rating)
 
     ac_set = set()
 
-    type_currency_day = dict()
+    type_currency_dict = dict()
 
     for flight in flights:
 
@@ -34,58 +34,30 @@ def type_currency_day(user):
 
     for aircraft in ac_set:
 
-        type_currency_day[str(aircraft)] = 0, False
+        type_currency_dict[str(aircraft)] = 0, False
 
-        landings = Flight.objects.filter(user=user).filter(aircraft_type=aircraft).filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_day'))
+        day_landings = Flight.objects.filter(user=user).filter(aircraft_type=aircraft).filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_day'))
+        night_landings = Flight.objects.filter(user=user).filter(aircraft_type=aircraft).filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_night'))
 
-        if landings.get('landings_day__sum'):
-            landings = landings.get('landings_day__sum')
-            if landings >= 3:
-                current = True
+        if day_landings.get('landings_day__sum'):
+            day_landings = day_landings.get('landings_day__sum')
+            if day_landings >= 3:
+                day_current = True
         else:
-            landings = 0
-            current = False
+            day_landings = 0
+            day_current = False
 
-        type_currency_day[str(aircraft)] = landings, current
-
-    print(type_currency_day)
-    return type_currency_day
-
-
-def type_currency_night(user):
-
-    recent_aircraft = {}
-    flights = Flight.objects.filter(user=user).filter(type_rating)
-
-    ac_set = set()
-
-    type_currency_night = dict()
-
-    for flight in flights:
-
-        ac_set.add(flight.aircraft_type)
-
-    for aircraft in ac_set:
-
-        type_currency_night[str(aircraft)] = 0, False
-
-        landings = Flight.objects.filter(user=user).filter(aircraft_type=aircraft).filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_night'))
-
-        if landings.get('landings_night__sum'):
-            landings = landings.get('landings_night__sum')
-            if landings >= 3:
-                current = True
+        if night_landings.get('landings_night__sum'):
+            night_landings = night_landings.get('landings_night__sum')
+            if night_landings >= 3:
+                night_current = True
         else:
-            landings = 0
-            current = False
+            night_landings = 0
+            night_current = False
 
-        type_currency_night[str(aircraft)] = landings, current
+        type_currency_dict[str(aircraft)] = day_landings, day_current, night_landings, night_current
 
-    print(type_currency_night)
-    return type_currency_night
-
-
-
+    return type_currency_dict
 
 # amel currency
 def amel_vfr_day(user):
