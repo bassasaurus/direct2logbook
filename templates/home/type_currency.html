@@ -1,0 +1,22 @@
+{% if aircraft_type_rating %}
+<table class="table table-bordered table-sm">
+  <thead class="thead-light">
+    <th colspan="3" class="text-center text-nowrap" style="width:120px;">Currency by Type<br>
+      <small>Based on UTC</small></th>
+    <tr>
+      <td></td>
+      <td>Day</td>
+      <td>Night</td>
+    </tr>
+
+
+  </thead>
+  {% for k, v in type_currency.items %}
+  <tr>
+    <td>{{ k }}</td>
+    <td {% if not v.1  %}class="text-danger" {% else %}class="text-success" {% endif %}>{{ v.0 }} / 3</td>
+    <td {% if not v.3  %}class="text-danger" {% else %}class="text-success" {% endif %}>{{ v.2 }} / 3</td>
+    {% endfor %}
+</table>
+{% else %}
+{% endif %}

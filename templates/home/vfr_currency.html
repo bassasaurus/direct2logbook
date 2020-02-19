@@ -1,0 +1,107 @@
+<table class="table table-bordered table-sm">
+  <thead class="thead-light">
+    <th colspan="3" class="text-center text-nowrap" style="width:120px;">VFR Currency<br>
+      <small>Based on UTC</small></th>
+    <tr>
+      <td></td>
+      <td>Day</td>
+      <td>Night</td>
+    </tr>
+  </thead>
+  {% if asel_total.total_time > 0 %}
+  <tr>
+    <td>ASEL</td>
+    {% if asel_vfr_day_current %}
+    <td class="text-success">{{ asel_vfr_day }}/3</td>
+    {% else %}
+    <td class="text-danger">{{ asel_vfr_day }}/3</td>
+    {% endif %}
+    {% if asel_vfr_night_current %}
+    <td class="text-success">{{ asel_vfr_night }}/3</td>
+    {% else %}
+    <td class="text-danger">{{ asel_vfr_night }}/3</td>
+    {% endif %}
+  </tr>
+  {% else %}
+  {% endif %}
+  {% if amel_total.total_time > 0 %}
+  <tr>
+    <td>AMEL</td>
+    {% if amel_vfr_day_current %}
+    <td class="text-success">{{ amel_vfr_day }}/3</td>
+    {% else %}
+    <td class="text-danger">{{ amel_vfr_day }}/3</td>
+    {% endif %}
+    {% if amel_vfr_night_current %}
+    <td class="text-success">{{ amel_vfr_night }}/3</td>
+    {% else %}
+    <td class="text-danger">{{ amel_vfr_night }}/3</td>
+    {% endif %}
+  </tr>
+  {% else %}
+  {% endif %}
+  {% if asses_total.total_time > 0 %}
+  <tr>
+    <td>ASES</td>
+    {% if ases_vfr_day_current %}
+    <td class="text-success">{{ ases_vfr_day }}/3</td>
+    {% else %}
+    <td class="text-danger">{{ ases_vfr_day }}/3</td>
+    {% endif %}
+    {% if ases_vfr_night_current %}
+    <td class="text-success">{{ ases_vfr_night }}/3</td>
+    {% else %}
+    <td class="text-danger">{{ ases_vfr_night }}/3</td>
+    {% endif %}
+  </tr>
+  {% else %}
+  {% endif %}
+  {% if ames_total.total_time %}
+  <tr>
+    <td>AMES</td>
+    {% if ames_vfr_day_current %}
+    <td class="text-success">{{ ames_vfr_day }}/3</td>
+    {% else %}
+    <td class="text-danger">{{ ames_vfr_day }}/3</td>
+    {% endif %}
+    {% if ames_vfr_night_current %}
+    <td class="text-success">{{ ames_vfr_night }}/3</td>
+    {% else %}
+    <td class="text-danger">{{ ames_vfr_night }}/3</td>
+    {% endif %}
+  </tr>
+  {% else %}
+  {% endif %}
+  {% if helo_total.total__time > 0 %}
+  <tr>
+    <td>HELO</td>
+    {% if helo_vfr_day_current %}
+    <td class="text-success text-nowrap">{{ helo_vfr_day }}/3 Day</td>
+    {% else %}
+    <td class="text-danger text-nowrap">{{ helo_vfr_day }}/3 Day</td>
+    {% endif %}
+    {% if helo_vfr_night_current %}
+    <td class="text-success text-nowrap">{{ helo_vfr_night }}/3 Night</td>
+    {% else %}
+    <td class="text-danger text-nowrap">{{ helo_vfr_night }}/3 Night</td>
+    {% endif %}
+  </tr>
+  {% else %}
+  {% endif %}
+  {% if gyro_total.total_time %}
+  <tr>
+    <td>GYRO</td>
+    {% if gyro_vfr_day_current %}
+    <td class="text-success text-nowrap">{{ gyro_vfr_day }}/3 Day</td>
+    {% else %}
+    <td class="text-danger text-nowrap">{{ gyro_vfr_day }}/3 Day</td>
+    {% endif %}
+    {% if gyro_vfr_night_current %}
+    <td class="text-success text-nowrap">{{ gyro_vfr_night }}/3 Night</td>
+    {% else %}
+    <td class="text-danger text-nowrap">{{ gyro_vfr_night }}/3 Night</td>
+    {% endif %}
+  </tr>
+  {% else %}
+  {% endif %}
+</table>

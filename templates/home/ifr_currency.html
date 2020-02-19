@@ -1,0 +1,34 @@
+<table class="table table-bordered table-sm">
+  <thead class="thead-light">
+    <th colspan=2 class="text-center text-nowrap">IFR Currency<br>
+      <small>Based on UTC</small></th>
+  </thead>
+
+  {% if appr_quantity < 6 %}
+  <tr>
+    <td>Approaches</td>
+    <td class="text-danger text-nowrap">{{ appr_quantity }}/6 - {{ still_needed }} Still needed by {{ appr_current_date }}</td>
+  </tr>
+  {% elif appr_quantity >= 6 %}
+  <tr>
+    <td>Approaches</td>
+    <td class="text-success text-nowrap">{{ appr_quantity }}/6 - Current until {{ appr_current_date }}</td>
+  </tr>
+  {% else %}
+  <tr>
+    <td>Approaches</td>
+    <td class="text-danger text-nowrap">None in last 6 months</td>
+  </tr>
+  {% endif %}
+  {% if not hold_quantity or hold_quantity == 0 %}
+  <tr>
+    <td>Holding</td>
+    <td class="text-danger text-nowrap">None in last 6 months</td>
+  </tr>
+  {% else %}
+  <tr>
+    <td>Holding</td>
+    <td class="text-success text-nowrap">{{ hold_quantity }}/1 - Current until {{ hold_current_date }}</td>
+  </tr>
+  {% endif %}
+</table>
