@@ -1,0 +1,40 @@
+{% if flight_errors or aircraft_errors or tailnumber_errors or aircraft_needs_tailnumber %}
+<div style="margin-top: 15px;" class="row flex-md-row">
+  {% if flight_errors %}
+  <div class="col flex-md-column">
+    <table>
+      <thead>
+        <th class="text-nowrap">Flight Errors</th>
+      </thead>
+      <tbody>
+        {% for flight in flight_errors %}
+        <tr>
+          <td><a href="{% url 'flight_detail' flight.pk %}" style="margin-top: 5px;" class="text-danger text-no-wrap">{{ flight.date }} | {{ flight.route }}</a></td><br />
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  {% endif %}
+
+  {% if aircraft_needs_tailnumber %}
+  <div class="col flex-md-column">
+    <table>
+      <thead>
+        <th class="text-nowrap">Tailnumber Errors</th>
+      </thead>
+      <tbody>
+        {% for aircraft in aircraft_needs_tailnumber %}
+        <tr>
+          <td><a href="{% url 'aircraft_detail' aircraft.pk %}" style="margin-top: 5px;" class="text-danger text-no-wrap">{{ aircraft }}</a></td><br />
+        </tr>
+        {% endfor %}
+    </table>
+  </div>
+  {% else %}
+  {% endif %}
+</div>
+{% else %}
+<p class="text-success">No Errors</p>
+{% endif %}
