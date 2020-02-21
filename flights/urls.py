@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
 from flights.views import (
-                            HomeView, index_view, AircraftAutocomplete, TailNumberAutocomplete,
+                            AircraftAutocomplete, TailNumberAutocomplete,
                             geoJSON_routes_view, geoJSON_airports_view,
                             FlightArchive, FlightArchiveYear, FlightArchiveMonth,
                             FlightList, FlightCreate, FlightUpdate, FlightDetail, FlightDelete, RemarksList,
@@ -12,9 +12,6 @@ from flights.views import (
                             )
 
 urlpatterns = [
-
-    url(r'^home/$', HomeView.as_view(), name='home'),
-    url(r'^$', index_view, name='index'),
 
     # autocomplete urls
     url(r'^aircraft-autocomplete/$', AircraftAutocomplete.as_view(), name='aircraft-autocomplete'),

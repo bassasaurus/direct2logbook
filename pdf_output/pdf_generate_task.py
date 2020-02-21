@@ -32,7 +32,6 @@ from logbook import settings
 def pdf_generate(user_pk):
 
     user = User.objects.get(pk=user_pk)
-    print(user)
 
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer,
@@ -86,7 +85,7 @@ def pdf_generate(user_pk):
         if Signature.objects.filter(user=user).exists():
             sig = Signature.objects.get(user=user)
             signature_path = sig.signature.url
-            print(signature_path)
+
             canvas.drawImage(str(signature_path), 240,
                              50, width=100, height=40)
         else:
