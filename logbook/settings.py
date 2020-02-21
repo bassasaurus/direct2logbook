@@ -295,9 +295,9 @@ ANYMAIL = {
 
 # or sendgrid.EmailBackend, or...
 if os.getenv('DEBUG'):
-    EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
-else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
 
 DEFAULT_FROM_EMAIL = "no-reply@direct2logbook.com"
 
