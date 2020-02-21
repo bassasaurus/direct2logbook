@@ -1,7 +1,6 @@
 from django.shortcuts import render
 import json
 from django.http import HttpResponse
-from decouple import config
 from django.views.decorators.csrf import csrf_exempt
 import stripe
 from django.urls import reverse
@@ -9,14 +8,19 @@ from profile.models import Profile
 from datetime import datetime
 from django.contrib.auth.models import User
 from logbook import settings
+import os
+from dotenv import load_dotenv
+
+load_dotenv(verbose=True)
 
 
 if settings.DEBUG:
-    stripe.api_key = config('STRIPE_TEST_SECRET_KEY')
-    endpoint_secret = config('endpoint_test_secret')
+    print('Stripe test key = ', settings.DEBUG)
+    stripe.api_key = os.getenv('STRIPE_TEST_SECRET_KEY')
+    endpoint_secret = os.getenv('endpoint_test_secret')
 else:
-    stripe.api_key = config('STRIPE_LIVE_SECRET_KEY')
-    endpoint_secret = config('endpoint_live_secret')
+    stripe.api_key = os.getenv('STRIPE_LIVE_SECRET_KEY')
+    endpoint_secret = os.getenv('endpoint_live_secret')
 
 
 @csrf_exempt

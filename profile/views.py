@@ -5,10 +5,14 @@ from django.views.generic import TemplateView, UpdateView
 from .models import Profile
 from .forms import ProfileForm
 from pdf_output.models import Signature
-from decouple import config
 import stripe
 import datetime
 from flights.views import LoginRequiredMixin
+from logbook import settings
+import os
+from dotenv import load_dotenv
+
+load_dotenv(verbose=True)
 
 
 class OwnObjectUserMixin(UserPassesTestMixin):
@@ -45,7 +49,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 
     def session_monthly(self, customer_id):
 
-        if config('DJANGO_DEVELOPMENT_SETTINGS', cast=bool):
+        if settings.DEBUG:
             plan_monthly = 'plan_FZhtfxftM44uHz'  # test
         else:
             plan_monthly = 'plan_FZi0hBf46jbYVt'
@@ -71,7 +75,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 
     def session_yearly(self, customer_id):
 
-        if config('DJANGO_DEVELOPMENT_SETTINGS', cast=bool):
+        if settings.DEBUG:
             plan_yearly = 'plan_FaRGVsApeXu8bS'
         else:
             plan_yearly = 'plan_FbBfx5Pbam2QRa'
@@ -100,13 +104,12 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         user = self.request.user
         profile = Profile.objects.get(user=user)
 
-        if config('DJANGO_DEVELOPMENT_SETTINGS', cast=bool):
-            context['STRIPE_PUBLISHABLE_KEY'] = config(
-                'STRIPE_TEST_PUBLISHABLE_KEY')
+        if settings.DEBUG:
+            context['STRIPE_PUBLISHABLE_KEY'] = os.getenv('STRIPE_TEST_PUBLISHABLE_KEY')
             context['CHECKOUT_SESSION_ID_MONTHLY'] = profile.customer_id  # test user in stripe dashboard
             context['CHECKOUT_SESSION_ID_YEARLY'] = profile.customer_id  # test user in stripe dashboard
         else:
-            context['STRIPE_PUBLISHABLE_KEY'] = config('STRIPE_LIVE_PUBLISHABLE_KEY')
+            context['STRIPE_PUBLISHABLE_KEY'] = os.getenv('STRIPE_LIVE_PUBLISHABLE_KEY')
             context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly(profile.customer_id)
             context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly(profile.customer_id)
 
