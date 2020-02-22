@@ -13,13 +13,16 @@
 
   <div class="col-lg-7">
     {% if not expiry_date %}
-      <h5><a class="text-dark" style="text-decoration: underline;" href="{% url 'profile_update' user.profile.pk %}">Click here to enter your medical certificate info for an expiration date reminder</a></h5>
+      <h5>For a medical expiration reminder:</h5>
+      <h5><a class="text-dark" style="text-decoration: underline;" href="{% url 'profile_update' user.profile.pk %}">Click here</a></h5>
       {% else %}
-      <h5>Medical Certificate Issued - <span class="text-no-wrap">{{ user.profile.medical_issue_date|date:"M Y" }}</span></h5>
-      {% if this_month == True %}
-      <p>Your certificate expires this month - <span class="text-danger text-no-wrap">{{ expiry_date|date:"M Y" }}</span></p>
+        <h5>Medical Certificate Issued - <span class="text-no-wrap">{{ user.profile.medical_issue_date|date:"M Y" }}</span></h5>
+      {% if expiring == True %}
+        <p>Your certificate expires next month - <span class="text-warning text-no-wrap">{{ expiry_date|date:"M Y" }}</span></p>
+      {% elif this_month == True %}
+        <p>Your certificate expires this month - <span class="text-danger text-no-wrap">{{ expiry_date|date:"M Y" }}</span></p>
       {% else %}
-      <p>Your certificate expires - <span class="text-success text-no-wrap">{{ expiry_date|date:"M Y" }}</span></p>
+        <p>Your certificate expires - <span class="text-success text-no-wrap">{{ expiry_date|date:"M Y" }}</span></p>
       {% endif %}
     {% endif %}
     <hr>
