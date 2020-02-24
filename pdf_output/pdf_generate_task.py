@@ -1,9 +1,6 @@
-
 from logbook.celery import app
-
 from os import path
 import os
-
 from io import BytesIO
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter, legal, landscape
@@ -23,7 +20,6 @@ from os import path
 from logbook import settings
 from .models import Signature
 from flights.models import Flight, Total, Stat, Regs, Power, Weight, Endorsement
-from decouple import config
 
 from logbook import settings
 
@@ -342,8 +338,7 @@ def pdf_generate(user_pk):
     # logbook starts here
 
     if settings.DEBUG:
-        flight_objects = Flight.objects.filter(
-            user=user).order_by('-date')[:100]
+        flight_objects = Flight.objects.filter(user=user).order_by('-date')[:100]
     else:
         flight_objects = Flight.objects.filter(user=user).order_by('-date')
 

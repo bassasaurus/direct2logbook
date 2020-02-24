@@ -1,14 +1,16 @@
 import os
 from os.path import abspath, dirname
-
-from decouple import config
-
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.celery import CeleryIntegration
+from dotenv import load_dotenv
 
+load_dotenv(verbose=True)
 
-if not config('DJANGO_DEVELOPMENT_SETTINGS', cast=bool):
+if os.getenv('DEBUG'):
+    print('Dev settings = ', os.getenv('DEBUG'))
+
+if not os.getenv('DEBUG'):
     sentry_sdk.init(
         dsn="https://e3f79fa21e484fe6b58a2e227a5bbce5@sentry.io/1515848",
         integrations=[DjangoIntegration(), CeleryIntegration()]
@@ -30,14 +32,15 @@ SECURE_SSL_REDIRECT = False
 # SECURITY WARNING: keep the secret key used in production secret!
 
 
-SECRET_KEY = config('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 SITE_ID = 8
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-DEBUG = False
-ALLOWED_HOSTS = ["*"]
+DEBUG = os.getenv('DEBUG')
+
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', 'direct2logbook.com']
 
 # APPEND_SLASH = False
 
@@ -117,7 +120,6 @@ ACCOUNT_FORMS = {
 SOCIALACCOUNT_EMAIL_VERIFICATION = ACCOUNT_EMAIL_VERIFICATION
 SOCIALACCOUNT_EMAIL_REQUIRED = ACCOUNT_EMAIL_REQUIRED
 
-
 LOGIN_REDIRECT_URL = '/home'
 ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 
@@ -174,10 +176,10 @@ WSGI_APPLICATION = 'logbook.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-POSTGRES_DB_NAME = config('POSTGRES_DB_NAME')
-POSTGRES_UN = config('POSTGRES_UN')
-POSTGRES_PW = config('POSTGRES_PW')
-DB_HOST = config('DB_HOST')
+POSTGRES_DB_NAME = os.getenv('POSTGRES_DB_NAME')
+POSTGRES_UN = os.getenv('POSTGRES_UN')
+POSTGRES_PW = os.getenv('POSTGRES_PW')
+DB_HOST = os.getenv('DB_HOST')
 
 DATABASES = {
     # 'default': {
@@ -243,12 +245,12 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
-AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
+AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
 AWS_DEFAULT_ACL = None
 AWS_S3_FILE_OVERWRITE = False
-MEDIA_URL = config('MEDIA_URL')
+MEDIA_URL = os.getenv('MEDIA_URL')
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
@@ -283,20 +285,19 @@ LOGGING = {
     },
 }
 
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' #disable/setup for production
 
 ANYMAIL = {
     # (exact settings here depend on your ESP...)
-    "MAILGUN_API_KEY": config('MAILGUN_API_KEY'),
+    "MAILGUN_API_KEY": os.getenv('MAILGUN_API_KEY'),
     "MAILGUN_SENDER_DOMAIN": 'mg.direct2logbook.com',  # your Mailgun domain, if needed
 }
 
 # or sendgrid.EmailBackend, or...
-EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
-# if you don't already have this in settings
+if os.getenv('DEBUG'):
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+else:
+    EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
+
 DEFAULT_FROM_EMAIL = "no-reply@direct2logbook.com"
 
 CSRF_USE_SESSIONS = True
-
-if config('DJANGO_DEVELOPMENT_SETTINGS', cast=bool):
-    from .development import *

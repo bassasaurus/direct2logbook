@@ -236,15 +236,11 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
             gyro_pic = 0
             gyro_sic = 0
 
-        context['airplane_total'] = asel_total + \
-            amel_total + ases_total + ames_total
-        context['airplane_dual'] = asel_dual + \
-            amel_dual + ases_dual + ames_dual
-        context['airplane_solo'] = asel_solo + \
-            amel_solo + ases_solo + ames_solo
+        context['airplane_total'] = asel_total + amel_total + ases_total + ames_total
+        context['airplane_dual'] = asel_dual + amel_dual + ases_dual + ames_dual
+        context['airplane_solo'] = asel_solo + amel_solo + ases_solo + ames_solo
         context['airplane_ifr'] = asel_ifr + amel_ifr + ases_ifr + ames_ifr
-        context['airplane_ldg_night'] = asel_ldg_night + \
-            amel_ldg_night + ases_ldg_night + ames_ldg_night
+        context['airplane_ldg_night'] = asel_ldg_night + amel_ldg_night + ases_ldg_night + ames_ldg_night
         context['airplane_pic'] = asel_pic + amel_pic + ases_pic + ames_pic
         context['airplane_sic'] = asel_sic + amel_sic + ases_sic + ames_sic
 
@@ -431,6 +427,7 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
 
         context['expiry_date'] = medical_duration(user)[0]
         context['this_month'] = medical_duration(user)[1]
+        context['expiring'] = medical_duration(user)[2]
 
         if len(Aircraft.objects.filter(user=user)) == 0:
             context['new_user_aircraft'] = True
