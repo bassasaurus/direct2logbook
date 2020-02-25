@@ -1,8 +1,7 @@
-from flights.models import Flight, Aircraft, TailNumber, Approach, Holding, Imported, Total, Stat, Regs, Weight, Power, Endorsement
+from flights.models import Flight, Aircraft, TailNumber, Approach, Holding, Imported
 from profile.models import Profile
 
 from flights.forms import FlightForm, AircraftForm, TailNumberForm, ImportedForm, ApproachFormSet, HoldingFormSet
-from django.db.models import Sum, Q, F
 from django.db.models.functions import Length
 from django.db.models import CharField
 
@@ -12,7 +11,7 @@ from django.utils.text import capfirst
 
 from django.forms import inlineformset_factory
 
-from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DetailView, DeleteView
+from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 from django.views.generic.dates import YearArchiveView, MonthArchiveView, ArchiveIndexView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -181,7 +180,8 @@ class TailNumberAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetVie
             qs = qs.filter(registration__istartswith=self.q)
 
         return qs
-        
+
+
 class FlightArchive(LoginRequiredMixin, ProfileNotActiveMixin, ArchiveIndexView):
     model = Flight
     date_field = 'date'

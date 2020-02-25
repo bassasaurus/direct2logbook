@@ -1,4 +1,4 @@
-from flights.models import Flight, Aircraft
+from flights.models import Flight
 from django.db.models import Sum, Q
 import datetime
 from dateutil.relativedelta import relativedelta
@@ -21,7 +21,6 @@ type_rating = Q(aircraft_type__requires_type=True) & Q(date__gte=last_2yr)
 # type currency
 def type_currency(user):
 
-    recent_aircraft = {}
     flights = Flight.objects.filter(user=user).filter(type_rating)
 
     ac_set = set()
@@ -59,6 +58,7 @@ def type_currency(user):
 
     return type_currency_dict
 
+
 # amel currency
 def amel_vfr_day(user):
     today = datetime.date.today()
@@ -74,6 +74,7 @@ def amel_vfr_day(user):
         current = True
     return amel_vfr_day, current
 
+
 def amel_vfr_night(user):
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
@@ -87,6 +88,7 @@ def amel_vfr_night(user):
     else:
         current = True
     return amel_vfr_night, current
+
 
 # asel currency
 def asel_vfr_day(user):
@@ -103,6 +105,7 @@ def asel_vfr_day(user):
         current = True
     return asel_vfr_day, current
 
+
 def asel_vfr_night(user):
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
@@ -116,6 +119,7 @@ def asel_vfr_night(user):
     else:
         current = True
     return asel_vfr_night, current
+
 
 # ases currency
 def ases_vfr_day(user):
@@ -132,6 +136,7 @@ def ases_vfr_day(user):
         current = True
     return ases_vfr_day, current
 
+
 def ases_vfr_night(user):
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
@@ -145,6 +150,7 @@ def ases_vfr_night(user):
     else:
         current = True
     return ases_vfr_night, current
+
 
 # ames currency
 def ames_vfr_day(user):
@@ -161,6 +167,7 @@ def ames_vfr_day(user):
         current = True
     return ames_vfr_day, current
 
+
 def ames_vfr_night(user):
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
@@ -174,6 +181,7 @@ def ames_vfr_night(user):
     else:
         current = True
     return ames_vfr_night, current
+
 
 # helo currency
 def helo_vfr_day(user):
@@ -189,6 +197,7 @@ def helo_vfr_day(user):
     else:
         current = True
     return helo_vfr_day, current
+
 
 def helo_vfr_night(user):
     today = datetime.date.today()
@@ -236,7 +245,7 @@ def gyro_vfr_night(user):
     return gyro_vfr_night, current
 
 
-def medical_duration(user): #still need to start calculations from next month after issue
+def medical_duration(user):  # still need to start calculations from next month after issue
     issue_date = user.profile.medical_issue_date
     current_month = datetime.date.today()
 

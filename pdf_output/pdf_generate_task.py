@@ -1,27 +1,19 @@
 from logbook.celery import app
-from os import path
-import os
 from io import BytesIO
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter, legal, landscape
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.pagesizes import legal, landscape
+from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import Paragraph, Table, SimpleDocTemplate, Spacer, TableStyle, PageBreak, LongTable
 from reportlab.lib import colors
-from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib.units import inch, mm
+from reportlab.lib.units import inch
 
 from django.core.mail import EmailMessage
-from django.core.mail import send_mail
+# from django.core.mail import send_mail
 from django.contrib.auth.models import User
 
 import datetime
-from os import path
-
 from logbook import settings
 from .models import Signature
 from flights.models import Flight, Total, Stat, Regs, Power, Weight, Endorsement
-
-from logbook import settings
 
 
 @app.task
@@ -104,9 +96,7 @@ def pdf_generate(user_pk):
         )
         canvas.restoreState()
     spacer15 = Spacer(1, 1.5 * inch)
-    spacer10 = Spacer(1, 1.0 * inch)
     spacer025 = Spacer(1, .25 * inch)
-    spacer050 = Spacer(1, .50 * inch)
 
     story.append(spacer15)
     story.append(spacer025)
@@ -288,9 +278,6 @@ def pdf_generate(user_pk):
     story.append(aircraft_stats_title)
     story.append(spacer)
 
-    today = datetime.date.today()
-    last_5yr = today - datetime.timedelta(days=1825)
-    # stat_objects = Stat.objects.filter(last_flown__gte=last_5yr)
     stat_objects = Stat.objects.filter(user=user)
 
     stat_data = []

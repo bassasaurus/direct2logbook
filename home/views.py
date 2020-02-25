@@ -44,7 +44,6 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
                 aircraft_list.append(aircraft)
                 context['aircraft_needs_tailnumber'] = aircraft_list
 
-
         # cat/class vfr day, night currency
         try:
             Total.objects.filter(user=user).get(total="ASEL")
