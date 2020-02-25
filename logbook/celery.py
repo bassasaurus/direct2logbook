@@ -6,16 +6,15 @@ from dotenv import load_dotenv
 load_dotenv(verbose=True)
 
 # start worker:
-# celery -A logbook worker -l info
+# celery -A logbook worker -l info --concurrency 2 --without-gossip --without-mingle --without-heartbeat
 # http://localhost:15672/
 
-# heroku run celery -A logbook worker -l info --app direct2logbook
 # heroku logs -t -p worker
 
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'logbook.settings')
 
-app = Celery('logbook', broker=os.getenv('CLOUDAMQP_URL'))
+app = Celery('logbook', broker='filesystem://')
 
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.
