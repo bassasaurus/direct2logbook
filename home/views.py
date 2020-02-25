@@ -34,7 +34,7 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
         context = super(HomeView, self).get_context_data(**kwargs)
 
         context['recent'] = Flight.objects.filter(
-            user=user).order_by('-date')[:8]
+            user=user).order_by('-date')[:5]
 
         aircraft_list = []
         for aircraft in Aircraft.objects.filter(user=user).all():
