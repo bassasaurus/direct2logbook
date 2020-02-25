@@ -14,7 +14,7 @@ load_dotenv(verbose=True)
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'logbook.settings')
 
-app = Celery('logbook', broker='filesystem://')
+app = Celery('logbook', broker=os.getenv('CLOUDAMQP_URL'))
 
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.

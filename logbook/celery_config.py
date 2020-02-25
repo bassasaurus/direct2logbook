@@ -1,17 +1,9 @@
+from dotenv import load_dotenv
+import os
 
+load_dotenv(verbose=True)
 
-
-broker_transport_options = {
-        'data_folder_in': 'broker/out',
-        'data_folder_out': 'broker/out',
-        'data_folder_processed': 'broker/processed'}
-
-
-result_persistent = False
-task_serializer = 'json'
-result_serializer = 'json'
-accept_content = ['json']
-
+broker_url = os.getenv('CLOUDAMQP_URL')
 broker_pool_limit = 1  # Will decrease connection usage
 broker_heartbeat = None  # We're using TCP keep-alive instead
 broker_connection_timeout = 30  # May require a long timeout due to Linux DNS timeouts etc
