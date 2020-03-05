@@ -1,3 +1,3 @@
-# direct2logbook
+# direct2logbook.
 
-An aircraft pilot's logbook.
+A Logbook for Private, and Professional Pilots.
