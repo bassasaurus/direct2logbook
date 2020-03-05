@@ -15,7 +15,7 @@ chardet==3.0.4
 chicken==0.1.0
 cryptography==2.7
 defusedxml==0.6.0
-Django==2.2.9
+Django==2.2.10
 django-allauth==0.39.1
 django-anymail==5.0
 django-autocomplete-light==3.4.1
