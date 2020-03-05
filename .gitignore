@@ -109,3 +109,7 @@ ENV/
 
 # user files
 media/
+
+.idea/
+.vscode/
+
