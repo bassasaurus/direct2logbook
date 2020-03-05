@@ -192,16 +192,15 @@ class FlightArchive(LoginRequiredMixin, ProfileNotActiveMixin, ArchiveIndexView)
     def get_context_data(self, **kwargs):
         context = super(FlightArchive, self).get_context_data(**kwargs)
         user = self.request.user
-        get_map_data(self.object_list, user)
+        object_list = self.object_list.filter(user=user)
+        get_map_data(object_list, user)
 
         context['title'] = "D-> | Map"
         context['parent_name'] = 'Home'
         context['parent_link'] = reverse('home')
         context['page_title'] = 'Map'
-        context['years'] = Flight.objects.filter(
-            user=user).dates('date', 'year')
-        context['months'] = Flight.objects.filter(
-            user=user).dates('date', 'month')
+        context['years'] = Flight.objects.filter(user=user).dates('date', 'year')
+        context['months'] = Flight.objects.filter(user=user).dates('date', 'month')
         return context
 
 
@@ -215,15 +214,15 @@ class FlightArchiveYear(LoginRequiredMixin, ProfileNotActiveMixin, YearArchiveVi
     def get_context_data(self, **kwargs):
         context = super(FlightArchiveYear, self).get_context_data(**kwargs)
         user = self.request.user
-        get_map_data(self.object_list, user)
+        object_list = self.object_list.filter(user=user)
+        get_map_data(object_list, user)
 
         context['title'] = "D-> | Flights by Year"
         context['home_link'] = reverse('home')
         context['parent_name'] = 'Map'
         context['parent_link'] = reverse('flight_by_date')
         context['page_title'] = "Flights by Year"
-        context['years'] = Flight.objects.filter(
-            user=user).dates('date', 'year')
+        context['years'] = Flight.objects.filter(user=user).dates('date', 'year')
         return context
 
 
@@ -237,17 +236,16 @@ class FlightArchiveMonth(LoginRequiredMixin, ProfileNotActiveMixin, MonthArchive
     def get_context_data(self, **kwargs):
         context = super(FlightArchiveMonth, self).get_context_data(**kwargs)
         user = self.request.user
-        get_map_data(self.object_list, user)
+        object_list = self.object_list.filter(user=user)
+        get_map_data(object_list, user)
 
         context['title'] = "D-> | Flights by Month"
         context['home_link'] = reverse('home')
         context['parent_name'] = 'Map'
         context['parent_link'] = reverse('flight_by_date')
         context['page_title'] = "Flights by Month"
-        context['years'] = Flight.objects.filter(
-            user=user).dates('date', 'year')
-        context['months'] = Flight.objects.filter(
-            user=user).dates('date', 'month')
+        context['years'] = Flight.objects.filter(user=user).dates('date', 'year')
+        context['months'] = Flight.objects.filter(user=user).dates('date', 'month')
         return context
 
 
