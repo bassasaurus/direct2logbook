@@ -12,7 +12,7 @@ if os.getenv('DEBUG'):
 
 if not os.getenv('DEBUG'):
     sentry_sdk.init(
-        dsn="https://e3f79fa21e484fe6b58a2e227a5bbce5@sentry.io/1515848",
+        dsn="https://f0cd91f6f0f846a8984cbc0f6f91d5d8@sentry.io/5168172"
         integrations=[DjangoIntegration(), CeleryIntegration()]
     )
 else:
