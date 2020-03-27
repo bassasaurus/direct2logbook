@@ -17,7 +17,7 @@
       <h5><a class="text-dark" style="text-decoration: underline;" href="{% url 'profile_update' user.profile.pk %}">Click here</a></h5>
       {% else %}
         <h5>Medical Certificate Issued - <span class="text-no-wrap">{{ user.profile.medical_issue_date|date:"M Y" }}</span></h5>
-      {% if expiring == True %}
+      {% if expiring == True and not this_month %}
         <p>Your certificate expires next month - <span class="text-warning text-no-wrap">{{ expiry_date|date:"M Y" }}</span></p>
       {% elif this_month == True %}
         <p>Your certificate expires this month - <span class="text-danger text-no-wrap">{{ expiry_date|date:"M Y" }}</span></p>
