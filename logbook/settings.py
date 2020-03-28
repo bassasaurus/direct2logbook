@@ -7,13 +7,14 @@ from sentry_sdk.integrations.celery import CeleryIntegration
 from dotenv import load_dotenv
 load_dotenv(verbose=True)
 
-if os.getenv('DEBUG'):
+if os.getenv('DEBUG') == True:
     print('Dev settings = ', os.getenv('DEBUG'))
 
 if not os.getenv('DEBUG'):
     sentry_sdk.init(
-        dsn="https://f0cd91f6f0f846a8984cbc0f6f91d5d8@sentry.io/5168172",
-        integrations=[DjangoIntegration(), CeleryIntegration()]
+        dsn="https://ae7b986d84f846849a012d9db98ac3d9@sentry.io/5178626",
+        integrations=[DjangoIntegration(), CeleryIntegration()],
+        send_default_pii=True
     )
 else:
     print('Sentry not active')
