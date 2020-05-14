@@ -1,44 +1,50 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
 from flights.models import *
-from flights.fields import *
+
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
-	class Meta:
-		model = User
-		fields = ('url', 'username', 'email', 'groups')
+    class Meta:
+        model = User
+        fields = ('url', 'username', 'email', 'groups')
+
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):
-	class Meta:
-		model = Group
-		fields = ('url', 'name')
+    class Meta:
+        model = Group
+        fields = ('url', 'name')
+
 
 class FlightSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = Flight
-		fields = flight_fields()
+		fields = '__all__'
+
 
 class AircraftSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = Aircraft
-		fields = aircraft_fields()
+		fields = '__all__'
 
 class TailNumberSerializer(serializers.HyperlinkedModelSerializer):
 	class Meta:
 		model = TailNumber
-		fields = tailnumber_fields()
+		fields = '__all__'
+
 
 class AircraftCategorySerializer(serializers.HyperlinkedModelSerializer):
-	class Meta:
-		model = AircraftCategory
-		fields = '__all__'
+    class Meta:
+        model = AircraftCategory
+        fields = '__all__'
+
 
 class AircraftClassSerializer(serializers.HyperlinkedModelSerializer):
-	class Meta:
-		model = AircraftClass
-		fields = '__all__'
+    class Meta:
+        model = AircraftClass
+        fields = '__all__'
+
 
 class ApproachSerializer(serializers.HyperlinkedModelSerializer):
-	class Meta:
-		model = Approach
-		fields = '__all__'
+    class Meta:
+        model = Approach
+        fields = '__all__'
