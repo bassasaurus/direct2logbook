@@ -8,6 +8,9 @@ from rest_framework import generics
 from flights.models import Flight, Aircraft, TailNumber
 import api.serializers as serializers
 from .serializers import UserSerializer
+from django.contrib.auth import get_user_model
+from rest_framework.response import Response
+from rest_framework import status
 
 
 from django.contrib.auth.models import User, Group
@@ -35,3 +38,12 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
+
+
+class LogoutUserAPIView(APIView):
+    queryset = get_user_model().objects.all()
+
+    def get(self, request, format=None):
+        # simply delete the token to force a login
+        request.user.auth_token.delete()
+        return Response(status=status.HTTP_200_OK)
