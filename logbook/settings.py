@@ -75,6 +75,7 @@ INSTALLED_APPS = [
 
     # installed
     'rest_framework',
+    'rest_framework.authtoken',
     'rest_framework_docs',
     # 'api',
     'django_extensions',
@@ -254,8 +255,12 @@ AWS_S3_FILE_OVERWRITE = False
 MEDIA_URL = os.getenv('MEDIA_URL')
 
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAdminUser',
+        'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 20
