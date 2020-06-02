@@ -48,8 +48,8 @@ def type_currency(user):
 
         if night_landings.get('landings_night__sum'):
             night_landings = night_landings.get('landings_night__sum')
-            if night_landings >= 3:
-                night_current = True
+        if night_landings >= 3:
+            night_current = True
         else:
             night_landings = 0
             night_current = False
@@ -288,5 +288,5 @@ def medical_duration(user):  # still need to start calculations from next month 
             expiring = True
         else:
             expiring = False
-            
+
     return(expiry_date, this_month, expiring)
