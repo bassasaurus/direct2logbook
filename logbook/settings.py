@@ -73,8 +73,7 @@ INSTALLED_APPS = [
     'pdf_output',
     'csv_app',
 
-    # installed
-    
+    # 'api',
     'django_extensions',
     'corsheaders',
     'debug_toolbar',
