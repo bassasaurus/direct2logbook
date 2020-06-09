@@ -74,10 +74,7 @@ INSTALLED_APPS = [
     'csv_app',
 
     # installed
-    'rest_framework',
-    'rest_framework.authtoken',
-    'rest_framework_docs',
-    # 'api',
+    
     'django_extensions',
     'corsheaders',
     'debug_toolbar',
