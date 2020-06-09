@@ -254,18 +254,6 @@ AWS_DEFAULT_ACL = None
 AWS_S3_FILE_OVERWRITE = False
 MEDIA_URL = os.getenv('MEDIA_URL')
 
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
-    ),
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAdminUser',
-        'rest_framework.permissions.IsAuthenticated',
-    ],
-    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 20
-}
-
 CACHES = {'default': {
     'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
     'LOCATION': 'cache_table',
