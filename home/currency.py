@@ -38,21 +38,25 @@ def type_currency(user):
         day_landings = Flight.objects.filter(user=user).filter(aircraft_type=aircraft).filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_day'))
         night_landings = Flight.objects.filter(user=user).filter(aircraft_type=aircraft).filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_night'))
 
-        if day_landings.get('landings_day__sum'):
+        if not day_landings.get('landings_day__sum'):
+            day_landings = 0
+            day_current = False
+        else:
             day_landings = day_landings.get('landings_day__sum')
             if day_landings >= 3:
                 day_current = True
-        else:
-            day_landings = 0
-            day_current = False
+            else:
+                day_current = False
 
-        if night_landings.get('landings_night__sum'):
-            night_landings = night_landings.get('landings_night__sum')
-        if night_landings >= 3:
-            night_current = True
-        else:
+        if not night_landings.get('landings_night__sum'):
             night_landings = 0
             night_current = False
+        else:
+            night_landings = night_landings.get('landings_night__sum')
+            if night_landings >= 3:
+                night_current = True
+            else:
+                night_current = False
 
         type_currency_dict[str(aircraft)] = day_landings, day_current, night_landings, night_current
 
