@@ -76,7 +76,7 @@ INSTALLED_APPS = [
     # 'api',
     'django_extensions',
     'corsheaders',
-    'debug_toolbar',
+    # 'debug_toolbar',
     'picklefield',
     'widget_tweaks',
     'columns',
@@ -133,7 +133,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    # 'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
