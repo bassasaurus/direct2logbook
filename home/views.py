@@ -120,8 +120,7 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
         if not hold_date_qs:
             context['hold_current_date'] = None
         else:
-            context['hold_current_date'] = hold_date_qs.date + \
-                datetime.timedelta(180)
+            context['hold_current_date'] = hold_date_qs.date
 
         # iacra
         # use .exists() then assign value when queryset is None and build more specific contexts
