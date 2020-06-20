@@ -120,8 +120,7 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
         if not hold_date_qs:
             context['hold_current_date'] = None
         else:
-            context['hold_current_date'] = hold_date_qs.date + \
-                datetime.timedelta(180)
+            context['hold_current_date'] = hold_date_qs.date
 
         # iacra
         # use .exists() then assign value when queryset is None and build more specific contexts
@@ -427,6 +426,8 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
         context['expiry_date'] = medical_duration(user)[0]
         context['this_month'] = medical_duration(user)[1]
         context['expiring'] = medical_duration(user)[2]
+        context['expired'] = medical_duration(user)[3]
+        context['current'] = medical_duration(user)[4]
 
         if len(Aircraft.objects.filter(user=user)) == 0:
             context['new_user_aircraft'] = True
