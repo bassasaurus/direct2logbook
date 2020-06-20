@@ -427,6 +427,8 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
         context['expiry_date'] = medical_duration(user)[0]
         context['this_month'] = medical_duration(user)[1]
         context['expiring'] = medical_duration(user)[2]
+        context['expired'] = medical_duration(user)[3]
+        context['current'] = medical_duration(user)[4]
 
         if len(Aircraft.objects.filter(user=user)) == 0:
             context['new_user_aircraft'] = True
