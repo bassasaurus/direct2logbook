@@ -41,7 +41,7 @@ SITE_ID = 8
 
 DEBUG = os.getenv('DEBUG')
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', 'www.direct2logbook.com']
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(' ')
 
 # APPEND_SLASH = False
 
