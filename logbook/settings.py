@@ -264,7 +264,7 @@ if os.getenv('DEBUG') == False:
             'file': {
                 'level': 'WARNING',
                 'class': 'logging.FileHandler',
-                'filename': os.getenv('LOG_DIR')',
+                'filename': os.getenv('LOG_DIR'),
             },
         },
         'loggers': {
