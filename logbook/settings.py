@@ -256,7 +256,7 @@ CACHES = {'default': {
         }
     }
 
-if os.getenv('DEBUG') == False:
+if os.getenv('DEBUG') is False:
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,
