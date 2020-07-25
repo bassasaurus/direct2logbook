@@ -7,7 +7,7 @@ from sentry_sdk.integrations.celery import CeleryIntegration
 from dotenv import load_dotenv
 load_dotenv(verbose=True)
 
-if os.getenv('DEBUG') == True:
+if os.getenv('DEBUG') is True:
     print('Dev settings = ', os.getenv('DEBUG'))
 
 if not os.getenv('DEBUG'):
@@ -284,7 +284,7 @@ ANYMAIL = {
 }
 
 # or sendgrid.EmailBackend, or...
-if os.getenv('DEBUG'):
+if os.getenv('DEBUG') is True:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
     EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
