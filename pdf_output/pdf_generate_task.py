@@ -10,6 +10,8 @@ from django.core.mail import EmailMessage
 # from django.core.mail import send_mail
 from django.contrib.auth.models import User
 
+import os
+
 import datetime
 from logbook import settings
 from .models import Signature
@@ -324,7 +326,7 @@ def pdf_generate(user_pk):
 
     # logbook starts here
 
-    if settings.DEBUG:
+    if os.getenv('DEBUG') is True:
         flight_objects = Flight.objects.filter(user=user).order_by('-date')[:100]
     else:
         flight_objects = Flight.objects.filter(user=user).order_by('-date')
