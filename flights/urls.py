@@ -38,11 +38,11 @@ urlpatterns = [
     path('logbook/delete/<pk>', FlightDelete.as_view(), name='flight_delete'),
     path('logbook/remarks/', RemarksList.as_view(), name='remarks'),
 
-    path(r'^aircraft/$', TailNumberList.as_view(), name='aircraft_list'),
-    path(r'^aircraft/create', AircraftCreate.as_view(), name='aircraft_create'),
-    path(r'^aircraft/update/(?P<pk>\d+)/$', AircraftUpdate.as_view(), name='aircraft_update'),
-    path(r'^aircraft/detail/(?P<pk>\d+)/$', AircraftDetail.as_view(), name='aircraft_detail'),
-    path(r'^aircraft/delete/(?P<pk>\d+)/$', AircraftDelete.as_view(), name='aircraft_delete'),
+    path('aircraft/', TailNumberList.as_view(), name='aircraft_list'),
+    path('aircraft/create', AircraftCreate.as_view(), name='aircraft_create'),
+    path('aircraft/update/<pk>', AircraftUpdate.as_view(), name='aircraft_update'),
+    path(r'^aircraft/detail/<pk>', AircraftDetail.as_view(), name='aircraft_detail'),
+    path(r'^aircraft/delete/<pk>', AircraftDelete.as_view(), name='aircraft_delete'),
 
     # path(r'^tailnumbers/$', TailNumberList.as_view(), name='tailnumber_list'),
     path(r'^tailnumbers/create/$', TailNumberCreate.as_view(), name='tailnumber_create'),
