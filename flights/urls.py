@@ -15,8 +15,8 @@ from flights.views import (
 urlpatterns = [
 
     # autocomplete urls
-    url(r'^aircraft-autocomplete/$', AircraftAutocomplete.as_view(), name='aircraft-autocomplete'),
-    url(r'^tailnumber-autocomplete/$', TailNumberAutocomplete.as_view(), name='tailnumber-autocomplete'),
+    path('aircraft-autocomplete/', AircraftAutocomplete.as_view(), name='aircraft-autocomplete'),
+    path('tailnumber-autocomplete/', TailNumberAutocomplete.as_view(), name='tailnumber-autocomplete'),
     url(r'^geojson/airports/(?P<user_id>\d+)/$', geoJSON_airports_view, name='geojson_airports'),
     url(r'^geojson/routes/(?P<user_id>\d+)/$', geoJSON_routes_view, name='geojson_routes'),
 
@@ -45,7 +45,7 @@ urlpatterns = [
     path('aircraft/delete/<pk>', AircraftDelete.as_view(), name='aircraft_delete'),
 
     # path(r'^tailnumbers/$', TailNumberList.as_view(), name='tailnumber_list'),
-    path('tailnumbers/create/$', TailNumberCreate.as_view(), name='tailnumber_create'),
+    path('tailnumbers/create/', TailNumberCreate.as_view(), name='tailnumber_create'),
     path('tailnumbers/update/<pk>', TailNumberUpdate.as_view(), name='tailnumber_update'),
     path('tailnumbers/detail/<pk>', TailNumberDetail.as_view(), name='tailnumber_detail'),
     path('tailnumbers/delete/<pk>', TailNumberDelete.as_view(), name='tailnumber_delete'),
