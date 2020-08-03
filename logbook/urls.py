@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url, include
+from django.urls import path
 from django.contrib import admin
 from django.conf.urls.static import static
 from django.conf import settings
@@ -31,15 +32,15 @@ urlpatterns = [
 
     path('sentry-debug/', trigger_error),
 
-    url(r'^', include('profile.urls')),
-    url(r'^', include('accounts.urls')),
-    url(r'^', include('home.urls')),
-    url(r'^accounts/', include('allauth.urls')),
-    url(r'^admin/', admin.site.urls),
-    url(r'^', include('flights.urls')),
-    url(r'^', include('pdf_output.urls')),
-    url(r'^', include('payments.urls')),
-    url(r'^', include('csv_app.urls')),
+    path('', include('profile.urls')),
+    path('', include('accounts.urls')),
+    path('', include('home.urls')),
+    path('accounts/', include('allauth.urls')),
+    path('admin/', admin.site.urls),
+    path('', include('flights.urls')),
+    path('', include('pdf_output.urls')),
+    path('', include('payments.urls')),
+    path('', include('csv_app.urls')),
     ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 handler400 = error_400
