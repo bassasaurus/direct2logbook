@@ -22,11 +22,11 @@ urlpatterns = [
 
     # date view paths
     # Lists all avialable years
-    path(r'^flights/by_date/$', FlightArchive.as_view(), name='flight_by_date'),
+    path('flights/by_date/', FlightArchive.as_view(), name='flight_by_date'),
     # Example: flights/2012/
-    path(r'^flights/by_date/(?P<year>[0-9]{4})/$', FlightArchiveYear.as_view(), name='flight_by_year'),
+    path('flights/by_date/<year>', FlightArchiveYear.as_view(), name='flight_by_year'),
     # Example: flights/2012/nov/
-    path(r'^flights/by_date/(?P<year>[0-9]{4})/(?P<month>[-\w]+)/$', FlightArchiveMonth.as_view(), name='flight_by_month'),
+    path('flights/by_date/<year>/<month>', FlightArchiveMonth.as_view(), name='flight_by_month'),
     # Example: flights/2012/nov/15
     # path(r'^flights/by_date/(?P<year>[0-9]{4})/(?P<month>[-\w]+)/(?P<day>[0-9]+)/$', FlightArchiveDay.as_view(), name='flight_by_day'),
 
