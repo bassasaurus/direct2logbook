@@ -50,9 +50,9 @@ urlpatterns = [
     path('tailnumbers/detail/<pk>', TailNumberDetail.as_view(), name='tailnumber_detail'),
     path('tailnumbers/delete/<pk>', TailNumberDelete.as_view(), name='tailnumber_delete'),
 
-    path(r'^imported/$', ImportedListView.as_view(), name='imported_list'),
-    path(r'^imported/create/$', ImportedCreateView.as_view(), name='imported_create'),
-    path(r'^imported/detail/(?P<pk>\d+)/$', ImportedDetailView.as_view(), name='imported_detail'),
-    path(r'^imported/update/(?P<pk>\d+)/$', ImportedUpdateView.as_view(), name='imported_update'),
-    path(r'^imported/delete/(?P<pk>\d+)/$', ImportedDeleteView.as_view(), name='imported_delete'),
+    path('imported/', ImportedListView.as_view(), name='imported_list'),
+    path('imported/create/', ImportedCreateView.as_view(), name='imported_create'),
+    path('imported/detail/<pk>', ImportedDetailView.as_view(), name='imported_detail'),
+    path('imported/update/<pk>', ImportedUpdateView.as_view(), name='imported_update'),
+    path('imported/delete/<pk>', ImportedDeleteView.as_view(), name='imported_delete'),
 ]
