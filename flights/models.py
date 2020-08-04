@@ -214,14 +214,12 @@ class Weight(models.Model):
 
 
 CATEGORY_CHOICES = (
-    ('', 'None'),
     ('A', 'Airplane'),
     ('R', 'Rotorcraft')
 )
 
 
 CLASS_CHOICES = (
-    ('', 'None'),
     ('SEL', 'Single-Engine Land'),
     ('MEL', 'Multi-Engine Land'),
     ('SES', 'Single-Engine Sea'),
@@ -350,7 +348,7 @@ class TailNumber(models.Model):
 class Approach(models.Model):
 
     APPR_CHOICES = (
-        ('', ''),
+        ('', 'Type'),
         ('ILS', 'ILS'),
         ('CATII', 'CAT II'),
         ('CATIII', 'CAT III'),
