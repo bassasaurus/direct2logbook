@@ -260,11 +260,12 @@ AWS_DEFAULT_ACL = None
 AWS_S3_FILE_OVERWRITE = False
 MEDIA_URL = os.getenv('MEDIA_URL')
 
-CACHES = {'default': {
-    'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-    'LOCATION': 'cache_table',
-        }
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'cache_table',
     }
+}
 
 if os.getenv('DEBUG') is False:
     LOGGING = {
