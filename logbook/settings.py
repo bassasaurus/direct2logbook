@@ -10,14 +10,24 @@ load_dotenv(verbose=True)
 if os.getenv('DEBUG') is True:
     print('Dev settings = ', os.getenv('DEBUG'))
 
-if not os.getenv('DEBUG'):
+if os.getenv('DEBUG') is False:
     sentry_sdk.init(
         dsn="https://65a9a45f86104c29873f4bdbfa6846b9@sentry.io/5178641",
         integrations=[DjangoIntegration(), CeleryIntegration()],
         send_default_pii=True
     )
 else:
-    print('Sentry not active')
+    print('Sentry Not Active')
+
+
+if os.getenv('DEBUG') is False:
+    STRIPE_SECRET_KEY = os.getenv('STRIPE_LIVE_SECRET_KEY')
+    ENDPOINT_SECRET_KEY = os.getenv('ENDPOINT_LIVE_SECRET_KEY')
+else:
+    STRIPE_SECRET_KEY = os.getenv('STRIPE_TEST_SECRET_KEY')
+    ENDPOINT_SECRET_KEY = os.getenv('ENDPOINT_TEST_SECRET_KEY')
+
+    print('Stripe Test Keys')
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -250,11 +260,12 @@ AWS_DEFAULT_ACL = None
 AWS_S3_FILE_OVERWRITE = False
 MEDIA_URL = os.getenv('MEDIA_URL')
 
-CACHES = {'default': {
-    'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
-    'LOCATION': 'cache_table',
-        }
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'cache_table',
     }
+}
 
 if os.getenv('DEBUG') is False:
     LOGGING = {

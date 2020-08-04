@@ -8,19 +8,9 @@ from profile.models import Profile
 from datetime import datetime
 from django.contrib.auth.models import User
 from logbook import settings
-import os
-from dotenv import load_dotenv
 
-load_dotenv(verbose=True)
-
-
-if settings.DEBUG:
-    print('Stripe test key = ', settings.DEBUG)
-    stripe.api_key = os.getenv('STRIPE_TEST_SECRET_KEY')
-    endpoint_secret = os.getenv('endpoint_test_secret')
-else:
-    stripe.api_key = os.getenv('STRIPE_LIVE_SECRET_KEY')
-    endpoint_secret = os.getenv('endpoint_live_secret')
+stripe.api_key = settings.STRIPE_SECRET_KEY
+endpoint_secret = settings.ENDPOINT_SECRET_KEY
 
 
 @csrf_exempt
@@ -38,7 +28,7 @@ def stripe_webhook_view(request):
 
     try:
         event = stripe.Webhook.construct_event(
-          payload, sig_header, endpoint_secret
+            payload, sig_header, endpoint_secret
         )
 
     except ValueError:
@@ -52,7 +42,7 @@ def stripe_webhook_view(request):
     try:
         event = stripe.Event.construct_from(
             json.loads(payload), stripe.api_key
-            )
+        )
     except ValueError:
         # Invalid payload
         return HttpResponse(status=400)
@@ -64,10 +54,10 @@ def stripe_webhook_view(request):
         subscription_id = event.data.object.subscription
         # end trial
         stripe.Subscription.modify(
-                    subscription_id,
-                    trial_end='now',
-                    cancel_at_period_end=False,
-                    )
+            subscription_id,
+            trial_end='now',
+            cancel_at_period_end=False,
+        )
 
         # get new subscription_id
         subscription_response = stripe.Subscription.retrieve(subscription_id)
@@ -188,9 +178,9 @@ def subscription_cancel_view(request):
     profile = Profile.objects.get(user=user)
 
     canceled_subscription_response = stripe.Subscription.modify(
-                                        profile.subscription_id,
-                                        cancel_at_period_end=True
-                                        )
+        profile.subscription_id,
+        cancel_at_period_end=True
+    )
 
     profile.canceled = True
     profile.active = False
