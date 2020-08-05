@@ -95,7 +95,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         user = self.request.user
         profile = Profile.objects.get(user=user)
 
-        if settings.DEBUG:
+        if settings.DEBUG is True:
             context['STRIPE_PUBLISHABLE_KEY'] = os.getenv('STRIPE_TEST_PUBLISHABLE_KEY')
             context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly('cus_GixckNBQCcezIg')  # test user in stripe dashboard
             context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly('cus_GixckNBQCcezIg')  # test user in stripe dashboard
