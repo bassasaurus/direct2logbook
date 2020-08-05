@@ -11,6 +11,9 @@ from flights.views import LoginRequiredMixin
 from logbook import settings
 import os
 
+from dotenv import load_dotenv
+load_dotenv(verbose=True)
+
 
 class OwnObjectUserMixin(UserPassesTestMixin):
 
@@ -95,12 +98,12 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         user = self.request.user
         profile = Profile.objects.get(user=user)
 
-        if settings.DEBUG is True:
-            context['STRIPE_PUBLISHABLE_KEY'] = os.getenv('STRIPE_TEST_PUBLISHABLE_KEY')
+        if os.getenv('DEBUG') is True:
+            context['STRIPE_PUBLISHABLE_KEY'] = settings.STRIPE_PUBLISHABLE_KEY # test mode defined in settings.py
             context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly('cus_GixckNBQCcezIg')  # test user in stripe dashboard
             context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly('cus_GixckNBQCcezIg')  # test user in stripe dashboard
         else:
-            context['STRIPE_PUBLISHABLE_KEY'] = os.getenv('STRIPE_LIVE_PUBLISHABLE_KEY')
+            context['STRIPE_PUBLISHABLE_KEY'] = settings.STRIPE_PUBLISHABLE_KEY
             context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly(profile.customer_id)
             context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly(profile.customer_id)
 
