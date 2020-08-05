@@ -10,9 +10,6 @@ import datetime
 from flights.views import LoginRequiredMixin
 from logbook import settings
 import os
-from dotenv import load_dotenv
-
-load_dotenv(verbose=True)
 
 
 class OwnObjectUserMixin(UserPassesTestMixin):
@@ -49,10 +46,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 
     def session_monthly(self, customer_id):
 
-        if settings.DEBUG:
-            plan_monthly = 'plan_FZhtfxftM44uHz'  # test
-        else:
-            plan_monthly = 'plan_FZi0hBf46jbYVt'
+        plan_monthly = settings.PLAN_MONTHLY
 
         user = self.request.user
         session_monthly = stripe.checkout.Session.create(
@@ -75,10 +69,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 
     def session_yearly(self, customer_id):
 
-        if settings.DEBUG:
-            plan_yearly = 'plan_FaRGVsApeXu8bS'
-        else:
-            plan_yearly = 'plan_FbBfx5Pbam2QRa'
+        plan_yearly = settings.PLAN_YEARLY
 
         user = self.request.user
         session_yearly = stripe.checkout.Session.create(

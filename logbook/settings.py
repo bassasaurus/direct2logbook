@@ -23,9 +23,13 @@ else:
 if os.getenv('DEBUG') is False:
     STRIPE_SECRET_KEY = os.getenv('STRIPE_LIVE_SECRET_KEY')
     ENDPOINT_SECRET_KEY = os.getenv('ENDPOINT_LIVE_SECRET_KEY')
+    PLAN_MONTHLY = os.getenv('PLAN_MONTHLY_TEST')
+    PLAN_YEARLY = os.getenv('PLAN_YEARLY_TEST')
 else:
     STRIPE_SECRET_KEY = os.getenv('STRIPE_TEST_SECRET_KEY')
     ENDPOINT_SECRET_KEY = os.getenv('ENDPOINT_TEST_SECRET_KEY')
+    PLAN_MONTHLY = os.getenv('PLAN_MONTHLY_LIVE')
+    PLAN_YEARLY = os.getenv('PLAN_YEARLY_LIVE')
 
     print('Stripe Test Keys')
 
