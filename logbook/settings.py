@@ -9,10 +9,11 @@ from dotenv import load_dotenv
 load_dotenv(verbose=True)
 
 DEBUG = os.getenv('DEBUG')
+print(DEBUG)
 
 print('Dev settings = ', os.getenv('DEBUG'))
 
-if os.getenv('DEBUG') is False:
+if DEBUG is False:
     sentry_sdk.init(
         dsn="https://65a9a45f86104c29873f4bdbfa6846b9@sentry.io/5178641",
         integrations=[DjangoIntegration(), CeleryIntegration()],
@@ -22,7 +23,7 @@ else:
     print('Sentry Not Active')
 
 
-if os.getenv('DEBUG') is False:
+if DEBUG is False:
     STRIPE_SECRET_KEY = os.getenv('STRIPE_LIVE_SECRET_KEY')
     STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_LIVE_PUBLISHABLE_KEY')
     ENDPOINT_SECRET_KEY = os.getenv('ENDPOINT_LIVE_SECRET_KEY')
@@ -273,7 +274,7 @@ CACHES = {
     }
 }
 
-if os.getenv('DEBUG') is False:
+if DEBUG is False:
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,
@@ -301,7 +302,7 @@ ANYMAIL = {
 }
 
 # or sendgrid.EmailBackend, or...
-if os.getenv('DEBUG') is True:
+if DEBUG is True:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:
     EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
