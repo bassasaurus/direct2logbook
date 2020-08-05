@@ -5,10 +5,12 @@ from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.celery import CeleryIntegration
 
 from dotenv import load_dotenv
+
 load_dotenv(verbose=True)
 
-if os.getenv('DEBUG') is True:
-    print('Dev settings = ', os.getenv('DEBUG'))
+DEBUG = os.getenv('DEBUG')
+
+print('Dev settings = ', os.getenv('DEBUG'))
 
 if os.getenv('DEBUG') is False:
     sentry_sdk.init(
@@ -20,19 +22,18 @@ else:
     print('Sentry Not Active')
 
 
-if os.getenv('DEBUG') is True:
-    STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_LIVE_PUBLISHABLE_KEY')
+if os.getenv('DEBUG') is False:
     STRIPE_SECRET_KEY = os.getenv('STRIPE_LIVE_SECRET_KEY')
+    STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_LIVE_PUBLISHABLE_KEY')
     ENDPOINT_SECRET_KEY = os.getenv('ENDPOINT_LIVE_SECRET_KEY')
     PLAN_MONTHLY = os.getenv('PLAN_MONTHLY_LIVE')
     PLAN_YEARLY = os.getenv('PLAN_YEARLY_LIVE')
 else:
-    STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_TEST_PUBLISHABLE_KEY')
     STRIPE_SECRET_KEY = os.getenv('STRIPE_TEST_SECRET_KEY')
+    STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_TEST_PUBLISHABLE_KEY')
     ENDPOINT_SECRET_KEY = os.getenv('ENDPOINT_TEST_SECRET_KEY')
     PLAN_MONTHLY = os.getenv('PLAN_MONTHLY_TEST')
     PLAN_YEARLY = os.getenv('PLAN_YEARLY_TEST')
-
 
     print('Stripe Test Keys')
 
@@ -55,8 +56,6 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 SITE_ID = 8
 
 # SECURITY WARNING: don't run with debug turned on in production!
-
-DEBUG = os.getenv('DEBUG')
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(' ')
 
