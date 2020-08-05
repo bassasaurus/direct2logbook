@@ -3,15 +3,11 @@ from os.path import abspath, dirname
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.celery import CeleryIntegration
+from decouple import config
 
-from dotenv import load_dotenv
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-load_dotenv(verbose=True)
-
-DEBUG = os.getenv('DEBUG')
-print(DEBUG)
-
-print('Dev settings = ', os.getenv('DEBUG'))
+print('Dev settings = ', config('DEBUG'))
 
 if DEBUG is False:
     sentry_sdk.init(
@@ -24,17 +20,17 @@ else:
 
 
 if DEBUG is False:
-    STRIPE_SECRET_KEY = os.getenv('STRIPE_LIVE_SECRET_KEY')
-    STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_LIVE_PUBLISHABLE_KEY')
-    ENDPOINT_SECRET_KEY = os.getenv('ENDPOINT_LIVE_SECRET_KEY')
-    PLAN_MONTHLY = os.getenv('PLAN_MONTHLY_LIVE')
-    PLAN_YEARLY = os.getenv('PLAN_YEARLY_LIVE')
+    STRIPE_SECRET_KEY = config('STRIPE_LIVE_SECRET_KEY')
+    STRIPE_PUBLISHABLE_KEY = config('STRIPE_LIVE_PUBLISHABLE_KEY')
+    ENDPOINT_SECRET_KEY = config('ENDPOINT_LIVE_SECRET')
+    PLAN_MONTHLY = config('PLAN_MONTHLY_LIVE')
+    PLAN_YEARLY = config('PLAN_YEARLY_LIVE')
 else:
-    STRIPE_SECRET_KEY = os.getenv('STRIPE_TEST_SECRET_KEY')
-    STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_TEST_PUBLISHABLE_KEY')
-    ENDPOINT_SECRET_KEY = os.getenv('ENDPOINT_TEST_SECRET_KEY')
-    PLAN_MONTHLY = os.getenv('PLAN_MONTHLY_TEST')
-    PLAN_YEARLY = os.getenv('PLAN_YEARLY_TEST')
+    STRIPE_SECRET_KEY = config('STRIPE_TEST_SECRET_KEY')
+    STRIPE_PUBLISHABLE_KEY = config('STRIPE_TEST_PUBLISHABLE_KEY')
+    ENDPOINT_SECRET_KEY = config('ENDPOINT_TEST_SECRET')
+    PLAN_MONTHLY = config('PLAN_MONTHLY_TEST')
+    PLAN_YEARLY = config('PLAN_YEARLY_TEST')
 
     print('Stripe Test Keys')
 
@@ -52,13 +48,13 @@ SECURE_SSL_REDIRECT = False
 # SECURITY WARNING: keep the secret key used in production secret!
 
 
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = config('SECRET_KEY')
 
 SITE_ID = 8
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(' ')
+ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(' ')
 
 # APPEND_SLASH = False
 
@@ -191,10 +187,10 @@ WSGI_APPLICATION = 'logbook.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-POSTGRES_DB_NAME = os.getenv('POSTGRES_DB_NAME')
-POSTGRES_UN = os.getenv('POSTGRES_UN')
-POSTGRES_PW = os.getenv('POSTGRES_PW')
-DB_HOST = os.getenv('DB_HOST')
+POSTGRES_DB_NAME = config('POSTGRES_DB_NAME')
+POSTGRES_UN = config('POSTGRES_UN')
+POSTGRES_PW = config('POSTGRES_PW')
+DB_HOST = config('DB_HOST')
 
 DATABASES = {
     # 'default': {
@@ -260,12 +256,12 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATIC_URL = '/static/'
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
-AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME')
+AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
 AWS_DEFAULT_ACL = None
 AWS_S3_FILE_OVERWRITE = False
-MEDIA_URL = os.getenv('MEDIA_URL')
+MEDIA_URL = config('MEDIA_URL')
 
 CACHES = {
     'default': {
@@ -282,7 +278,7 @@ if DEBUG is False:
             'file': {
                 'level': 'WARNING',
                 'class': 'logging.FileHandler',
-                'filename': os.getenv('LOG_DIR'),
+                'filename': config('LOG_DIR'),
             },
         },
         'loggers': {
@@ -297,7 +293,7 @@ if DEBUG is False:
 
 ANYMAIL = {
     # (exact settings here depend on your ESP...)
-    "MAILGUN_API_KEY": os.getenv('MAILGUN_API_KEY'),
+    "MAILGUN_API_KEY": config('MAILGUN_API_KEY'),
     "MAILGUN_SENDER_DOMAIN": 'mg.direct2logbook.com',  # your Mailgun domain, if needed
 }
 
