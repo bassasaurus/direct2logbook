@@ -9,6 +9,8 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 print('Dev settings = ', config('DEBUG'))
 
+print(DEBUG)
+
 if DEBUG is False:
     sentry_sdk.init(
         dsn="https://65a9a45f86104c29873f4bdbfa6846b9@sentry.io/5178641",

@@ -1,5 +1,4 @@
 from django.contrib.auth.models import User, Group
-import os
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .models import Profile
@@ -8,9 +7,7 @@ from datetime import datetime, timezone
 from datetime import timedelta
 from flights.models import Total
 from logbook import settings
-from dotenv import load_dotenv
-
-load_dotenv(verbose=True)
+from decouple import config
 
 
 @receiver(post_save, sender=User)
@@ -21,9 +18,9 @@ def create_user_profile(sender, instance, created, **kwargs):
         name = '{} {}'.format(instance.first_name, instance.last_name)
 
         if settings.DEBUG:
-            stripe.api_key = os.getenv('STRIPE_TEST_SECRET_KEY')
+            stripe.api_key = config('STRIPE_TEST_SECRET_KEY')
         else:
-            stripe.api_key = os.getenv('STRIPE_LIVE_SECRET_KEY')
+            stripe.api_key = config('STRIPE_LIVE_SECRET_KEY')
 
         now = datetime.now()
         trial_period = timedelta(days=14)

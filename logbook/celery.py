@@ -1,9 +1,7 @@
 from __future__ import absolute_import, unicode_literals
 import os
 from celery import Celery
-from dotenv import load_dotenv
-
-load_dotenv(verbose=True)
+from decouple import config
 
 # start worker:
 # celery -A logbook worker -l info --concurrency 2 --without-gossip --without-mingle --without-heartbeat
@@ -14,7 +12,7 @@ load_dotenv(verbose=True)
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'logbook.settings')
 
-app = Celery('logbook', broker=os.getenv('CLOUDAMQP_URL'))
+app = Celery('logbook', broker=config('CLOUDAMQP_URL'))
 
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.
