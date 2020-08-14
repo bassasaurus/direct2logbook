@@ -12,16 +12,16 @@
           {{ form.non_field_errors }}
         </div>
         <hr>
-        {% include 'flights/flight_form.html' %}
+        {% include 'flight_form.html' %}
         <hr>
       <button class="btn-shadow btn-shadow-dark btn-block" type="submit">Submit</button>
     </form>
   </div>
 </div>
 
-{% include 'flights/datepicker.html' %}
-{% include 'flights/flight_form_checkbox_logic.html' %}
-{% include 'flights/route_format.html' %}
+{% include 'datepicker.html' %}
+{% include 'flight_form_checkbox_logic.html' %}
+{% include 'route_format.html' %}
 
 {{ form.media }}
 {% endblock %}

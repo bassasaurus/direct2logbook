@@ -196,7 +196,7 @@ class FlightArchiveMonth(LoginRequiredMixin, ProfileNotActiveMixin, MonthArchive
 
 class RemarksList(LoginRequiredMixin, ProfileNotActiveMixin, ListView):
     model = Flight
-    template_name = "flights/remarks.html"
+    template_name = "remarks.html"
     pagninate_by = 30
 
     def get_queryset(self):
@@ -234,7 +234,7 @@ class FlightList(LoginRequiredMixin, ProfileNotActiveMixin, ListView):
 class FlightCreate(LoginRequiredMixin, ProfileNotActiveMixin, CreateView):
     model = Flight
     form_class = FlightForm
-    template_name = 'flights/flight_create_form.html'
+    template_name = 'flight_create_form.html'
 
     def get(self, request, *args, **kwargs):
         """
@@ -305,7 +305,7 @@ class FlightCreate(LoginRequiredMixin, ProfileNotActiveMixin, CreateView):
 class FlightUpdate(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, UpdateView):
     model = Flight
     form_class = FlightForm
-    template_name = 'flights/flight_update_form.html'
+    template_name = 'flight_update_form.html'
 
     def get_context_data(self, **kwargs):
         context = super(FlightUpdate, self).get_context_data(**kwargs)
@@ -356,7 +356,7 @@ class FlightUpdate(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, Up
 
 class FlightDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, DetailView):
     model = Flight
-    template_name = 'flights/flight_detail.html'
+    template_name = 'flight_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super(FlightDetail, self).get_context_data(**kwargs)
@@ -390,7 +390,7 @@ class FlightDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, De
 
 class FlightDelete(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, DeleteView):
     model = Flight
-    template_name = 'flights/flight_delete.html'
+    template_name = 'flight_delete.html'
     success_url = '/logbook/'
 
     def get_context_data(self, **kwargs):
