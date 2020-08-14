@@ -1,7 +1,4 @@
-from django.contrib.auth.mixins import UserPassesTestMixin
-from django.views import View
-from profile.models import Profile
-from django.shortcuts import redirect, reverse, render
+from django.shortcuts import reverse, render
 
 
 def error_400(request, exception):
@@ -35,20 +32,3 @@ def error_403(request, exception):
         'exception': exception
     }
     return render(request, 'errors/403.html', context)
-
-
-class ProfileNotActiveMixin(UserPassesTestMixin, View):
-
-    def test_func(self):
-
-        user = self.request.user
-        profile = Profile.objects.get(user=user)
-
-        if profile.active and not profile.expired:
-            return True
-        else:
-            return False
-
-    def handle_no_permission(self):
-
-        return redirect(reverse('profile'))

@@ -54,39 +54,6 @@ def get_deleted_objects(objs):
     return to_delete, model_count, protected
 
 
-def error_400(request, exception):
-    context = {
-        'title': '400',
-        'home_link': reverse('home')
-    }
-    return render(request, '400.html', context)
-
-
-def error_404(request, exception):
-    context = {
-        'title': '404',
-        'home_link': reverse('home')
-    }
-    return render(request, '404.html', context)
-
-
-def error_500(request):
-    context = {
-        'title': '500',
-        'home_link': reverse('home')
-    }
-    return render(request, '500.html', context)
-
-
-def error_403(request, exception):
-    context = {
-        'title': '403',
-        'home_link': reverse('home'),
-        'exception': exception
-    }
-    return render(request, '403.html', context)
-
-
 class LoginRequiredMixin(LoginRequiredMixin):
     login_url = '/accounts/login'
     # redirect_field_name = None
