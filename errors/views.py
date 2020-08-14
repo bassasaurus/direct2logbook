@@ -6,7 +6,7 @@ def error_400(request, exception):
         'title': '400',
         'home_link': reverse('home')
     }
-    return render(request, 'errors/400.html', context)
+    return render(request, '400.html', context)
 
 
 def error_404(request, exception):
@@ -14,7 +14,7 @@ def error_404(request, exception):
         'title': '404',
         'home_link': reverse('home')
     }
-    return render(request, 'errors/404.html', context)
+    return render(request, '404.html', context)
 
 
 def error_500(request):
@@ -22,7 +22,7 @@ def error_500(request):
         'title': '500',
         'home_link': reverse('home')
     }
-    return render(request, 'errors/500.html', context)
+    return render(request, '500.html', context)
 
 
 def error_403(request, exception):
@@ -30,4 +30,4 @@ def error_403(request, exception):
         'title': '403',
         'home_link': reverse('home'),
     }
-    return render(request, 'errors/403.html', context)
+    return render(request, '403.html', context)

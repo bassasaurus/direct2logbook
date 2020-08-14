@@ -82,6 +82,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # apps
+    'errors',
     'profile',
     'accounts',
     'flights',
@@ -272,7 +273,7 @@ CACHES = {
     }
 }
 
-if DEBUG is False:
+if config('LOGGING') is False:
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,
