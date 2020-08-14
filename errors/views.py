@@ -29,6 +29,5 @@ def error_403(request, exception):
     context = {
         'title': '403',
         'home_link': reverse('home'),
-        'exception': exception
     }
     return render(request, 'errors/403.html', context)
