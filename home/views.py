@@ -1,16 +1,15 @@
 from flights.models import (
-                            Flight, TailNumber, Aircraft, Total, Imported, Stat,
-                            Regs, Weight, Endorsement, Power
-                            )
-from flights.views import LoginRequiredMixin, ProfileNotActiveMixin
+    Flight, TailNumber, Aircraft, Total, Imported, Stat,
+    Regs, Weight, Endorsement, Power)
+from flights.views import LoginRequiredMixin
+from common.views import ProfileNotActiveMixin
 from django.views.generic import TemplateView
 import datetime
 from .currency import (
-                    amel_vfr_day, amel_vfr_night, asel_vfr_day, asel_vfr_night,
-                    ases_vfr_day, ases_vfr_night, ames_vfr_day, ames_vfr_night,
-                    helo_vfr_day, helo_vfr_night, gyro_vfr_day, gyro_vfr_night,
-                    medical_duration, type_currency
-                    )
+    amel_vfr_day, amel_vfr_night, asel_vfr_day, asel_vfr_night,
+    ases_vfr_day, ases_vfr_night, ames_vfr_day, ames_vfr_night,
+    helo_vfr_day, helo_vfr_night, gyro_vfr_day, gyro_vfr_night,
+    medical_duration, type_currency)
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q, Sum, F
 from django.shortcuts import render, redirect
