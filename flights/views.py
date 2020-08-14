@@ -14,6 +14,7 @@ from django.forms import inlineformset_factory
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 from django.views.generic.dates import YearArchiveView, MonthArchiveView, ArchiveIndexView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from common.views import ProfileNotActiveMixin
 
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, reverse
@@ -24,7 +25,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 
 from dal import autocomplete
-import datetime
 
 from flights.get_map_data import get_map_data
 
@@ -85,28 +85,6 @@ def error_403(request, exception):
         'exception': exception
     }
     return render(request, '403.html', context)
-
-
-class ProfileNotActiveMixin(UserPassesTestMixin):
-
-    def test_func(self):
-        today = datetime.datetime.now()
-        profile = Profile.objects.get(user=self.request.user)
-
-        if profile.end_date > today.date():
-            expired = False
-        else:
-            expired = True
-
-        if profile.active or profile.trial or profile.free_access:
-            return True
-        elif profile.canceled and expired is False:
-            return True
-        else:
-            return False
-
-    def handle_no_permission(self):
-        return redirect('profile')
 
 
 class LoginRequiredMixin(LoginRequiredMixin):
