@@ -21,6 +21,8 @@ class ProfileNotActiveMixin(UserPassesTestMixin, View):
 
         if profile.active and not profile.expired:
             return True
+        elif profile.trial:
+            return True
         else:
             return False
 
