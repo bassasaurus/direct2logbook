@@ -2,7 +2,7 @@ from flights.models import (
     Flight, TailNumber, Aircraft, Total, Imported, Stat,
     Regs, Weight, Endorsement, Power)
 from flights.views import LoginRequiredMixin
-from common.views import ProfileNotActiveMixin
+from profile.views import ProfileNotActiveMixin
 from django.views.generic import TemplateView
 import datetime
 from .currency import (

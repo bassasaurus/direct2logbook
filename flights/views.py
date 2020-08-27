@@ -1,5 +1,4 @@
 from flights.models import Flight, Aircraft, TailNumber, Approach, Holding, Imported
-from profile.models import Profile
 
 from flights.forms import FlightForm, AircraftForm, TailNumberForm, ImportedForm, ApproachFormSet, HoldingFormSet
 from django.db.models.functions import Length
@@ -13,8 +12,7 @@ from django.forms import inlineformset_factory
 
 from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
 from django.views.generic.dates import YearArchiveView, MonthArchiveView, ArchiveIndexView
-from django.contrib.auth.mixins import LoginRequiredMixin
-from common.views import ProfileNotActiveMixin
+from profile.views import ProfileNotActiveMixin
 
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, reverse
@@ -25,7 +23,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import IntegrityError
 
 from dal import autocomplete
-
+from accounts.views import LoginRequiredMixin
 from flights.get_map_data import get_map_data
 
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -52,44 +50,6 @@ def get_deleted_objects(objs):
         objs) for model, objs in collector.model_objs.items()}
 
     return to_delete, model_count, protected
-
-
-def error_400(request, exception):
-    context = {
-        'title': '400',
-        'home_link': reverse('home')
-    }
-    return render(request, '400.html', context)
-
-
-def error_404(request, exception):
-    context = {
-        'title': '404',
-        'home_link': reverse('home')
-    }
-    return render(request, '404.html', context)
-
-
-def error_500(request):
-    context = {
-        'title': '500',
-        'home_link': reverse('home')
-    }
-    return render(request, '500.html', context)
-
-
-def error_403(request, exception):
-    context = {
-        'title': '403',
-        'home_link': reverse('home'),
-        'exception': exception
-    }
-    return render(request, '403.html', context)
-
-
-class LoginRequiredMixin(LoginRequiredMixin):
-    login_url = '/accounts/login'
-    # redirect_field_name = None
 
 
 class OwnObjectMixin(UserPassesTestMixin):
@@ -248,7 +208,7 @@ class RemarksList(LoginRequiredMixin, ProfileNotActiveMixin, ListView):
 
 class FlightList(LoginRequiredMixin, ProfileNotActiveMixin, ListView):
     model = Flight
-    template_name = "flight_list.html"
+    template_name = "flights/flight_list.html"
     paginate_by = 40
 
     def get_queryset(self):

@@ -3,6 +3,7 @@ from django.utils.safestring import mark_safe
 
 register = template.Library()
 
+
 @register.filter("iconbool", is_safe=True)
 def iconbool(value):
     """Given a boolean value, this filter outputs an icon + the
