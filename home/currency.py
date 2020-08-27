@@ -278,7 +278,9 @@ def medical_duration(user):  # still need to start calculations from next month 
         expiry_date = issue_date + three_years
 
     else:
-        expiry_date = None
+        expiry_date = today - datetime.timedelta(days=1)
+
+    
 
     if current_month.month < expiry_date.month:
         current = True
