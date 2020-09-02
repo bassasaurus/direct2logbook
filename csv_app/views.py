@@ -166,8 +166,8 @@ def csv_inspect_view(request):
                 'csv_app/inspect_csv.html', {
                     'file': display_file,
                     'inspect_form': inspect_form,
-                    }
-                 )
+                }
+            )
 
     # if file fails tests or doesn't exist
     else:
@@ -178,8 +178,8 @@ def csv_inspect_view(request):
         request,
         'csv_app/inspect_csv.html', {
             'inspect_form': inspect_form
-            }
-        )
+        }
+    )
 
 
 def csv_upload_view(request):
