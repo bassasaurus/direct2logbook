@@ -30,10 +30,15 @@
       <p>Format your file according to the format below.</p>
       <hr>
       <div class="row">
+        {% if not request.FILES %}
         <div class="col-5">{{ inspect_form.file }}</div>
         <div class="col-3"><button class="btn btn-secondary" type="submit">Inspect</button></div>
+        {% endif %}
         {% if request.FILES %}
-        <div class="col-4"><button class="btn btn-primary"><a href="{% url 'csv_upload' %}"></a>Upload</button></div>
+        <p>
+          <a href="{% url 'csv_inspect' %}">Try again</a>
+        </p>
+          <div class="col-4"><a href="{% url 'csv_upload' %}">Upload</a></div>
         {% endif %}
       </div>
     </div>

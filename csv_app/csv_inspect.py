@@ -2,11 +2,6 @@ import csv
 import io
 
 
-def format_route(field):
-
-    return field
-
-
 def check_float(field):
 
     return field
@@ -22,6 +17,16 @@ def check_date(field):
     return field
 
 
+def format_route(string):
+
+    new_string = string.replace(' ', '-').upper()
+
+    if new_string.endswith('-'):
+        new_string = new_string[:-1]
+
+    return new_string
+
+
 def csv_inspect(file):
 
     new_file = io.StringIO()
@@ -32,7 +37,7 @@ def csv_inspect(file):
             str(row[0]),  # date
             str(row[1]),  # type
             str(row[2]),  # reg
-            str(row[3]),  # route
+            format_route(str(row[3])),  # route
             str(row[4]),  # duration
             str(row[5]),  # pic
             str(row[6]),  # sic

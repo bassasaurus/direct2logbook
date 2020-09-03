@@ -1,4 +1,4 @@
-from django.shortcuts import render, reverse
+from django.shortcuts import render, reverse, redirect
 import csv
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template.response import TemplateResponse
@@ -166,8 +166,8 @@ def csv_inspect_view(request):
                 'csv_app/inspect_csv.html', {
                     'file': display_file,
                     'inspect_form': inspect_form,
-                    }
-                 )
+                }
+            )
 
     # if file fails tests or doesn't exist
     else:
@@ -178,14 +178,16 @@ def csv_inspect_view(request):
         request,
         'csv_app/inspect_csv.html', {
             'inspect_form': inspect_form
-            }
-        )
+        }
+    )
 
 
 def csv_upload_view(request):
+
+    print('upload_csv')
 
     file = request.session['file']
 
     csv_import(request, file)
 
-    return HttpResponseRedirect(reverse('flight_list'))
+    return redirect(reverse('flight_list'))

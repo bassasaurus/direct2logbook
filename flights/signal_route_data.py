@@ -24,7 +24,7 @@ def save_route_data(sender, instance, dispatch_uid='save_route_data', **kwargs):
             iata_kwargs = {'iata': code}
             icao_kwargs = {'icao': code}
             map_object = (MapData.objects.filter(**iata_kwargs) | MapData.objects.filter(**icao_kwargs)).first()
-        route_data.append(map_object)
+            route_data.append(map_object)
 
     # print(route_data, " compiled")
 

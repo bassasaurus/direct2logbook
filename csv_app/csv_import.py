@@ -37,7 +37,7 @@ def save_route_data(user, route):
             iata_kwargs = {'iata': code}
             icao_kwargs = {'icao': code}
             map_object = (MapData.objects.filter(**iata_kwargs) | MapData.objects.filter(**icao_kwargs)).first()
-        route_data.append(map_object)
+            route_data.append(map_object)
 
     return route_data
 
@@ -114,5 +114,3 @@ def csv_import(request, file):
         )
 
         approach.save()
-
-    # Flight.objects.bulk_create(flight_object_list)
