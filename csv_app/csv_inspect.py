@@ -19,7 +19,7 @@ def check_date(field):
 
 def format_route(string):
 
-    new_string = string.replace(' ', '-')
+    new_string = string.replace(' ', '-').upper()
 
     if new_string.endswith('-'):
         new_string = new_string[:-1]
