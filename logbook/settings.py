@@ -88,7 +88,6 @@ INSTALLED_APPS = [
     'flights',
     'pdf_output',
     'csv_app',
-    'celery_progress_bar',
 
     # 'api',
     'django_extensions',
@@ -101,8 +100,7 @@ INSTALLED_APPS = [
     'anymail',
     'storages',
     'django_celery_results',
-    'django_celery_beat',
-    'celery_progress',
+    'django_celery_beat'
 ]
 
 AUTHENTICATION_BACKENDS = (
