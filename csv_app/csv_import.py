@@ -4,6 +4,11 @@ import io
 from flights.models import Flight, Aircraft, TailNumber, MapData, Approach
 from dateutil.parser import parse
 import re
+from logbook.celery import app
+from celery import shared_task
+from celery_progress.backend import ProgressRecorder
+import time
+
 
 
 def assign_ils(row_id):
@@ -42,6 +47,7 @@ def save_route_data(user, route):
     return route_data
 
 
+@app.task
 def csv_import(request, file):
 
     user = request.user
