@@ -283,21 +283,21 @@ class Flight(models.Model):
                               validators=[positive_validator])
     instrument = models.FloatField(
         null=True, blank=True, verbose_name="Inst", validators=[positive_validator])
-    cross_country = models.NullBooleanField(
-        null=True, blank=True, verbose_name="XCountry")
-    second_in_command = models.NullBooleanField(
-        null=True, blank=True, verbose_name="SIC")
-    pilot_in_command = models.NullBooleanField(
-        null=True, blank=True, verbose_name="PIC")
+    cross_country = models.BooleanField(
+        default=False, blank=True, verbose_name="XCountry")
+    second_in_command = models.BooleanField(
+        default=False, blank=True, verbose_name="SIC")
+    pilot_in_command = models.BooleanField(
+        default=False, blank=True, verbose_name="PIC")
     simulated_instrument = models.FloatField(
         null=True, blank=True, verbose_name="Sim Inst", validators=[positive_validator])
-    instructor = models.NullBooleanField(
-        null=True, blank=True, verbose_name="CFI")
-    dual = models.NullBooleanField(null=True, blank=True)
+    instructor = models.BooleanField(
+        default=False, blank=True, verbose_name="CFI")
+    dual = models.BooleanField(default=False, blank=True)
     remarks = models.CharField(max_length=500, null=True, blank=True)
-    simulator = models.NullBooleanField(
+    simulator = models.BooleanField(
         null=True, blank=True, verbose_name="Sim")
-    solo = models.NullBooleanField(null=True, blank=True)
+    solo = models.BooleanField(default=False, blank=True)
 
     route_data = PickledObjectField(null=True, blank=True)
     map_error = models.CharField(max_length=100, null=True, blank=True)
@@ -324,9 +324,9 @@ class TailNumber(models.Model):
     registration = models.CharField(db_index=True, max_length=10)
     aircraft = models.ForeignKey(
         'Aircraft', on_delete=models.CASCADE, default=None)
-    is_121 = models.NullBooleanField(null=True, blank=True)
-    is_135 = models.NullBooleanField(null=True, blank=True)
-    is_91 = models.NullBooleanField(null=True, blank=True)
+    is_121 = models.BooleanField(null=True, blank=True)
+    is_135 = models.BooleanField(null=True, blank=True)
+    is_91 = models.BooleanField(null=True, blank=True)
 
     class Meta:
         verbose_name_plural = "Tailnumbers"
@@ -335,7 +335,7 @@ class TailNumber(models.Model):
             models.UniqueConstraint(
                 fields=['user', 'registration'],
                 name='unique tailnumber')
-                ]
+        ]
 
     def __str__(self):
         registration = str(self.registration)
@@ -410,9 +410,9 @@ class AircraftClass(models.Model):
 class Imported(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     aircraft_type = models.ForeignKey(Aircraft, on_delete=models.CASCADE)
-    is_121 = models.NullBooleanField(null=True, blank=True)
-    is_135 = models.NullBooleanField(null=True, blank=True)
-    is_91 = models.NullBooleanField(null=True, blank=True)
+    is_121 = models.BooleanField(null=True, blank=True)
+    is_135 = models.BooleanField(null=True, blank=True)
+    is_91 = models.BooleanField(null=True, blank=True)
     total_time = models.DecimalField(
         decimal_places=1, max_digits=6, db_index=True, null=True, blank=True, default=0, verbose_name="Time")
     pilot_in_command = models.DecimalField(
