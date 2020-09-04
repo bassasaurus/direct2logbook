@@ -91,7 +91,6 @@ INSTALLED_APPS = [
 
     # 'api',
     'django_extensions',
-    'corsheaders',
     # 'debug_toolbar',
     'picklefield',
     'widget_tweaks',
@@ -145,7 +144,6 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
