@@ -283,21 +283,21 @@ class Flight(models.Model):
                               validators=[positive_validator])
     instrument = models.FloatField(
         null=True, blank=True, verbose_name="Inst", validators=[positive_validator])
-    cross_country = models.NullBooleanField(
-        null=True, blank=True, verbose_name="XCountry")
-    second_in_command = models.NullBooleanField(
-        null=True, blank=True, verbose_name="SIC")
-    pilot_in_command = models.NullBooleanField(
-        null=True, blank=True, verbose_name="PIC")
+    cross_country = models.BooleanField(
+        default=False, blank=True, verbose_name="XCountry")
+    second_in_command = models.BooleanField(
+        default=False, blank=True, verbose_name="SIC")
+    pilot_in_command = models.BooleanField(
+        default=False, blank=True, verbose_name="PIC")
     simulated_instrument = models.FloatField(
         null=True, blank=True, verbose_name="Sim Inst", validators=[positive_validator])
-    instructor = models.NullBooleanField(
-        null=True, blank=True, verbose_name="CFI")
-    dual = models.NullBooleanField(null=True, blank=True)
+    instructor = models.BooleanField(
+        default=False, blank=True, verbose_name="CFI")
+    dual = models.BooleanField(default=False, blank=True)
     remarks = models.CharField(max_length=500, null=True, blank=True)
-    simulator = models.NullBooleanField(
+    simulator = models.BooleanField(
         null=True, blank=True, verbose_name="Sim")
-    solo = models.NullBooleanField(null=True, blank=True)
+    solo = models.BooleanField(default=False, blank=True)
 
     route_data = PickledObjectField(null=True, blank=True)
     map_error = models.CharField(max_length=100, null=True, blank=True)
