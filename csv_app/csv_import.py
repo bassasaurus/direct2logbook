@@ -1,33 +1,10 @@
-
 import csv
 import io
 from flights.models import Flight, Aircraft, TailNumber, MapData, Approach
 from dateutil.parser import parse
 import re
 from logbook.celery import app
-
-
-def assign_ils(row_id):
-    if row_id > 0:
-        return 'ILS'
-    else:
-        return ''
-
-
-def convertBool(row_id):
-
-    if float(row_id) > 0:
-        return True
-    else:
-        return False
-
-
-def round(row_id):
-
-    row_id = '{0:.1g}'.format(row_id)
-
-    return row_id
-
+from formatters import check_date, check_float, format_route, check_text, convertBool, assign_ils
 
 
 def save_route_data(user, route):
@@ -92,17 +69,17 @@ def csv_import(request, file):
             date=parse(row[0]).strftime("%Y-%m-%d"),
             aircraft_type=aircraft_type,
             registration=registration,
-            route=row[3],
-            duration=round(row[4]),
+            route=format_route(row[3]),
+            duration=round(float(row[4]), 1),
             pilot_in_command=convertBool(row[5]),
             second_in_command=convertBool(row[6]),
             cross_country=convertBool(row[7]),
-            night=round(row[8]),
-            instrument=round(row[9]),
+            night=round(float(row[8]), 1),
+            instrument=round(float(row[9]), 1),
 
             landings_day=int(row[11]),
             landings_night=int(row[12]),
-            simulated_instrument=round(row[13]),
+            simulated_instrument=round(float(row[13]), 1),
             instructor=convertBool(row[14]),
             dual=convertBool(row[15]),
             solo=convertBool(row[16]),
@@ -124,3 +101,5 @@ def csv_import(request, file):
         )
 
         approach.save()
+
+    # return None
