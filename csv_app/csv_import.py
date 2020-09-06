@@ -22,6 +22,14 @@ def convertBool(row_id):
         return False
 
 
+def round(row_id):
+
+    row_id = '{0:.1g}'.format(row_id)
+
+    return row_id
+
+
+
 def save_route_data(user, route):
 
     route_data = []
@@ -85,16 +93,16 @@ def csv_import(request, file):
             aircraft_type=aircraft_type,
             registration=registration,
             route=row[3],
-            duration=row[4],
+            duration=round(row[4]),
             pilot_in_command=convertBool(row[5]),
             second_in_command=convertBool(row[6]),
             cross_country=convertBool(row[7]),
-            night=row[8],
-            instrument=row[9],
+            night=round(row[8]),
+            instrument=round(row[9]),
 
             landings_day=int(row[11]),
             landings_night=int(row[12]),
-            simulated_instrument=row[13],
+            simulated_instrument=round(row[13]),
             instructor=convertBool(row[14]),
             dual=convertBool(row[15]),
             solo=convertBool(row[16]),

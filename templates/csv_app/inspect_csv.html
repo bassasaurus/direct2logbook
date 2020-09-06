@@ -32,13 +32,13 @@
       <div class="row">
         {% if not request.FILES %}
         <div class="col-5">{{ inspect_form.file }}</div>
-        <div class="col-3"><button class="btn btn-secondary" type="submit">Inspect</button></div>
+        <div class="col-3"><button class="btn btn-primary" type="submit">Inspect</button></div>
         {% endif %}
         {% if request.FILES %}
         <p>
-          <a href="{% url 'csv_inspect' %}">Try again</a>
+          <div class="col-4"><a href="{% url 'csv_inspect' %}">Try again</a></div>
         </p>
-          <div class="col-4"><a href="{% url 'csv_upload' %}">Upload</a></div>
+          <div class="col-4"><a id="csv_upload" href="">Upload .csv</a></div>
         {% endif %}
       </div>
     </div>
@@ -113,5 +113,20 @@
     </table>
   </div>
 </div>
+
+
+<script>
+  $("#csv_upload").click(function() {
+    $.ajax({
+      type: "GET",
+      url: "#",
+      success: Swal.fire(
+        "This will take a while."
+        "We'll will notify you when it's complete at:",
+        '{{ user.email }}',
+        'success'),
+    });
+  });
+</script>
 
 {% endblock %}
