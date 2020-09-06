@@ -4,7 +4,7 @@ from flights.models import Flight, Aircraft, TailNumber, MapData, Approach
 from dateutil.parser import parse
 import re
 from logbook.celery import app
-from formatters import check_date, check_float, format_route, check_text, convertBool, assign_ils
+from .formatters import check_date, check_float, format_route, check_text, convertBool, assign_ils
 
 
 def save_route_data(user, route):
