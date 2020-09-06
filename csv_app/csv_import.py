@@ -84,15 +84,13 @@ def csv_import(request, file):
             dual=convertBool(row[15]),
             solo=convertBool(row[16]),
             simulator=convertBool(row[17]),
-            remarks=row[18],
+            remarks=check_text(row[18]),
             route_data=route_data,
         )
 
         flight_object_list.append(flight)
 
         flight.save()
-
-        print(flight.date, flight.route, flight.route_data)
 
         approach = Approach(
             flight_object=flight,

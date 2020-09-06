@@ -5,6 +5,11 @@ def check_float(field):
 
 def check_text(field):
 
+    if not field:
+        field = ''
+    else:
+        str(field)
+
     return field
 
 
