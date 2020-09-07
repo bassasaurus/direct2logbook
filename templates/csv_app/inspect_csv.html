@@ -36,9 +36,15 @@
         {% endif %}
         {% if request.FILES %}
         <p>
+<<<<<<< HEAD
           <a href="{% url 'csv_inspect' %}">Try again</a>
         </p>
           <div class="col-4"><a href="{% url 'csv_upload' %}">Upload</a></div>
+=======
+          <div class="col-4"><a href="{% url 'csv_inspect' %}">Try again</a></div>
+        </p>
+          <div class="col-4"><a id="csv_upload" href="">Upload .csv</a></div>
+>>>>>>> 867a089cce64f55bea4e72df4ce5b1a0570c371b
         {% endif %}
       </div>
     </div>
@@ -113,5 +119,18 @@
     </table>
   </div>
 </div>
+
+<script>
+  $("#csv_upload").click(function() {
+    $.ajax({
+      type: "GET",
+      url: "{% url 'csv_upload' %}",
+      success: Swal.fire(
+        'This will take some time',
+        "We'll notify you at {{ user.email }} when it's complete!",
+        'success'),
+    });
+  });
+</script>
 
 {% endblock %}

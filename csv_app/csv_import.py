@@ -1,25 +1,11 @@
-
 import csv
 import io
 from flights.models import Flight, Aircraft, TailNumber, MapData, Approach
 from dateutil.parser import parse
 import re
-
-
-def assign_ils(row_id):
-    if row_id > 0:
-        return 'ILS'
-    else:
-        return ''
-
-
-def convertBool(row_id):
-
-    if float(row_id) > 0:
-        return True
-    else:
-        return False
-
+from logbook.celery import app
+from .formatters import check_date, check_float, format_route, check_text, convertBool, assign_ils
+from django.contrib import messages
 
 def save_route_data(user, route):
 
@@ -42,6 +28,7 @@ def save_route_data(user, route):
     return route_data
 
 
+@app.task
 def csv_import(request, file):
 
     user = request.user
@@ -82,30 +69,28 @@ def csv_import(request, file):
             date=parse(row[0]).strftime("%Y-%m-%d"),
             aircraft_type=aircraft_type,
             registration=registration,
-            route=row[3],
-            duration=row[4],
+            route=format_route(row[3]),
+            duration=round(float(row[4]), 1),
             pilot_in_command=convertBool(row[5]),
             second_in_command=convertBool(row[6]),
             cross_country=convertBool(row[7]),
-            night=row[8],
-            instrument=row[9],
+            night=round(float(row[8]), 1),
+            instrument=round(float(row[9]), 1),
 
             landings_day=int(row[11]),
             landings_night=int(row[12]),
-            simulated_instrument=row[13],
+            simulated_instrument=round(float(row[13]), 1),
             instructor=convertBool(row[14]),
             dual=convertBool(row[15]),
             solo=convertBool(row[16]),
             simulator=convertBool(row[17]),
-            remarks=row[18],
+            remarks=check_text(row[18]),
             route_data=route_data,
         )
 
         flight_object_list.append(flight)
 
         flight.save()
-
-        print(flight.date, flight.route, flight.route_data)
 
         approach = Approach(
             flight_object=flight,
