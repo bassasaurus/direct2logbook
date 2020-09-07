@@ -1,6 +1,6 @@
 from django.shortcuts import render, reverse, redirect
 import csv
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponse
 from django.template.response import TemplateResponse
 from django import forms
 from flights.models import Flight

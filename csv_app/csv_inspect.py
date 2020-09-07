@@ -1,6 +1,6 @@
 import csv
 import io
-from .formatters import check_date, check_float, format_route, check_text
+from .formatters import format_route
 
 
 def csv_inspect(file):
