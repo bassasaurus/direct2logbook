@@ -192,4 +192,4 @@ def csv_upload_view(request):
 
     csv_import(request, file)
 
-    return redirect(reverse('flight_list'))
+    return redirect(reverse('home'))
