@@ -1,25 +1,6 @@
 import csv
 import io
-
-
-def format_route(field):
-
-    return field
-
-
-def check_float(field):
-
-    return field
-
-
-def check_text(field):
-
-    return field
-
-
-def check_date(field):
-
-    return field
+from .formatters import check_date, check_float, format_route, check_text
 
 
 def csv_inspect(file):
@@ -32,7 +13,7 @@ def csv_inspect(file):
             str(row[0]),  # date
             str(row[1]),  # type
             str(row[2]),  # reg
-            str(row[3]),  # route
+            format_route(str(row[3])),  # route
             str(row[4]),  # duration
             str(row[5]),  # pic
             str(row[6]),  # sic
