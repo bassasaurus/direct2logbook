@@ -3,16 +3,6 @@ import io
 from .formatters import check_date, check_float, format_route, check_text
 
 
-def format_route(string):
-
-    new_string = string.replace(' ', '-').upper()
-
-    if new_string.endswith('-'):
-        new_string = new_string[:-1]
-
-    return new_string
-
-
 def csv_inspect(file):
 
     new_file = io.StringIO()
