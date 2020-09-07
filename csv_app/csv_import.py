@@ -5,7 +5,7 @@ from dateutil.parser import parse
 import re
 from logbook.celery import app
 from .formatters import check_date, check_float, format_route, check_text, convertBool, assign_ils
-
+from django.contrib import messages
 
 def save_route_data(user, route):
 
@@ -99,5 +99,3 @@ def csv_import(request, file):
         )
 
         approach.save()
-
-    # return None

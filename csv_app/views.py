@@ -177,7 +177,11 @@ def csv_inspect_view(request):
     return render(
         request,
         'csv_app/inspect_csv.html', {
-            'inspect_form': inspect_form
+            'inspect_form': inspect_form,
+            'title': 'CSV Upload',
+            'home_link': reverse('home'),
+            'parent_link': reverse('profile'),
+            'parent_name': 'Profile',
         }
     )
 
