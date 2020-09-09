@@ -1,30 +1,6 @@
 import csv
 import io
-
-
-def check_float(field):
-
-    return field
-
-
-def check_text(field):
-
-    return field
-
-
-def check_date(field):
-
-    return field
-
-
-def format_route(string):
-
-    new_string = string.replace(' ', '-').upper()
-
-    if new_string.endswith('-'):
-        new_string = new_string[:-1]
-
-    return new_string
+from .formatters import format_route
 
 
 def csv_inspect(file):
