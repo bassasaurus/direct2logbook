@@ -298,7 +298,7 @@ ANYMAIL = {
     "MAILGUN_SENDER_DOMAIN": 'mg.direct2logbook.com',  # your Mailgun domain, if needed
 }
 
-# or sendgrid.EmailBackend, or...
+
 if DEBUG is True:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 else:

@@ -116,8 +116,8 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 
         if settings.DEBUG is True:
             context['STRIPE_PUBLISHABLE_KEY'] = settings.STRIPE_PUBLISHABLE_KEY  # test mode defined in settings.py
-            context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly('cus_GixckNBQCcezIg')  # test user in stripe dashboard
-            context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly('cus_GixckNBQCcezIg')  # test user in stripe dashboard
+            context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly('cus_HzEwJmFP2ftqVY')  # test user in stripe dashboard
+            context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly('cus_HzEwJmFP2ftqVY')  # test user in stripe dashboard
         else:
             context['STRIPE_PUBLISHABLE_KEY'] = settings.STRIPE_PUBLISHABLE_KEY
             context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly(profile.customer_id)

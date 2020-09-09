@@ -32,13 +32,11 @@
       <div class="row">
         {% if not request.FILES %}
         <div class="col-5">{{ inspect_form.file }}</div>
-        <div class="col-3"><button class="btn btn-secondary" type="submit">Inspect</button></div>
+        <div class="col-4"><button class="btn btn-primary" type="submit">Inspect</button></div>
         {% endif %}
         {% if request.FILES %}
-        <p>
           <div class="col-4"><a href="{% url 'csv_inspect' %}">Try again</a></div>
-        </p>
-          <div class="col-4"><a id="csv_upload" href="">Upload .csv</a></div>
+          <div class="col-4"><a class="btn btn-primary" id="csv_upload" href="">Upload .csv</a></div>
         {% endif %}
       </div>
     </div>

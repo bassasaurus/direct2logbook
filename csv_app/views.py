@@ -1,6 +1,6 @@
 from django.shortcuts import render, reverse, redirect
 import csv
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponse
 from django.template.response import TemplateResponse
 from django import forms
 from flights.models import Flight
@@ -193,3 +193,4 @@ def csv_upload_view(request):
     csv_import(request, file)
 
     return redirect(reverse('home'))
+
