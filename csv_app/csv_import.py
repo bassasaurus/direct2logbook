@@ -5,7 +5,8 @@ from dateutil.parser import parse
 import re
 from logbook.celery import app
 from .formatters import check_date, check_float, format_route, check_text, convertBool, assign_ils
-from django.contrib import messages
+from django.core.mail import EmailMessage
+
 
 def save_route_data(user, route):
 
@@ -26,6 +27,35 @@ def save_route_data(user, route):
             route_data.append(map_object)
 
     return route_data
+
+
+def email_confirmation(request):
+
+    subject = "Your logbook import is complete!"
+    body = '''
+        There are still a few small things to do:
+
+        Errors, or items that need more information will be "red".
+
+        1. Go to "Aircraft" and update the properties of each aircraft type.
+        2. Then, update the properties of each tailnumber.
+
+        Login to get started!
+
+        https://www.direct2logbook.com/accounts/login
+
+        We hope you'll enjoy using Direct2Logbook as much as we enjoyed making it!
+    '''
+    email = EmailMessage(
+        subject,
+        body,
+        'noreply@direct2logbook.com',
+
+        [request.user.email],
+        reply_to=['no-reply@direct2logbook.com'],
+        headers={'Message-ID': 'Logbook '},
+    )
+    email.send()
 
 
 @app.task
@@ -99,3 +129,5 @@ def csv_import(request, file):
         )
 
         approach.save()
+
+    email_confirmation(request)
