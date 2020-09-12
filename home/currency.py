@@ -251,7 +251,7 @@ def gyro_vfr_night(user):
 
 def medical_duration(user):  # still need to start calculations from next month after issue
     issue_date = user.profile.medical_issue_date
-    current_month = datetime.date.today()
+    current_date = datetime.date.today()
 
     if user.profile.first_class and not user.profile.over_40:
         one_year = relativedelta(months=+12)
@@ -280,27 +280,28 @@ def medical_duration(user):  # still need to start calculations from next month 
     else:
         expiry_date = today - datetime.timedelta(days=1)
 
-    
 
-    if current_month.month < expiry_date.month:
+    if current_date < expiry_date:
         current = True
+        print('current')
     else:
+        print('not current')
         current = False
 
-    if current_month.month == expiry_date.month:
-        this_month = True
-    else:
-        this_month = False
-
-    if current_month.month > expiry_date.month:
+    if current_date > expiry_date:
         expired = True
     else:
         expired = False
 
+    if current_date.month == expiry_date.month:
+        this_month = True
+    else:
+        this_month = False
+        
     if not expiry_date:
         expiring = True
     else:
-        if (expiry_date - current_month) <= datetime.timedelta(days=30):
+        if (expiry_date - current_date) <= datetime.timedelta(days=30):
             expiring = True
         else:
             expiring = False
