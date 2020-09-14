@@ -1,6 +1,7 @@
 from flights.models import Flight
 from django.db.models import Sum, Q
 import datetime
+import calendar
 from dateutil.relativedelta import relativedelta
 
 
@@ -256,36 +257,41 @@ def medical_duration(user):  # still need to start calculations from next month 
     if user.profile.first_class and not user.profile.over_40:
         one_year = relativedelta(months=+12)
         expiry_date = issue_date + one_year
+        expiry_date = expiry_date.replace(day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
 
     elif user.profile.first_class and user.profile.over_40:
         six_months = relativedelta(months=+6)
         expiry_date = issue_date + six_months
+        expiry_date = expiry_date.replace(day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
 
     elif user.profile.second_class and not user.profile.over_40:
         two_years = relativedelta(months=+24)
         expiry_date = issue_date + two_years
+        expiry_date = expiry_date.replace(day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
 
     elif user.profile.second_class and user.profile.over_40:
         one_year = relativedelta(months=+12)
         expiry_date = issue_date + one_year
+        expiry_date = expiry_date.replace(day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
 
     elif user.profile.third_class and not user.profile.over_40:
         five_years = relativedelta(months=+60)
         expiry_date = issue_date + five_years
+        expiry_date = expiry_date.replace(day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
 
     elif user.profile.third_class and user.profile.over_40:
         three_years = relativedelta(months=+36)
         expiry_date = issue_date + three_years
+        expiry_date = expiry_date.replace(day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
 
     else:
         expiry_date = today - datetime.timedelta(days=1)
 
+# ------------------------------------
 
     if current_date < expiry_date:
         current = True
-        print('current')
     else:
-        print('not current')
         current = False
 
     if current_date > expiry_date:
@@ -293,15 +299,15 @@ def medical_duration(user):  # still need to start calculations from next month 
     else:
         expired = False
 
-    if current_date.month == expiry_date.month:
+    if current_date.month == expiry_date.month and current_date.year == expiry_date.year:
         this_month = True
     else:
         this_month = False
-        
+
     if not expiry_date:
         expiring = True
     else:
-        if (expiry_date - current_date) <= datetime.timedelta(days=30):
+        if (expiry_date - current_date) <= datetime.timedelta(days=31):
             expiring = True
         else:
             expiring = False
