@@ -90,6 +90,7 @@ INSTALLED_APPS = [
     'csv_app',
 
     # 'api',
+    'captcha',
     'django_extensions',
     # 'debug_toolbar',
     'picklefield',
@@ -307,3 +308,5 @@ else:
 DEFAULT_FROM_EMAIL = "no-reply@direct2logbook.com"
 
 CSRF_USE_SESSIONS = True
+
+SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error']
