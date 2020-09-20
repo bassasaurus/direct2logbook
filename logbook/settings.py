@@ -298,10 +298,9 @@ ANYMAIL = {
 }
 
 
-if DEBUG is True:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-else:
-    EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
 
 DEFAULT_FROM_EMAIL = "no-reply@direct2logbook.com"
 
@@ -329,12 +328,12 @@ HUEY = {
         'url': None,  # Allow Redis config via a DSN.
     },
     'consumer': {
-        'workers': 1,
+        'workers': 2,
         'worker_type': 'thread',
         'initial_delay': 0.1,  # Smallest polling interval, same as -d.
         'backoff': 1.15,  # Exponential backoff using this rate, -b.
         'max_delay': 10.0,  # Max possible polling interval, -m.
-        'scheduler_interval': 1,  # Check schedule every second, -s.
+        'scheduler_interval': 10,  # Check schedule every second, -s.
         'periodic': True,  # Enable crontab feature.
         'check_worker_health': True,  # Enable worker health checks.
         'health_check_interval': 1,  # Check worker health every second.

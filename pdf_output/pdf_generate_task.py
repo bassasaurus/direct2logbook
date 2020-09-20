@@ -19,6 +19,8 @@ from huey.contrib.djhuey import task
 @task()
 def pdf_generate(user_pk):
 
+    print('pdf')
+
     user = User.objects.get(pk=user_pk)
 
     buffer = BytesIO()
@@ -414,4 +416,4 @@ def pdf_generate(user_pk):
     email.attach('Logbook.pdf', pdf, 'application/pdf')
     email.send()
 
-    return None
+    return True

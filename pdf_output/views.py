@@ -13,8 +13,6 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from flights.views import LoginRequiredMixin
 
 from .pdf_generate_task import pdf_generate
-
-from celery import Celery
 from django.contrib import messages
 
 
@@ -81,7 +79,7 @@ def PDFView(request, user_id):
 
     user_pk = request.user.pk
 
-    pdf_generate.delay(user_pk)
+    pdf_generate(user_pk)
 
     response = HttpResponse('Check your email')
     # response.write(pdf)
