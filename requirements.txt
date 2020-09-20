@@ -1,15 +1,15 @@
-amqp==2.5.2
+amqp==2.6.1
 asgiref==3.2.10
 asn1crypto==0.24.0
 astroid==2.3.2
 attrs==19.3.0
 autopep8==1.4.4
 beautifulsoup4==4.8.1
-billiard==3.6.1.0
+billiard==3.6.3.0
 boto3==1.10.47
 botocore==1.13.47
 bs4==0.0.1
-celery==4.4.0
+celery==4.4.7
 celery-progress==0.0.12
 certifi==2019.3.9
 cffi==1.12.3
@@ -44,7 +44,7 @@ isort==4.3.21
 jedi==0.14.1
 jmespath==0.9.4
 jsonpickle==1.2
-kombu==4.6.7
+kombu==4.6.11
 lazy-object-proxy==1.4.2
 lxml==4.4.1
 mccabe==0.6.1
