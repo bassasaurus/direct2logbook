@@ -1,4 +1,3 @@
-from logbook.celery import app
 from io import BytesIO
 from reportlab.lib.pagesizes import legal, landscape
 from reportlab.lib.styles import getSampleStyleSheet
@@ -18,7 +17,6 @@ from .models import Signature
 from flights.models import Flight, Total, Stat, Regs, Power, Weight, Endorsement
 
 
-@app.task
 def pdf_generate(user_pk):
 
     user = User.objects.get(pk=user_pk)
