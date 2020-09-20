@@ -11,16 +11,16 @@ class CustomSignupForm(SignupForm):
     first_name = forms.CharField(max_length=30, label='First Name')
     last_name = forms.CharField(max_length=30, label='Last Name')
 
-    captcha = ReCaptchaField(
-        public_key=config('RECAPTCHA_PUBLIC_KEY'),
-        private_key=config('RECAPTCHA_PRIVATE_KEY'),
-        
-        widget=ReCaptchaV2Checkbox(
-            attrs={
-                'required_score': 0.0,
-            }
+    if config('DEBUG', cast=bool) is False:
+        captcha = ReCaptchaField(
+            public_key=config('RECAPTCHA_PUBLIC_KEY'),
+            private_key=config('RECAPTCHA_PRIVATE_KEY'),
+
+            widget=ReCaptchaV2Checkbox()
         )
-    )
+
+    else:
+        pass
 
     def signup(self, request, user):
         user.first_name = self.cleaned_data['first_name']
