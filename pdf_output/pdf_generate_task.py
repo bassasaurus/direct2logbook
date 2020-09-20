@@ -8,15 +8,15 @@ from reportlab.lib.units import inch
 from django.core.mail import EmailMessage
 # from django.core.mail import send_mail
 from django.contrib.auth.models import User
-
-import os
-
+from decouple import config
 import datetime
-from logbook import settings
 from .models import Signature
 from flights.models import Flight, Total, Stat, Regs, Power, Weight, Endorsement
 
+from huey.contrib.djhuey import task
 
+
+@task()
 def pdf_generate(user_pk):
 
     user = User.objects.get(pk=user_pk)
@@ -324,7 +324,7 @@ def pdf_generate(user_pk):
 
     # logbook starts here
 
-    if os.getenv('DEBUG') is True:
+    if config('DEBUG', cast=bool) is True:
         flight_objects = Flight.objects.filter(user=user).order_by('-date')[:100]
     else:
         flight_objects = Flight.objects.filter(user=user).order_by('-date')

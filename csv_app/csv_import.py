@@ -5,6 +5,7 @@ from dateutil.parser import parse
 import re
 from .formatters import check_date, check_float, format_route, check_text, convertBool, assign_ils
 from django.core.mail import EmailMessage
+from huey.contrib.djhuey import task
 
 
 def save_route_data(user, route):
@@ -57,6 +58,7 @@ def email_confirmation(request):
     email.send()
 
 
+@task()
 def csv_import(request, file):
 
     user = request.user
