@@ -1,21 +1,18 @@
 
 from pdf_output.models import Signature
 from django.contrib.auth.decorators import login_required
-import datetime
 
 from django.http import HttpResponse
-from django.template.response import TemplateResponse
 from django.urls import reverse
-from django.views.generic import CreateView, UpdateView, DetailView, DeleteView
+from django.views.generic import CreateView, UpdateView, DeleteView
 
 from .forms import SignatureForm
-from django.contrib.auth.mixins import UserPassesTestMixin
+
 from flights.views import LoginRequiredMixin
 
 from .pdf_generate_task import pdf_generate
 
-from celery import Celery
-from django.contrib import messages
+from huey.contrib.djhuey import task
 
 
 class SignatureCreateView(LoginRequiredMixin, CreateView):
@@ -76,12 +73,13 @@ class SignatureDeleteView(LoginRequiredMixin, DeleteView):
         return context
 
 
+@task()
 @login_required
 def PDFView(request, user_id):
 
     user_pk = request.user.pk
 
-    pdf_generate.delay(user_pk)
+    pdf_generate(user_pk)
 
     response = HttpResponse('Check your email')
     # response.write(pdf)
