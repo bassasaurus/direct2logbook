@@ -319,6 +319,7 @@ HUEY = {
     'blocking': True,  # Perform blocking pop rather than poll Redis.
     'connection': {
         'host': 'localhost',
+        'password': config('REDIS_PASSWORD'),
         'port': 6379,
         'db': 0,
         'connection_pool': None,  # Definitely you should use pooling!
