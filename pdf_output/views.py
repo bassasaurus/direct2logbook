@@ -73,7 +73,6 @@ class SignatureDeleteView(LoginRequiredMixin, DeleteView):
         return context
 
 
-@task()
 @login_required
 def PDFView(request, user_id):
 

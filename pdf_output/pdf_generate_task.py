@@ -14,8 +14,10 @@ import os
 import datetime
 from .models import Signature
 from flights.models import Flight, Total, Stat, Regs, Power, Weight, Endorsement
+from huey.contrib.djhuey import task
 
 
+@task()
 def pdf_generate(user_pk):
 
     user = User.objects.get(pk=user_pk)
