@@ -99,8 +99,7 @@ INSTALLED_APPS = [
     'extra_views',
     'anymail',
     'storages',
-    'django_celery_results',
-    'django_celery_beat'
+    'huey.contrib.djhuey',
 ]
 
 AUTHENTICATION_BACKENDS = (
