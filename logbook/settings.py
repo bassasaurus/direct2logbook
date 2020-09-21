@@ -2,7 +2,6 @@ import os
 from os.path import abspath, dirname
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
-from sentry_sdk.integrations.celery import CeleryIntegration
 from decouple import config
 
 DEBUG = config('DEBUG', default=False, cast=bool)
@@ -14,7 +13,7 @@ print(DEBUG)
 if DEBUG is False:
     sentry_sdk.init(
         dsn="https://65a9a45f86104c29873f4bdbfa6846b9@sentry.io/5178641",
-        integrations=[DjangoIntegration(), CeleryIntegration()],
+        integrations=[DjangoIntegration()],
         send_default_pii=True
     )
 else:
