@@ -63,7 +63,6 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(' ')
 # Application definition
 
 INSTALLED_APPS = [
-    'whitenoise.runserver_nostatic',
     # autocomplete
     'dal',
     'dal_select2',
@@ -143,7 +142,6 @@ ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = LOGIN_REDIRECT_URL
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
