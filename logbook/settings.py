@@ -252,8 +252,12 @@ STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, '../static')
+print(os.path.abspath(STATIC_ROOT))
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    DJANGO_ROOT + "/static",
+]
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
