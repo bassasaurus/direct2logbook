@@ -63,7 +63,6 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(' ')
 # Application definition
 
 INSTALLED_APPS = [
-    'whitenoise.runserver_nostatic',
     # autocomplete
     'dal',
     'dal_select2',
@@ -143,7 +142,6 @@ ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = LOGIN_REDIRECT_URL
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -254,8 +252,12 @@ STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, '/home/blakepowell/static')
+print(os.path.abspath(STATIC_ROOT))
 STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    DJANGO_ROOT + "/static",
+]
 
 DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
