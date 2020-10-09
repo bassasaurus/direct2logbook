@@ -253,7 +253,6 @@ STATICFILES_FINDERS = [
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, '/home/blakepowell/static')
-print(os.path.abspath(STATIC_ROOT))
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     DJANGO_ROOT + "/static",
