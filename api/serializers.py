@@ -7,7 +7,7 @@ from flights.models import Flight, Aircraft, TailNumber
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
-        fields = ['url', 'username', 'email', 'groups']
+        fields = ['url', 'username', 'email']
 
 
 class GroupSerializer(serializers.HyperlinkedModelSerializer):

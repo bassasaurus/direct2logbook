@@ -6,27 +6,31 @@ from flights.models import Flight, Aircraft, TailNumber
 
 
 class UserViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows users to be viewed or edited.
-    """
+
+    def get_queryset(self):
+
+        user = self.request.user
+        return User.objects.filter(pk=user.pk)
+
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]
 
 
-class GroupViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows groups to be viewed or edited.
-    """
-    queryset = Group.objects.all()
-    serializer_class = GroupSerializer
-    permission_classes = [permissions.IsAuthenticated]
+# class GroupViewSet(viewsets.ModelViewSet):
+
+#     queryset = Group.objects.all()
+#     serializer_class = GroupSerializer
+#     permission_classes = [permissions.IsAuthenticated]
 
 
 class FlightViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows groups to be viewed or edited.
-    """
+
+    def get_queryset(self):
+
+        user = self.request.user
+        return Flight.objects.filter(user=user)
+
     queryset = Flight.objects.all()
     serializer_class = FlightSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -34,9 +38,10 @@ class FlightViewSet(viewsets.ModelViewSet):
 
 class AircraftViewSet(viewsets.ModelViewSet):
 
-    """
-    API endpoint that allows groups to be viewed or edited.
-    """
+    def get_queryset(self):
+
+        user = self.request.user
+        return Aircraft.objects.filter(user=user)
 
     queryset = Aircraft.objects.all()
     serializer_class = AircraftSerializer
@@ -44,9 +49,12 @@ class AircraftViewSet(viewsets.ModelViewSet):
 
 
 class TailNumberViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows groups to be viewed or edited.
-    """
+
+    def get_queryset(self):
+
+        user = self.request.user
+        return TailNumber.objects.filter(user=user)
+
     queryset = TailNumber.objects.all()
     serializer_class = TailNumberSerializer
     permission_classes = [permissions.IsAuthenticated]
