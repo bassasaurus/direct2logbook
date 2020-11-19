@@ -88,7 +88,8 @@ INSTALLED_APPS = [
     'pdf_output',
     'csv_app',
 
-    # 'api',
+    'api',
+    'rest_framework',
     'captcha',
     'django_extensions',
     # 'debug_toolbar',
