@@ -28,6 +28,9 @@ from api import views
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'groups', views.GroupViewSet)
+router.register(r'flights', views.FlightViewSet)
+router.register(r'aircraft', views.AircraftViewSet)
+router.register(r'tailnumbers', views.TailNumberViewSet)
 
 
 def trigger_error(request):
