@@ -91,6 +91,7 @@ INSTALLED_APPS = [
 
 
     'rest_framework',
+    'rest_framework.authtoken',
     'captcha',
     'django_extensions',
     # 'debug_toolbar',
@@ -315,6 +316,10 @@ CSRF_USE_SESSIONS = True
 SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error']
 
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10
 }
