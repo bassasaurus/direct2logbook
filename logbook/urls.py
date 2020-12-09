@@ -22,6 +22,16 @@ from django.conf import settings
 from errors.views import error_400, error_404, error_500, error_403
 from django.urls import path
 
+from rest_framework import routers
+from api import views
+
+router = routers.DefaultRouter()
+router.register(r'users', views.UserViewSet)
+# router.register(r'groups', views.GroupViewSet)
+router.register(r'flights', views.FlightViewSet)
+router.register(r'aircraft', views.AircraftViewSet)
+router.register(r'tailnumbers', views.TailNumberViewSet)
+
 
 def trigger_error(request):
     division_by_zero = 1 / 0
@@ -40,6 +50,10 @@ urlpatterns = [
     path('', include('pdf_output.urls')),
     path('', include('payments.urls')),
     path('', include('csv_app.urls')),
+
+    path('api/', include(router.urls)),
+    path('api/', include('api.urls')),
+    path('api/', include('rest_framework.urls', namespace='rest_framework'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 handler400 = error_400

@@ -81,6 +81,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # apps
+    'api',
     'errors',
     'profile',
     'accounts',
@@ -88,7 +89,9 @@ INSTALLED_APPS = [
     'pdf_output',
     'csv_app',
 
-    # 'api',
+
+    'rest_framework',
+    'rest_framework.authtoken',
     'captcha',
     'django_extensions',
     # 'debug_toolbar',
@@ -311,3 +314,12 @@ DEFAULT_FROM_EMAIL = "no-reply@direct2logbook.com"
 CSRF_USE_SESSIONS = True
 
 SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error']
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
+}
