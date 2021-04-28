@@ -16,15 +16,19 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['url', 'name']
 
 
-class FlightSerializer(serializers.ModelSerializer):
+class AircraftSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Flight
+        model = Aircraft
         fields = '__all__'
 
 
-class AircraftSerializer(serializers.HyperlinkedModelSerializer):
+class FlightSerializer(serializers.ModelSerializer):
+
+    aircraft_type = serializers.StringRelatedField()
+    registration = serializers.StringRelatedField()
+
     class Meta:
-        model = Aircraft
+        model = Flight
         fields = '__all__'
 
 
