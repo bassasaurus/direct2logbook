@@ -1,4 +1,5 @@
 from django.core.cache import cache
+from flights.models import Flight
 
 
 def unique_values(iterable):
@@ -9,11 +10,12 @@ def unique_values(iterable):
             yield item
 
 
-def get_map_data(queryset, pk):
+def get_map_data(pk):
+
+    queryset = Flight.objects.filter(pk=pk)
 
     features = []
     line_json = []
-
     unique_values = set()
 
     for flight in queryset:
