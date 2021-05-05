@@ -298,7 +298,7 @@ class Flight(models.Model):
     simulator = models.BooleanField(
         null=True, blank=True, verbose_name="Sim")
     solo = models.BooleanField(default=False, blank=True)
-    json_route_data = models.JSONField(default=dict, blank=True)
+    json_route_data = models.JSONField(default=dict, blank=True, null=True)
     route_data = PickledObjectField(null=True, blank=True)
     map_error = models.CharField(max_length=100, null=True, blank=True)
     duplicate_error = models.CharField(max_length=100, null=True, blank=True)
