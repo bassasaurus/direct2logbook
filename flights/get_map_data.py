@@ -9,7 +9,7 @@ def unique_values(iterable):
             yield item
 
 
-def get_map_data(queryset, user):
+def get_map_data(queryset, pk):
 
     features = []
     line_json = []
@@ -45,10 +45,10 @@ def get_map_data(queryset, user):
 
     feature_collection = {"type": "FeatureCollection", "features": features}
 
-    user_map_cache = 'airports_{}'.format(user.id)
+    user_map_cache = 'airports_{}'.format(pk)
     cache.set(user_map_cache, feature_collection, 1 * 60)
 
     line_json = str(line_json)
-    user_map_cache = 'routes_{}'.format(user.id)
+    user_map_cache = 'routes_{}'.format(pk)
     cache.set(user_map_cache, line_json, 1 * 60)
     return feature_collection, line_json
