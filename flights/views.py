@@ -66,20 +66,20 @@ class OwnObjectMixin(UserPassesTestMixin):
         return redirect(reverse('home'))
 
 
-def geoJSON_airports_view(request, pk):
-
+def geoJSON_airports_view(request, user_id):
     if request.method == 'GET':
-        
-        user_cache = 'airports_{}'.format(pk)
+        user = request.user
+
+        user_cache = 'airports_{}'.format(user.id)
         data = cache.get(user_cache)
         return JsonResponse(data, content_type='application/json', safe=False)
 
 
-def geoJSON_routes_view(request, pk):
-    
+def geoJSON_routes_view(request, user_id):
     if request.method == 'GET':
-        
-        user_cache = 'routes_{}'.format(pk)
+        user = request.user
+
+        user_cache = 'routes_{}'.format(user.id)
         data = cache.get(user_cache)
         return HttpResponse(data, content_type='text/html')
 
@@ -354,10 +354,9 @@ class FlightDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, De
     def get_context_data(self, **kwargs):
         context = super(FlightDetail, self).get_context_data(**kwargs)
         user = self.request.user
-        pk = self.object.pk
         queryset = Flight.objects.filter(user=user).filter(pk=self.object.pk)
 
-        get_map_data(queryset, pk)
+        get_map_data(queryset, user)
 
         flight = Flight.objects.filter(user=user).get(pk=self.object.pk)
         earliest = Flight.objects.filter(user=user).earliest('date')
@@ -378,8 +377,6 @@ class FlightDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, De
         context['home_link'] = reverse('home')
         context['parent_link'] = reverse('flight_list')
         context['parent_name'] = 'Logbook'
-
-        context['pk'] = pk
 
         return context
 

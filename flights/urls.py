@@ -14,8 +14,8 @@ from flights.views import (
 
 urlpatterns = [
 
-    url(r'^geojson/airports/(\d+)/$', geoJSON_airports_view, name='geojson_airports'),
-    url(r'^geojson/routes/(\d+)/$', geoJSON_routes_view, name='geojson_routes'),
+    url(r'^geojson/airports/(?P<user_id>\d+)/$', geoJSON_airports_view, name='geojson_airports'),
+    url(r'^geojson/routes/(?P<user_id>\d+)/$', geoJSON_routes_view, name='geojson_routes'),
 
     # autocomplete urls
     path('aircraft-autocomplete/', AircraftAutocomplete.as_view(), name='aircraft-autocomplete'),
