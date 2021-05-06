@@ -69,7 +69,7 @@ class OwnObjectMixin(UserPassesTestMixin):
 def geoJSON_airports_view(request, pk):
 
     if request.method == 'GET':
-        get_map_data(pk)
+        
         user_cache = 'airports_{}'.format(pk)
         data = cache.get(user_cache)
         return JsonResponse(data, content_type='application/json', safe=False)
@@ -78,7 +78,7 @@ def geoJSON_airports_view(request, pk):
 def geoJSON_routes_view(request, pk):
     
     if request.method == 'GET':
-        get_map_data(pk)
+        
         user_cache = 'routes_{}'.format(pk)
         data = cache.get(user_cache)
         return HttpResponse(data, content_type='text/html')
@@ -357,7 +357,7 @@ class FlightDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, De
         pk = self.object.pk
         queryset = Flight.objects.filter(user=user).filter(pk=self.object.pk)
 
-        get_map_data(pk)
+        get_map_data(queryset, pk)
 
         flight = Flight.objects.filter(user=user).get(pk=self.object.pk)
         earliest = Flight.objects.filter(user=user).earliest('date')
