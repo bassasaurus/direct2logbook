@@ -20,6 +20,8 @@ flights = Flight.objects.filter(user=user)[:1]
 
 for flight in flights:
     
+    line_data_set = []
+
     route = flight.route.split('-')
     features = ''
 
@@ -33,7 +35,8 @@ for flight in flights:
         except ObjectDoesNotExist:
             print(airport + ' error')
              
-    
+        line_data_set.append([airport.latitude, airport.longitude])
+
         feature = {"type": "Feature", 
             "properties": {
                 "icao": airport.icao,
@@ -55,4 +58,5 @@ for flight in flights:
     
         features = features + str(feature) + ','
 
+    
     print(features)
