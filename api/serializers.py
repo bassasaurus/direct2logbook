@@ -27,6 +27,7 @@ class FlightSerializer(serializers.ModelSerializer):
     aircraft_type = serializers.StringRelatedField()
     registration = serializers.StringRelatedField()
 
+
     class Meta:
         model = Flight
         fields = '__all__'
