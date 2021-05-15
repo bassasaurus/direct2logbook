@@ -7,9 +7,9 @@ sys.path.append("/Users/blake/django/direct2logbook/")
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'logbook.settings')
 django.setup()
 
-
+import json
 from django.contrib.auth.models import User
-from flights.models import Flight, MapData
+from flights.models import AircraftCategory, Flight, MapData
 
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -21,6 +21,8 @@ flights = Flight.objects.filter(user=user)[:1]
 for flight in flights:
     
     line_data_set = []
+    airport_data_set = []
+
 
     route = flight.route.split('-')
     features = ''
@@ -56,7 +58,8 @@ for flight in flights:
             }
                 }
     
-        features = features + str(feature) + ','
+        airport_data_set.append(feature)
 
+    collection = str({"type": "FeatureCollection", "features": airport_data_set}).replace("'", '"')
     
-    print(features)
+    print(collection)
