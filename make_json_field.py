@@ -52,14 +52,17 @@ for flight in flights:
             "geometry":{
                 "type": "Point",
             "coordinates": [
-            airport.latitude,
-            airport.longitude,
+                airport.latitude,
+                airport.longitude,
             ]
             }
-                }
+        }
     
         airport_data_set.append(feature)
 
-    collection = str({"type": "FeatureCollection", "features": airport_data_set}).replace("'", '"')
-    
-    print(collection)
+    # collection = str({"type": "FeatureCollection", "features": airport_data_set}).replace("'", '"')
+
+    flight.app_airport_detail = airport_data_set
+    flight.app_route_detail = line_data_set
+
+    flight.save()
