@@ -21,11 +21,10 @@ flights = Flight.objects.filter(user=user)[:1]
 for flight in flights:
     
     line_data_set = []
-    airport_data_set = []
+    features = []
 
 
     route = flight.route.split('-')
-    features = ''
 
     for airport in route:
         # print('ii')
@@ -58,11 +57,12 @@ for flight in flights:
             }
         }
     
-        airport_data_set.append(feature)
+        features.append(feature)
 
+    feature_collection = {"type": "FeatureCollection", "features": features}
     # collection = str({"type": "FeatureCollection", "features": airport_data_set}).replace("'", '"')
 
-    flight.app_airport_detail = airport_data_set
+    flight.app_airport_detail = feature_collection
     flight.app_route_detail = line_data_set
 
     flight.save()
