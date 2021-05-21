@@ -21,7 +21,7 @@ flights = Flight.objects.filter(user=user)[:1]
 for flight in flights:
     
     line_data_set = []
-    features = []
+    markers = []
 
 
     route = flight.route.split('-')
@@ -38,31 +38,23 @@ for flight in flights:
              
         line_data_set.append([airport.latitude, airport.longitude])
 
-        feature = {"type": "Feature", 
-            "properties": {
+        marker =  {
                 "icao": airport.icao,
                 "iata":airport.iata,
-                "name": airport.name,
-                "city": airport.city,
-                "state": airport.state,
-                "country": airport.country,
-                "elevation": airport.elevation,
-                },
-            "geometry":{
-                "type": "Point",
+                "title": airport.name,
+            
             "coordinates": [
                 airport.latitude,
                 airport.longitude,
             ]
             }
-        }
+            
+        
     
-        features.append(feature)
+        markers.append(marker)
 
-    feature_collection = {"type": "FeatureCollection", "features": features}
-    # collection = str({"type": "FeatureCollection", "features": airport_data_set}).replace("'", '"')
-
-    flight.app_airport_detail = feature_collection
-    flight.app_route_detail = line_data_set
+    
+    flight.app_markers = markers
+    flight.app_lines = line_data_set
 
     flight.save()
