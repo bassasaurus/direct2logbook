@@ -43,11 +43,11 @@ for flight in flights:
                 "iata":airport.iata,
                 "title": airport.name,
             
-            "coordinates": [
-                airport.latitude,
-                airport.longitude,
-            ]
+            "coordinates": {
+                "latitude": airport.latitude,
+                "longitude": airport.longitude,
             }
+        }
             
         
     
