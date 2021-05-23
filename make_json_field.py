@@ -15,7 +15,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 user = User.objects.get(pk=1)
 
-flights = Flight.objects.filter(user=user)[:1]
+flights = Flight.objects.filter(user=user)
 
 
 for flight in flights:
@@ -36,11 +36,9 @@ for flight in flights:
         except ObjectDoesNotExist:
             print(airport + ' error')
              
-        line_data_set.append([airport.latitude, airport.longitude])
-
         marker =  {
                 "icao": airport.icao,
-                "iata":airport.iata,
+                "iata":airport.iata, 
                 "title": airport.name,
             
             "coordinates": {
@@ -48,13 +46,13 @@ for flight in flights:
                 "longitude": airport.longitude,
             }
         }
-            
-        
+
+        line_data_set.append([airport.latitude, airport.longitude])
     
         markers.append(marker)
 
-    
     flight.app_markers = markers
     flight.app_lines = line_data_set
-
+    
+    print(flight.route)
     flight.save()
