@@ -21,30 +21,29 @@ flights = Flight.objects.filter(user=user)
 for flight in flights:
     
     line_data_set = []
-    markers = []
+    markers = list(set())
     key = 0
 
-    route = re.split(r'\W+', flight.route)
+    route = list(set(re.split(r'\W+', flight.route)))
 
     us_iata = MapData.objects.filter(country="United States").values_list('iata', flat=True)
     intl_iata =  MapData.objects.exclude(country = "United States").values_list('iata', flat=True)
 
     for airport in route:
-        print(route)
+        
         airport = airport.replace(" ", "")
 
         if airport in us_iata:
             airport = MapData.objects.get(iata=airport, country="United States")
-
+            
         elif airport in intl_iata:
             airport = MapData.objects.get(iata=airport)
 
-        elif airport == "" or len(airport) > 4:
-            print(route, flight.pk)
-            pass
+        elif airport not in us_iata and airport not in intl_iata:
+           airport = MapData.objects.get(icao=airport)
 
         else:
-            airport = MapData.objects.get(icao=airport)
+            pass
 
         marker =  {
             "key": key,
@@ -68,6 +67,8 @@ for flight in flights:
         line_data_set.append(polyline)
     
         markers.append(marker)
+
+    print(flight.route, " ", flight.pk)
 
     flight.app_markers = markers
     flight.app_lines = line_data_set
