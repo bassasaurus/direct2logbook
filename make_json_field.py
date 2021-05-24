@@ -10,7 +10,7 @@ django.setup()
 import json
 from django.contrib.auth.models import User
 from flights.models import AircraftCategory, Flight, MapData
-
+import re
 from django.core.exceptions import ObjectDoesNotExist
 
 user = User.objects.get(pk=1)
@@ -22,37 +22,54 @@ for flight in flights:
     
     line_data_set = []
     markers = []
+    key = 0
 
+    route = re.split(r'\W+', flight.route)
 
-    route = flight.route.split('-')
+    us_iata = MapData.objects.filter(country="United States").values_list('iata', flat=True)
+    intl_iata =  MapData.objects.exclude(country = "United States").values_list('iata', flat=True)
 
     for airport in route:
-        # print('ii')
-        try:
-            if len(airport) == 3:
-                airport = MapData.objects.get(iata=airport, country="United States")
-            elif len(airport) == 4:
-                airport = MapData.objects.get(icao=airport)
-        except ObjectDoesNotExist:
-            print(airport + ' error')
-             
+        print(route)
+        airport = airport.replace(" ", "")
+
+        if airport in us_iata:
+            airport = MapData.objects.get(iata=airport, country="United States")
+
+        elif airport in intl_iata:
+            airport = MapData.objects.get(iata=airport)
+
+        elif airport == "" or len(airport) > 4:
+            print(route, flight.pk)
+            pass
+
+        else:
+            airport = MapData.objects.get(icao=airport)
+
         marker =  {
-                "icao": airport.icao,
-                "iata":airport.iata, 
-                "title": airport.name,
-            
+            "key": key,
+            "icao": airport.icao,
+            "iata":airport.iata, 
+            "title": airport.name,
             "coordinates": {
                 "latitude": airport.latitude,
                 "longitude": airport.longitude,
             }
         }
 
-        line_data_set.append([airport.latitude, airport.longitude])
+        polyline = {
+            "key": key,
+            "latitude": airport.latitude,
+            "longitude": airport.longitude,
+        }
+        
+        key = key + 1
+
+        line_data_set.append(polyline)
     
         markers.append(marker)
 
     flight.app_markers = markers
     flight.app_lines = line_data_set
     
-    print(flight.route)
     flight.save()
