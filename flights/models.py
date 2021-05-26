@@ -307,7 +307,7 @@ class Flight(models.Model):
         max_length=100, null=True, blank=True)
     crew_error = models.CharField(max_length=100, null=True, blank=True)
     app_markers= models.JSONField(default=str)
-    app_lines = models.JSONField(default=str)
+    app_polylines = models.JSONField(default=str)
 
     class Meta:
         ordering = ['-date', 'pk']

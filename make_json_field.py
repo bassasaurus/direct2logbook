@@ -20,7 +20,7 @@ flights = Flight.objects.filter(user=user)
 
 for flight in flights:
     
-    line_data_set = []
+    coordinates = []
     markers = list(set())
     key = 0
 
@@ -56,21 +56,20 @@ for flight in flights:
             }
         }
 
-        polyline = {
-            "key": key,
-            "latitude": airport.latitude,
-            "longitude": airport.longitude,
-        }
+        markers.append(marker)
+
+        coordinates.append({"latitude": airport.latitude, "longitude": airport.longitude})
         
         key = key + 1
 
-        line_data_set.append(polyline)
-    
-        markers.append(marker)
+    polyline = {
+            "coordinates": coordinates
+        }
 
+    print(polyline)
     print(flight.route, " ", flight.pk)
 
     flight.app_markers = markers
-    flight.app_lines = line_data_set
+    flight.app_polylines = polyline
     
     flight.save()
