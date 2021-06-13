@@ -2,12 +2,13 @@ import os
 import sys
 import django
 from django.conf import settings
+from collections import OrderedDict
 
 sys.path.append("/Users/blake/django/direct2logbook/")
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'logbook.settings')
 django.setup()
 
-import json
+
 from django.contrib.auth.models import User
 from flights.models import AircraftCategory, Flight, MapData
 import re
@@ -15,7 +16,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 user = User.objects.get(pk=1)
 
-flights = Flight.objects.filter(user=user)
+flights = Flight.objects.filter(user=user)[:20]
 
 
 for flight in flights:
@@ -23,8 +24,10 @@ for flight in flights:
     coordinates = []
     markers = list(set())
     key = 0
+    # print(flight.route, "from DB")
+    route = re.split(r'\W+', flight.route)
 
-    route = list(set(re.split(r'\W+', flight.route)))
+    # print(route, "after regex", flight.pk)
 
     us_iata = MapData.objects.filter(country="United States").values_list('iata', flat=True)
     intl_iata =  MapData.objects.exclude(country = "United States").values_list('iata', flat=True)
@@ -44,11 +47,13 @@ for flight in flights:
 
         else:
             pass
+        
+        coordinates.append({"latitude": airport.latitude, "longitude": airport.longitude})
 
         marker =  {
             "key": key,
             "icao": airport.icao,
-            "iata":airport.iata, 
+            "iata": airport.iata, 
             "title": airport.name,
             "coordinates": {
                 "latitude": airport.latitude,
@@ -57,17 +62,14 @@ for flight in flights:
         }
 
         markers.append(marker)
-
-        coordinates.append({"latitude": airport.latitude, "longitude": airport.longitude})
-        
         key = key + 1
 
     polyline = {
             "coordinates": coordinates
         }
 
-    print(polyline)
-    print(flight.route, " ", flight.pk)
+
+    print(flight.route, flight.pk)
 
     flight.app_markers = markers
     flight.app_polylines = polyline
