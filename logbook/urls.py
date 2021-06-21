@@ -26,11 +26,11 @@ from rest_framework import routers
 from api import views
 
 router = routers.DefaultRouter()
-router.register(r'users', views.UserViewSet)
+router.register(r'users', views.UserViewSet, basename="User")
 # router.register(r'groups', views.GroupViewSet)
-router.register(r'flights', views.FlightViewSet)
-router.register(r'aircraft', views.AircraftViewSet)
-router.register(r'tailnumbers', views.TailNumberViewSet)
+router.register(r'flights', views.FlightViewSet, basename='Flight')
+router.register(r'aircraft', views.AircraftViewSet, basename='Aircraft')
+router.register(r'tailnumbers', views.TailNumberViewSet, basename='TailNumber')
 
 
 def trigger_error(request):
