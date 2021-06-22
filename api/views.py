@@ -34,7 +34,6 @@ class FlightViewSet(viewsets.ModelViewSet):
         return Flight.objects.filter(user=user)
 
     serializer_class = FlightSerializer
-    # permission_classes = [permissions.IsAuthenticated]
 
 
 class AircraftViewSet(viewsets.ModelViewSet):
