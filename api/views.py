@@ -5,6 +5,19 @@ from api.serializers import UserSerializer, GroupSerializer, FlightSerializer, A
 from flights.models import Flight, Aircraft, TailNumber
 from rest_framework.permissions import IsAuthenticated
 
+from rest_framework.pagination import LimitOffsetPagination
+
+
+class Unpaginated(LimitOffsetPagination):
+    def paginate_queryset(self, queryset, request, view=None):
+        self.count = self.get_count(queryset)
+        self.limit = self.get_limit(request)
+        self.offset = self.get_offset(request)
+        self.request = request
+        self.display_page_controls = False
+
+        return list(queryset)
+
 
 class UserViewSet(viewsets.ModelViewSet):
 
@@ -56,3 +69,5 @@ class TailNumberViewSet(viewsets.ModelViewSet):
 
     serializer_class = TailNumberSerializer
     permission_classes = [IsAuthenticated]
+
+    pagination_class = Unpaginated
