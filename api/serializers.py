@@ -33,7 +33,7 @@ class FlightSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class TailNumberSerializer(serializers.HyperlinkedModelSerializer):
+class TailNumberSerializer(serializers.ModelSerializer):
     class Meta:
         model = TailNumber
         fields = '__all__'
