@@ -36,4 +36,4 @@ class FlightSerializer(serializers.ModelSerializer):
 class TailNumberSerializer(serializers.ModelSerializer):
     class Meta:
         model = TailNumber
-        fields = ['id', 'registration', 'user']
+        fields = '__all__'
