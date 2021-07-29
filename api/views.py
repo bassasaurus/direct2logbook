@@ -14,7 +14,7 @@ class UserViewSet(viewsets.ModelViewSet):
         return User.objects.filter(pk=user.pk)
 
     serializer_class = UserSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
 
 # class GroupViewSet(viewsets.ModelViewSet):
@@ -44,7 +44,7 @@ class AircraftViewSet(viewsets.ModelViewSet):
         return Aircraft.objects.filter(user=user)
 
     serializer_class = AircraftSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
 
 class TailNumberViewSet(viewsets.ModelViewSet):
@@ -55,4 +55,4 @@ class TailNumberViewSet(viewsets.ModelViewSet):
         return TailNumber.objects.filter(user=user)
 
     serializer_class = TailNumberSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
