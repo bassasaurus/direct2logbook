@@ -65,7 +65,10 @@ class TailNumberViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
 
         user = self.request.user
-        return TailNumber.objects.filter(user=user)
+
+        aircraft_pk = self.request.GET.get('aircraft_pk')
+
+        return TailNumber.objects.filter(user=user).filter(aircraft=aircraft_pk)
 
     serializer_class = TailNumberSerializer
     permission_classes = [IsAuthenticated]
