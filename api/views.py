@@ -5,6 +5,9 @@ from api.serializers import UserSerializer, GroupSerializer, FlightSerializer, A
 from flights.models import Flight, Aircraft, TailNumber
 from rest_framework.permissions import IsAuthenticated
 
+from django.http import JsonResponse
+import json
+
 from rest_framework.pagination import LimitOffsetPagination
 
 
@@ -59,6 +62,8 @@ class AircraftViewSet(viewsets.ModelViewSet):
     serializer_class = AircraftSerializer
     permission_classes = [IsAuthenticated]
 
+    pagination_class = Unpaginated
+
 
 class TailNumberViewSet(viewsets.ModelViewSet):
 
@@ -66,11 +71,20 @@ class TailNumberViewSet(viewsets.ModelViewSet):
 
         user = self.request.user
 
-        aircraft_pk = self.request.GET.get('aircraft_pk')
-
-        return TailNumber.objects.filter(user=user).filter(aircraft=aircraft_pk)
+        return TailNumber.objects.filter(user=user)
 
     serializer_class = TailNumberSerializer
     permission_classes = [IsAuthenticated]
 
     pagination_class = Unpaginated
+
+def tailnumber_picker_view(request, aircraft_pk):
+
+    user = request.user
+
+    print(aircraft_pk)
+
+    queryset = TailNumber.objects.filter(user=user).filter(aircraft=aircraft_pk).values()
+
+    return JsonResponse({"objects": list(queryset)})
+
