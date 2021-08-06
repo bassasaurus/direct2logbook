@@ -4,6 +4,6 @@ from api import views
 
 urlpatterns = [
     path('token-auth/', obtain_auth_token,
-         name='api_token_auth'),  # add to project url
+         name='api_token_auth'),
     path('tailnumber_picker/<int:aircraft_pk>/', views.tailnumber_picker_view)
 ]

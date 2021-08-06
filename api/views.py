@@ -4,9 +4,9 @@ from rest_framework import permissions
 from api.serializers import UserSerializer, GroupSerializer, FlightSerializer, AircraftSerializer, TailNumberSerializer
 from flights.models import Flight, Aircraft, TailNumber
 from rest_framework.permissions import IsAuthenticated
-
+from rest_framework.decorators import permission_classes, api_view, authentication_classes
+from rest_framework.authentication import BasicAuthentication, TokenAuthentication
 from django.http import JsonResponse
-import json
 
 from rest_framework.pagination import LimitOffsetPagination
 
@@ -78,13 +78,13 @@ class TailNumberViewSet(viewsets.ModelViewSet):
 
     pagination_class = Unpaginated
 
+
+@api_view(['GET'])
+# @authentication_classes([TokenAuthentication])
+# @permission_classes([IsAuthenticated])
 def tailnumber_picker_view(request, aircraft_pk):
 
-    user = request.user
+    queryset = TailNumber.objects.filter(aircraft=aircraft_pk).values()
 
-    print(aircraft_pk)
-
-    queryset = TailNumber.objects.filter(user=user).filter(aircraft=aircraft_pk).values()
-
-    return JsonResponse({"objects": list(queryset)})
+    return JsonResponse({"results": list(queryset)})
 
