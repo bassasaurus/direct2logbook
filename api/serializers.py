@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
 
-from flights.models import Flight, Aircraft, TailNumber
+from flights.models import Flight, Aircraft, TailNumber, Approach
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -26,7 +26,6 @@ class FlightSerializer(serializers.ModelSerializer):
 
     aircraft_type = serializers.StringRelatedField()
     registration = serializers.StringRelatedField()
-
 
     class Meta:
         model = Flight
