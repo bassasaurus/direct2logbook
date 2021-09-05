@@ -49,7 +49,8 @@ class FlightSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Flight
-        fields = ['date', 
+        fields = ['id',
+                    'date', 
                     'aircraft_type', 
                     'registration', 
                     'route', 
