@@ -1,6 +1,9 @@
 from django.contrib.auth.models import User, Group
+from django.http.request import HttpRequest
+from django.http.response import HttpResponse
 from rest_framework import viewsets
 from rest_framework import permissions
+from rest_framework.response import Response
 from api.serializers import UserSerializer, GroupSerializer, FlightSerializer, AircraftSerializer, TailNumberSerializer
 from flights.models import Flight, Aircraft, TailNumber
 from rest_framework.permissions import IsAuthenticated
@@ -43,13 +46,21 @@ class UserViewSet(viewsets.ModelViewSet):
 class FlightViewSet(viewsets.ModelViewSet):
 
     permission_classes = [IsAuthenticated]
+    serializer_class = FlightSerializer
 
     def get_queryset(self):
 
         user = self.request.user
         return Flight.objects.filter(user=user)
 
-    serializer_class = FlightSerializer
+    def create(self, request):
+        
+        print(self.request.data)
+        return Response(self.request.data)
+        
+    
+
+    
 
 
 class AircraftViewSet(viewsets.ModelViewSet):
