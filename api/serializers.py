@@ -40,12 +40,13 @@ class FlightSerializer(serializers.ModelSerializer):
     aircraft_type = serializers.StringRelatedField()
     registration = serializers.StringRelatedField()
 
-    approaches = SerializerMethodField(source='get_approaches')
-
     def get_approaches(self, obj):
         approach_queryset = Approach.objects.filter(flight_object=obj.pk)
         return ApproachSerializer(approach_queryset, many=True).data
     
+    approaches = SerializerMethodField(source='get_approaches')
+
+
 
     class Meta:
         model = Flight
