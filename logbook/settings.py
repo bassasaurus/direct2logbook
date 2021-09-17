@@ -276,7 +276,7 @@ CACHES = {
     }
 }
 
-if config('LOGGING') is False:
+if config('LOGGING', cast=bool) is True:
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,

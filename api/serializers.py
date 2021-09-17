@@ -74,7 +74,7 @@ class FlightSerializer(serializers.ModelSerializer):
                     
                     'approaches']
 
-
+                    
 class TailNumberSerializer(serializers.ModelSerializer):
     class Meta:
         model = TailNumber
