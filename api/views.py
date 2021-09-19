@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User, Group
-from rest_framework import status
+from rest_framework import serializers, status
 from rest_framework.response import Response
 from rest_framework import viewsets
 from rest_framework import permissions
@@ -50,6 +50,8 @@ class FlightViewSet(viewsets.ModelViewSet, CreateModelMixin):
     permission_classes = [IsAuthenticated]
     serializer_class = FlightSerializer
 
+    FlightSerializer()
+
     def get_queryset(self):
 
         user = self.request.user
@@ -62,6 +64,7 @@ class FlightViewSet(viewsets.ModelViewSet, CreateModelMixin):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
 
+        print(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):

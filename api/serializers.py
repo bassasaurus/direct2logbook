@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers
-from rest_framework.fields import SerializerMethodField
+from rest_framework.fields import CharField, SerializerMethodField
 
 from flights.models import Flight, Aircraft, TailNumber, Approach, Holding
 
@@ -37,17 +37,15 @@ class HoldingSerializer(serializers.ModelSerializer):
 
 class FlightSerializer(serializers.ModelSerializer):
 
-    aircraft_type = serializers.StringRelatedField()
-    registration = serializers.StringRelatedField()
-
     def get_approaches(self, obj):
         approach_queryset = Approach.objects.filter(flight_object=obj.pk)
         return ApproachSerializer(approach_queryset, many=True).data
     
+    aircraft_type = serializers.StringRelatedField()
+    registration = serializers.StringRelatedField()
     approaches = SerializerMethodField(source='get_approaches')
 
-
-
+    
     class Meta:
         model = Flight
         fields = ['id',
