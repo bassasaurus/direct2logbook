@@ -55,8 +55,20 @@ class FlightSerializer(serializers.ModelSerializer):
 
         validated_data['aircraft_type'] = Aircraft.objects.get(pk=self.initial_data.get('aircraft_type'))
         validated_data['registration'] = TailNumber.objects.get(pk=self.initial_data.get('registration'))
+        approaches = self.initial_data.get('approaches')
 
-        return Flight.objects.create(**validated_data)
+        flight = Flight.objects.create(**validated_data)
+
+        flight.save()
+
+        for approach in approaches:
+            approach['flight_object'] = Flight.objects.get(pk=flight.pk)
+
+            appr_object = Approach.objects.create(**approach)
+
+            appr_object.save()
+            
+        return Flight.objects.get(pk=flight.pk)
 
 
 class TailNumberSerializer(serializers.ModelSerializer):
