@@ -41,20 +41,27 @@ class FlightSerializer(serializers.ModelSerializer):
         model = Flight
         fields = ['id', 'user', 'date', 'aircraft_type', 'registration', 'route', 'duration', 'landings_day', 'landings_night', 
                     'night', 'instrument', 'cross_country', 'second_in_command', 'pilot_in_command', 'simulated_instrument', 
-                    'instructor', 'dual', 'remarks', 'solo', 'route_data', 'app_markers', 'app_polylines','approaches']
+                    'instructor', 'dual', 'remarks', 'solo', 'route_data', 'app_markers', 'app_polylines','approaches', 'holding']
 
     aircraft_type = serializers.StringRelatedField()
     registration = serializers.StringRelatedField()
     approaches = SerializerMethodField(source='get_approaches')
+    holding = SerializerMethodField(source='get_holding')
 
     def get_approaches(self, obj):
         approach_queryset = Approach.objects.filter(flight_object=obj.pk)
         return ApproachSerializer(approach_queryset, many=True).data
 
+    def get_holding(self, obj):
+        approach_queryset = Holding.objects.filter(flight_object=obj.pk)
+        return HoldingSerializer(approach_queryset, many=True).data
+
     def create(self, validated_data):
+
 
         validated_data['aircraft_type'] = Aircraft.objects.get(pk=self.initial_data.get('aircraft_type'))
         validated_data['registration'] = TailNumber.objects.get(pk=self.initial_data.get('registration'))
+        
         approaches = self.initial_data.get('approaches')
 
         flight = Flight.objects.create(**validated_data)
@@ -67,7 +74,10 @@ class FlightSerializer(serializers.ModelSerializer):
             appr_object = Approach.objects.create(**approach)
 
             appr_object.save()
-            
+
+        holding = Holding(flight_object=flight, hold=self.initial_data['holding'])
+        holding.save()
+        
         return Flight.objects.get(pk=flight.pk)
 
 
