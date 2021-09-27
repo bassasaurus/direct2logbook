@@ -48,6 +48,11 @@ class FlightSerializer(serializers.ModelSerializer):
     approaches = SerializerMethodField(source='get_approaches')
     holding = SerializerMethodField(source='get_holding')
 
+    landings_day = serializers.IntegerField(min_value=0, max_value=20, required=False, allow_null=True)
+    landings_night = serializers.IntegerField(min_value=0, max_value=20, required=False, allow_null=True)
+    instrument = serializers.IntegerField(min_value=0, max_value=20, required=False, allow_null=True)
+    simulated_instrument = serializers.IntegerField(min_value=0, max_value=20, required=False, allow_null=True)
+
     def get_approaches(self, obj):
         approach_queryset = Approach.objects.filter(flight_object=obj.pk)
         return ApproachSerializer(approach_queryset, many=True).data
@@ -61,11 +66,11 @@ class FlightSerializer(serializers.ModelSerializer):
 
         validated_data['aircraft_type'] = Aircraft.objects.get(pk=self.initial_data.get('aircraft_type'))
         validated_data['registration'] = TailNumber.objects.get(pk=self.initial_data.get('registration'))
+
         
         approaches = self.initial_data.get('approaches')
 
-        flight = Flight.objects.create(**validated_data)
-
+        flight = Flight(**validated_data)
         flight.save()
 
         for approach in approaches:
