@@ -35,7 +35,8 @@ def make_json_feild(flight):
                 airport = MapData.objects.get(iata=airport)
 
             elif airport not in us_iata and airport not in intl_iata:
-            airport = MapData.objects.get(icao=airport)
+               
+                airport = MapData.objects.get(icao=airport)
 
             else:
                 pass
