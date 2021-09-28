@@ -37,7 +37,6 @@ class HoldingSerializer(serializers.ModelSerializer):
 
 
 class FlightSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Flight
         fields = ['id', 'user', 'date', 'aircraft_type', 'registration', 'route', 'duration', 'landings_day', 'landings_night', 
@@ -53,6 +52,7 @@ class FlightSerializer(serializers.ModelSerializer):
     landings_night = serializers.IntegerField(min_value=0, max_value=20, required=False, allow_null=True)
     instrument = serializers.FloatField(required=False, allow_null=True)
     simulated_instrument = serializers.FloatField(required=False, allow_null=True)
+
 
     def to_internal_value(self, data):
         if data.get('landings_day') == '':
@@ -78,21 +78,19 @@ class FlightSerializer(serializers.ModelSerializer):
                 validated_list.append(d)
 
         data['approaches'] = validated_list
-            
-        print(data.get('approaches'))
-        
-
-        
 
         return super(FlightSerializer, self).to_internal_value(data)
+
 
     def get_approaches(self, obj):
         approach_queryset = Approach.objects.filter(flight_object=obj.pk)
         return ApproachSerializer(approach_queryset, many=True).data
 
+
     def get_holding(self, obj):
         approach_queryset = Holding.objects.filter(flight_object=obj.pk)
         return HoldingSerializer(approach_queryset, many=True).data
+
 
     def create(self, validated_data):
 

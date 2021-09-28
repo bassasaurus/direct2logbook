@@ -1,70 +1,68 @@
-
-from collections import OrderedDict
-
-from django.contrib.auth.models import User
+from django import dispatch
 from flights.models import Flight, MapData
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 import re
 
-user = User.objects.get(pk=1)
+@receiver(post_save, sender=Flight)
+def make_json_feild(sender, instance, dispatch_uid="app_data_update", **kwargs):
 
-flights = Flight.objects.filter(user=user)[:20]
+    post_save.disconnect(make_json_feild, sender=sender)
 
-def make_json_feild(flight):
+    coordinates = []
+    markers = list(set())
+    key = 0
+    # print(flight.route, "from DB")
+    route = re.split(r'\W+', instance.route)
 
-    for flight in flights:
+    # print(route, "after regex", flight.pk)
+
+    us_iata = MapData.objects.filter(country="United States").values_list('iata', flat=True)
+    intl_iata =  MapData.objects.exclude(country = "United States").values_list('iata', flat=True)
+
+    for airport in route:
         
-        coordinates = []
-        markers = list(set())
-        key = 0
-        # print(flight.route, "from DB")
-        route = re.split(r'\W+', flight.route)
+        airport = airport.replace(" ", "")
 
-        # print(route, "after regex", flight.pk)
-
-        us_iata = MapData.objects.filter(country="United States").values_list('iata', flat=True)
-        intl_iata =  MapData.objects.exclude(country = "United States").values_list('iata', flat=True)
-
-        for airport in route:
+        if airport in us_iata:
+            airport = MapData.objects.get(iata=airport, country="United States")
             
-            airport = airport.replace(" ", "")
+        elif airport in intl_iata:
+            airport = MapData.objects.get(iata=airport)
 
-            if airport in us_iata:
-                airport = MapData.objects.get(iata=airport, country="United States")
-                
-            elif airport in intl_iata:
-                airport = MapData.objects.get(iata=airport)
-
-            elif airport not in us_iata and airport not in intl_iata:
-               
-                airport = MapData.objects.get(icao=airport)
-
-            else:
-                pass
+        elif airport not in us_iata and airport not in intl_iata:
             
-            coordinates.append({"latitude": airport.latitude, "longitude": airport.longitude})
+            airport = MapData.objects.get(icao=airport)
 
-            marker =  {
-                "key": key,
-                "icao": airport.icao,
-                "iata": airport.iata, 
-                "title": airport.name,
-                "coordinates": {
-                    "latitude": airport.latitude,
-                    "longitude": airport.longitude,
-                }
-            }
-
-            markers.append(marker)
-            key = key + 1
-
-        polyline = {
-                "coordinates": coordinates
-            }
-
-
-        print(flight.route, flight.pk)
-
-        flight.app_markers = markers
-        flight.app_polylines = polyline
+        else:
+            pass
         
-        flight.save()
+        coordinates.append({"latitude": airport.latitude, "longitude": airport.longitude})
+
+        marker =  {
+            "key": key,
+            "icao": airport.icao,
+            "iata": airport.iata, 
+            "title": airport.name,
+            "coordinates": {
+                "latitude": airport.latitude,
+                "longitude": airport.longitude,
+            }
+        }
+
+        markers.append(marker)
+        key = key + 1
+
+    polyline = {
+            "coordinates": coordinates
+        }
+
+
+    print(instance.route, instance.pk)
+
+    instance.app_markers = markers
+    instance.app_polylines = polyline
+    
+    instance.save()
+
+    post_save.connect(make_json_feild, sender=sender)
