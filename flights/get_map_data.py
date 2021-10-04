@@ -1,4 +1,5 @@
 from django.core.cache import cache
+from django.db.models import query
 
 
 def unique_values(iterable):
