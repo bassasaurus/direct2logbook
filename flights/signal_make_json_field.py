@@ -12,11 +12,8 @@ def make_json_feild(sender, instance, dispatch_uid="app_data_update", **kwargs):
     coordinates = []
     markers = list(set())
     key = 0
-    # print(flight.route, "from DB")
+    
     route = re.split(r'\W+', instance.route)
-
-    # print(route, "after regex", flight.pk)
-
     us_iata = MapData.objects.filter(country="United States").values_list('iata', flat=True)
     intl_iata =  MapData.objects.exclude(country = "United States").values_list('iata', flat=True)
 
