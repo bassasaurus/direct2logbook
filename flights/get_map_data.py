@@ -1,5 +1,5 @@
 from django.core.cache import cache
-from django.db.models import query
+from flights.models import MapData
 
 
 def unique_values(iterable):
@@ -18,9 +18,12 @@ def get_map_data(queryset, user):
     unique_values = set()
 
     for flight in queryset:
+        for airport in flight.route_data:
+            line_json.append([airport.latitude, airport.longitude])
+
+
+    for flight in queryset:
         for map_obj in flight.route_data:
-            # assemble polyline
-            line_json.append([map_obj.latitude, map_obj.longitude])
             if map_obj not in unique_values:
                 unique_values.add(map_obj)
 
