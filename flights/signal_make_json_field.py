@@ -55,7 +55,7 @@ def make_json_feild(sender, instance, dispatch_uid="app_data_update", **kwargs):
         }
 
 
-    print(instance.route, instance.pk)
+    # print(instance.route, instance.pk)
 
     instance.app_markers = markers
     instance.app_polylines = polyline
