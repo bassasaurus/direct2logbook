@@ -36,6 +36,7 @@ class HoldingSerializer(serializers.ModelSerializer):
 
 
 class FlightSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Flight
         fields = ['id', 'user', 'date', 'aircraft_type', 'registration', 'route', 'duration', 'landings_day', 'landings_night', 
@@ -54,6 +55,7 @@ class FlightSerializer(serializers.ModelSerializer):
 
 
     def to_internal_value(self, data):
+
         if data.get('landings_day') == '':
             del data['landings_day']
 
@@ -112,6 +114,10 @@ class FlightSerializer(serializers.ModelSerializer):
         holding.save()
         
         return Flight.objects.get(pk=flight.pk)
+
+    def update(self, instance, validated_data):
+        
+        return instance
 
 
 class TailNumberSerializer(serializers.ModelSerializer):
