@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User, Group
-from django.core.validators import validate_slug
 from rest_framework import serializers
-from rest_framework.fields import CharField, SerializerMethodField
+from rest_framework.fields import SerializerMethodField
 
 from flights.models import Flight, Aircraft, TailNumber, Approach, Holding
 
@@ -41,7 +40,7 @@ class FlightSerializer(serializers.ModelSerializer):
         model = Flight
         fields = ['id', 'user', 'date', 'aircraft_type', 'registration', 'route', 'duration', 'landings_day', 'landings_night', 
                     'night', 'instrument', 'cross_country', 'second_in_command', 'pilot_in_command', 'simulated_instrument', 
-                    'instructor', 'dual', 'remarks', 'solo', 'route_data', 'app_markers', 'app_polylines','approaches', 'holding']
+                    'instructor', 'dual', 'remarks', 'solo', 'app_markers', 'app_polylines','approaches', 'holding']
 
     aircraft_type = serializers.StringRelatedField()
     registration = serializers.StringRelatedField()
