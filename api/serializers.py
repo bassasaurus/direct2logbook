@@ -67,6 +67,9 @@ class FlightSerializer(serializers.ModelSerializer):
 
         if data.get('simulated_instrument') == '':
            del data['simulated_instrument']
+
+        if data.get('night') == '':
+           del data['night']
         
         approach_list = data.get('approaches')
 
@@ -114,10 +117,6 @@ class FlightSerializer(serializers.ModelSerializer):
         holding.save()
         
         return Flight.objects.get(pk=flight.pk)
-
-    def update(self, instance, validated_data):
-        
-        return instance
 
 
 class TailNumberSerializer(serializers.ModelSerializer):
