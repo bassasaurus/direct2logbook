@@ -126,16 +126,19 @@ class FlightSerializer(serializers.ModelSerializer):
         validated_data['aircraft_type'] = Aircraft.objects.get(user=self.initial_data.get('user'), aircraft_type=self.initial_data.get('aircraft_type'))
         validated_data['registration'] = TailNumber.objects.get(user=self.initial_data.get('user'), registration=self.initial_data.get('registration'))
 
-        flight = Flight.objects.filter(pk=instance.id).update(**validated_data)
+        Flight.objects.filter(pk=instance.id).update(**validated_data)
+        Flight.objects.get(pk=instance.id).save()
 
-        
+        approaches = self.initial_data.get('approaches')
 
-        # approaches = self.initial_data.get('approaches')
-
-        # for approach in approaches:
-        #     appr_object = Approach.objects.get_or_create(**approach)
-        #     appr_object.save()
-
+        for approach in approaches:
+            flight = Flight.objects.get(pk=instance.pk)
+            if not id in approach:
+                print('create')
+                Approach.objects.create(flight_object = flight, approach_type=approach['approach_type'], number=approach['number'])
+            else:
+                print('update')
+                Approach.objects.filter(flight_object=flight).update(**approach)
 
         return instance
 
