@@ -120,6 +120,7 @@ class FlightSerializer(serializers.ModelSerializer):
             appr_object.save()
         
         return Flight.objects.get(pk=flight.pk)
+        
 
     def update(self, instance, validated_data):
 
