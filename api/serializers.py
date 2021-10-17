@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User, Group
+from django.core.validators import validate_slug
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
 
@@ -103,8 +104,8 @@ class FlightSerializer(serializers.ModelSerializer):
 
         print(self.initial_data)
 
-        validated_data['aircraft_type'] = Aircraft.objects.get(pk=self.initial_data.get('aircraft_type'))
-        validated_data['registration'] = TailNumber.objects.get(pk=self.initial_data.get('registration'))
+        validated_data['aircraft_type'] = Aircraft.objects.get(user=self.initial_data.get('user'), aircraft_type=self.initial_data.get('aircraft_type'))
+        validated_data['registration'] = TailNumber.objects.get(user=self.initial_data.get('user'), registration=self.initial_data.get('registration'))
 
         approaches = self.initial_data.get('approaches')
 
@@ -122,22 +123,20 @@ class FlightSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
 
-        validated_data['aircraft_type'] = Aircraft.objects.get(pk=self.initial_data.get('aircraft_type'))
-        validated_data['registration'] = TailNumber.objects.get(pk=self.initial_data.get('registration'))
+        validated_data['aircraft_type'] = Aircraft.objects.get(user=self.initial_data.get('user'), aircraft_type=self.initial_data.get('aircraft_type'))
+        validated_data['registration'] = TailNumber.objects.get(user=self.initial_data.get('user'), registration=self.initial_data.get('registration'))
 
-        approaches = self.initial_data.get('approaches')
-
-        instance = Flight(**validated_data)
-        instance.save()
-
-        for approach in approaches:
-            approach['flight_object'] = Flight.objects.get(pk=instance.pk)
-
-            appr_object = Approach.objects.create(**approach)
-
-            appr_object.save()
+        flight = Flight.objects.filter(pk=instance.id).update(**validated_data)
 
         
+
+        # approaches = self.initial_data.get('approaches')
+
+        # for approach in approaches:
+        #     appr_object = Approach.objects.get_or_create(**approach)
+        #     appr_object.save()
+
+
         return instance
 
 
