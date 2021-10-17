@@ -133,12 +133,10 @@ class FlightSerializer(serializers.ModelSerializer):
 
         for approach in approaches:
             flight = Flight.objects.get(pk=instance.pk)
-            if not id in approach:
-                print('create')
-                Approach.objects.create(flight_object = flight, approach_type=approach['approach_type'], number=approach['number'])
+            if 'id' in approach:
+                Approach.objects.filter(id=approach.get('id')).update(**approach)
             else:
-                print('update')
-                Approach.objects.filter(flight_object=flight).update(**approach)
+                Approach.objects.create(flight_object = flight, approach_type=approach.get('approach_type'), number=approach.get('number'))
 
         return instance
 
