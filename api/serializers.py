@@ -102,8 +102,6 @@ class FlightSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
 
-        print(self.initial_data)
-
         validated_data['aircraft_type'] = Aircraft.objects.get(user=self.initial_data.get('user'), aircraft_type=self.initial_data.get('aircraft_type'))
         validated_data['registration'] = TailNumber.objects.get(user=self.initial_data.get('user'), registration=self.initial_data.get('registration'))
 
