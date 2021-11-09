@@ -26,9 +26,7 @@
       {{ approach.approach_type }}-{{ approach.number }}
       {% endfor %}
 
-      {% for holding in flight.holding_set.all %}
-      {% if holding.hold %}| Hold {% endif %}
-      {% endfor %}
+      {% if flight.hold %}| Hold {% endif %}
 
       {% if flight.landings_day %}| {{flight.landings_day}} D{% endif %}
       {% if flight.landings_night %}| {{flight.landings_night}} N{% endif %}
