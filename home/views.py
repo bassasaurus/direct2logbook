@@ -108,14 +108,14 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
                 datetime.timedelta(180)
 
         hold_qs = Flight.objects.filter(user=user).filter(
-            date__lte=today, date__gte=last_180).filter(holding__hold=True)
+            date__lte=today, date__gte=last_180).filter(hold=True)
         if not hold_qs:
             context['hold_quantity'] = 0
         else:
             context['hold_quantity'] = 1
 
         hold_date_qs = Flight.objects.filter(user=user).filter(
-            date__lte=today, date__gte=last_180).filter(holding__hold=True).last()
+            date__lte=today, date__gte=last_180).filter(hold=True).last()
         if not hold_date_qs:
             context['hold_current_date'] = None
         else:
