@@ -111,5 +111,5 @@ ENV/
 # user files
 media/
 
-.idea/
+**/.idea/
 **/.vscode/
