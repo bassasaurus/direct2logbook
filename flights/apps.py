@@ -15,3 +15,5 @@ class FlightsConfig(AppConfig):
         import flights.signal_error_flight
 
         import flights.signal_route_data
+
+        import flights.signal_make_json_field

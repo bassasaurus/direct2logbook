@@ -298,7 +298,8 @@ class Flight(models.Model):
     simulator = models.BooleanField(
         null=True, blank=True, verbose_name="Sim")
     solo = models.BooleanField(default=False, blank=True)
-
+    hold = models.BooleanField(
+        default=False, blank=True, verbose_name="Hold")
     route_data = PickledObjectField(null=True, blank=True)
     map_error = models.CharField(max_length=100, null=True, blank=True)
     duplicate_error = models.CharField(max_length=100, null=True, blank=True)
@@ -307,6 +308,8 @@ class Flight(models.Model):
     registration_error = models.CharField(
         max_length=100, null=True, blank=True)
     crew_error = models.CharField(max_length=100, null=True, blank=True)
+    app_markers= models.JSONField(default=str, blank=True)
+    app_polylines = models.JSONField(default=str, blank=True)
 
     class Meta:
         ordering = ['-date', 'pk']

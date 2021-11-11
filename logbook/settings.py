@@ -102,7 +102,7 @@ INSTALLED_APPS = [
     'anymail',
     'storages',
     'django_celery_results',
-    'django_celery_beat'
+    'django_celery_beat',
 ]
 
 AUTHENTICATION_BACKENDS = (
@@ -245,6 +245,8 @@ USE_L10N = False
 
 USE_TZ = True
 
+DATE_FORMAT = 'm/d/Y'
+
 DATE_INPUT_FORMATS = ['%m-%d-%Y', '%m/%d/%Y', '%Y-%m-%d']
 
 # Static files (CSS, JavaScript, Images)
@@ -276,7 +278,7 @@ CACHES = {
     }
 }
 
-if config('LOGGING') is False:
+if config('LOGGING', cast=bool) is True:
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,
@@ -321,5 +323,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 10
+    'PAGE_SIZE': 100,
+    'DATE_FORMAT': '%m/%d/%Y',
+    'DATE_INPUT_FORMATS': ['%m/%d/%Y']
 }
