@@ -127,6 +127,10 @@ class FlightArchive(LoginRequiredMixin, ProfileNotActiveMixin, ArchiveIndexView)
     allow_empty = True
     allow_future = False
 
+    def get_queryset(self):
+        queryset = Flight.objects.filter(user=self.request.user)
+        return queryset
+
     def get_context_data(self, **kwargs):
         context = super(FlightArchive, self).get_context_data(**kwargs)
         user = self.request.user
@@ -149,6 +153,10 @@ class FlightArchiveYear(LoginRequiredMixin, ProfileNotActiveMixin, YearArchiveVi
     allow_empty = False  # ok since url can't be used until ArchiveIndexView is populated
     allow_future = False
 
+    def get_queryset(self):
+        queryset = Flight.objects.filter(user=self.request.user)
+        return queryset
+
     def get_context_data(self, **kwargs):
         context = super(FlightArchiveYear, self).get_context_data(**kwargs)
         user = self.request.user
@@ -170,6 +178,10 @@ class FlightArchiveMonth(LoginRequiredMixin, ProfileNotActiveMixin, MonthArchive
     make_object_list = True
     allow_empty = False  # ok since url can't be used until ArchiveIndexView is populated
     allow_future = False
+
+    def get_queryset(self):
+        queryset = Flight.objects.filter(user=self.request.user)
+        return queryset
 
     def get_context_data(self, **kwargs):
         context = super(FlightArchiveMonth, self).get_context_data(**kwargs)
