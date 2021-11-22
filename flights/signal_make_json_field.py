@@ -62,4 +62,6 @@ def make_json_feild(sender, instance, dispatch_uid="app_data_update", **kwargs):
     
     instance.save()
 
+    print(instance.pk, "saved")
+
     post_save.connect(make_json_feild, sender=sender)
