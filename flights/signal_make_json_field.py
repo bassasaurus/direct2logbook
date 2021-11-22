@@ -60,11 +60,11 @@ def make_json_feild(sender, instance, dispatch_uid="app_data_update", **kwargs):
     instance.app_markers = markers
     instance.app_polylines = polyline
 
-    print(instance.pk, instance.route)
+    print(instance.username, instance.pk, instance.route)
 
     try:
         instance.save()
     except:
-        print("ERROR", instance.pk, instance.route)
+        print("ERROR", instance.username, instance.pk, instance.route)
 
     post_save.connect(make_json_feild, sender=sender)
