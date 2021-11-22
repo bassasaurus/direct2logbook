@@ -21,6 +21,8 @@ def make_json_feild(sender, instance, dispatch_uid="app_data_update", **kwargs):
         
         airport = airport.replace(" ", "")
 
+        print(airport)
+
         if airport in us_iata:
             airport = MapData.objects.get(iata=airport, country="United States")
             
@@ -62,9 +64,6 @@ def make_json_feild(sender, instance, dispatch_uid="app_data_update", **kwargs):
 
     print(instance.user, instance.pk, instance.route)
 
-    try:
-        instance.save()
-    except:
-        print("ERROR", instance.user, instance.pk, instance.route)
+    instance.save()
 
     post_save.connect(make_json_feild, sender=sender)
