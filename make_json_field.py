@@ -14,9 +14,9 @@ from flights.models import AircraftCategory, Flight, MapData
 import re
 from django.core.exceptions import ObjectDoesNotExist
 
-user = User.objects.all()
+user = User.objects.get(pk=1)
 
-flights = Flight.objects.filter(user=user)
+flights = Flight.objects.all()
 
 
 for flight in flights:
