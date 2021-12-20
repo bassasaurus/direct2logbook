@@ -82,7 +82,7 @@ class PasswordChangeView(LoginRequiredMixin, PasswordChangeView):
         return context
 
 
-class PasswordResetView(LoginRequiredMixin, PasswordResetView):
+class PasswordResetView(PasswordResetView):
 
     def get_context_data(self, **kwargs):
         context = super(PasswordResetView, self).get_context_data(**kwargs)
@@ -95,7 +95,7 @@ class PasswordResetView(LoginRequiredMixin, PasswordResetView):
         return context
 
 
-class PasswordResetDoneView(LoginRequiredMixin, PasswordResetDoneView):
+class PasswordResetDoneView(PasswordResetDoneView):
 
     def get_context_data(self, **kwargs):
         context = super(PasswordResetDoneView, self).get_context_data(**kwargs)
