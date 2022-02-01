@@ -114,20 +114,3 @@ class TailNumberViewSet(viewsets.ModelViewSet):
         aircraft = self.request.GET['aircraft']
         aircraft_object = Aircraft.objects.get(user=user, aircraft_type=aircraft)
         return TailNumber.objects.filter(user=user, aircraft=aircraft_object)
-
-
-# @api_view(['GET'])
-# @authentication_classes([TokenAuthentication])
-# @permission_classes([IsAuthenticated])
-# def tailnumber_picker_view(request, aircraft_type):
-
-#     print(request.user)
-
-#     return HttpResponse()
-
-#     # aircraft = Aircraft.objects.get(aircraft_pk)
-
-#     # queryset = TailNumber.objects.filter(user=request.user).filter(aircraft=aircraft).values()
-
-#     # return JsonResponse({"results": list(queryset)})
-
