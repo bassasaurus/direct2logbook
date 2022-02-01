@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 from django.conf.urls import url
 
 from flights.views import (
@@ -45,7 +45,7 @@ urlpatterns = [
     path('aircraft/detail/<pk>', AircraftDetail.as_view(), name='aircraft_detail'),
     path('aircraft/delete/<pk>', AircraftDelete.as_view(), name='aircraft_delete'),
 
-    # path(r'^tailnumbers/$', TailNumberList.as_view(), name='tailnumber_list'),
+    path('tailnumbers/', TailNumberList.as_view(), name='tailnumber_list'),
     path('tailnumbers/create/', TailNumberCreate.as_view(), name='tailnumber_create'),
     path('tailnumbers/update/<pk>', TailNumberUpdate.as_view(), name='tailnumber_update'),
     path('tailnumbers/detail/<pk>', TailNumberDetail.as_view(), name='tailnumber_detail'),
