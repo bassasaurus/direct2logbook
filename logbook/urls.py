@@ -32,6 +32,7 @@ router.register(r'flights', views.FlightViewSet, basename='Flight')
 router.register(r'aircraft', views.AircraftViewSet, basename='Aircraft')
 router.register(r'tailnumbers', views.TailNumberViewSet, basename='TailNumber')
 
+
 def trigger_error(request):
     division_by_zero = 1 / 0
 
