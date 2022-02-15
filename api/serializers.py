@@ -145,4 +145,11 @@ class TailNumberSerializer(serializers.ModelSerializer):
         model = TailNumber
         fields = '__all__'
 
+    def create(self, validated_data):
+
+        tailnumber = TailNumber(**validated_data)
+        tailnumber.save()
+
+        return TailNumber.objects.get(pk=tailnumber.pk)
+
 

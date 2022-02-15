@@ -56,7 +56,7 @@ class FlightViewSet(viewsets.ModelViewSet, CreateModelMixin):
         return Flight.objects.filter(user=user)
 
     def create(self, request, *args, **kwargs):
-
+        
         request.data['user'] = self.request.user.pk
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -114,3 +114,21 @@ class TailNumberViewSet(viewsets.ModelViewSet):
         aircraft = self.request.GET['aircraft']
         aircraft_object = Aircraft.objects.get(user=user, aircraft_type=aircraft)
         return TailNumber.objects.filter(user=user, aircraft=aircraft_object)
+        
+
+    def create(self, request, *args, **kwargs):
+
+        aircraft = Aircraft.objects.get(user=self.request.user.pk, aircraft_type = request.data['aircraft'])
+        print(aircraft.pk)
+        request.data['user'] = self.request.user.pk
+        request.data['aircraft'] = aircraft.pk
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def perform_create(self, serializer):
+        serializer.save()
