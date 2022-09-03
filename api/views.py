@@ -111,15 +111,14 @@ class TailNumberViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        aircraft = self.request.GET['aircraft']
-        aircraft_object = Aircraft.objects.get(user=user, aircraft_type=aircraft)
-        return TailNumber.objects.filter(user=user, aircraft=aircraft_object)
+        # aircraft = self.request.GET['aircraft']
+        # aircraft_object = Aircraft.objects.get(user=user, aircraft_type=aircraft)
+        return TailNumber.objects.filter(user=user)
         
 
     def create(self, request, *args, **kwargs):
 
         aircraft = Aircraft.objects.get(user=self.request.user.pk, aircraft_type = request.data['aircraft'])
-        print(aircraft.pk)
         request.data['user'] = self.request.user.pk
         request.data['aircraft'] = aircraft.pk
 
