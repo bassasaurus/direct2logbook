@@ -2,9 +2,9 @@ from django.contrib.auth.models import User, Group
 from django.core.validators import validate_slug
 from rest_framework import serializers
 from rest_framework.fields import SerializerMethodField
+from collections import OrderedDict
 
 from flights.models import Flight, Aircraft, TailNumber, Approach, Holding
-
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -141,9 +141,13 @@ class FlightSerializer(serializers.ModelSerializer):
 
 
 class TailNumberSerializer(serializers.ModelSerializer):
+    
+    aircraft = serializers.StringRelatedField()
+    
     class Meta:
         model = TailNumber
-        fields = '__all__'
+        fields = ['id', 'user','registration', 'aircraft', 'is_121', 'is_135', 'is_91']
+
 
     def create(self, validated_data):
 
@@ -151,5 +155,3 @@ class TailNumberSerializer(serializers.ModelSerializer):
         tailnumber.save()
 
         return TailNumber.objects.get(pk=tailnumber.pk)
-
-
