@@ -141,13 +141,13 @@ class FlightSerializer(serializers.ModelSerializer):
 
 
 class TailNumberSerializer(serializers.ModelSerializer):
+    
     aircraft = serializers.StringRelatedField()
     
     class Meta:
         model = TailNumber
         fields = ['id', 'user','registration', 'aircraft', 'is_121', 'is_135', 'is_91']
 
-    
 
     def create(self, validated_data):
 
@@ -155,5 +155,3 @@ class TailNumberSerializer(serializers.ModelSerializer):
         tailnumber.save()
 
         return TailNumber.objects.get(pk=tailnumber.pk)
-
-
