@@ -150,7 +150,9 @@ class TailNumberSerializer(serializers.ModelSerializer):
 
 
     def create(self, validated_data):
-
+        
+        aircraft = Aircraft.objects.get(pk=self.initial_data["aircraft"])
+        validated_data['aircraft'] = aircraft
         tailnumber = TailNumber(**validated_data)
         tailnumber.save()
 
