@@ -69,7 +69,7 @@ for flight in flights:
         }
 
 
-    print(flight.route, flight.pk)
+    # print(flight.route, flight.pk)
 
     flight.app_markers = markers
     flight.app_polylines = polyline
