@@ -1,3 +1,4 @@
+from urllib import response
 from django.contrib.auth.models import User, Group
 from rest_framework import serializers, status
 from rest_framework.response import Response
@@ -11,6 +12,7 @@ from rest_framework.decorators import permission_classes, api_view, authenticati
 from rest_framework.authentication import BasicAuthentication, TokenAuthentication
 from django.http import HttpResponse, JsonResponse
 from rest_framework.mixins import CreateModelMixin
+from django.core import serializers
 
 from rest_framework.pagination import LimitOffsetPagination
 
@@ -127,6 +129,11 @@ class TailNumberViewSet(viewsets.ModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
 
+        queryset = TailNumber.objects.filter(user=self.request.user)
+        response_data = serializers.serialize('json', queryset)
+        
+        print(response_data)
+        
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
     def perform_create(self, serializer):
