@@ -10,7 +10,7 @@ boto3==1.10.47
 botocore==1.13.47
 bs4==0.0.1
 celery==4.4.7
-certifi==2019.3.9
+certifi==2022.12.7
 cffi==1.12.3
 chardet==3.0.4
 chicken==0.1.0
