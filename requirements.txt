@@ -1,5 +1,5 @@
 amqp==2.6.1
-asgiref==3.2.10
+asgiref==3.6.0
 asn1crypto==0.24.0
 astroid==2.3.2
 attrs==19.3.0
@@ -16,7 +16,7 @@ chardet==3.0.4
 chicken==0.1.0
 cryptography==2.7
 defusedxml==0.6.0
-Django==3.1.1
+Django==3.2
 django-allauth==0.42.0
 django-anymail==5.0
 django-autocomplete-light==3.5.1

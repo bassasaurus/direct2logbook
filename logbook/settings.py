@@ -94,7 +94,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'captcha',
     'django_extensions',
-    # 'debug_toolbar',
+    
     'picklefield',
     'widget_tweaks',
     'columns',
