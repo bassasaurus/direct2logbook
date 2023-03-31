@@ -94,7 +94,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'captcha',
     'django_extensions',
-    # 'debug_toolbar',
+    
     'picklefield',
     'widget_tweaks',
     'columns',
@@ -327,3 +327,6 @@ REST_FRAMEWORK = {
     'DATE_FORMAT': '%m/%d/%Y',
     'DATE_INPUT_FORMATS': ['%m/%d/%Y']
 }
+
+#fix 3.2 upgrade error
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
