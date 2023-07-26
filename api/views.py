@@ -56,7 +56,9 @@ class FlightViewSet(viewsets.ModelViewSet, CreateModelMixin):
         return Flight.objects.filter(user=user)
 
     def create(self, request, *args, **kwargs):
-        
+
+        request.data._mutable = True
+
         request.data['user'] = self.request.user.pk
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -71,7 +73,8 @@ class FlightViewSet(viewsets.ModelViewSet, CreateModelMixin):
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer = self.get_serializer(
+            instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 
@@ -89,7 +92,7 @@ class FlightViewSet(viewsets.ModelViewSet, CreateModelMixin):
     def perform_update(self, serializer):
         serializer.save()
 
-    
+
 class AircraftViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
@@ -114,11 +117,11 @@ class TailNumberViewSet(viewsets.ModelViewSet):
         # aircraft = self.request.GET['aircraft']
         # aircraft_object = Aircraft.objects.get(user=user, aircraft_type=aircraft)
         return TailNumber.objects.filter(user=user)
-        
 
     def create(self, request, *args, **kwargs):
 
-        aircraft = Aircraft.objects.get(user=self.request.user.pk, aircraft_type = request.data['aircraft'])
+        aircraft = Aircraft.objects.get(
+            user=self.request.user.pk, aircraft_type=request.data['aircraft'])
         request.data['user'] = self.request.user.pk
         request.data['aircraft'] = aircraft.pk
 
