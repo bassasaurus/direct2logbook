@@ -86,7 +86,7 @@ class FlightSerializer(serializers.ModelSerializer):
             if i.get('number') == '':
                 pass
             else:
-                validated_list.append(d)
+                validated_list.append(i)
 
         data['approaches'] = validated_list
 

@@ -57,8 +57,6 @@ class FlightViewSet(viewsets.ModelViewSet, CreateModelMixin):
 
     def create(self, request, *args, **kwargs):
 
-        request.data._mutable = True
-
         request.data['user'] = self.request.user.pk
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
