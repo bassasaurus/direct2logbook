@@ -120,7 +120,7 @@ ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*']
 ACCOUNT_USER_DISPLAY = 'utils.allauth.user_display'
 
-ACCOUNT_RATE_LIMITS = ['login_failed']
+# ACCOUNT_RATE_LIMITS = ['login_failed']
 ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_LOGIN_METHODS = {'email'}
 ACCOUNT_ADAPTER = 'allauth.account.adapter.DefaultAccountAdapter'
