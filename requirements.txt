@@ -6,13 +6,14 @@ attrs==19.3.0
 autopep8==1.4.4
 beautifulsoup4==4.8.1
 billiard==4.2.1
-boto3==1.10.47
-botocore==1.13.47
+boto3==1.38.38
+botocore==1.38.38
 bs4==0.0.1
 celery==5.5.3
 certifi==2019.3.9
 cffi==1.15.1
 chardet==3.0.4
+charset-normalizer==3.4.2
 chicken==0.1.0
 click==8.2.1
 click-didyoumean==0.3.1
@@ -33,7 +34,7 @@ django-extra-views==0.16.0
 django-picklefield==3.3
 django-recaptcha==3.0.0
 django-sslserver==0.22
-django-storages==1.8
+django-storages==1.14.6
 django-timezone-field==7.1
 django-upgrade==1.25.0
 django-widget-tweaks==1.4.5
@@ -48,7 +49,7 @@ idna==2.8
 importlib-metadata==0.23
 isort==4.3.21
 jedi==0.14.1
-jmespath==0.9.4
+jmespath==1.0.1
 jsonpickle==1.2
 kombu==5.5.4
 lazy-object-proxy==1.4.2
@@ -77,9 +78,9 @@ python-jsonrpc-server==0.2.0
 python3-openid==3.1.0
 pytz==2019.1
 reportlab==3.6.12
-requests==2.21.0
+requests==2.32.4
 requests-oauthlib==1.2.0
-s3transfer==0.2.1
+s3transfer==0.13.0
 sentry-sdk==0.16.3
 six==1.12.0
 snowballstemmer==2.0.0
@@ -90,7 +91,7 @@ tokenize_rt==6.2.0
 typed-ast==1.5.4
 typing_extensions==4.14.0
 tzdata==2025.2
-urllib3==1.24.2
+urllib3==2.5.0
 vine==5.1.0
 wcwidth==0.2.13
 wrapt==1.11.2
