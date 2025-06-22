@@ -92,7 +92,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
-    'captcha',
+    'django_recaptcha',
     'django_extensions',
 
     'picklefield',
