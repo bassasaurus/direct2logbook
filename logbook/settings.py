@@ -325,7 +325,7 @@ DEFAULT_FROM_EMAIL = "no-reply@direct2logbook.com"
 
 CSRF_USE_SESSIONS = True
 
-SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error']
+SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
