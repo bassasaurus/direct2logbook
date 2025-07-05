@@ -15,7 +15,7 @@
 <hr>
 <div class="row">
   <div class="col-12">
-    <h4>{{ flight.date|date:"m-d-Y"}} {{ flight.aircraft_type }} | {{ flight.registration }} | {{ flight.duration }}</h4>
+    <h4>{{ flight.date|date:"m/d/Y"}} {{ flight.aircraft_type }} | {{ flight.registration }} | {{ flight.duration }}</h4>
     <h6>{{ flight.route }}
       {% if flight.pilot_in_command %}| PIC{% endif %}
       {% if flight.second_in_command %}| SIC{% endif %}
