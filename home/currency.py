@@ -70,8 +70,6 @@ def type_currency(user):
         type_currency_dict[str(
             aircraft)] = day_landings, day_current, night_landings, night_current
 
-        print(type_currency_dict)
-
     return type_currency_dict
 
 

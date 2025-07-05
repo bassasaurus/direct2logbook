@@ -1,3 +1,7 @@
+from django.core.exceptions import ObjectDoesNotExist
+import re
+from flights.models import AircraftCategory, Flight, MapData
+from django.contrib.auth.models import User
 import os
 import sys
 import django
@@ -9,18 +13,13 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'logbook.settings')
 django.setup()
 
 
-from django.contrib.auth.models import User
-from flights.models import AircraftCategory, Flight, MapData
-import re
-from django.core.exceptions import ObjectDoesNotExist
-
 user = User.objects.get(pk=1)
 
 flights = Flight.objects.all()
 
 
 for flight in flights:
-    
+
     coordinates = []
     markers = list(set())
     key = 0
@@ -29,31 +28,35 @@ for flight in flights:
 
     # print(route, "after regex", flight.pk)
 
-    us_iata = MapData.objects.filter(country="United States").values_list('iata', flat=True)
-    intl_iata =  MapData.objects.exclude(country = "United States").values_list('iata', flat=True)
+    us_iata = MapData.objects.filter(
+        country="United States").values_list('iata', flat=True)
+    intl_iata = MapData.objects.exclude(
+        country="United States").values_list('iata', flat=True)
 
     for airport in route:
-        
+
         airport = airport.replace(" ", "")
 
         if airport in us_iata:
-            airport = MapData.objects.get(iata=airport, country="United States")
-            
+            airport = MapData.objects.get(
+                iata=airport, country="United States")
+
         elif airport in intl_iata:
             airport = MapData.objects.get(iata=airport)
 
         elif airport not in us_iata and airport not in intl_iata:
-           airport = MapData.objects.get(icao=airport)
+            airport = MapData.objects.get(icao=airport)
 
         else:
             pass
-        
-        coordinates.append({"latitude": airport.latitude, "longitude": airport.longitude})
 
-        marker =  {
+        coordinates.append({"latitude": airport.latitude,
+                           "longitude": airport.longitude})
+
+        marker = {
             "key": key,
             "icao": airport.icao,
-            "iata": airport.iata, 
+            "iata": airport.iata,
             "title": airport.name,
             "coordinates": {
                 "latitude": airport.latitude,
@@ -65,13 +68,12 @@ for flight in flights:
         key = key + 1
 
     polyline = {
-            "coordinates": coordinates
-        }
+        "coordinates": coordinates
+    }
 
-
-    print(flight.route, flight.pk)
+    # print(flight.route, flight.pk)
 
     flight.app_markers = markers
     flight.app_polylines = polyline
-    
+
     flight.save()

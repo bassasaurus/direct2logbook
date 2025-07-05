@@ -188,7 +188,7 @@ def csv_inspect_view(request):
 
 def csv_upload_view(request):
 
-    print('upload_csv')
+    # print('upload_csv')
 
     file = request.session['file']
 
