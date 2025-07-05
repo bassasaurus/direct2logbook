@@ -243,9 +243,9 @@ USE_L10N = False
 
 USE_TZ = True
 
-DATE_FORMAT = 'm/d/Y'
+DATE_FORMAT = 'm/d/Y, m-d-Y'
 
-DATE_INPUT_FORMATS = ['%m-%d-%Y', '%m/%d/%Y', '%Y-%m-%d']
+DATE_INPUT_FORMATS = ['%m/%d/%Y']
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
