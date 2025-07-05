@@ -28,6 +28,9 @@ class FlightForm(forms.ModelForm):
         exclude = ['user']
         fields = '__all__'
         widgets = {
+            'date': forms.DateInput(
+                format="%m/%d/%Y"
+            ),
             'aircraft_type': autocomplete.ModelSelect2(
                 url='aircraft-autocomplete',
                 attrs={'data-placeholder': 'Aircraft *'}
