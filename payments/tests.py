@@ -1,26 +1,27 @@
-from django.test import TestCase
-from django.contrib.auth.models import User
-import stripe
-from decouple import config
+from django.test import SimpleTestCase
+from django.urls import reverse, resolve
+from payments.views import (
+    stripe_webhook_view,
+    success_view,
+    subscription_cancel_view,
+    canceled_view,
+)
 
-# class NewUserSignUp(TestCase):
-#
-#     def create_user(self):
-#         User.objects.create_user(name="Test User")
-#
-#     stripe.api_key = 'sk_test_BiWcuDHJRWpGoj35FSL0Rped009H2t2bFq'
-#
-#     session = stripe.checkout.Session.create(
-#         customer='cus_123',
-#         payment_method_types=['card'],
-#         line_items=[{
-#             'name': 'T-shirt',
-#             'description': 'Comfortable cotton t-shirt',
-#             'images': ['https://example.com/t-shirt.png'],
-#             'amount': 500,
-#             'currency': 'usd',
-#             'quantity': 1,
-#             }],
-#         success_url='https://example.com/success',
-#         cancel_url='https://example.com/cancel',
-#     )
+
+class TestPaymentsURLs(SimpleTestCase):
+
+    def test_stripe_webhook_url_resolves(self):
+        url = reverse('stripe_webhook')
+        self.assertEqual(resolve(url).func, stripe_webhook_view)
+
+    def test_payment_success_url_resolves(self):
+        url = reverse('payment_success', kwargs={'user': 1})
+        self.assertEqual(resolve(url).func, success_view)
+
+    def test_payment_canceled_url_resolves(self):
+        url = reverse('payment_canceled', kwargs={'user': 1})
+        self.assertEqual(resolve(url).func, canceled_view)
+
+    def test_subscription_canceled_url_resolves(self):
+        url = reverse('subscription_canceled')
+        self.assertEqual(resolve(url).func, subscription_cancel_view)
