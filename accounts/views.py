@@ -1,7 +1,8 @@
 from django.shortcuts import reverse
 from django.contrib.auth.models import User
 from django.views.generic import UpdateView
-from allauth.account.views import EmailView, PasswordSetView, PasswordChangeView, PasswordResetView, PasswordResetDoneView, PasswordResetFromKeyView, PasswordResetFromKeyDoneView
+from allauth.account.views import EmailView, PasswordSetView, PasswordChangeView, PasswordResetView, PasswordResetDoneView, PasswordResetFromKeyView
+from allauth.account.views import PasswordResetFromKeyDoneView as AllauthPasswordResetFromKeyDoneView
 from allauth.socialaccount.views import ConnectionsView
 from accounts.forms import UserForm
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -122,10 +123,10 @@ class PasswordResetFromKeyView(LoginRequiredMixin, PasswordResetFromKeyView):
         return context
 
 
-class PasswordResetFromKeyDoneView(LoginRequiredMixin, PasswordResetFromKeyDoneView):
+class PasswordResetFromKeyDoneView(LoginRequiredMixin, AllauthPasswordResetFromKeyDoneView):
 
     def get_context_data(self, **kwargs):
-        context = super(PasswordResetFromKeyView,
+        context = super(PasswordResetFromKeyDoneView,
                         self).get_context_data(**kwargs)
 
         context['title'] = "D-> | Password Changed"
