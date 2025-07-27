@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 
-from django.conf.urls import url, include
+from django.conf.urls import include
 from django.urls import path
 from django.contrib import admin
 from django.conf.urls.static import static
@@ -31,6 +31,7 @@ router.register(r'users', views.UserViewSet, basename="User")
 router.register(r'flights', views.FlightViewSet, basename='Flight')
 router.register(r'aircraft', views.AircraftViewSet, basename='Aircraft')
 router.register(r'tailnumbers', views.TailNumberViewSet, basename='TailNumber')
+
 
 def trigger_error(request):
     division_by_zero = 1 / 0

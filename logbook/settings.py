@@ -92,9 +92,9 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
-    'captcha',
+    'django_recaptcha',
     'django_extensions',
-    
+
     'picklefield',
     'widget_tweaks',
     'columns',
@@ -149,9 +149,12 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     # 'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+
 
 ]
 
@@ -328,5 +331,5 @@ REST_FRAMEWORK = {
     'DATE_INPUT_FORMATS': ['%m/%d/%Y']
 }
 
-#fix 3.2 upgrade error
+# fix 3.2 upgrade error
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
