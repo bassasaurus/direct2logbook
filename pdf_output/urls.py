@@ -1,5 +1,4 @@
 from django.urls import path
-
 from .views import PDFView, SignatureCreateView, SignatureUpdateView, SignatureDeleteView
 
 urlpatterns = [

@@ -1,5 +1,5 @@
-from django.urls import path
 
+from django.urls import path
 from flights.views import (
     AircraftAutocomplete, TailNumberAutocomplete,
     geoJSON_routes_view, geoJSON_airports_view,
@@ -17,7 +17,12 @@ urlpatterns = [
     path('geojson/routes/<int:user_id>/',
          geoJSON_routes_view, name='geojson_routes'),
 
-    # Autocomplete endpoints
+    re_path(r'^geojson/airports/(?P<user_id>\d+)/$',
+            geoJSON_airports_view, name='geojson_airports'),
+    re_path(r'^geojson/routes/(?P<user_id>\d+)/$',
+            geoJSON_routes_view, name='geojson_routes'),
+
+    # autocomplete urls
     path('aircraft-autocomplete/', AircraftAutocomplete.as_view(),
          name='aircraft-autocomplete'),
     path('tailnumber-autocomplete/', TailNumberAutocomplete.as_view(),
@@ -57,6 +62,7 @@ urlpatterns = [
     path('tailnumbers/detail/<int:pk>/',
          TailNumberDetail.as_view(), name='tailnumber_detail'),
     path('tailnumbers/delete/<int:pk>/',
+
          TailNumberDelete.as_view(), name='tailnumber_delete'),
 
     # Imported Data CRUD
