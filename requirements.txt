@@ -25,7 +25,7 @@ defusedxml==0.6.0
 Django==5.2
 django-allauth==65.9.0
 django-anymail==5.0
-django-autocomplete-light==3.5.1
+django-autocomplete-light==3.12.1
 django-celery-beat==2.8.1
 django-columns==0.1.0
 django-debug-toolbar==2.2
