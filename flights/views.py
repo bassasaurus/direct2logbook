@@ -27,7 +27,7 @@ from accounts.views import LoginRequiredMixin
 from flights.get_map_data import get_map_data
 
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 
 from django.contrib import messages
 
@@ -41,7 +41,7 @@ def get_deleted_objects(objs):
     def format_callback(obj):
         opts = obj._meta
         no_edit_link = '%s: %s' % (
-            capfirst(opts.verbose_name), force_text(obj))
+            capfirst(opts.verbose_name), force_str(obj))
         return no_edit_link
 
     to_delete = collector.nested(format_callback)[1:]
@@ -141,8 +141,10 @@ class FlightArchive(LoginRequiredMixin, ProfileNotActiveMixin, ArchiveIndexView)
         context['parent_name'] = 'Home'
         context['parent_link'] = reverse('home')
         context['page_title'] = 'Map'
-        context['years'] = Flight.objects.filter(user=user).dates('date', 'year')
-        context['months'] = Flight.objects.filter(user=user).dates('date', 'month')
+        context['years'] = Flight.objects.filter(
+            user=user).dates('date', 'year')
+        context['months'] = Flight.objects.filter(
+            user=user).dates('date', 'month')
         return context
 
 
@@ -168,7 +170,8 @@ class FlightArchiveYear(LoginRequiredMixin, ProfileNotActiveMixin, YearArchiveVi
         context['parent_name'] = 'Map'
         context['parent_link'] = reverse('flight_by_date')
         context['page_title'] = "Flights by Year"
-        context['years'] = Flight.objects.filter(user=user).dates('date', 'year')
+        context['years'] = Flight.objects.filter(
+            user=user).dates('date', 'year')
         return context
 
 
@@ -194,8 +197,10 @@ class FlightArchiveMonth(LoginRequiredMixin, ProfileNotActiveMixin, MonthArchive
         context['parent_name'] = 'Map'
         context['parent_link'] = reverse('flight_by_date')
         context['page_title'] = "Flights by Month"
-        context['years'] = Flight.objects.filter(user=user).dates('date', 'year')
-        context['months'] = Flight.objects.filter(user=user).dates('date', 'month')
+        context['years'] = Flight.objects.filter(
+            user=user).dates('date', 'year')
+        context['months'] = Flight.objects.filter(
+            user=user).dates('date', 'month')
         return context
 
 
@@ -601,7 +606,8 @@ class TailNumberCreate(LoginRequiredMixin, ProfileNotActiveMixin, CreateView):
             object.user = self.request.user
             object.save()
         except IntegrityError:
-            messages.add_message(self.request, messages.ERROR, "Duplicate tailnumber found.")
+            messages.add_message(self.request, messages.ERROR,
+                                 "Duplicate tailnumber found.")
             return render(self.request, 'tailnumbers/tailnumber_create_form.html', context=self.get_context_data())
 
         return super(TailNumberCreate, self).form_valid(form)

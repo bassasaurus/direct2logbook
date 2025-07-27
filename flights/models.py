@@ -39,7 +39,9 @@ class MapData(models.Model):
     class Meta:
         ordering = ['city', 'state', 'country']
         verbose_name_plural = "Map Data"
-        index_together = ['iata', 'icao']
+        indexes = [
+            models.Index(fields=['iata', 'icao'], name='map_data_index')
+        ]
 
 
 class Stat(models.Model):
@@ -247,10 +249,13 @@ class Aircraft(models.Model):
 
     superr = models.BooleanField(default=False, verbose_name='Super')
     heavy = models.BooleanField(default=False, verbose_name='Heavy >300k lbs')
-    large = models.BooleanField(default=False, verbose_name='Large 41k-300k lbs')
-    medium = models.BooleanField(default=False, verbose_name='Meduim 12.5-41k lbs')
+    large = models.BooleanField(
+        default=False, verbose_name='Large 41k-300k lbs')
+    medium = models.BooleanField(
+        default=False, verbose_name='Meduim 12.5-41k lbs')
     small = models.BooleanField(default=False, verbose_name='Small <12.5k lbs')
-    light_sport = models.BooleanField(default=False, verbose_name='LSA <1320 lbs')
+    light_sport = models.BooleanField(
+        default=False, verbose_name='LSA <1320 lbs')
     # file will be uploaded to MEDIA_ROOT/aircraft
     image = models.FileField(upload_to='aircraft/',
                              default=None, null=True, blank=True)
@@ -308,12 +313,15 @@ class Flight(models.Model):
     registration_error = models.CharField(
         max_length=100, null=True, blank=True)
     crew_error = models.CharField(max_length=100, null=True, blank=True)
-    app_markers= models.JSONField(default=str, blank=True)
+    app_markers = models.JSONField(default=str, blank=True)
     app_polylines = models.JSONField(default=str, blank=True)
 
     class Meta:
         ordering = ['-date', 'pk']
-        index_together = ['route', 'date', 'duration']
+        indexes = [
+            models.Index(
+                fields=['route', 'date', 'duration'], name='flights_index')
+        ]
 
     def get_absolute_url(self):
         return reverse('flight_detail', kwargs={'pk': self.pk})

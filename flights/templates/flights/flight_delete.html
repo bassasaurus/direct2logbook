@@ -2,7 +2,7 @@
 {% block content %}
 
 <hr>
-<h3>{{ flight.date }} | {{ flight.aircraft_type }} | {{ flight.registration }} | {{ flight.route }}</h3>
+<h3>{{ flight.date|date:"d/m/Y" }} | {{ flight.aircraft_type }} | {{ flight.registration }} | {{ flight.route }}</h3>
 <hr>
 <form  action="" method="post">{% csrf_token %}
     <p>This cannot be undone! But it won't affect related data.</p>

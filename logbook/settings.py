@@ -92,9 +92,9 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
-    'captcha',
+    'django_recaptcha',
     'django_extensions',
-    
+
     'picklefield',
     'widget_tweaks',
     'columns',
@@ -112,20 +112,17 @@ AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',
 )
 
-ACCOUNT_USERNAME_REQUIRED = False
-
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
-ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*']
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-ACCOUNT_SIGNUP_EMAIL_ENTER_TWICE = True
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*']
 ACCOUNT_USER_DISPLAY = 'utils.allauth.user_display'
 
-ACCOUNT_LOGIN_ATTEMPTS_LIMIT = 5
-ACCOUNT_LOGIN_ATTEMPTS_TIMEOUT = 300  # 5 minutes
+# ACCOUNT_RATE_LIMITS = ['login_failed']
 ACCOUNT_LOGOUT_ON_GET = True
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_LOGIN_METHODS = {'email'}
 ACCOUNT_ADAPTER = 'allauth.account.adapter.DefaultAccountAdapter'
 ACCOUNT_USERNAME_BLACKLIST = ['admin', 'pigarkle', 'test']
 
@@ -134,7 +131,7 @@ ACCOUNT_FORMS = {
 }
 
 SOCIALACCOUNT_EMAIL_VERIFICATION = ACCOUNT_EMAIL_VERIFICATION
-SOCIALACCOUNT_EMAIL_REQUIRED = ACCOUNT_EMAIL_REQUIRED
+SOCIALACCOUNT_EMAIL_REQUIRED = ACCOUNT_SIGNUP_FIELDS
 
 LOGIN_REDIRECT_URL = '/home'
 ACCOUNT_LOGOUT_REDIRECT_URL = '/'
@@ -149,6 +146,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     # 'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -245,9 +243,9 @@ USE_L10N = False
 
 USE_TZ = True
 
-DATE_FORMAT = 'm/d/Y'
+DATE_FORMAT = 'm/d/Y, m-d-Y'
 
-DATE_INPUT_FORMATS = ['%m-%d-%Y', '%m/%d/%Y', '%Y-%m-%d']
+DATE_INPUT_FORMATS = ['%m/%d/%Y']
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
@@ -263,13 +261,25 @@ STATICFILES_DIRS = [
     DJANGO_ROOT + "/static",
 ]
 
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-AWS_ACCESS_KEY_ID = config('AWS_ACCESS_KEY_ID')
-AWS_SECRET_ACCESS_KEY = config('AWS_SECRET_ACCESS_KEY')
-AWS_STORAGE_BUCKET_NAME = config('AWS_STORAGE_BUCKET_NAME')
-AWS_DEFAULT_ACL = None
-AWS_S3_FILE_OVERWRITE = False
+
 MEDIA_URL = config('MEDIA_URL')
+
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {
+            "bucket_name": config('AWS_STORAGE_BUCKET_NAME'),
+            "access_key": config('AWS_SECRET_ACCESS_KEY'),
+            "secret_key": config('AWS_SECRET_ACCESS_KEY'),
+            "default_acl": None,
+            "file_overwrite": False
+        },
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+
 
 CACHES = {
     'default': {
@@ -315,7 +325,7 @@ DEFAULT_FROM_EMAIL = "no-reply@direct2logbook.com"
 
 CSRF_USE_SESSIONS = True
 
-SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error']
+SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -328,5 +338,5 @@ REST_FRAMEWORK = {
     'DATE_INPUT_FORMATS': ['%m/%d/%Y']
 }
 
-#fix 3.2 upgrade error
+# fix 3.2 upgrade error
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'

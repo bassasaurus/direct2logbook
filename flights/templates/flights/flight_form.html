@@ -105,7 +105,7 @@
     <p class="text-danger">{{ inlines.non_form_errors }}<p>
     <div id="approach_form" class="">
       <table>
-        {{ form.errors }}
+        {{ form.approaches.errors }}
         {% for form in approaches %}
           <tr class="formset_row">
             {{ form.id }}

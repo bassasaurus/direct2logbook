@@ -1,33 +1,38 @@
-from django.urls import path, re_path
-from django.conf.urls import url
+from django.urls import re_path, path
 
 from flights.views import (
-                            AircraftAutocomplete, TailNumberAutocomplete,
-                            geoJSON_routes_view, geoJSON_airports_view,
-                            FlightArchive, FlightArchiveYear, FlightArchiveMonth,
-                            FlightList, FlightCreate, FlightUpdate, FlightDetail, FlightDelete, RemarksList,
-                            TailNumberList, TailNumberCreate, TailNumberUpdate, TailNumberDetail, TailNumberDelete,
-                            AircraftCreate, AircraftUpdate, AircraftDetail, AircraftDelete,
-                            ImportedListView, ImportedCreateView, ImportedUpdateView, ImportedDetailView, ImportedDeleteView
+    AircraftAutocomplete, TailNumberAutocomplete,
+    geoJSON_routes_view, geoJSON_airports_view,
+    FlightArchive, FlightArchiveYear, FlightArchiveMonth,
+    FlightList, FlightCreate, FlightUpdate, FlightDetail, FlightDelete, RemarksList,
+    TailNumberList, TailNumberCreate, TailNumberUpdate, TailNumberDetail, TailNumberDelete,
+    AircraftCreate, AircraftUpdate, AircraftDetail, AircraftDelete,
+    ImportedListView, ImportedCreateView, ImportedUpdateView, ImportedDetailView, ImportedDeleteView
 
-                            )
+)
 
 urlpatterns = [
 
-    url(r'^geojson/airports/(?P<user_id>\d+)/$', geoJSON_airports_view, name='geojson_airports'),
-    url(r'^geojson/routes/(?P<user_id>\d+)/$', geoJSON_routes_view, name='geojson_routes'),
+    re_path(r'^geojson/airports/(?P<user_id>\d+)/$',
+            geoJSON_airports_view, name='geojson_airports'),
+    re_path(r'^geojson/routes/(?P<user_id>\d+)/$',
+            geoJSON_routes_view, name='geojson_routes'),
 
     # autocomplete urls
-    path('aircraft-autocomplete/', AircraftAutocomplete.as_view(), name='aircraft-autocomplete'),
-    path('tailnumber-autocomplete/', TailNumberAutocomplete.as_view(), name='tailnumber-autocomplete'),
+    path('aircraft-autocomplete/', AircraftAutocomplete.as_view(),
+         name='aircraft-autocomplete'),
+    path('tailnumber-autocomplete/', TailNumberAutocomplete.as_view(),
+         name='tailnumber-autocomplete'),
 
     # date view paths
     # Lists all avialable years
     path('flights/by_date/', FlightArchive.as_view(), name='flight_by_date'),
     # Example: flights/2012/
-    path('flights/by_date/<year>', FlightArchiveYear.as_view(), name='flight_by_year'),
+    path('flights/by_date/<year>',
+         FlightArchiveYear.as_view(), name='flight_by_year'),
     # Example: flights/2012/nov/
-    path('flights/by_date/<year>/<month>', FlightArchiveMonth.as_view(), name='flight_by_month'),
+    path('flights/by_date/<year>/<month>',
+         FlightArchiveMonth.as_view(), name='flight_by_month'),
     # Example: flights/2012/nov/15
     # path(r'^flights/by_date/(?P<year>[0-9]{4})/(?P<month>[-\w]+)/(?P<day>[0-9]+)/$', FlightArchiveDay.as_view(), name='flight_by_day'),
 
@@ -41,19 +46,30 @@ urlpatterns = [
 
     path('aircraft/', TailNumberList.as_view(), name='aircraft_list'),
     path('aircraft/create', AircraftCreate.as_view(), name='aircraft_create'),
-    path('aircraft/update/<pk>', AircraftUpdate.as_view(), name='aircraft_update'),
-    path('aircraft/detail/<pk>', AircraftDetail.as_view(), name='aircraft_detail'),
-    path('aircraft/delete/<pk>', AircraftDelete.as_view(), name='aircraft_delete'),
+    path('aircraft/update/<pk>', AircraftUpdate.as_view(),
+         name='aircraft_update'),
+    path('aircraft/detail/<pk>', AircraftDetail.as_view(),
+         name='aircraft_detail'),
+    path('aircraft/delete/<pk>', AircraftDelete.as_view(),
+         name='aircraft_delete'),
 
     path('tailnumbers/', TailNumberList.as_view(), name='tailnumber_list'),
-    path('tailnumbers/create/', TailNumberCreate.as_view(), name='tailnumber_create'),
-    path('tailnumbers/update/<pk>', TailNumberUpdate.as_view(), name='tailnumber_update'),
-    path('tailnumbers/detail/<pk>', TailNumberDetail.as_view(), name='tailnumber_detail'),
-    path('tailnumbers/delete/<pk>', TailNumberDelete.as_view(), name='tailnumber_delete'),
+    path('tailnumbers/create/', TailNumberCreate.as_view(),
+         name='tailnumber_create'),
+    path('tailnumbers/update/<pk>',
+         TailNumberUpdate.as_view(), name='tailnumber_update'),
+    path('tailnumbers/detail/<pk>',
+         TailNumberDetail.as_view(), name='tailnumber_detail'),
+    path('tailnumbers/delete/<pk>',
+         TailNumberDelete.as_view(), name='tailnumber_delete'),
 
     path('imported/', ImportedListView.as_view(), name='imported_list'),
-    path('imported/create/', ImportedCreateView.as_view(), name='imported_create'),
-    path('imported/detail/<pk>', ImportedDetailView.as_view(), name='imported_detail'),
-    path('imported/update/<pk>', ImportedUpdateView.as_view(), name='imported_update'),
-    path('imported/delete/<pk>', ImportedDeleteView.as_view(), name='imported_delete'),
+    path('imported/create/', ImportedCreateView.as_view(),
+         name='imported_create'),
+    path('imported/detail/<pk>', ImportedDetailView.as_view(),
+         name='imported_detail'),
+    path('imported/update/<pk>', ImportedUpdateView.as_view(),
+         name='imported_update'),
+    path('imported/delete/<pk>', ImportedDeleteView.as_view(),
+         name='imported_delete'),
 ]

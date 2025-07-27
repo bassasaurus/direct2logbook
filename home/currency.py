@@ -5,12 +5,18 @@ import calendar
 from dateutil.relativedelta import relativedelta
 
 
-asel_query = Q(aircraft_type__aircraft_category='A') & Q(aircraft_type__aircraft_class='SEL')
-amel_query = Q(aircraft_type__aircraft_category='A') & Q(aircraft_type__aircraft_class='MEL')
-ases_query = Q(aircraft_type__aircraft_category='A') & Q(aircraft_type__aircraft_class='SES')
-ames_query = Q(aircraft_type__aircraft_category='A') & Q(aircraft_type__aircraft_class='MES')
-helo_query = Q(aircraft_type__aircraft_category='R') & Q(aircraft_type__aircraft_class='HELO')
-gyro_query = Q(aircraft_type__aircraft_category='R') & Q(aircraft_type__aircraft_class='GYRO')
+asel_query = Q(aircraft_type__aircraft_category='A') & Q(
+    aircraft_type__aircraft_class='SEL')
+amel_query = Q(aircraft_type__aircraft_category='A') & Q(
+    aircraft_type__aircraft_class='MEL')
+ases_query = Q(aircraft_type__aircraft_category='A') & Q(
+    aircraft_type__aircraft_class='SES')
+ames_query = Q(aircraft_type__aircraft_category='A') & Q(
+    aircraft_type__aircraft_class='MES')
+helo_query = Q(aircraft_type__aircraft_category='R') & Q(
+    aircraft_type__aircraft_class='HELO')
+gyro_query = Q(aircraft_type__aircraft_category='R') & Q(
+    aircraft_type__aircraft_class='GYRO')
 
 today = datetime.date.today()
 last_2yr = today - datetime.timedelta(days=730)
@@ -36,8 +42,10 @@ def type_currency(user):
 
         type_currency_dict[str(aircraft)] = 0, False
 
-        day_landings = Flight.objects.filter(user=user).filter(aircraft_type=aircraft).filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_day'))
-        night_landings = Flight.objects.filter(user=user).filter(aircraft_type=aircraft).filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_night'))
+        day_landings = Flight.objects.filter(user=user).filter(aircraft_type=aircraft).filter(
+            date__lte=today, date__gte=last_90).aggregate(Sum('landings_day'))
+        night_landings = Flight.objects.filter(user=user).filter(aircraft_type=aircraft).filter(
+            date__lte=today, date__gte=last_90).aggregate(Sum('landings_night'))
 
         if not day_landings.get('landings_day__sum'):
             day_landings = 0
@@ -59,7 +67,8 @@ def type_currency(user):
             else:
                 night_current = False
 
-        type_currency_dict[str(aircraft)] = day_landings, day_current, night_landings, night_current
+        type_currency_dict[str(
+            aircraft)] = day_landings, day_current, night_landings, night_current
 
     return type_currency_dict
 
@@ -68,7 +77,8 @@ def type_currency(user):
 def amel_vfr_day(user):
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
-    amel_vfr_day = Flight.objects.filter(user=user).filter(amel_query).filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_day'))
+    amel_vfr_day = Flight.objects.filter(user=user).filter(amel_query).filter(
+        date__lte=today, date__gte=last_90).aggregate(Sum('landings_day'))
     if not amel_vfr_day.get('landings_day__sum'):
         amel_vfr_day = 0
     else:
@@ -83,7 +93,8 @@ def amel_vfr_day(user):
 def amel_vfr_night(user):
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
-    amel_vfr_night = Flight.objects.filter(user=user).filter(amel_query).filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_night'))
+    amel_vfr_night = Flight.objects.filter(user=user).filter(amel_query).filter(
+        date__lte=today, date__gte=last_90).aggregate(Sum('landings_night'))
     if not amel_vfr_night.get('landings_night__sum'):
         amel_vfr_night = 0
     else:
@@ -99,7 +110,8 @@ def amel_vfr_night(user):
 def asel_vfr_day(user):
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
-    asel_vfr_day = Flight.objects.filter(user=user).filter(asel_query).filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_day'))
+    asel_vfr_day = Flight.objects.filter(user=user).filter(asel_query).filter(
+        date__lte=today, date__gte=last_90).aggregate(Sum('landings_day'))
     if not asel_vfr_day.get('landings_day__sum'):
         asel_vfr_day = 0
     else:
@@ -114,7 +126,8 @@ def asel_vfr_day(user):
 def asel_vfr_night(user):
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
-    asel_vfr_night = Flight.objects.filter(user=user).filter(asel_query).filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_night'))
+    asel_vfr_night = Flight.objects.filter(user=user).filter(asel_query).filter(
+        date__lte=today, date__gte=last_90).aggregate(Sum('landings_night'))
     if not asel_vfr_night.get('landings_night__sum'):
         asel_vfr_night = 0
     else:
@@ -130,7 +143,8 @@ def asel_vfr_night(user):
 def ases_vfr_day(user):
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
-    ases_vfr_day = Flight.objects.filter(user=user).filter(ases_query).filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_day'))
+    ases_vfr_day = Flight.objects.filter(user=user).filter(ases_query).filter(
+        date__lte=today, date__gte=last_90).aggregate(Sum('landings_day'))
     if not ases_vfr_day.get('landings_day__sum'):
         ases_vfr_day = 0
     else:
@@ -145,7 +159,8 @@ def ases_vfr_day(user):
 def ases_vfr_night(user):
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
-    ases_vfr_night = Flight.objects.filter(user=user).filter(ases_query).filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_night'))
+    ases_vfr_night = Flight.objects.filter(user=user).filter(ases_query).filter(
+        date__lte=today, date__gte=last_90).aggregate(Sum('landings_night'))
     if not ases_vfr_night.get('landings_night__sum'):
         ases_vfr_night = 0
     else:
@@ -161,7 +176,8 @@ def ases_vfr_night(user):
 def ames_vfr_day(user):
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
-    ames_vfr_day = Flight.objects.filter(user=user).filter(ames_query).filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_day'))
+    ames_vfr_day = Flight.objects.filter(user=user).filter(ames_query).filter(
+        date__lte=today, date__gte=last_90).aggregate(Sum('landings_day'))
     if not ames_vfr_day.get('landings_day__sum'):
         ames_vfr_day = 0
     else:
@@ -176,7 +192,8 @@ def ames_vfr_day(user):
 def ames_vfr_night(user):
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
-    ames_vfr_night = Flight.objects.filter(user=user).filter(ames_query).filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_night'))
+    ames_vfr_night = Flight.objects.filter(user=user).filter(ames_query).filter(
+        date__lte=today, date__gte=last_90).aggregate(Sum('landings_night'))
     if not ames_vfr_night.get('landings_night__sum'):
         ames_vfr_night = 0
     else:
@@ -192,7 +209,8 @@ def ames_vfr_night(user):
 def helo_vfr_day(user):
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
-    helo_vfr_day = Flight.objects.filter(user=user).filter(helo_query).filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_day'))
+    helo_vfr_day = Flight.objects.filter(user=user).filter(helo_query).filter(
+        date__lte=today, date__gte=last_90).aggregate(Sum('landings_day'))
     if not helo_vfr_day.get('landings_day__sum'):
         helo_vfr_day = 0
     else:
@@ -207,7 +225,8 @@ def helo_vfr_day(user):
 def helo_vfr_night(user):
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
-    helo_vfr_night = Flight.objects.filter(user=user).filter(helo_query).filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_night'))
+    helo_vfr_night = Flight.objects.filter(user=user).filter(helo_query).filter(
+        date__lte=today, date__gte=last_90).aggregate(Sum('landings_night'))
     if not helo_vfr_night.get('landings_night__sum'):
         helo_vfr_night = 0
     else:
@@ -223,7 +242,8 @@ def helo_vfr_night(user):
 def gyro_vfr_day(user):
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
-    gyro_vfr_day = Flight.objects.filter(user=user).filter(gyro_query).filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_day'))
+    gyro_vfr_day = Flight.objects.filter(user=user).filter(gyro_query).filter(
+        date__lte=today, date__gte=last_90).aggregate(Sum('landings_day'))
     if not gyro_vfr_day.get('landings_day__sum'):
         gyro_vfr_day = 0
     else:
@@ -238,7 +258,8 @@ def gyro_vfr_day(user):
 def gyro_vfr_night(user):
     today = datetime.date.today()
     last_90 = today - datetime.timedelta(days=90)
-    gyro_vfr_night = Flight.objects.filter(user=user).filter(gyro_query).filter(date__lte=today, date__gte=last_90).aggregate(Sum('landings_night'))
+    gyro_vfr_night = Flight.objects.filter(user=user).filter(gyro_query).filter(
+        date__lte=today, date__gte=last_90).aggregate(Sum('landings_night'))
     if not gyro_vfr_night.get('landings_night__sum'):
         gyro_vfr_night = 0
     else:
@@ -257,32 +278,38 @@ def medical_duration(user):  # still need to start calculations from next month 
     if user.profile.first_class and not user.profile.over_40:
         one_year = relativedelta(months=+12)
         expiry_date = issue_date + one_year
-        expiry_date = expiry_date.replace(day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
+        expiry_date = expiry_date.replace(
+            day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
 
     elif user.profile.first_class and user.profile.over_40:
         six_months = relativedelta(months=+6)
         expiry_date = issue_date + six_months
-        expiry_date = expiry_date.replace(day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
+        expiry_date = expiry_date.replace(
+            day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
 
     elif user.profile.second_class and not user.profile.over_40:
         two_years = relativedelta(months=+24)
         expiry_date = issue_date + two_years
-        expiry_date = expiry_date.replace(day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
+        expiry_date = expiry_date.replace(
+            day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
 
     elif user.profile.second_class and user.profile.over_40:
         one_year = relativedelta(months=+12)
         expiry_date = issue_date + one_year
-        expiry_date = expiry_date.replace(day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
+        expiry_date = expiry_date.replace(
+            day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
 
     elif user.profile.third_class and not user.profile.over_40:
         five_years = relativedelta(months=+60)
         expiry_date = issue_date + five_years
-        expiry_date = expiry_date.replace(day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
+        expiry_date = expiry_date.replace(
+            day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
 
     elif user.profile.third_class and user.profile.over_40:
         three_years = relativedelta(months=+36)
         expiry_date = issue_date + three_years
-        expiry_date = expiry_date.replace(day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
+        expiry_date = expiry_date.replace(
+            day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
 
     else:
         expiry_date = today - datetime.timedelta(days=1)
@@ -312,4 +339,4 @@ def medical_duration(user):  # still need to start calculations from next month 
         else:
             expiring = False
 
-    return(expiry_date, this_month, expiring, expired, current)
+    return (expiry_date, this_month, expiring, expired, current)

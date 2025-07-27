@@ -2,8 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from allauth.account.forms import SignupForm
 
-from captcha.fields import ReCaptchaField
-from captcha.fields import ReCaptchaV2Checkbox
+from django_recaptcha.fields import ReCaptchaField, ReCaptchaV2Checkbox
 from decouple import config
 
 
