@@ -2,7 +2,7 @@
 
 import datetime
 from django.db import migrations, models
-from django.utils.timezone import utc
+from datetime import timezone
 
 
 class Migration(migrations.Migration):
@@ -19,6 +19,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='signature',
             name='date',
-            field=models.DateField(db_index=True, default=datetime.datetime(2020, 1, 7, 0, 8, 30, 403115, tzinfo=utc)),
+            field=models.DateField(db_index=True, default=datetime.datetime(
+                2020, 1, 7, 0, 8, 30, 403115, tzinfo=timezone.utc)),
         ),
     ]
