@@ -112,15 +112,22 @@ AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',
 )
 
+
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'email2*', 'password1*', 'password2*']
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*']
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*']
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'email2*', 'password1*', 'password2*']
 ACCOUNT_USER_DISPLAY = 'utils.allauth.user_display'
 
-# ACCOUNT_RATE_LIMITS = ['login_failed']
+ACCOUNT_RATE_LIMITS = {
+    "login_user": "5/m",      # 5 logins per minute per user
+    "login_ip": "20/m",       # 20 logins per minute per IP
+    "signup_ip": "5/h",       # 5 signups per hour per IP
+}
+
 ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_LOGIN_METHODS = {'email'}
 ACCOUNT_ADAPTER = 'allauth.account.adapter.DefaultAccountAdapter'
@@ -130,14 +137,18 @@ ACCOUNT_FORMS = {
     'signup': 'accounts.forms.CustomSignupForm',
 }
 
-SOCIALACCOUNT_EMAIL_VERIFICATION = ACCOUNT_EMAIL_VERIFICATION
-SOCIALACCOUNT_EMAIL_REQUIRED = ACCOUNT_SIGNUP_FIELDS
+
+#SOCIALACCOUNT_EMAIL_VERIFICATION = ACCOUNT_EMAIL_VERIFICATION
+#SOCIALACCOUNT_EMAIL_REQUIRED = ACCOUNT_SIGNUP_FIELDS
 
 LOGIN_REDIRECT_URL = '/home'
 ACCOUNT_LOGOUT_REDIRECT_URL = '/'
 
 ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = ACCOUNT_LOGOUT_REDIRECT_URL
 ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = LOGIN_REDIRECT_URL
+
+# SOCIALACCOUNT_EMAIL_VERIFICATION = ACCOUNT_EMAIL_VERIFICATION
+# SOCIALACCOUNT_EMAIL_REQUIRED = ACCOUNT_EMAIL_REQUIRED
 
 
 MIDDLEWARE = [
@@ -150,6 +161,8 @@ MIDDLEWARE = [
     # 'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
+
 
 ]
 
@@ -340,3 +353,5 @@ REST_FRAMEWORK = {
 
 # fix 3.2 upgrade error
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
+SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']

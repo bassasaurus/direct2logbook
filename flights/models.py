@@ -40,7 +40,8 @@ class MapData(models.Model):
         ordering = ['city', 'state', 'country']
         verbose_name_plural = "Map Data"
         indexes = [
-            models.Index(fields=['iata', 'icao'], name='map_data_index')
+            models.Index(fields=['iata']),
+            models.Index(fields=['icao']),
         ]
 
 
@@ -319,8 +320,7 @@ class Flight(models.Model):
     class Meta:
         ordering = ['-date', 'pk']
         indexes = [
-            models.Index(
-                fields=['route', 'date', 'duration'], name='flights_index')
+            models.Index(fields=['route', 'date', 'duration']),
         ]
 
     def get_absolute_url(self):
