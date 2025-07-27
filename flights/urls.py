@@ -17,10 +17,6 @@ urlpatterns = [
     path('geojson/routes/<int:user_id>/',
          geoJSON_routes_view, name='geojson_routes'),
 
-    re_path(r'^geojson/airports/(?P<user_id>\d+)/$',
-            geoJSON_airports_view, name='geojson_airports'),
-    re_path(r'^geojson/routes/(?P<user_id>\d+)/$',
-            geoJSON_routes_view, name='geojson_routes'),
 
     # autocomplete urls
     path('aircraft-autocomplete/', AircraftAutocomplete.as_view(),
