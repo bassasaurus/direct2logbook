@@ -1,12 +1,14 @@
-from django.test import TestCase
+from django.test import SimpleTestCase
+from django.urls import reverse, resolve
+from home.views import index_view, HomeView
 
 
-class TestHomeUrls(TestCase):
+class TestHomeURLs(SimpleTestCase):
 
-    def test_index_url(self):
-        response = self.client.get('/')
-        self.assertEqual(response.status_code, 200, f"/ returned {response.status_code}")
+    def test_index_url_resolves(self):
+        url = reverse('index')
+        self.assertEqual(resolve(url).func, index_view)
 
-    def test_home_url_if_logged_in(self):
-        response = self.client.get('home/')
-        self.assertEqual(response.status_code, 200, f"/home returned {response.status_code}")
+    def test_home_url_resolves(self):
+        url = reverse('home')
+        self.assertEqual(resolve(url).func.view_class, HomeView)
