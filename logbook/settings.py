@@ -122,7 +122,11 @@ ACCOUNT_EMAIL_VERIFICATION = "mandatory"
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'email2*', 'password1*', 'password2*']
 ACCOUNT_USER_DISPLAY = 'utils.allauth.user_display'
 
-ACCOUNT_RATE_LIMITS = ['login_failed']
+ACCOUNT_RATE_LIMITS = {
+    "login_user": "5/m",      # 5 logins per minute per user
+    "login_ip": "20/m",       # 20 logins per minute per IP
+    "signup_ip": "5/h",       # 5 signups per hour per IP
+}
 ACCOUNT_LOGOUT_ON_GET = True
 ACCOUNT_LOGIN_METHODS = {'email'}
 ACCOUNT_ADAPTER = 'allauth.account.adapter.DefaultAccountAdapter'
