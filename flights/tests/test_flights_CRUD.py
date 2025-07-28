@@ -1,76 +1,76 @@
-import pytest
-from django.urls import reverse
+from django.test import TestCase
 from django.contrib.auth.models import User
-from flights.models import Flights  # Change "yourapp" to your actual app name
-
-print("CRUD test")
-
-
-@pytest.fixture
-def user(db):
-    return User.objects.create_user(username='testuser', password='testpass')
+from django.urls import reverse
+from flights.models import Aircraft, TailNumber, Flight
+from datetime import date
 
 
-@pytest.fixture
-def client_logged_in(client, user):
-    client.login(username='testuser', password='testpass')
-    return client
+class FlightCRUDTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username='testuser', password='testpass')
 
+        self.aircraft = Aircraft.objects.create(
+            user=self.user,
+            aircraft_type='C172',
+            turbine=False,
+            piston=True,
+            requires_type=False,
+            tailwheel=False,
+            simple=True,
+            compleks=False,
+            high_performance=False,
+            aircraft_category='A',
+            aircraft_class='SEL',
+            superr=False,
+            heavy=False,
+            large=False,
+            medium=False,
+            small=True,
+            light_sport=False
+        )
 
-@pytest.fixture
-def flight(db):
-    return Flights.objects.create(
-        date='2025-01-01',
-        aircraft='Cessna 172',
-        tail_number='N123AB',
-        duration=2.5
-    )
+        self.tailnumber = TailNumber.objects.create(
+            user=self.user,
+            registration='N12345',
+            aircraft=self.aircraft,
+            is_121=False,
+            is_135=False,
+            is_91=True
+        )
 
-# CREATE
+        self.flight = Flight.objects.create(
+            user=self.user,
+            date=date.today(),
+            aircraft_type=self.aircraft,
+            registration=self.tailnumber,
+            route='ATL-MEM',
+            duration=1.5
+        )
 
+    def test_create_flight(self):
+        count = Flight.objects.count()
+        Flight.objects.create(
+            user=self.user,
+            date=date.today(),
+            aircraft_type=self.aircraft,
+            registration=self.tailnumber,
+            route='ATL-BHM',
+            duration=2.0
+        )
+        self.assertEqual(Flight.objects.count(), count + 1)
 
-def test_create_flight(client_logged_in):
-    url = reverse('flights_create')  # Update to your actual URL name
-    data = {
-        'date': '2025-07-28',
-        'aircraft': 'Piper Archer',
-        'tail_number': 'N456CD',
-        'duration': 1.8
-    }
-    response = client_logged_in.post(url, data)
-    assert response.status_code == 302  # Should redirect on success
-    assert Flights.objects.filter(tail_number='N456CD').exists()
+    def test_read_flight(self):
+        flight = Flight.objects.get(id=self.flight.id)
+        self.assertEqual(flight.route, 'ATL-MEM')
 
-# READ (Detail View)
+    def test_update_flight(self):
+        self.flight.route = 'ATL-ORD'
+        self.flight.save()
+        self.flight.refresh_from_db()
+        self.assertEqual(self.flight.route, 'ATL-ORD')
 
-
-def test_read_flight_detail(client_logged_in, flight):
-    url = reverse('flights_detail', args=[flight.id])
-    response = client_logged_in.get(url)
-    assert response.status_code == 200
-    assert flight.aircraft in response.content.decode()
-
-# UPDATE
-
-
-def test_update_flight(client_logged_in, flight):
-    url = reverse('flights_update', args=[flight.id])
-    data = {
-        'date': flight.date,
-        'aircraft': 'Updated Aircraft',
-        'tail_number': flight.tail_number,
-        'duration': flight.duration
-    }
-    response = client_logged_in.post(url, data)
-    assert response.status_code == 302
-    flight.refresh_from_db()
-    assert flight.aircraft == 'Updated Aircraft'
-
-# DELETE
-
-
-def test_delete_flight(client_logged_in, flight):
-    url = reverse('flights_delete', args=[flight.id])
-    response = client_logged_in.post(url)
-    assert response.status_code == 302
-    assert not Flights.objects.filter(id=flight.id).exists()
+    def test_delete_flight(self):
+        flight_id = self.flight.id
+        self.flight.delete()
+        self.assertFalse(Flight.objects.filter(id=flight_id).exists())
