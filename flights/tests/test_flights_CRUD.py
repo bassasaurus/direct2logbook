@@ -41,7 +41,7 @@ class FlightCRUDTests(TestCase):
 
         self.flight = Flight.objects.create(
             user=self.user,
-            date=date.today(),
+            date=date(2025, 7, 28),
             aircraft_type=self.aircraft,
             registration=self.tailnumber,
             route='ATL-MEM',
@@ -52,7 +52,7 @@ class FlightCRUDTests(TestCase):
         count = Flight.objects.count()
         Flight.objects.create(
             user=self.user,
-            date=date.today(),
+            date=date(2025, 7, 28),
             aircraft_type=self.aircraft,
             registration=self.tailnumber,
             route='ATL-BHM',
