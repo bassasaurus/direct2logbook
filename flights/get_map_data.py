@@ -2,35 +2,25 @@ from django.core.cache import cache
 from flights.models import MapData
 
 
-def unique_values(iterable):
-    seen = set()
-    for item in iterable:
-        if item not in seen:
-            seen.add(item)
-            yield item
-
-
 def get_map_data(queryset, user):
 
     features = []
     line_json = []
 
-    unique_values = set()
+    seen_map_objs = set()
 
     for flight in queryset:
         for airport in flight.route_data:
             line_json.append([airport.latitude, airport.longitude])
 
-
     for flight in queryset:
         for map_obj in flight.route_data:
-            if map_obj not in unique_values:
-                unique_values.add(map_obj)
+            if map_obj not in seen_map_objs:
+                seen_map_objs.add(map_obj)
 
-    for map_obj in unique_values:
+    for map_obj in seen_map_objs:
         if not map_obj:
             pass
-
         else:
             feature = {"type": "Feature", "properties": {"icao": "", "iata": "", "name": "", "city": "",
                                                          "state": "", "country": "", "elevation": ""}, "geometry": {"type": "Point", "coordinates": ['', '']}}

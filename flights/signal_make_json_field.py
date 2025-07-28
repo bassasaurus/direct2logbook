@@ -1,69 +1,56 @@
-from django import dispatch
-from flights.models import Flight, MapData
+import re
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-import re
+from flights.models import Flight, MapData
 
-@receiver(post_save, sender=Flight)
-def make_json_feild(sender, instance, dispatch_uid="app_data_update", **kwargs):
 
-    post_save.disconnect(make_json_feild, sender=sender)
+@receiver(post_save, sender=Flight, dispatch_uid="app_data_update")
+def make_json_field(sender, instance, created, **kwargs):
+    """
+    Populate app_markers and app_polylines JSON fields after a Flight is saved.
+    Runs on creation and any time the route is updated.
+    """
+    # Temporarily disconnect to prevent recursion
+    post_save.disconnect(make_json_field, sender=sender,
+                         dispatch_uid="app_data_update")
+
+    # Normalize and split route into airport codes
+    segments = [seg for seg in re.split(
+        r'[^A-Za-z0-9]+', instance.route.upper()) if seg]
 
     coordinates = []
-    markers = list(set())
-    key = 0
-    
-    route = re.split(r'\W+', instance.route)
-    us_iata = MapData.objects.filter(country="United States").values_list('iata', flat=True)
-    intl_iata =  MapData.objects.exclude(country = "United States").values_list('iata', flat=True)
+    markers = []
 
-    for airport in route:
-        
-        airport = airport.replace(" ", "")
+    for idx, seg in enumerate(segments):
+        airport = None
+        # Try IATA (3-letter)
+        if len(seg) == 3:
+            airport = MapData.objects.filter(iata=seg).first()
+        # Try ICAO (4-letter)
+        if not airport and len(seg) == 4:
+            airport = MapData.objects.filter(icao=seg).first()
+        # Fallback: ICAO for 3-letter
+        if not airport and len(seg) == 3:
+            airport = MapData.objects.filter(icao=seg).first()
+        # Skip unknown codes
+        if not airport:
+            continue
 
-        print(airport)
-
-        if airport in us_iata:
-            airport = MapData.objects.get(iata=airport, country="United States")
-            
-        elif airport in intl_iata:
-            airport = MapData.objects.get(iata=airport)
-
-        elif airport not in us_iata and airport not in intl_iata:
-            
-            airport = MapData.objects.get(icao=airport)
-
-        else:
-            pass
-        
-        coordinates.append({"latitude": airport.latitude, "longitude": airport.longitude})
-
-        marker =  {
-            "key": key,
+        coord = {"latitude": airport.latitude, "longitude": airport.longitude}
+        coordinates.append(coord)
+        markers.append({
+            "key": idx,
             "icao": airport.icao,
-            "iata": airport.iata, 
+            "iata": airport.iata,
             "title": airport.name,
-            "coordinates": {
-                "latitude": airport.latitude,
-                "longitude": airport.longitude,
-            }
-        }
+            "coordinates": coord,
+        })
 
-        markers.append(marker)
-        key = key + 1
-
-    polyline = {
-            "coordinates": coordinates
-        }
-
-
-    # print(instance.route, instance.pk)
-
+    # Assign to instance and save only JSON fields
     instance.app_markers = markers
-    instance.app_polylines = polyline
+    instance.app_polylines = {"coordinates": coordinates}
+    instance.save(update_fields=["app_markers", "app_polylines"])
 
-    print(instance.user, instance.pk, instance.route)
-
-    instance.save()
-
-    post_save.connect(make_json_feild, sender=sender)
+    # Reconnect the signal
+    post_save.connect(make_json_field, sender=sender,
+                      dispatch_uid="app_data_update")

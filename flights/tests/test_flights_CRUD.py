@@ -1,5 +1,5 @@
 from django.test import TestCase
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.urls import reverse
 from flights.models import Aircraft, TailNumber, Flight
 from datetime import date
@@ -7,8 +7,14 @@ from datetime import date
 
 class FlightCRUDTests(TestCase):
     def setUp(self):
+        # Ensure the 'clients' group exists for the profile signal
+        Group.objects.get_or_create(name='clients')
+
         self.user = User.objects.create_user(
-            username='testuser', password='testpass')
+            username='testuser',
+            email='testuser@example.com',
+            password='testpass',
+        )
 
         self.aircraft = Aircraft.objects.create(
             user=self.user,
@@ -55,7 +61,7 @@ class FlightCRUDTests(TestCase):
             date=date(2025, 7, 28),
             aircraft_type=self.aircraft,
             registration=self.tailnumber,
-            route='ATL-BHM',
+            route='ATL-KLAX',
             duration=2.0
         )
         self.assertEqual(Flight.objects.count(), count + 1)
