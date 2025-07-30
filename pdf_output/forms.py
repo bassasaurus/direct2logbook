@@ -3,8 +3,6 @@ from .models import Signature
 
 
 class SignatureForm(forms.ModelForm):
-
     class Meta:
         model = Signature
-        exclude = ['user']
         fields = ('signature',)
