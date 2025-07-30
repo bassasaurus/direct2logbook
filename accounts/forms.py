@@ -1,3 +1,4 @@
+from django.conf import settings
 from django import forms
 from django.contrib.auth.models import User
 from allauth.account.forms import SignupForm
@@ -10,16 +11,14 @@ class CustomSignupForm(SignupForm):
     first_name = forms.CharField(max_length=30, label='First Name')
     last_name = forms.CharField(max_length=30, label='Last Name')
 
-    if config('DEBUG', cast=bool) is False:
-        captcha = ReCaptchaField(
-            public_key=config('RECAPTCHA_PUBLIC_KEY'),
-            private_key=config('RECAPTCHA_PRIVATE_KEY'),
-
-            widget=ReCaptchaV2Checkbox()
-        )
-
-    else:
-        pass
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if not settings.DEBUG:
+            self.fields['captcha'] = ReCaptchaField(
+                public_key=config('RECAPTCHA_PUBLIC_KEY'),
+                private_key=config('RECAPTCHA_PRIVATE_KEY'),
+                widget=ReCaptchaV2Checkbox()
+            )
 
     def signup(self, request, user):
         user.first_name = self.cleaned_data['first_name']
