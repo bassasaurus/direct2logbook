@@ -1,5 +1,3 @@
-
-
 from flights.models import Aircraft, TailNumber
 from flights.forms import FlightForm, AircraftForm, TailNumberForm
 from django.test import TestCase
