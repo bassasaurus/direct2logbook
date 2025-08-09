@@ -3,6 +3,9 @@ from django.urls import reverse
 from django.contrib.auth.models import User
 from unittest.mock import patch
 from django.contrib.messages import get_messages
+from profile.models import Profile
+from datetime import date, timedelta
+from types import SimpleNamespace
 
 
 class PaymentViewsTest(TestCase):
@@ -13,8 +16,23 @@ class PaymentViewsTest(TestCase):
         self.user = User.objects.create_user(
             username='testuser', email='testuser@example.com', password='testpass')
         self.client.login(username='testuser', password='testpass')
+        # Ensure the user has a Profile (signals may be disabled/mocked in tests)
+        Profile.objects.update_or_create(
+            user=self.user,
+            defaults={
+                "end_date": date.today() + timedelta(days=14),
+                "subscription_id": "sub_test_123",
+            },
+        )
 
-    def test_success_view(self):
+    @patch("payments.views.stripe.Subscription.retrieve")
+    def test_success_view(self, mock_retrieve):
+        # Return a minimal object with the attributes the view expects
+        mock_retrieve.return_value = SimpleNamespace(
+            trial_end=1700000000,  # arbitrary timestamp
+            current_period_end=1700000000,
+            plan=SimpleNamespace(nickname="Trial"),
+        )
         response = self.client.get(
             reverse('payment_success', args=[self.user.id]))
         self.assertEqual(response.status_code, 200)

@@ -20,5 +20,4 @@ class SignatureFormTest(TestCase):
         )
 
         form = SignatureForm(data={}, files={'signature': file_data})
-        print("Form errors:", form.errors)
         self.assertTrue(form.is_valid())

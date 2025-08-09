@@ -2,6 +2,7 @@
 from types import SimpleNamespace
 import time
 from unittest.mock import patch
+from datetime import date, timedelta
 
 from django.contrib.auth.models import User, Group
 from django.db.models.signals import post_save
@@ -61,6 +62,12 @@ class ProfileViewsTest(TestCase):
         # ensure we have one so views can render.
         if not hasattr(self.user, "profile"):
             Profile.objects.create(user=self.user)
+
+        # Make sure end_date is populated to avoid None comparisons in views
+        profile = Profile.objects.get(user=self.user)
+        if profile.end_date is None:
+            profile.end_date = date.today() + timedelta(days=14)
+            profile.save()
 
         self.client.login(username="alice", password="secret123")
 
