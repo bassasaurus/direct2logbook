@@ -327,7 +327,8 @@ def pdf_generate(user_pk):
     # logbook starts here
 
     if os.getenv('DEBUG') is True:
-        flight_objects = Flight.objects.filter(user=user).order_by('-date')[:100]
+        flight_objects = Flight.objects.filter(
+            user=user).order_by('-date')[:100]
     else:
         flight_objects = Flight.objects.filter(user=user).order_by('-date')
 
