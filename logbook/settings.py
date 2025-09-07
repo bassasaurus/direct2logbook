@@ -10,6 +10,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 print('Dev settings = ', config('DEBUG'))
 
+
 if DEBUG is False:
     sentry_sdk.init(
         dsn="https://65a9a45f86104c29873f4bdbfa6846b9@sentry.io/5178641",
@@ -58,6 +59,7 @@ SITE_ID = 8
 ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(' ')
 
 # APPEND_SLASH = False
+
 
 # Application definition
 
@@ -333,16 +335,17 @@ if config('LOGGING', cast=bool) is True:
 
 
 ANYMAIL = {
-    # (exact settings here depend on your ESP...)
     "MAILGUN_API_KEY": config('MAILGUN_API_KEY'),
-    "MAILGUN_SENDER_DOMAIN": 'mg.direct2logbook.com',  # your Mailgun domain, if needed
+    "MAILGUN_SENDER_DOMAIN": 'mg.direct2logbook.com',
+    "MAILGUN_API_URL": config('MAILGUN_API_URL')
 }
 
+# if DEBUG is True:
+#     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# else:
+#     EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
 
-if DEBUG is True:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-else:
-    EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
+EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
 
 DEFAULT_FROM_EMAIL = "no-reply@direct2logbook.com"
 
