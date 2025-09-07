@@ -88,7 +88,6 @@ INSTALLED_APPS = [
     'pdf_output',
     'csv_app',
 
-
     'rest_framework',
     'rest_framework.authtoken',
     'django_recaptcha',
@@ -160,9 +159,6 @@ MIDDLEWARE = [
     # 'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
-
-
 ]
 
 
@@ -367,5 +363,3 @@ REST_FRAMEWORK = {
 
 # fix 3.2 upgrade error
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
-
-SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']
