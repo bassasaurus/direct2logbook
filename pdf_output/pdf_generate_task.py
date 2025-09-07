@@ -125,6 +125,7 @@ def _derive_storage_key_from_signature(sig):
 
 @app.task
 def pdf_generate(user_pk):
+    # setup
     user = User.objects.get(pk=user_pk)
 
     logger.info("pdf_generate: START user=%s env=%s fp=%s",
