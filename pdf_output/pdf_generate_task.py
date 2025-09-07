@@ -1,85 +1,201 @@
+import hashlib
+import inspect
+import platform
+import sys
+import botocore
+import boto3
+import os
 from logbook.celery import app
 from io import BytesIO
 from reportlab.lib.pagesizes import legal, landscape
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import Paragraph, Table, SimpleDocTemplate, Spacer, TableStyle, PageBreak, LongTable
+from reportlab.platypus import (
+    Paragraph,
+    Table,
+    SimpleDocTemplate,
+    Spacer,
+    TableStyle,
+    PageBreak,
+    LongTable,
+    Image as RLImage,
+)
 from reportlab.lib import colors
 from reportlab.lib.units import inch
+from reportlab.lib.utils import ImageReader
 
 from django.core.mail import EmailMessage
-# from django.core.mail import send_mail
 from django.contrib.auth.models import User
-
-import os
+from django.core.files.storage import default_storage
+from django.conf import settings
+from django.contrib.staticfiles import finders
 
 import datetime
-from logbook import settings
+
+from urllib.parse import urlparse, unquote
+
 from .models import Signature
 from flights.models import Flight, Total, Stat, Regs, Power, Weight, Endorsement
 
+import logging
+logger = logging.getLogger(__name__)
+
+
+def _func_fingerprint(func):
+    try:
+        src = inspect.getsource(func)
+    except Exception:
+        src = repr(func)
+    h = hashlib.sha256(src.encode("utf-8", errors="ignore")).hexdigest()[:12]
+    return h
+
+
+def _celery_env_report():
+    from django.conf import settings as dj
+    try:
+        boto_ver = boto3.__version__
+        botocore_ver = botocore.__version__
+    except Exception:
+        boto_ver = botocore_ver = "?"
+    try:
+        from django.core.files.storage import default_storage as ds
+        storage_cls = f"{ds.__class__.__module__}.{ds.__class__.__name__}"
+    except Exception:
+        storage_cls = "<unknown>"
+    return {
+        "py": sys.version.split()[0],
+        "platform": platform.platform(),
+        "cwd": os.getcwd(),
+        "DJANGO_SETTINGS_MODULE": os.environ.get("DJANGO_SETTINGS_MODULE"),
+        "AWS_BUCKET": getattr(dj, "AWS_STORAGE_BUCKET_NAME", None),
+        "AWS_REGION": getattr(dj, "AWS_S3_REGION_NAME", None),
+        "AWS_SIG": getattr(dj, "AWS_S3_SIGNATURE_VERSION", None),
+        "DEBUG": getattr(dj, "DEBUG", None),
+        "boto3": boto_ver,
+        "botocore": botocore_ver,
+        "storage": storage_cls,
+    }
+
+
+# --- helpers ---------------------------------------------------------------
+
+def _entry(value, flight):
+    """Render a cell value according to original logic."""
+    if not value or value is False:
+        return '-'
+    if value is True:
+        return str(flight.duration)
+    return str(value)
+
+
+def _image_reader_from_storage(name: str):
+    """Return a ReportLab ImageReader from a storage key (S3/local).
+
+    Uses default_storage so it works under django-storages S3 as well as local FS.
+    """
+    with default_storage.open(name, "rb") as fh:
+        return ImageReader(BytesIO(fh.read()))
+
+
+def _static_image_reader(static_path: str):
+    """Try to load an image from staticfiles, else return None."""
+    abs_path = finders.find(static_path)
+    if not abs_path:
+        return None
+    try:
+        return ImageReader(abs_path)
+    except Exception:
+        return None
+
+
+def _derive_storage_key_from_signature(sig):
+    """Derive storage key from Signature instance regardless of field type."""
+    sig_name = getattr(sig.signature, 'name', None)
+    if sig_name:
+        return sig_name
+    field = getattr(sig, 'signature', None)
+    if isinstance(field, str) and field.startswith(('http://', 'https://')):
+        parsed = urlparse(field)
+        key = unquote(parsed.path.lstrip('/'))
+        if key:
+            return key
+    return None
+
+
+# --- main task -------------------------------------------------------------
 
 @app.task
 def pdf_generate(user_pk):
-
     user = User.objects.get(pk=user_pk)
 
+    logger.info("pdf_generate: START user=%s env=%s fp=%s",
+                user_pk, _celery_env_report(), _func_fingerprint(pdf_generate))
+
     buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer,
-                            pagesize=landscape(legal),
-                            verbosity=1,
-                            leftMargin=0.25 * inch,
-                            rightMargin=0.25 * inch,
-                            topMargin=0.5 * inch,
-                            bottomMargin=1.25 * inch)
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=landscape(legal),
+        leftMargin=0.25 * inch,
+        rightMargin=0.25 * inch,
+        topMargin=0.5 * inch,
+        bottomMargin=1.25 * inch,
+    )
     styles = getSampleStyleSheet()
 
     story = []
 
-    def entry(object, flight):
-        if not object or object is False:
-            entry = '-'
-        elif object is True:
-            entry = str(flight.duration)
-        else:
-            entry = str(object)
-        return entry
+    try:
+        if Signature.objects.filter(user=user).exists():
+            sig = Signature.objects.get(user=user)
+            raw = getattr(sig, 'signature', None)
+            sig_key_dbg = _derive_storage_key_from_signature(sig)
+            logger.info(
+                "pdf_generate: signature raw=%r derived_key=%r", raw, sig_key_dbg)
+    except Exception as e:
+        logger.warning("pdf_generate: signature precheck failed: %s", e)
 
     # cover page starts here
-    def title_page(canvas, doc):
+    def title_page(canvas, doc_):
         canvas.saveState()
 
-        canvas.drawImage('pdf_output/wings.png', 103,
-                         205, width=800, height=229)
+        # Draw header wings image if available from static
+        wings = _static_image_reader('pdf_output/wings.png')
+        if wings is not None:
+            canvas.drawImage(wings, 103, 205, width=800,
+                             height=229, mask='auto')
 
         canvas.setFont('Helvetica-Oblique', 7)
         canvas.drawString(
             800, 30, "Powered by Direct2Logbook.com and ReportLab")
 
         canvas.setFont('Helvetica', 10)
-        page_number_text = "%d" % (doc.page)
-        canvas.drawCentredString(
-            14 * inch / 2,
-            30,
-            page_number_text
-        )
+        page_number_text = f"{doc_.page}"
+        canvas.drawCentredString(14 * inch / 2, 30, page_number_text)
         canvas.restoreState()
 
-    def add_later_page_number(canvas, doc):
-
+    def add_later_page_number(canvas, doc_):
         canvas.saveState()
 
         canvas.setFont('Helvetica-Oblique', 7)
         canvas.drawString(
             800, 30, "Powered by Direct2Logbook.com and ReportLab")
 
-        if Signature.objects.filter(user=user).exists():
-            sig = Signature.objects.get(user=user)
-            signature_path = sig.signature.url
-
-            canvas.drawImage(str(signature_path), 240,
-                             50, width=100, height=40)
-        else:
-            None
+        # Draw signature from storage if exists (use storage name, not URL)
+        try:
+            logger.debug("PDF sig: checking signature for user=%s", user.pk)
+            if Signature.objects.filter(user=user).exists():
+                sig = Signature.objects.get(user=user)
+                logger.debug("PDF sig: raw field repr=%r",
+                             getattr(sig, 'signature', None))
+                sig_key = _derive_storage_key_from_signature(sig)
+                logger.debug("PDF sig: derived storage key=%r", sig_key)
+                if sig_key:
+                    reader = _image_reader_from_storage(sig_key)
+                    canvas.drawImage(reader, 240, 50, width=100,
+                                     height=40, mask='auto')
+        except Exception as e:
+            logger.warning("PDF sig: failed to embed signature: %s", e)
+            # Non-fatal if signature cannot be loaded
+            pass
 
         canvas.setFont('Helvetica', 10)
         canvas.drawString(
@@ -90,331 +206,268 @@ def pdf_generate(user_pk):
         canvas.line(240, 50, 480, 50)
 
         canvas.setFont('Helvetica', 10)
-        page_number_text = "%d" % (doc.page)
-        canvas.drawCentredString(
-            14 * inch / 2,
-            30,
-            page_number_text
-        )
+        page_number_text = f"{doc_.page}"
+        canvas.drawCentredString(14 * inch / 2, 30, page_number_text)
         canvas.restoreState()
+
     spacer15 = Spacer(1, 1.5 * inch)
-    spacer025 = Spacer(1, .25 * inch)
+    spacer025 = Spacer(1, 0.25 * inch)
 
     story.append(spacer15)
     story.append(spacer025)
-    text = "<para size=50 align=center>Logbook for {} {}</para>".format(
-        user.first_name, user.last_name)
+    text = f"<para size=50 align=center>Logbook for {user.first_name} {user.last_name}</para>"
     title = Paragraph(text, style=styles["Normal"])
     story.append(title)
     story.append(spacer15)
     story.append(spacer15)
 
-    text = "<para size=15 align=center>Data current as of {}</para>".format(
-        datetime.date.today().strftime("%m/%d/%Y"))
-    title = Paragraph(text, style=styles["Normal"])
-    story.append(title)
+    text = f"<para size=15 align=center>Data current as of {datetime.date.today().strftime('%m/%d/%Y')}</para>"
+    story.append(Paragraph(text, style=styles["Normal"]))
     story.append(PageBreak())
 
     # summary page starts here
     spacer = Spacer(1, 0.25 * inch)
     text = "<para size=15 align=left><u><b>Category and Class Summary</b></u></para>"
-    cat_class_title = Paragraph(text, style=styles["Normal"])
-    story.append(cat_class_title)
+    story.append(Paragraph(text, style=styles["Normal"]))
     story.append(spacer)
 
     # total table
     total_objects = Total.objects.filter(user=user)
-    totals_that_exist = []
-    for total in total_objects:
-        if total.total_time > 0.0:
-            totals_that_exist.append(str(total.total))
+    totals_that_exist = [str(t.total)
+                         for t in total_objects if t.total_time > 0.0]
 
     total_data = []
     for total in totals_that_exist:
-        total = Total.objects.filter(user=user).get(total=total)
-        row = [str(total.total), str(total.total_time), str(total.pilot_in_command), str(total.second_in_command), str(total.cross_country),
-               str(total.instructor), str(total.dual), str(total.solo), str(
-                   total.instrument), str(total.night), str(total.simulated_instrument),
-               str(total.simulator), str(total.landings_day), str(
-                   total.landings_night), str(total.landings_day + total.landings_night),
-               str(total.last_flown.strftime("%m/%d/%Y")), str(total.last_30), str(
-                   total.last_60), str(total.last_90), str(total.last_180),
-               str(total.last_yr), str(total.last_2yr), str(total.ytd)]
-
+        t = Total.objects.filter(user=user).get(total=total)
+        row = [
+            str(t.total), str(t.total_time), str(t.pilot_in_command), str(
+                t.second_in_command), str(t.cross_country),
+            str(t.instructor), str(t.dual), str(t.solo), str(
+                t.instrument), str(t.night), str(t.simulated_instrument),
+            str(t.simulator), str(t.landings_day), str(
+                t.landings_night), str(t.landings_day + t.landings_night),
+            str(t.last_flown.strftime("%m/%d/%Y")
+                ), str(t.last_30), str(t.last_60), str(t.last_90), str(t.last_180),
+            str(t.last_yr), str(t.last_2yr), str(t.ytd),
+        ]
         total_data.append(row)
 
-    total_header = ["Cat/Class", "Time", "PIC", "SIC", "XC", "CFI", "Dual", "Solo",
-                    "IFR", "Night", "Hood", "Sim", "D Ldg", "N Ldg", "Total Ldg",
-                    "Last Flown", "30", "60", "90", "6mo", "1yr", "2yr", "Ytd"]
+    total_header = [
+        "Cat/Class", "Time", "PIC", "SIC", "XC", "CFI", "Dual", "Solo",
+        "IFR", "Night", "Hood", "Sim", "D Ldg", "N Ldg", "Total Ldg",
+        "Last Flown", "30", "60", "90", "6mo", "1yr", "2yr", "Ytd",
+    ]
 
     total_data.insert(0, total_header)
     total_table = Table(total_data, hAlign='LEFT')
-    cat_class_tablestyle = TableStyle([
+    total_table.setStyle(TableStyle([
         ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold', 10),
         ('LINEBELOW', (0, 0), (-1, 0), 1.0, colors.black),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
         ('LINEBELOW', (0, 0), (-1, -1), .25, colors.black),
         ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
-    ])
-    total_table.setStyle(cat_class_tablestyle)
+    ]))
 
     story.append(total_table)
-
     story.append(spacer)
-
-    # misc tables start here
 
     # role_table
     role_objects = Power.objects.filter(user=user)
-    role_data = []
-    for role in role_objects:
-        row = [str(role.role), str(role.turbine), str(role.piston)]
-        role_data.append(row)
-
+    role_data = [[str(r.role), str(r.turbine), str(r.piston)]
+                 for r in role_objects]
     role_header = ["Role", "Turbine", "Piston"]
     role_data.insert(0, role_header)
     role_table = Table(role_data, hAlign="LEFT")
-    role_tablestyle = TableStyle([
+    role_table.setStyle(TableStyle([
         ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold', 10),
         ('LINEBELOW', (0, 0), (-1, 0), 1.0, colors.black),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
         ('LINEBELOW', (0, 0), (-1, -1), .25, colors.black),
         ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
-    ])
-    role_table.setStyle(role_tablestyle)
+    ]))
 
     # regs_table
     regs_objects = Regs.objects.filter(user=user)
-    regs_data = []
-    for regs in regs_objects:
-        row = [str(regs.reg_type), str(regs.pilot_in_command),
-               str(regs.second_in_command)]
-        regs_data.append(row)
-
+    regs_data = [[str(r.reg_type), str(r.pilot_in_command),
+                  str(r.second_in_command)] for r in regs_objects]
     regs_header = ["FAR", "PIC", "SIC"]
     regs_data.insert(0, regs_header)
     regs_table = Table(regs_data, hAlign='LEFT')
-    reg_tablestyle = TableStyle([
+    regs_table.setStyle(TableStyle([
         ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold', 10),
         ('LINEBELOW', (0, 0), (-1, 0), 1.0, colors.black),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
         ('LINEBELOW', (0, 0), (-1, -1), .25, colors.black),
         ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
-    ])
-
-    regs_table.setStyle(reg_tablestyle)
+    ]))
 
     # weight_table
     weight_objects = Weight.objects.filter(user=user)
-
-    weights_that_exist = []
-    for weight in weight_objects:
-        if weight.total > 0.0:
-            weights_that_exist.append(weight)
-
-    weight_data = []
-
-    for weight in weights_that_exist:
-        row = [str(weight.weight), str(weight.total)]
-        weight_data.append(row)
-
+    weights_that_exist = [w for w in weight_objects if w.total > 0.0]
+    weight_data = [[str(w.weight), str(w.total)] for w in weights_that_exist]
     weight_header = ['Weight', 'Total']
     weight_data.insert(0, weight_header)
     weight_table = Table(weight_data, hAlign='LEFT')
-    weight_tablestyle = TableStyle([
+    weight_table.setStyle(TableStyle([
         ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold', 10),
         ('LINEBELOW', (0, 0), (-1, 0), 1.0, colors.black),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
         ('LINEBELOW', (0, 0), (-1, -1), .25, colors.black),
         ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
-    ])
+    ]))
 
-    weight_table.setStyle(weight_tablestyle)
-
-    # endoresment_table
-
+    # endorsement_table
     endorsement_objects = Endorsement.objects.filter(user=user)
-
-    endorsements_that_exist = []
-    for endorsement in endorsement_objects:
-        if endorsement.total > 0.0:
-            endorsements_that_exist.append(endorsement)
-
-    endorsement_data = []
-
-    for endorsement in endorsements_that_exist:
-        row = [str(endorsement.endorsement), str(endorsement.total)]
-        endorsement_data.append(row)
-
+    endorsements_that_exist = [e for e in endorsement_objects if e.total > 0.0]
+    endorsement_data = [[str(e.endorsement), str(e.total)]
+                        for e in endorsements_that_exist]
     endorsement_header = ['Endorsement', 'Total']
     endorsement_data.insert(0, endorsement_header)
     endorsement_table = Table(endorsement_data, hAlign='LEFT')
-    endorsement_tablestyle = TableStyle([
+    endorsement_table.setStyle(TableStyle([
         ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold', 10),
         ('LINEBELOW', (0, 0), (-1, 0), 1.0, colors.black),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
         ('LINEBELOW', (0, 0), (-1, -1), .25, colors.black),
         ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
-    ])
-
-    endorsement_table.setStyle(endorsement_tablestyle)
+    ]))
 
     # misc_table
-    text = "<para size=15 align=left><u><b>Misc Summary</b></u></para>"
-    misc_title = Paragraph(text, style=styles["Normal"])
-    story.append(misc_title)
+    story.append(Paragraph(
+        "<para size=15 align=left><u><b>Misc Summary</b></u></para>", style=styles["Normal"]))
     story.append(spacer)
-
-    misc_data = [
-                [role_table, regs_table, weight_table, endorsement_table]
-    ]
-
-    misc_table = Table(misc_data, hAlign="LEFT")
-    story.append(misc_table)
+    misc_data = [[role_table, regs_table, weight_table, endorsement_table]]
+    story.append(Table(misc_data, hAlign="LEFT"))
     story.append(spacer)
 
     # aircraft stats table
-
-    text = "<para size=15 align=left><u><b>Aircraft Summary</b></u></para>"
-    aircraft_stats_title = Paragraph(text, style=styles["Normal"])
-    story.append(aircraft_stats_title)
+    story.append(Paragraph(
+        "<para size=15 align=left><u><b>Aircraft Summary</b></u></para>", style=styles["Normal"]))
     story.append(spacer)
 
     stat_objects = Stat.objects.filter(user=user)
-
     stat_data = []
-    for stat in stat_objects:
-        # avoids None failure when user hasn't logged time in aircraft
-        date_condition = [stat.last_flown, stat.last_30, stat.last_60,
-                          stat.last_90, stat.last_180, stat.last_yr, stat.last_2yr, stat.ytd]
-        if None not in date_condition:
+    for s in stat_objects:
+        # Skip rows if any required date fields are None
+        if None in [s.last_flown, s.last_30, s.last_60, s.last_90, s.last_180, s.last_yr, s.last_2yr, s.ytd]:
+            continue
+        row = [
+            str(s.aircraft_type), str(s.total_time), str(s.pilot_in_command), str(
+                s.second_in_command), str(s.cross_country),
+            str(s.instructor), str(s.dual), str(s.solo), str(
+                s.instrument), str(s.night), str(s.simulated_instrument),
+            str(s.simulator), str(s.landings_day), str(s.landings_night),
+            str(s.last_flown.strftime("%m/%d/%Y")
+                ), str(s.last_30), str(s.last_60), str(s.last_90), str(s.last_180),
+            str(s.last_yr), str(s.last_2yr), str(s.ytd),
+        ]
+        stat_data.append(row)
 
-            row = [str(stat.aircraft_type), str(stat.total_time), str(stat.pilot_in_command), str(stat.second_in_command), str(stat.cross_country),
-                   str(stat.instructor), str(stat.dual), str(stat.solo), str(
-                       stat.instrument), str(stat.night), str(stat.simulated_instrument),
-                   str(stat.simulator), str(
-                       stat.landings_day), str(stat.landings_night),
-                   str(stat.last_flown.strftime("%m/%d/%Y")), str(stat.last_30), str(
-                       stat.last_60), str(stat.last_90), str(stat.last_180),
-                   str(stat.last_yr), str(stat.last_2yr), str(stat.ytd)]
-            stat_data.append(row)
-
-        else:
-            pass
-
-    stat_header = ["Type", "Time", "PIC", "SIC", "XC", "CFI", "Dual", "Solo",
-                   "IFR", "Night", "Hood", "Sim", "D Ldg", "N Ldg",
-                   "Last Flown", "30", "60", "90", "6mo", "1yr", "2yr", "Ytd"]
-
+    stat_header = [
+        "Type", "Time", "PIC", "SIC", "XC", "CFI", "Dual", "Solo",
+        "IFR", "Night", "Hood", "Sim", "D Ldg", "N Ldg",
+        "Last Flown", "30", "60", "90", "6mo", "1yr", "2yr", "Ytd",
+    ]
     stat_data.insert(0, stat_header)
 
-    stat_table = Table(stat_data, repeatRows=(1), hAlign='LEFT')
-    stat_tablestyle = TableStyle([
+    stat_table = Table(stat_data, repeatRows=1, hAlign='LEFT')
+    stat_table.setStyle(TableStyle([
         ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold', 10),
         ('LINEBELOW', (0, 0), (-1, 0), 1.0, colors.black),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
         ('LINEBELOW', (0, 0), (-1, -1), .25, colors.black),
         ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
-    ])
-    stat_table.setStyle(stat_tablestyle)
+    ]))
 
     story.append(stat_table)
-
     story.append(spacer)
 
-    # story.append(PageBreak())
+    # logbook section
+    logbook_header = [
+        'Date', 'Type', 'Reg', 'Route', 'Block', 'PIC', 'SIC', 'XC', 'Night',
+        'IFR', 'Appr', 'Hold', 'D Ldg', 'N Ldg', 'Hood', 'CFI', 'Dual', 'Solo', 'Sim'
+    ]
 
-    # logbook starts here
-
-    if os.getenv('DEBUG') is True:
+    if settings.DEBUG:
         flight_objects = Flight.objects.filter(
             user=user).order_by('-date')[:100]
     else:
         flight_objects = Flight.objects.filter(user=user).order_by('-date')
 
-    logbook_data = []
-
-    logbook_header = ['Date', 'Type', 'Reg', 'Route', 'Block', 'PIC', 'SIC', 'XC', 'Night',
-                      'IFR', 'Appr', 'Hold', 'D Ldg', 'N Ldg', 'Hood', 'CFI', 'Dual', 'Solo', 'Sim']
-
-    for flight in flight_objects:
-
-        date = flight.date
-        Date = date.strftime("%m/%d/%Y")
-
-        PIC = entry(flight.pilot_in_command, flight)
-        SIC = entry(flight.second_in_command, flight)
-        XC = entry(flight.cross_country, flight)
-        Night = entry(flight.night, flight)
-        IFR = entry(flight.instrument, flight)
-        CFI = entry(flight.instructor, flight)
-        Dual = entry(flight.dual, flight)
-        Solo = entry(flight.solo, flight)
-        Sim = entry(flight.simulator, flight)
-        Day_LDG = entry(flight.landings_day, flight)
-        Night_LDG = entry(flight.landings_night, flight)
-        Hood = entry(flight.simulated_instrument, flight)
-
+    logbook_rows = []
+    for f in flight_objects:
+        date_str = f.date.strftime("%m/%d/%Y")
         appr = ''
-        for approach in flight.approach_set.all():
-            appr = appr + str(approach.approach_type) + \
-                '-' + str(approach.number) + ' '
+        for approach in f.approach_set.all():
+            appr += f"{approach.approach_type}-{approach.number} "
+        hold = 'Yes' if any(h.hold for h in f.holding_set.all()) else '-'
+        row = [
+            date_str, str(f.aircraft_type), str(
+                f.registration), str(f.route), str(f.duration),
+            _entry(f.pilot_in_command, f), _entry(
+                f.second_in_command, f), _entry(f.cross_country, f),
+            _entry(f.night, f), _entry(f.instrument, f), appr, hold,
+            _entry(f.landings_day, f), _entry(
+                f.landings_night, f), _entry(f.simulated_instrument, f),
+            _entry(f.instructor, f), _entry(f.dual, f), _entry(
+                f.solo, f), _entry(f.simulator, f),
+        ]
+        logbook_rows.append(row)
 
-        hold = ''
-        for holding in flight.holding_set.all():
-            if holding.hold:
-                hold = 'Yes'
-            else:
-                hold = '-'
-
-        row = [Date, str(flight.aircraft_type), str(flight.registration), str(flight.route), str(
-            flight.duration), PIC, SIC, XC, Night, IFR, appr, hold, Day_LDG, Night_LDG, Hood, CFI, Dual, Solo, Sim]
-
-        logbook_data.append(row)
-
-    logbook_data.insert(0, logbook_header)
-
-    logbook_table = LongTable(logbook_data, repeatRows=(1), hAlign='LEFT')
-
-    logbook_tablestyle = TableStyle([
+    logbook_data = [logbook_header] + logbook_rows
+    logbook_table = LongTable(logbook_data, repeatRows=1, hAlign='LEFT')
+    logbook_table.setStyle(TableStyle([
         ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold', 10),
         ('LINEBELOW', (0, 0), (-1, 0), 1.0, colors.black),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
         ('LINEBELOW', (0, 0), (-1, -1), .25, colors.black),
         ('ALIGN', (4, 0), (-1, -1), 'RIGHT'),
-    ])
-    logbook_table.setStyle(logbook_tablestyle)
+    ]))
 
-    styles = getSampleStyleSheet()
-
-    text = "<para size=15 align=left><u><b>Logbook</b></u></para>"
-    logbook_title = Paragraph(text, style=styles["Normal"])
-    story.append(logbook_title)
+    story.append(Paragraph(
+        "<para size=15 align=left><u><b>Logbook</b></u></para>", style=styles["Normal"]))
     story.append(spacer)
-
     story.append(logbook_table)
 
     # build pdf
-    # doc.multiBuild(story, onFirstPage=myFirstPage, onLaterPages=myLaterPages)
     doc.multiBuild(story, onFirstPage=title_page,
                    onLaterPages=add_later_page_number)
-    # doc.build(story)
-    # Get the value of the BytesIO buffer and write it to the response.
-    pdf = buffer.getvalue()
+
+    pdf_bytes = buffer.getvalue()
     buffer.close()
 
-    # email message/attachment
-    subject = "Logbook for {} {}".format(user.first_name, user.last_name)
-    user_email = user.email
+    # email the generated PDF (no need to persist unless you want to)
+    subject = f"Logbook for {user.first_name} {user.last_name}"
     email = EmailMessage(
         subject,
         'Good luck on your interview!',
         'noreply@direct2logbook.com',
-        [user_email],
+        [user.email],
         reply_to=['noreply@direct2logbook.com'],
         headers={'Message-ID': 'logbook'},
     )
-    email.attach('Logbook.pdf', pdf, 'application/pdf')
+    email.attach('Logbook.pdf', pdf_bytes, 'application/pdf')
     email.send()
 
     return None
+
+
+@app.task
+def celery_debug_probe(user_pk):
+    # Light-weight probe to ensure the worker has the same env and can open the signature via storage
+    info = _celery_env_report()
+    details = {"env": info, "user": user_pk}
+    try:
+        user = User.objects.get(pk=user_pk)
+        if Signature.objects.filter(user=user).exists():
+            sig = Signature.objects.get(user=user)
+            key = _derive_storage_key_from_signature(sig)
+            details["sig_key"] = key
+            if key:
+                with default_storage.open(key, "rb") as fh:
+                    chunk = fh.read(16)
+                    details["sig_first_bytes_hex"] = chunk.hex()
+    except Exception as e:
+        details["error"] = str(e)
+    logger.info("celery_debug_probe: %s", details)
+    return details
