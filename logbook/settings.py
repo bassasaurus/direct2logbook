@@ -4,6 +4,7 @@ import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.celery import CeleryIntegration
 from decouple import config
+from botocore.client import Config
 
 DEBUG = config('DEBUG', default=False, cast=bool)
 
@@ -277,15 +278,30 @@ STATICFILES_DIRS = [
 
 MEDIA_URL = config('MEDIA_URL')
 
+# --- credentials & bucket (env is best; shown here for clarity) ---
+AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY")
+# e.g., "direct2logbook-media"
+AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME")
+# <- MUST MATCH BUCKET'S REAL REGION
+AWS_S3_REGION_NAME = config("AWS_S3_REGION_NAME", default="us-east-1")
+AWS_S3_SIGNATURE_VERSION = "s3v4"
+AWS_S3_ADDRESSING_STYLE = "virtual"   # virtual-hosted-style URLs
+
+# DO NOT set AWS_S3_CUSTOM_DOMAIN when using presigned S3 URLs.
+# Leave querystring_auth at default (True) for private objects.
+
 STORAGES = {
     "default": {
         "BACKEND": "storages.backends.s3.S3Storage",
         "OPTIONS": {
-            "bucket_name": config('AWS_STORAGE_BUCKET_NAME'),
-            "access_key": config('AWS_SECRET_ACCESS_KEY'),
-            "secret_key": config('AWS_SECRET_ACCESS_KEY'),
+            "bucket_name": AWS_STORAGE_BUCKET_NAME,
+            "region_name": AWS_S3_REGION_NAME,
+            # Pin the endpoint to the region so the host & signature match:
+            "endpoint_url": f"https://s3.{AWS_S3_REGION_NAME}.amazonaws.com",
+            # No access_key/secret_key here; django-storages reads globals above.
+            "file_overwrite": False,
             "default_acl": None,
-            "file_overwrite": False
         },
     },
     "staticfiles": {
