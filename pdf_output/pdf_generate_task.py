@@ -1,3 +1,4 @@
+from decimal import ROUND_HALF_UP
 import hashlib
 import inspect
 import platform
@@ -30,6 +31,8 @@ from django.conf import settings
 from django.contrib.staticfiles import finders
 
 import datetime
+
+from decimal import Decimal
 
 from urllib.parse import urlparse, unquote
 
@@ -78,6 +81,7 @@ def _celery_env_report():
 
 # --- helpers ---------------------------------------------------------------
 
+
 def _entry(value, flight):
     """Render a cell value according to original logic."""
     if not value or value is False:
@@ -85,6 +89,20 @@ def _entry(value, flight):
     if value is True:
         return str(flight.duration)
     return str(value)
+
+
+# --- Numeric formatting helper ---
+
+
+def _dec_str(val):
+    """Convert a numeric field to a clean string with one decimal place using Decimal."""
+    if val in (None, '', '-'):
+        return '-'
+    try:
+        d = Decimal(str(val)).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
+        return str(d)
+    except Exception:
+        return str(val)
 
 
 def _image_reader_from_storage(name: str):
@@ -399,7 +417,7 @@ def pdf_generate(user_pk):
     # else:
     flight_objects = Flight.objects.filter(user=user).order_by('-date')
 
-    # Build raw rows
+    # Build raw rows with Decimals for numeric fields
     logbook_rows = []
     for f in flight_objects:
         date_str = f.date.strftime("%m/%d/%Y")
@@ -407,21 +425,74 @@ def pdf_generate(user_pk):
         for approach in f.approach_set.all():
             appr += f"{approach.approach_type}-{approach.number} "
         hold = 'Yes' if any(h.hold for h in f.holding_set.all()) else '-'
+
+        def dec_or_zero(val):
+            # For numeric fields: if not null/empty, wrap in Decimal(str(val)), else Decimal("0.0")
+            if val not in (None, '', '-'):
+                try:
+                    return Decimal(str(val))
+                except Exception:
+                    return Decimal("0.0")
+            return Decimal("0.0")
+        # Ensure PIC, SIC, XC, Night, IFR, CFI, Dual, Solo go through dec_or_zero
         row = [
-            date_str, str(f.aircraft_type), str(
-                f.registration), str(f.route), str(f.duration),
-            _entry(f.pilot_in_command, f), _entry(
-                f.second_in_command, f), _entry(f.cross_country, f),
-            _entry(f.night, f), _entry(f.instrument, f), appr, hold,
-            _entry(f.landings_day, f), _entry(
-                f.landings_night, f), _entry(f.simulated_instrument, f),
-            _entry(f.instructor, f), _entry(f.dual, f), _entry(
-                f.solo, f), _entry(f.simulator, f),
+            date_str,
+            str(f.aircraft_type),
+            str(f.registration),
+            str(f.route),
+            dec_or_zero(f.duration),           # Block
+            dec_or_zero(f.duration) if getattr(f, "pilot_in_command", False) else Decimal(
+                "0.0"),   # PIC time = duration if logged as PIC
+            dec_or_zero(f.duration) if getattr(f, "second_in_command", False) else Decimal(
+                "0.0"),  # SIC time = duration if logged as SIC
+            dec_or_zero(f.duration) if getattr(f, "cross_country", False) else Decimal(
+                "0.0"),  # XC time = duration if logged as XC
+            dec_or_zero(f.night),              # Night
+            dec_or_zero(f.instrument),         # IFR
+            appr,
+            hold,
+            dec_or_zero(f.landings_day),
+            dec_or_zero(f.landings_night),
+            dec_or_zero(f.simulated_instrument),
+            dec_or_zero(f.duration) if getattr(f, "instructor", False) else Decimal(
+                "0.0"),  # CFI time = duration if logged as CFI
+            dec_or_zero(f.duration) if getattr(f, "dual", False) else Decimal(
+                "0.0"),        # Dual time = duration if logged as Dual
+            dec_or_zero(f.solo),               # Solo
+            dec_or_zero(f.simulator),
         ]
         logbook_rows.append(row)
 
+    # Now, build display rows for logbook (convert Decimals to pretty strings)
+    from decimal import ROUND_HALF_UP
+
+    def display_cell(val, colidx):
+        # Numeric columns: 4,5,6,7,8,9,12,13,14,15,16,17,18
+        # Landings columns (12, 13) as integer, others as 1 decimal
+        if colidx in [4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17, 18]:
+            if colidx in (12, 13):
+                # Landings: int, show 0 if 0
+                try:
+                    return str(int(val)) if val is not None else '0'
+                except Exception:
+                    return '0'
+            else:
+                # Other numerics: 1 decimal place
+                try:
+                    return str(val.quantize(Decimal("0.1"), rounding=ROUND_HALF_UP))
+                except Exception:
+                    return '0.0'
+        else:
+            # Non-numeric fields: leave as is
+            return val
+
+    logbook_display_rows = []
+    for row in logbook_rows:
+        disp_row = [display_cell(row[i], i) for i in range(len(row))]
+        logbook_display_rows.append(disp_row)
+
     # Build a prototype LongTable to get column widths and perform splitting
-    all_data = [logbook_header] + logbook_rows
+    all_data = [logbook_header] + logbook_display_rows
     proto_table = LongTable(all_data, repeatRows=1, hAlign='LEFT')
     proto_style = TableStyle([
         ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold', 10),
@@ -440,7 +511,7 @@ def pdf_generate(user_pk):
     # Numeric columns (0-based indices) for logbook
     numeric_cols = [4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17, 18]
 
-    def _make_footer_row(values):
+    def _make_footer_row(values, col_widths, numeric_cols):
         """Build a one-row Table for the page footer, styled appropriately."""
         tbl = Table([values], colWidths=col_widths, hAlign='LEFT')
         style = TableStyle([
@@ -452,6 +523,9 @@ def pdf_generate(user_pk):
         for c in numeric_cols:
             style.add('ALIGN', (c, 0), (c, 0), 'RIGHT')
         style.add('LINEBELOW', (0, 0), (-1, 0), 1.0, colors.black)
+        # If the footer row is for "Current Page", shade the background
+        if values[0] == "Current Page":
+            style.add('BACKGROUND', (0, 0), (-1, 0), colors.whitesmoke)
         tbl.setStyle(style)
         return tbl
 
@@ -475,20 +549,13 @@ def pdf_generate(user_pk):
     remaining_table.setStyle(proto_style)
     # Precompute a blank footer row height for space reservation
     _, footer_h = _make_footer_row(
-        [''] * len(logbook_header)).wrap(doc.width, doc.height)
+        [''] * len(logbook_header), col_widths, numeric_cols).wrap(doc.width, doc.height)
 
     while True:
         page_index += 1
         avail = avail_first if page_index == 1 else avail_other
-        # Reserve space for footer rows: last page = 1 row, others = 2 rows (but we don't know last page yet)
-        # For first pass, always reserve 2 rows except possibly last page
-        # We'll handle this correctly in second pass
-        # For now, always reserve 2 rows except for first page (if only one page, okay)
-        # To be safe, always reserve 2 rows except for the last page (which we only know when split_parts has length 1)
-        # Try with 2 rows reserved, then adjust for last page
-        is_first_page = (page_index == 1)
-        # For first pass, always reserve 2*footer_h except possibly last page
-        avail_for_split = avail - 2 * footer_h
+        # For first pass, always reserve 3 rows worth of space for footers
+        avail_for_split = avail - 3 * footer_h
         chunk_height = max(36, avail_for_split - safety_margin)
         attempt = 0
         while True:
@@ -510,7 +577,7 @@ def pdf_generate(user_pk):
         this_rows = len(getattr(this_page_table, '_cellvalues', [])) - 1
         page_rows = logbook_rows[rows_consumed:rows_consumed + this_rows]
         # Compute page sums for numeric columns
-        page_sums = {col: 0.0 for col in numeric_cols}
+        page_sums = {col: Decimal("0.0") for col in numeric_cols}
         for row in page_rows:
             for col in numeric_cols:
                 val = row[col] if col < len(row) else ''
@@ -522,9 +589,10 @@ def pdf_generate(user_pk):
                     page_sums[col] += n
                 else:
                     try:
-                        n = float(val) if val not in ('-', '', None) else 0.0
+                        n = Decimal(str(val)) if val not in (
+                            '-', '', None) else Decimal("0.0")
                     except Exception:
-                        n = 0.0
+                        n = Decimal("0.0")
                     page_sums[col] += n
         page_chunks.append((this_page_table, page_rows, page_sums))
         rows_consumed += this_rows
@@ -533,14 +601,19 @@ def pdf_generate(user_pk):
         else:
             remaining_table = split_parts[1]
 
-    # Second pass: render each page, append footers, reserve correct space
+    # After first pass, compute reverse cumulative totals for numeric columns ("Total" footer for each page)
+    totals_by_page = []
+    running = {col: Decimal("0.0") for col in numeric_cols}
+    for _, _, sums in reversed(page_chunks):
+        for col in numeric_cols:
+            running[col] += sums[col]
+        totals_by_page.insert(0, running.copy())
+
+    # Second pass: render each page, append only Current Page and Total footers for each page
     num_pages = len(page_chunks)
     for i, (this_page_table, page_rows, page_sums) in enumerate(page_chunks, start=1):
         is_first = (i == 1)
         is_last = (i == num_pages)
-        # Reserve correct space for footers
-        # On last page: 1 row, others: 2 rows
-        # (Handled by split above, so here we just render)
         if is_first:
             story.append(header_para)
             story.append(Spacer(1, first_spacer_h))
@@ -553,21 +626,18 @@ def pdf_generate(user_pk):
             if col in (12, 13):
                 values[col] = str(int(round(s)))
             else:
-                values[col] = f"{s:.1f}"
-        story.append(_make_footer_row(values))
-        # If not last page, also build Previous Page footer using next page's sums
-        if not is_last:
-            # i is 1-based, so i==current, i+1==next; page_chunks is 0-based
-            next_page_sums = page_chunks[i][2]
-            prev_values = [''] * len(logbook_header)
-            prev_values[0] = 'Previous Page'
-            for col in numeric_cols:
-                s = next_page_sums[col]
-                if col in (12, 13):
-                    prev_values[col] = str(int(round(s)))
-                else:
-                    prev_values[col] = f"{s:.1f}"
-            story.append(_make_footer_row(prev_values))
+                values[col] = str(s.quantize(Decimal("0.1")))
+        story.append(_make_footer_row(values, col_widths, numeric_cols))
+        # Append Total footer for every page
+        total_values = [''] * len(logbook_header)
+        total_values[0] = 'Total'
+        for col in numeric_cols:
+            s = totals_by_page[i-1][col]
+            if col in (12, 13):
+                total_values[col] = str(int(round(s)))
+            else:
+                total_values[col] = str(s.quantize(Decimal("0.1")))
+        story.append(_make_footer_row(total_values, col_widths, numeric_cols))
         # PageBreak if not last page
         if not is_last:
             story.append(PageBreak())
