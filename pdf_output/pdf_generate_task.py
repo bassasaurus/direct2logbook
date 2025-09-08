@@ -420,8 +420,25 @@ def pdf_generate(user_pk):
         ]
         logbook_rows.append(row)
 
+    # Helper to parse numbers from our string cells: '-' or '' -> 0
+    def _to_num(val):
+        try:
+            if val in ('-', ''):
+                return 0.0
+            return float(str(val))
+        except Exception:
+            return 0.0
     # Columns that are numeric and should be summed on each page
     numeric_cols = [4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17, 18]
+
+    # Grand totals across all pages (used for reverse running totals)
+    grand_totals = {col: 0.0 for col in numeric_cols}
+    for r in logbook_rows:
+        for col in numeric_cols:
+            if col in (12, 13):  # landings as integers
+                grand_totals[col] += int(round(_to_num(r[col])))
+            else:
+                grand_totals[col] += _to_num(r[col])
 
     # Build a prototype LongTable to get column widths and perform splitting
     all_data = [logbook_header] + logbook_rows
@@ -440,16 +457,8 @@ def pdf_generate(user_pk):
     proto_table.wrapOn(None, doc.width, doc.height)
     col_widths = getattr(proto_table, '_colWidths', None)
 
-    # Helper to parse numbers from our string cells: '-' or '' -> 0
-    def _to_num(val):
-        try:
-            if val in ('-', ''):
-                return 0.0
-            return float(str(val))
-        except Exception:
-            return 0.0
-
     # Footer row builders (match main table width). Only the subtotal has a line above.
+
     def _make_footer_row(values, line_above=False):
         t = Table([values], colWidths=col_widths, hAlign='LEFT')
         style_cmds = [
@@ -493,7 +502,7 @@ def pdf_generate(user_pk):
     for c in numeric_cols:
         sample_sub[c] = '0'
     sample_run = [''] * len(logbook_header)
-    sample_run[0] = 'Total'
+    sample_run[0] = 'Running total (remaining incl this page)'
     for c in numeric_cols:
         sample_run[c] = '0'
 
@@ -598,9 +607,9 @@ def pdf_generate(user_pk):
             else:
                 page_sums[col] = sum(_to_num(r[col]) for r in page_rows)
         sub_values = _format_values('Current Page', page_sums)
-        # Running total = previous page + current page
+        # Reverse running total = remaining including this page = grand_totals - prior pages
         run_values = _format_values(
-            'Current Total', {col: prev_page_sums.get(col, 0.0) + page_sums[col] for col in numeric_cols})
+            'Total', {col: grand_totals[col] - running_prev_sums[col] for col in numeric_cols})
 
         # Append footer rows (Page subtotal ABOVE Previous page totals)
         story.append(make_subtotal_row(sub_values))
@@ -610,6 +619,8 @@ def pdf_generate(user_pk):
 
         # Update accumulators for next page
         prev_page_sums = {col: page_sums[col] for col in numeric_cols}
+        running_prev_sums = {
+            col: running_prev_sums[col] + page_sums[col] for col in numeric_cols}
 
         rows_consumed += this_rows
 
