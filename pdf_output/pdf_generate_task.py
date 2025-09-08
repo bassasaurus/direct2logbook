@@ -383,7 +383,11 @@ def pdf_generate(user_pk):
     story.append(stat_table)
     story.append(spacer)
 
-    # logbook section
+    # logbook section (page-level subtotals)
+    # ---------------------------------------------------------------------
+    # Start the logbook on a new page so we can accurately size per-page chunks.
+    story.append(PageBreak())
+
     logbook_header = [
         'Date', 'Type', 'Reg', 'Route', 'Block', 'PIC', 'SIC', 'XC', 'Night',
         'IFR', 'Appr', 'Hold', 'D Ldg', 'N Ldg', 'Hood', 'CFI', 'Dual', 'Solo', 'Sim'
@@ -395,6 +399,7 @@ def pdf_generate(user_pk):
     else:
         flight_objects = Flight.objects.filter(user=user).order_by('-date')
 
+    # Build raw rows
     logbook_rows = []
     for f in flight_objects:
         date_str = f.date.strftime("%m/%d/%Y")
@@ -415,20 +420,208 @@ def pdf_generate(user_pk):
         ]
         logbook_rows.append(row)
 
-    logbook_data = [logbook_header] + logbook_rows
-    logbook_table = LongTable(logbook_data, repeatRows=1, hAlign='LEFT')
-    logbook_table.setStyle(TableStyle([
+    # Columns that are numeric and should be summed on each page
+    numeric_cols = [4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17, 18]
+
+    # Build a prototype LongTable to get column widths and perform splitting
+    all_data = [logbook_header] + logbook_rows
+    proto_table = LongTable(all_data, repeatRows=1, hAlign='LEFT')
+    proto_style = TableStyle([
         ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold', 10),
         ('LINEBELOW', (0, 0), (-1, 0), 1.0, colors.black),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
         ('LINEBELOW', (0, 0), (-1, -1), .25, colors.black),
         ('ALIGN', (4, 0), (-1, -1), 'RIGHT'),
-    ]))
+    ])
+    proto_table.setStyle(proto_style)
 
-    story.append(Paragraph(
-        "<para size=15 align=left><u><b>Logbook</b></u></para>", style=styles["Normal"]))
-    story.append(spacer)
-    story.append(logbook_table)
+    # Wrap once to compute column widths
+    # (use a minimal fake canvas via doc.width/height)
+    proto_table.wrapOn(None, doc.width, doc.height)
+    col_widths = getattr(proto_table, '_colWidths', None)
+
+    # Helper to parse numbers from our string cells: '-' or '' -> 0
+    def _to_num(val):
+        try:
+            if val in ('-', ''):
+                return 0.0
+            return float(str(val))
+        except Exception:
+            return 0.0
+
+    # Footer row builders (match main table width). Only the subtotal has a line above.
+    def _make_footer_row(values, line_above=False):
+        t = Table([values], colWidths=col_widths, hAlign='LEFT')
+        style_cmds = [
+            ('FONT', (0, 0), (-1, -1), 'Helvetica', 9),
+            ('FONT', (0, 0), (0, -1), 'Helvetica-Bold', 9),
+            ('ALIGN', (4, 0), (-1, -1), 'RIGHT'),
+            ('TOPPADDING', (0, 0), (-1, 0), 3),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 3),
+        ]
+        if line_above:
+            style_cmds.append(
+                ('LINEABOVE', (0, 0), (-1, 0), 0.75, colors.black))
+        t.setStyle(TableStyle(style_cmds))
+        return t
+
+    def make_prev_totals_row(values):
+        return _make_footer_row(values, line_above=False)
+
+    def make_subtotal_row(values):
+        return _make_footer_row(values, line_above=True)
+
+    def make_running_totals_row(values):
+        # Emphasize running total: bold row with light background
+        t = Table([values], colWidths=col_widths, hAlign='LEFT')
+        t.setStyle(TableStyle([
+            ('FONT', (0, 0), (-1, -1), 'Helvetica-Bold', 9),
+            ('ALIGN', (4, 0), (-1, -1), 'RIGHT'),
+            ('TOPPADDING', (0, 0), (-1, 0), 3),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 3),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.whitesmoke),
+        ]))
+        return t
+
+    # Measure heights of the three footer rows using zeros
+    sample_prev = [''] * len(logbook_header)
+    sample_prev[0] = 'Previous page totals'
+    for c in numeric_cols:
+        sample_prev[c] = '0'
+    sample_sub = [''] * len(logbook_header)
+    sample_sub[0] = 'Page subtotal'
+    for c in numeric_cols:
+        sample_sub[c] = '0'
+    sample_run = [''] * len(logbook_header)
+    sample_run[0] = 'Running total (prev + current)'
+    for c in numeric_cols:
+        sample_run[c] = '0'
+
+    _prev_tbl = make_prev_totals_row(sample_prev)
+    _sub_tbl = make_subtotal_row(sample_sub)
+    _run_tbl = make_running_totals_row(sample_run)
+
+    _, prev_h = _prev_tbl.wrap(doc.width, doc.height)
+    _, subtotal_h = _sub_tbl.wrap(doc.width, doc.height)
+    _, running_h = _run_tbl.wrap(doc.width, doc.height)
+    footer_h_total = prev_h + subtotal_h + running_h
+    # first page hides "Previous page totals"
+    footer_h_total_first = subtotal_h + running_h
+
+    # Measure first-page header + spacer so we can subtract their height
+    header_para = Paragraph(
+        "<para size=15 align=left><u><b>Logbook</b></u></para>", style=styles["Normal"])
+    _, header_h = header_para.wrap(doc.width, doc.height)
+    first_spacer_h = 0.25 * inch
+    safety_margin = 6  # points to account for stroke widths/rounding
+    # Available space on first page and other pages
+    avail_first = max(36, doc.height - header_h -
+                      first_spacer_h - safety_margin)
+    avail_other = doc.height
+
+    # Iterate through the data, splitting into page-sized LongTable chunks.
+    rows_consumed = 0
+    # Track previous-page sums and cumulative (excluding current page)
+    prev_page_sums = {col: 0.0 for col in numeric_cols}
+    running_prev_sums = {col: 0.0 for col in numeric_cols}
+    page_index = 0
+    remaining_table = LongTable(
+        all_data, repeatRows=1, hAlign='LEFT', colWidths=col_widths)
+    remaining_table.setStyle(proto_style)
+
+    def _format_values(label, sums_dict):
+        values = [''] * len(logbook_header)
+        values[0] = label
+        for col in numeric_cols:
+            s = float(sums_dict.get(col, 0.0))
+            if col in (12, 13):
+                values[col] = f"{int(round(s))}"
+            else:
+                values[col] = f"{s:.1f}"
+        return values
+
+    while True:
+        page_index += 1
+        avail = avail_first if page_index == 1 else avail_other
+        # Reserve space for footer rows (+ safety); first page has only 2 rows
+        reserved = footer_h_total_first if page_index == 1 else footer_h_total
+        chunk_height = max(36, avail - reserved - safety_margin)
+
+        # Try splitting; if the table chunk plus subtotal still exceeds 'avail',
+        # iteratively reduce the chunk height until it fits (or we hit a floor).
+        attempt = 0
+        while True:
+            split_parts = remaining_table.split(doc.width, chunk_height)
+            if not split_parts:
+                break
+            this_page_table = split_parts[0]
+            # Measure the height of this chunk as it would render on this page
+            _, h_tbl = this_page_table.wrap(doc.width, avail)
+            reserved_now = footer_h_total_first if page_index == 1 else footer_h_total
+            if h_tbl + reserved_now + safety_margin <= avail:
+                break
+            # Otherwise shrink the chunk a bit more and retry
+            attempt += 1
+            # Reduce by the overflow amount plus a small buffer, but clamp to a minimum
+            overflow = (h_tbl + reserved_now + safety_margin) - avail
+            chunk_height = max(36, chunk_height - overflow - 4)
+            # Bail out after a few attempts to avoid infinite loops
+            if attempt > 5:
+                break
+
+        if not split_parts:
+            break
+
+        this_page_table = split_parts[0]
+        # Count how many *data* rows (excluding header) are in this chunk
+        # Each table includes the header row as the first row.
+        this_rows = len(getattr(this_page_table, '_cellvalues', [])) - 1
+
+        # Map the data rows for this page
+        page_rows = logbook_rows[rows_consumed:rows_consumed + this_rows]
+
+        # Append this page table and the three footer rows
+        this_page_table.setStyle(proto_style)
+        story.append(header_para if page_index == 1 else Spacer(0, 0))
+        story.append(Spacer(1, first_spacer_h)
+                     if page_index == 1 else Spacer(0, 0))
+        story.append(this_page_table)
+
+        # Build footer rows
+        prev_values = _format_values('Previous page totals', prev_page_sums)
+        # Compute exact per-page sums; landings are integer-accurate
+        page_sums = {}
+        for col in numeric_cols:
+            if col in (12, 13):  # D Ldg, N Ldg -> integers
+                page_sums[col] = sum(int(round(_to_num(r[col])))
+                                     for r in page_rows)
+            else:
+                page_sums[col] = sum(_to_num(r[col]) for r in page_rows)
+        sub_values = _format_values('Page subtotal', page_sums)
+        # Running total = previous page + current page
+        run_values = _format_values(
+            'Running total (prev + current)', {col: prev_page_sums.get(col, 0.0) + page_sums[col] for col in numeric_cols})
+
+        # Append footer rows
+        if page_index > 1:
+            story.append(make_prev_totals_row(prev_values))
+        story.append(make_subtotal_row(sub_values))
+        story.append(make_running_totals_row(run_values))
+
+        # Update accumulators for next page
+        prev_page_sums = {col: page_sums[col] for col in numeric_cols}
+
+        rows_consumed += this_rows
+
+        # Prepare remainder for the next loop
+        if len(split_parts) == 1:
+            # No remainder: done
+            break
+        else:
+            remaining_table = split_parts[1]
+            # Only add a PageBreak if there are still rows left
+            if rows_consumed < len(logbook_rows):
+                story.append(PageBreak())
 
     # build pdf
     doc.multiBuild(story, onFirstPage=title_page,
