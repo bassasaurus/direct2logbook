@@ -393,11 +393,11 @@ def pdf_generate(user_pk):
         'IFR', 'Appr', 'Hold', 'D Ldg', 'N Ldg', 'Hood', 'CFI', 'Dual', 'Solo', 'Sim'
     ]
 
-    if settings.DEBUG:
-        flight_objects = Flight.objects.filter(
-            user=user).order_by('-date')[:100]
-    else:
-        flight_objects = Flight.objects.filter(user=user).order_by('-date')
+    # if settings.DEBUG:
+    #     flight_objects = Flight.objects.filter(
+    #         user=user).order_by('-date')[:100]
+    # else:
+    flight_objects = Flight.objects.filter(user=user).order_by('-date')
 
     # Build raw rows
     logbook_rows = []
@@ -485,15 +485,15 @@ def pdf_generate(user_pk):
 
     # Measure heights of the three footer rows using zeros
     sample_prev = [''] * len(logbook_header)
-    sample_prev[0] = 'Previous page totals'
+    sample_prev[0] = 'Previous Page'
     for c in numeric_cols:
         sample_prev[c] = '0'
     sample_sub = [''] * len(logbook_header)
-    sample_sub[0] = 'Page subtotal'
+    sample_sub[0] = 'Current Page'
     for c in numeric_cols:
         sample_sub[c] = '0'
     sample_run = [''] * len(logbook_header)
-    sample_run[0] = 'Running total (prev + current)'
+    sample_run[0] = 'Total'
     for c in numeric_cols:
         sample_run[c] = '0'
 
@@ -588,7 +588,7 @@ def pdf_generate(user_pk):
         story.append(this_page_table)
 
         # Build footer rows
-        prev_values = _format_values('Previous page totals', prev_page_sums)
+        prev_values = _format_values('Previous Page', prev_page_sums)
         # Compute exact per-page sums; landings are integer-accurate
         page_sums = {}
         for col in numeric_cols:
@@ -597,15 +597,15 @@ def pdf_generate(user_pk):
                                      for r in page_rows)
             else:
                 page_sums[col] = sum(_to_num(r[col]) for r in page_rows)
-        sub_values = _format_values('Page subtotal', page_sums)
+        sub_values = _format_values('Current Page', page_sums)
         # Running total = previous page + current page
         run_values = _format_values(
-            'Running total (prev + current)', {col: prev_page_sums.get(col, 0.0) + page_sums[col] for col in numeric_cols})
+            'Current Total', {col: prev_page_sums.get(col, 0.0) + page_sums[col] for col in numeric_cols})
 
-        # Append footer rows
+        # Append footer rows (Page subtotal ABOVE Previous page totals)
+        story.append(make_subtotal_row(sub_values))
         if page_index > 1:
             story.append(make_prev_totals_row(prev_values))
-        story.append(make_subtotal_row(sub_values))
         story.append(make_running_totals_row(run_values))
 
         # Update accumulators for next page
