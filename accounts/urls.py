@@ -2,7 +2,7 @@ from django.urls import path
 from .views import (
     UserUpdateView, EmailView, ConnectionsView, PasswordSetView,
     PasswordChangeView, PasswordResetView, PasswordResetDoneView,
-    PasswordResetFromKeyView, PasswordResetFromKeyDoneView
+    PasswordResetFromKeyView, AllauthPasswordResetFromKeyDoneView
 )
 
 urlpatterns = [
@@ -23,6 +23,6 @@ urlpatterns = [
          name='account_password_reset_done'),
     path('accounts/password/reset/key/<str:uidb36>-<str:key>/',
          PasswordResetFromKeyView.as_view(), name='account_reset_password_from_key'),
-    path('password/reset/key/done/', PasswordResetFromKeyDoneView.as_view(),
+    path('password/reset/key/done/', AllauthPasswordResetFromKeyDoneView.as_view(),
          name='account_reset_password_from_key_done'),
 ]

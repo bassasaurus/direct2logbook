@@ -4,12 +4,12 @@ import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.celery import CeleryIntegration
 from decouple import config
+from botocore.client import Config
 
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 print('Dev settings = ', config('DEBUG'))
 
-print(DEBUG)
 
 if DEBUG is False:
     sentry_sdk.init(
@@ -60,6 +60,7 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(' ')
 
 # APPEND_SLASH = False
 
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -88,7 +89,6 @@ INSTALLED_APPS = [
     'flights',
     'pdf_output',
     'csv_app',
-
 
     'rest_framework',
     'rest_framework.authtoken',
@@ -138,8 +138,8 @@ ACCOUNT_FORMS = {
 }
 
 
-#SOCIALACCOUNT_EMAIL_VERIFICATION = ACCOUNT_EMAIL_VERIFICATION
-#SOCIALACCOUNT_EMAIL_REQUIRED = ACCOUNT_SIGNUP_FIELDS
+# SOCIALACCOUNT_EMAIL_VERIFICATION = ACCOUNT_EMAIL_VERIFICATION
+# SOCIALACCOUNT_EMAIL_REQUIRED = ACCOUNT_SIGNUP_FIELDS
 
 LOGIN_REDIRECT_URL = '/home'
 ACCOUNT_LOGOUT_REDIRECT_URL = '/'
@@ -161,9 +161,6 @@ MIDDLEWARE = [
     # 'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
-
-
 ]
 
 
@@ -277,15 +274,30 @@ STATICFILES_DIRS = [
 
 MEDIA_URL = config('MEDIA_URL')
 
+# --- credentials & bucket (env is best; shown here for clarity) ---
+AWS_ACCESS_KEY_ID = config("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = config("AWS_SECRET_ACCESS_KEY")
+# e.g., "direct2logbook-media"
+AWS_STORAGE_BUCKET_NAME = config("AWS_STORAGE_BUCKET_NAME")
+# <- MUST MATCH BUCKET'S REAL REGION
+AWS_S3_REGION_NAME = config("AWS_S3_REGION_NAME", default="us-east-1")
+AWS_S3_SIGNATURE_VERSION = "s3v4"
+AWS_S3_ADDRESSING_STYLE = "virtual"   # virtual-hosted-style URLs
+
+# DO NOT set AWS_S3_CUSTOM_DOMAIN when using presigned S3 URLs.
+# Leave querystring_auth at default (True) for private objects.
+
 STORAGES = {
     "default": {
         "BACKEND": "storages.backends.s3.S3Storage",
         "OPTIONS": {
-            "bucket_name": config('AWS_STORAGE_BUCKET_NAME'),
-            "access_key": config('AWS_SECRET_ACCESS_KEY'),
-            "secret_key": config('AWS_SECRET_ACCESS_KEY'),
+            "bucket_name": AWS_STORAGE_BUCKET_NAME,
+            "region_name": AWS_S3_REGION_NAME,
+            # Pin the endpoint to the region so the host & signature match:
+            "endpoint_url": f"https://s3.{AWS_S3_REGION_NAME}.amazonaws.com",
+            # No access_key/secret_key here; django-storages reads globals above.
+            "file_overwrite": False,
             "default_acl": None,
-            "file_overwrite": False
         },
     },
     "staticfiles": {
@@ -323,16 +335,17 @@ if config('LOGGING', cast=bool) is True:
 
 
 ANYMAIL = {
-    # (exact settings here depend on your ESP...)
     "MAILGUN_API_KEY": config('MAILGUN_API_KEY'),
-    "MAILGUN_SENDER_DOMAIN": 'mg.direct2logbook.com',  # your Mailgun domain, if needed
+    "MAILGUN_SENDER_DOMAIN": 'mg.direct2logbook.com',
+    "MAILGUN_API_URL": config('MAILGUN_API_URL')
 }
 
+# if DEBUG is True:
+#     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# else:
+#     EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
 
-if DEBUG is True:
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-else:
-    EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
+EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
 
 DEFAULT_FROM_EMAIL = "no-reply@direct2logbook.com"
 
@@ -353,5 +366,3 @@ REST_FRAMEWORK = {
 
 # fix 3.2 upgrade error
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
-
-SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']

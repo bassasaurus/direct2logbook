@@ -143,7 +143,8 @@ def success_view(request, user):
 
     profile = Profile.objects.get(user=user)
 
-    subscription_response = stripe.Subscription.retrieve(profile.subscription_id)
+    subscription_response = stripe.Subscription.retrieve(
+        profile.subscription_id)
     # print(subscription_response)
     timestamp = subscription_response.current_period_end
     end_date = datetime.fromtimestamp(timestamp)
@@ -161,7 +162,7 @@ def success_view(request, user):
     return render(request, 'payments/success.html', context)
 
 
-def canceled_view(request):
+def canceled_view(request, user):
     context = {
         'title': 'Canceled',
         'home_link': reverse('home'),

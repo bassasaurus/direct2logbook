@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User, Group
 from django.utils import timezone
+from datetime import date
 
 
 def user_directory_path(instance, filename):
@@ -12,7 +13,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     company = models.CharField(max_length=50, default='', blank=True)
 
-    medical_issue_date = models.DateField(default=None, null=True, blank=True)
+    medical_issue_date = models.DateField(default=date.today)
     first_class = models.BooleanField(default=False)
     second_class = models.BooleanField(default=False)
     third_class = models.BooleanField(default=False)
