@@ -510,10 +510,24 @@ def pdf_generate(user_pk):
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
         ('LINEBELOW', (0, 0), (-1, -1), .25, colors.black),
         ('ALIGN', (4, 0), (-1, -1), 'RIGHT'),
+        # Add padding to numeric columns to prevent overlap for large numbers
+        ('RIGHTPADDING', (4, 0), (-1, -1), 10),
+        ('LEFTPADDING', (4, 0), (-1, -1), 8),
     ])
     proto_table.setStyle(proto_style)
     proto_table.wrapOn(None, doc.width, doc.height)
     col_widths = getattr(proto_table, '_colWidths', None)
+    # Slightly increase widths for Block, PIC, SIC, and XC columns
+    if col_widths:
+        for idx in [4, 5, 6, 7]:  # Block, PIC, SIC, XC
+            col_widths[idx] += 10
+
+        # Ensure table fits within available width
+        total_width = sum(col_widths)
+        available_width = doc.width
+        if total_width > available_width:
+            scale = available_width / total_width
+            col_widths = [w * scale for w in col_widths]
 
     numeric_cols = [4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17, 18]
 
