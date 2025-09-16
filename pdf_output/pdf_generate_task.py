@@ -1,15 +1,18 @@
 from decimal import ROUND_HALF_UP
-import hashlib
-import inspect
-import platform
-import sys
-import botocore
-import boto3
-import os
-from logbook.celery import app
-from io import BytesIO
-from reportlab.lib.pagesizes import legal, landscape
-from reportlab.lib.styles import getSampleStyleSheet
+import logging
+from flights.models import Flight, Total, Stat, Regs, Power, Weight, Endorsement
+from .models import Signature
+from urllib.parse import urlparse, unquote
+from decimal import Decimal
+import datetime
+from django.contrib.staticfiles import finders
+from django.conf import settings
+from django.core.files.storage import default_storage
+from django.contrib.auth.models import User
+from django.core.mail import EmailMessage
+from reportlab.lib.utils import ImageReader
+from reportlab.lib.units import inch
+from reportlab.lib import colors
 from reportlab.platypus import (
     Paragraph,
     Table,
@@ -20,26 +23,26 @@ from reportlab.platypus import (
     LongTable,
     Image as RLImage,
 )
-from reportlab.lib import colors
-from reportlab.lib.units import inch
-from reportlab.lib.utils import ImageReader
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.pagesizes import legal, landscape
+from io import BytesIO
+from logbook.celery import app
+import os
+import boto3
+import botocore
+import sys
+import platform
+import inspect
+import hashlib
 
-from django.core.mail import EmailMessage
-from django.contrib.auth.models import User
-from django.core.files.storage import default_storage
-from django.conf import settings
-from django.contrib.staticfiles import finders
 
-import datetime
+def _to_decimal_safe(val):
+    try:
+        return Decimal(str(val))
+    except Exception:
+        return Decimal("0.0")
 
-from decimal import Decimal
 
-from urllib.parse import urlparse, unquote
-
-from .models import Signature
-from flights.models import Flight, Total, Stat, Regs, Power, Weight, Endorsement
-
-import logging
 logger = logging.getLogger(__name__)
 
 
@@ -415,7 +418,7 @@ def pdf_generate(user_pk):
     #     flight_objects = Flight.objects.filter(
     #         user=user).order_by('-date')[:100]
     # else:
-    flight_objects = Flight.objects.filter(user=user).order_by('-date')
+    flight_objects = Flight.objects.filter(user=user).order_by('date')
 
     # Build raw rows with Decimals for numeric fields
     logbook_rows = []
@@ -491,8 +494,14 @@ def pdf_generate(user_pk):
     for row in logbook_rows:
         disp_row = [display_cell(row[i], i) for i in range(len(row))]
         logbook_display_rows.append(disp_row)
+    # Map each display row to its corresponding raw row index (since 1:1)
+    display_row_map = list(range(len(logbook_rows)))
 
-    # Build a prototype LongTable to get column widths and perform splitting
+    # --- Fixed rows-per-page pagination ---
+    # Define ROWS_PER_PAGE constant for logbook rows per page
+    ROWS_PER_PAGE = 20
+
+    # Build a prototype LongTable to get column widths
     all_data = [logbook_header] + logbook_display_rows
     proto_table = LongTable(all_data, repeatRows=1, hAlign='LEFT')
     proto_style = TableStyle([
@@ -503,80 +512,119 @@ def pdf_generate(user_pk):
         ('ALIGN', (4, 0), (-1, -1), 'RIGHT'),
     ])
     proto_table.setStyle(proto_style)
-
-    # Wrap once to compute column widths
-    # (use a minimal fake canvas via doc.width/height)
     proto_table.wrapOn(None, doc.width, doc.height)
     col_widths = getattr(proto_table, '_colWidths', None)
 
-    # Numeric columns (0-based indices) for logbook
     numeric_cols = [4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17, 18]
 
-    # Measure first-page header + spacer so we can subtract their height
     header_para = Paragraph(
         "<para size=15 align=left><u><b>Logbook</b></u></para>", style=styles["Normal"])
     _, header_h = header_para.wrap(doc.width, doc.height)
     first_spacer_h = 0.25 * inch
-    safety_margin = 6  # points to account for stroke widths/rounding
-    # Available space on first page and other pages
-    avail_first = max(36, doc.height - header_h -
-                      first_spacer_h - safety_margin)
-    avail_other = doc.height
 
-    # First pass: split into page_chunks (one table per page)
+    # Measure a sample footer table with 3 rows to reserve accurate footer space (for vertical spacing)
+    sample_footer = Table(
+        [['' for _ in logbook_header]] * 3,
+        colWidths=col_widths, hAlign='LEFT'
+    )
+    _, reserved_footer_h = sample_footer.wrap(doc.width, doc.height)
+
+    # Fixed pagination: chunk logbook_display_rows into ROWS_PER_PAGE slices
     page_chunks = []
-    rows_consumed = 0
-    page_index = 0
-    remaining_table = LongTable(
-        all_data, repeatRows=1, hAlign='LEFT', colWidths=col_widths)
-    remaining_table.setStyle(proto_style)
-    # For compatibility, measure header heights to fit first page
-    header_para = Paragraph(
-        "<para size=15 align=left><u><b>Logbook</b></u></para>", style=styles["Normal"])
-    _, header_h = header_para.wrap(doc.width, doc.height)
-    first_spacer_h = 0.25 * inch
-    safety_margin = 6  # points to account for stroke widths/rounding
-    avail_first = max(36, doc.height - header_h -
-                      first_spacer_h - safety_margin)
-    avail_other = doc.height
-    while True:
-        page_index += 1
-        avail = avail_first if page_index == 1 else avail_other
-        chunk_height = max(36, avail - safety_margin)
-        attempt = 0
-        while True:
-            split_parts = remaining_table.split(doc.width, chunk_height)
-            if not split_parts:
-                break
-            this_page_table = split_parts[0]
-            _, h_tbl = this_page_table.wrap(doc.width, avail)
-            if h_tbl + safety_margin <= avail:
-                break
-            attempt += 1
-            overflow = (h_tbl + safety_margin) - avail
-            chunk_height = max(36, chunk_height - overflow - 4)
-            if attempt > 5:
-                break
-        if not split_parts:
-            break
-        this_page_table = split_parts[0]
-        this_rows = len(getattr(this_page_table, '_cellvalues', [])) - 1
-        page_chunks.append(this_page_table)
-        rows_consumed += this_rows
-        if len(split_parts) == 1:
-            break
-        else:
-            remaining_table = split_parts[1]
+    page_row_indices = []
+    n_rows = len(logbook_display_rows)
+    for page_start in range(0, n_rows, ROWS_PER_PAGE):
+        page_end = min(page_start + ROWS_PER_PAGE, n_rows)
+        rows_this_page = list(range(page_start, page_end))
+        table_data = [logbook_header] + [logbook_display_rows[idx]
+                                         for idx in rows_this_page]
+        page_table = Table(table_data, colWidths=col_widths,
+                           repeatRows=1, hAlign='LEFT')
+        page_table.setStyle(proto_style)
+        page_chunks.append(page_table)
+        page_row_indices.append([display_row_map[idx]
+                                for idx in rows_this_page])
 
     # Second pass: render each page, append only the logbook table for each page
     num_pages = len(page_chunks)
-    for i, this_page_table in enumerate(page_chunks, start=1):
+    # --- Initialize cumulative totals for running total ---
+    cumulative_vals = {col: Decimal("0.0") for col in numeric_cols}
+    for i, (this_page_table, row_indices) in enumerate(zip(page_chunks, page_row_indices), start=1):
         is_first = (i == 1)
         is_last = (i == num_pages)
         if is_first:
             story.append(header_para)
             story.append(Spacer(1, first_spacer_h))
         story.append(this_page_table)
+        # --- Compute page totals (footer) for this page ---
+        footer_vals = ['Current page'] + \
+            ['' for _ in range(len(logbook_header)-1)]
+        footer_decimals = {}
+        for col in numeric_cols:
+            col_sum = Decimal("0.0")
+            for idx in row_indices:
+                if idx < len(logbook_rows):
+                    val = logbook_rows[idx][col]
+                    if isinstance(val, Decimal):
+                        col_sum += val
+                    else:
+                        try:
+                            col_sum += Decimal(str(val))
+                        except Exception:
+                            pass
+            footer_decimals[col] = col_sum
+            if col in (12, 13):
+                footer_vals[col] = str(int(col_sum))
+            else:
+                footer_vals[col] = str(col_sum.quantize(
+                    Decimal("0.1"), rounding=ROUND_HALF_UP))
+
+        # --- Prepare "Amount Forwarded" row using cumulative_vals before updating for this page ---
+        forwarded_vals = dict(cumulative_vals)  # snapshot before updating
+        forwarded_row = ['Amount Forwarded'] + \
+            ['' for _ in range(len(logbook_header)-1)]
+        for col in numeric_cols:
+            if col in (12, 13):
+                forwarded_row[col] = str(int(forwarded_vals[col]))
+            else:
+                forwarded_row[col] = str(forwarded_vals[col].quantize(
+                    Decimal("0.1"), rounding=ROUND_HALF_UP))
+
+        # --- Prepare Running Total row (always last in reserved footer space) ---
+        # Update cumulative_vals with the current page's footer_decimals (use raw Decimals)
+        for col in numeric_cols:
+            cumulative_vals[col] += footer_decimals[col]
+        running_row = ['Running Total'] + \
+            ['' for _ in range(len(logbook_header)-1)]
+        for col in numeric_cols:
+            if col in (12, 13):
+                running_row[col] = str(int(cumulative_vals[col]))
+            else:
+                running_row[col] = str(cumulative_vals[col].quantize(
+                    Decimal("0.1"), rounding=ROUND_HALF_UP))
+
+        # --- Combine all footer rows into a single Table ---
+        footer_data = [footer_vals]
+        if not is_first:
+            footer_data.append(forwarded_row)
+        footer_data.append(running_row)
+        footer_table = Table(footer_data, colWidths=col_widths, hAlign='LEFT')
+        footer_table.setStyle(proto_style)
+        # Align numeric columns for all rows
+        for row_idx_ in range(len(footer_data)):
+            for col in numeric_cols:
+                footer_table.setStyle(TableStyle([
+                    ('ALIGN', (col, row_idx_), (col, row_idx_), 'RIGHT'),
+                ]))
+        # Set background for Page Total (row 0) and Running Total (last row)
+        footer_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.whitesmoke),
+            ('BACKGROUND', (0, len(footer_data)-1),
+             (-1, len(footer_data)-1), colors.whitesmoke),
+        ]))
+        # Insert a fixed spacer to separate table and footer
+        story.append(Spacer(1, 0.1 * inch))
+        story.append(footer_table)
         if not is_last:
             story.append(PageBreak())
 
