@@ -267,10 +267,10 @@ STATICFILES_FINDERS = [
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 ]
 
-STATIC_ROOT = os.path.join(BASE_DIR, '/home/blakepowell/static')
+STATIC_ROOT = "/home/blakepowell/static"
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
-    DJANGO_ROOT + "/static",
+    os.path.join(BASE_DIR, "static"),
 ]
 
 
