@@ -58,6 +58,8 @@ SITE_ID = 8
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(' ')
 
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS').split(' ')
+
 # APPEND_SLASH = False
 
 
