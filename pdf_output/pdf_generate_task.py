@@ -1,7 +1,6 @@
 from decimal import ROUND_HALF_UP
 import logging
 from flights.models import Flight, Total, Stat, Regs, Power, Weight, Endorsement
-from .models import Signature
 from urllib.parse import urlparse, unquote
 from decimal import Decimal
 import datetime

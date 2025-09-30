@@ -4,7 +4,6 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.views.generic import TemplateView, UpdateView
 from .models import Profile
 from .forms import ProfileForm
-from pdf_output.models import Signature
 import stripe
 import datetime
 from accounts.views import LoginRequiredMixin
@@ -115,13 +114,18 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         profile = Profile.objects.get(user=user)
 
         if settings.DEBUG is True:
-            context['STRIPE_PUBLISHABLE_KEY'] = settings.STRIPE_PUBLISHABLE_KEY  # test mode defined in settings.py
-            context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly('cus_HzEwJmFP2ftqVY')  # test user in stripe dashboard
-            context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly('cus_HzEwJmFP2ftqVY')  # test user in stripe dashboard
+            # test mode defined in settings.py
+            context['STRIPE_PUBLISHABLE_KEY'] = settings.STRIPE_PUBLISHABLE_KEY
+            context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly(
+                'cus_HzEwJmFP2ftqVY')  # test user in stripe dashboard
+            context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly(
+                'cus_HzEwJmFP2ftqVY')  # test user in stripe dashboard
         else:
             context['STRIPE_PUBLISHABLE_KEY'] = settings.STRIPE_PUBLISHABLE_KEY
-            context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly(profile.customer_id)
-            context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly(profile.customer_id)
+            context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly(
+                profile.customer_id)
+            context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly(
+                profile.customer_id)
 
         today = datetime.datetime.now()
 
