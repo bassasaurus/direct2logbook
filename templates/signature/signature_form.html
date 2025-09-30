@@ -7,19 +7,10 @@
 <div class="row justify-content-center">
   <div class="col-12">
     <form action="" class="" method="post" enctype="multipart/form-data">
-      {% csrf_token %}
-      <div class="form-group">
-        <h4>Draw a new signature:</h4><br>
-
-        <p><a target='new' href='https://www.docsketch.com/online-signature/draw/'>www.docsketch.com</a></p>
-        <p>Best if opened on a device with a touch screen.</p>
-
-        <p>Then upload the file below:</p>
-        <hr>
-
-          {{ form.signature }}
-
-        <hr>
+      {{ form.media }}
+          
+      {% csrf_token %} {{ form.as_p }}
+  
         <button class="btn-shadow btn-shadow-dark btn-block" type="submit">Submit</button>
     </form>
   </div>
