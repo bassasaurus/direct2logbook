@@ -165,15 +165,15 @@ def pdf_generate(user_pk):
 
     story = []
 
-    try:
-        if Signature.objects.filter(user=user).exists():
-            sig = Signature.objects.get(user=user)
-            raw = getattr(sig, 'signature', None)
-            sig_key_dbg = _derive_storage_key_from_signature(sig)
-            logger.info(
-                "pdf_generate: signature raw=%r derived_key=%r", raw, sig_key_dbg)
-    except Exception as e:
-        logger.warning("pdf_generate: signature precheck failed: %s", e)
+    # try:
+    #     if Signature.objects.filter(user=user).exists():
+    #         sig = Signature.objects.get(user=user)
+    #         raw = getattr(sig, 'signature', None)
+    #         sig_key_dbg = _derive_storage_key_from_signature(sig)
+    #         logger.info(
+    #             "pdf_generate: signature raw=%r derived_key=%r", raw, sig_key_dbg)
+    # except Exception as e:
+    #     logger.warning("pdf_generate: signature precheck failed: %s", e)
 
     # cover page starts here
     def title_page(canvas, doc_):
@@ -187,7 +187,7 @@ def pdf_generate(user_pk):
 
         canvas.setFont('Helvetica-Oblique', 7)
         canvas.drawString(
-            800, 30, "Powered by Direct2Logbook.com and ReportLab")
+            800, 30, "Powered by Direct2Logbook.com")
 
         canvas.setFont('Helvetica', 10)
         page_number_text = f"{doc_.page}"
