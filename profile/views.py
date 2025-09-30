@@ -9,6 +9,7 @@ import datetime
 from accounts.views import LoginRequiredMixin
 from logbook import settings
 from django.views import View
+from signature.models import Signature
 
 
 class ProfileNotActiveMixin(UserPassesTestMixin, View):
@@ -135,7 +136,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
             context['passed_end_date'] = True
 
         try:
-            signature = Signature.objects.filter(user=user).latest()
+            signature = Signature.objects.filter(user=user)
             context['signature'] = signature
         except ObjectDoesNotExist:
             context['signature'] = False

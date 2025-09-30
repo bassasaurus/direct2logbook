@@ -17,19 +17,10 @@
 
 <div class="row">
   <div class="col-12">
-    {% if not signature %}
-      <h3>{{ user.first_name }} {{ user.last_name }}</h3>
-    {% else %}
-      <p><img height="60px" src="{{ signature.signature.url }}"</p>
-    {% endif %}
-
-    {% if not signature %}
-      <p><a href="{% url 'signature_create' %}">Upload Signature</a></p>
-    {% else %}
-      <p><a href="{% url 'signature_update' signature.pk %}">Update Signature</a></p>
-      <p><a class="text-danger" href="{% url 'signature_delete' signature.pk %}">Delete Signature</a></p>
-
-    {% endif %}
+    
+      <img src="{{ signature.signature }}" alt="Signature" />
+      <p><a href="{% url 'signature_create' %}">Create New Signature</a></p>
+      <p><a class="text-danger" href="{% url 'signature_delete' user.pk %}">Delete Signature</a></p>
 
     <hr>
     <a href="{% url 'user_update' user.pk %}">Update name</a><br>
