@@ -91,6 +91,7 @@ INSTALLED_APPS = [
     'flights',
     'pdf_output',
     'csv_app',
+    'signature',
 
     'rest_framework',
     'rest_framework.authtoken',
