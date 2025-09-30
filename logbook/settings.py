@@ -93,6 +93,7 @@ INSTALLED_APPS = [
     'csv_app',
     'signature',
 
+    'signature_pad',
     'rest_framework',
     'rest_framework.authtoken',
     'django_recaptcha',

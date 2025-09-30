@@ -1,5 +1,4 @@
-from django.apps import AppConfig
+from django.contrib import admin
+from .models import Signature, User
 
-
-class SignatureConfig(AppConfig):
-    name = 'signature'
+admin.site.register(Signature)
