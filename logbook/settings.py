@@ -3,7 +3,7 @@ from os.path import abspath, dirname
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.celery import CeleryIntegration
-from decouple import config
+from decouple import config, Csv
 from botocore.client import Config
 
 DEBUG = config('DEBUG', default=False, cast=bool)
@@ -56,9 +56,8 @@ SITE_ID = 8
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS').split(' ')
-
-CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS').split(' ')
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
+CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', cast=Csv())
 
 # APPEND_SLASH = False
 
