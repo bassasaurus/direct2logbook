@@ -5,4 +5,5 @@ from .models import Signature
 class SignatureForm(forms.ModelForm):
     class Meta:
         model = Signature
-        fields = ['signature', 'user']  # Include other fields as needed
+        exclude = ['user']
+        fields = ['signature']  # Include other fields as needed

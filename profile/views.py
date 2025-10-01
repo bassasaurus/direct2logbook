@@ -10,6 +10,7 @@ from accounts.views import LoginRequiredMixin
 from logbook import settings
 from django.views import View
 from signature.models import Signature
+import base64
 
 
 class ProfileNotActiveMixin(UserPassesTestMixin, View):
@@ -135,12 +136,9 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         else:
             context['passed_end_date'] = True
 
-        try:
-            signature = Signature.objects.filter(user=user)
-            context['signature'] = signature
-        except ObjectDoesNotExist:
-            context['signature'] = False
+        signature = Signature.objects.get(user=user)
 
+        context['signature'] = signature.signature
         context['profile'] = Profile.objects.get(user=user)
         context['customer_id'] = profile.customer_id
         context['user_email'] = str(user.email)

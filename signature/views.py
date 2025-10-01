@@ -13,16 +13,13 @@ class SignatureCreateView(LoginRequiredMixin, CreateView):
     success_url = '/accounts/profile'
 
     def form_valid(self, form):
-        object = form.save(commit=False)
-        object.user = self.request.user
-        object.save()
-        return super(SignatureCreateView, self).form_valid(form)
+        form.instance.user = self.request.user
+        return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
 
         context = super(SignatureCreateView, self).get_context_data(**kwargs)
         context['title'] = "D-> | Upload Signature"
-
         context['home_link'] = reverse('home')
         context['page_title'] = "Upload Signature"
         context['parent_link'] = reverse('profile')

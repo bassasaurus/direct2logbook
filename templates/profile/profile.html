@@ -17,8 +17,12 @@
 
 <div class="row">
   <div class="col-12">
-    
-      <img src="{{ signature.signature }}" alt="Signature" />
+      {{ user.first_name }} {{ user.last_name}}
+            {% if signature %}
+              <img src="{{ signature }}" alt="Signature" />
+            {% else %}
+              <em>No signature on file.</em>
+            {% endif %}
       <p><a href="{% url 'signature_create' %}">Create New Signature</a></p>
       <p><a class="text-danger" href="{% url 'signature_delete' user.pk %}">Delete Signature</a></p>
 
