@@ -91,7 +91,9 @@ INSTALLED_APPS = [
     'flights',
     'pdf_output',
     'csv_app',
+    'signature',
 
+    'signature_pad',
     'rest_framework',
     'rest_framework.authtoken',
     'django_recaptcha',
@@ -352,6 +354,8 @@ EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
 DEFAULT_FROM_EMAIL = "no-reply@direct2logbook.com"
 
 CSRF_USE_SESSIONS = True
+
+CSP_IMG_SRC = ("'self'", "data:", "https:", "blob:")
 
 SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']
 

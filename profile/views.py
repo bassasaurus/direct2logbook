@@ -4,12 +4,13 @@ from django.contrib.auth.mixins import UserPassesTestMixin
 from django.views.generic import TemplateView, UpdateView
 from .models import Profile
 from .forms import ProfileForm
-from pdf_output.models import Signature
 import stripe
 import datetime
 from accounts.views import LoginRequiredMixin
 from logbook import settings
 from django.views import View
+from signature.models import Signature
+import base64
 
 
 class ProfileNotActiveMixin(UserPassesTestMixin, View):
@@ -68,6 +69,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         plan_monthly = settings.PLAN_MONTHLY
 
         user = self.request.user
+
         session_monthly = stripe.checkout.Session.create(
             customer=customer_id,
             payment_method_types=['card'],
@@ -91,6 +93,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         plan_yearly = settings.PLAN_YEARLY
 
         user = self.request.user
+
         session_yearly = stripe.checkout.Session.create(
             customer=customer_id,
             payment_method_types=['card'],
@@ -115,13 +118,18 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         profile = Profile.objects.get(user=user)
 
         if settings.DEBUG is True:
-            context['STRIPE_PUBLISHABLE_KEY'] = settings.STRIPE_PUBLISHABLE_KEY  # test mode defined in settings.py
-            context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly('cus_HzEwJmFP2ftqVY')  # test user in stripe dashboard
-            context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly('cus_HzEwJmFP2ftqVY')  # test user in stripe dashboard
+            # test mode defined in settings.py
+            context['STRIPE_PUBLISHABLE_KEY'] = settings.STRIPE_PUBLISHABLE_KEY
+            context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly(
+                'cus_HzEwJmFP2ftqVY')  # test user in stripe dashboard
+            context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly(
+                'cus_HzEwJmFP2ftqVY')  # test user in stripe dashboard
         else:
             context['STRIPE_PUBLISHABLE_KEY'] = settings.STRIPE_PUBLISHABLE_KEY
-            context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly(profile.customer_id)
-            context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly(profile.customer_id)
+            context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly(
+                profile.customer_id)
+            context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly(
+                profile.customer_id)
 
         today = datetime.datetime.now()
 
@@ -131,11 +139,11 @@ class ProfileView(LoginRequiredMixin, TemplateView):
             context['passed_end_date'] = True
 
         try:
-            signature = Signature.objects.filter(user=user).latest()
-            context['signature'] = signature
-        except ObjectDoesNotExist:
-            context['signature'] = False
+            signature = Signature.objects.get(user=user)
+        except:
+            signature = None
 
+        context['signature'] = signature
         context['profile'] = Profile.objects.get(user=user)
         context['customer_id'] = profile.customer_id
         context['user_email'] = str(user.email)

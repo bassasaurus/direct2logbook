@@ -18,7 +18,7 @@ class Profile(models.Model):
     second_class = models.BooleanField(default=False)
     third_class = models.BooleanField(default=False)
     over_40 = models.BooleanField(default=False)
-    # signature = models.FileField(upload_to=user_directory_path, null=True, blank=True)
+
     free_access = models.BooleanField(default=False)
     # stripe api response fields
     customer_id = models.CharField(max_length=50, blank=True)

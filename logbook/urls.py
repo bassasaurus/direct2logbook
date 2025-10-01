@@ -35,6 +35,7 @@ urlpatterns = [
     path('', include('pdf_output.urls')),
     path('', include('payments.urls')),
     path('', include('csv_app.urls')),
+    path('', include('signature.urls')),
 
     path('api/', include(router.urls)),
     path('api/', include('api.urls')),

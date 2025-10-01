@@ -3,11 +3,17 @@
 {% block content %}
 
 <hr>
-<p><img height="60px" src="{{ signature.signature.url }}"</p>
+<p>
+
+     <img src="{{ signature.signature }}"/>
+    {% if signature %}
+       
+    {% else %}
+        <em>No signature saved.</em>
+    {% endif %}
 <hr>
 <form  action="" method="post">{% csrf_token %}
     <p>This cannot be undone! But it won't affect related data.</p>
-    <p>You can also <a href="{% url 'signature_update' object.pk %}">update</a> the entry instead.</p>
     <hr>
     <input id="delete-confirm" type="submit" class = "btn-shadow btn-shadow-danger btn-block" value="Delete"/>
 </form>
