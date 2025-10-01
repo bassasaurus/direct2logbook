@@ -1,6 +1,7 @@
 from decimal import ROUND_HALF_UP
 import logging
 from flights.models import Flight, Total, Stat, Regs, Power, Weight, Endorsement
+from signature.models import Signature
 from urllib.parse import urlparse, unquote
 from decimal import Decimal
 import datetime
@@ -207,12 +208,21 @@ def pdf_generate(user_pk):
                 sig = Signature.objects.get(user=user)
                 logger.debug("PDF sig: raw field repr=%r",
                              getattr(sig, 'signature', None))
-                sig_key = _derive_storage_key_from_signature(sig)
-                logger.debug("PDF sig: derived storage key=%r", sig_key)
-                if sig_key:
-                    reader = _image_reader_from_storage(sig_key)
+                raw = getattr(sig, 'signature', None)
+                if raw and isinstance(raw, str) and raw.startswith('data:image'):
+                    import base64
+                    from io import BytesIO
+                    header, encoded = raw.split(',', 1)
+                    img_bytes = base64.b64decode(encoded)
+                    reader = ImageReader(BytesIO(img_bytes))
                     canvas.drawImage(reader, 240, 50, width=100,
                                      height=40, mask='auto')
+                else:
+                    sig_key = _derive_storage_key_from_signature(sig)
+                    if sig_key:
+                        reader = _image_reader_from_storage(sig_key)
+                        canvas.drawImage(
+                            reader, 240, 50, width=100, height=40, mask='auto')
         except Exception as e:
             logger.warning("PDF sig: failed to embed signature: %s", e)
             # Non-fatal if signature cannot be loaded
@@ -413,11 +423,11 @@ def pdf_generate(user_pk):
         'IFR', 'Appr', 'Hold', 'D Ldg', 'N Ldg', 'Hood', 'CFI', 'Dual', 'Solo', 'Sim'
     ]
 
-    # if settings.DEBUG:
-    #     flight_objects = Flight.objects.filter(
-    #         user=user).order_by('-date')[:100]
-    # else:
-    flight_objects = Flight.objects.filter(user=user).order_by('date')
+    if settings.DEBUG:
+        flight_objects = Flight.objects.filter(
+            user=user).order_by('-date')[:100]
+    else:
+        flight_objects = Flight.objects.filter(user=user).order_by('date')
 
     # Build raw rows with Decimals for numeric fields
     logbook_rows = []
