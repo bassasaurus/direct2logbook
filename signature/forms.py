@@ -10,7 +10,7 @@ class SignatureForm(forms.ModelForm):
             dotSize=2.5,
             minWidth=1.0,
             maxWidth=4.0,
-            backgroundColor="rgb(240, 240, 240)",
+            backgroundColor="rgb(255, 255, 255 )",
             penColor="rgb(0, 0, 0)"
         )
     )

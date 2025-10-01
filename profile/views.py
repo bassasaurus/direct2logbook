@@ -69,6 +69,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         plan_monthly = settings.PLAN_MONTHLY
 
         user = self.request.user
+
         session_monthly = stripe.checkout.Session.create(
             customer=customer_id,
             payment_method_types=['card'],
@@ -92,6 +93,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         plan_yearly = settings.PLAN_YEARLY
 
         user = self.request.user
+
         session_yearly = stripe.checkout.Session.create(
             customer=customer_id,
             payment_method_types=['card'],
@@ -136,9 +138,12 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         else:
             context['passed_end_date'] = True
 
-        signature = Signature.objects.get(user=user)
+        try:
+            signature = Signature.objects.get(user=user)
+        except:
+            signature = None
 
-        context['signature'] = signature.signature
+        context['signature'] = signature
         context['profile'] = Profile.objects.get(user=user)
         context['customer_id'] = profile.customer_id
         context['user_email'] = str(user.email)
