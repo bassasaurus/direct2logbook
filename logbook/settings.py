@@ -52,32 +52,15 @@ SECRET_KEY = config('SECRET_KEY')
 
 SITE_ID = 8
 
-# --- CSRF / SSL / Security settings ---
+# SECURITY WARNING: don't run with debug turned on in production!
 
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', cast=Csv())
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CSRF_USE_SESSIONS = True
-CSRF_COOKIE_DOMAIN = config('CSRF_COOKIE_DOMAIN', default=None)
-
-if config('DEBUG', cast=bool):
-    # Development / local testing (no HTTPS)
-    SECURE_SSL_REDIRECT = False
-    SECURE_HSTS_SECONDS = 0
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
-    SECURE_HSTS_PRELOAD = False
-    CSRF_COOKIE_SECURE = False
-    SESSION_COOKIE_SECURE = False
-    SECURE_HSTS_PRELOAD = False
-    SECURE_REFERRER_POLICY = None
-else:
-    # Production (full HTTPS hardening)
-    SECURE_SSL_REDIRECT = True
-    SECURE_HSTS_SECONDS = 31536000            # 1 year
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
-    CSRF_COOKIE_SECURE = True
-    SESSION_COOKIE_SECURE = True
-    SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+SESSION_COOKIE_SECURE = True
+SECURE_SSL_REDIRECT = True
+CSRF_COOKIE_DOMAIN = config('CSRF_COOKIE_DOMAIN')
 
 # APPEND_SLASH = False
 
