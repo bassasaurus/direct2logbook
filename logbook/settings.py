@@ -323,7 +323,7 @@ if config('LOGGING', cast=bool) is True:
         'disable_existing_loggers': False,
         'handlers': {
             'file': {
-                'level': 'INFO',
+                'level': 'DEBUG',
                 'class': 'logging.FileHandler',
                 'filename': '/home/blakepowell/logs/django.log',
             },
@@ -331,16 +331,18 @@ if config('LOGGING', cast=bool) is True:
         'loggers': {
             'django.request': {
                 'handlers': ['file'],
-                'level': 'INFO',
+                'level': 'DEBUG',
                 'propagate': True,
             },
-            'django.security.csrf': {       # helps track CSRF activity
+            'django.security.csrf': {
                 'handlers': ['file'],
                 'level': 'DEBUG',
                 'propagate': False,
             },
         },
     }
+else:
+    None
 
 
 ANYMAIL = {
