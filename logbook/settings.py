@@ -323,16 +323,21 @@ if config('LOGGING', cast=bool) is True:
         'disable_existing_loggers': False,
         'handlers': {
             'file': {
-                'level': 'WARNING',
+                'level': 'INFO',
                 'class': 'logging.FileHandler',
-                'filename': config('LOG_DIR'),
+                'filename': '/home/blakepowell/logs/django.log',
             },
         },
         'loggers': {
-            'django': {
+            'django.request': {
                 'handlers': ['file'],
                 'level': 'INFO',
                 'propagate': True,
+            },
+            'django.security.csrf': {       # helps track CSRF activity
+                'handlers': ['file'],
+                'level': 'DEBUG',
+                'propagate': False,
             },
         },
     }
