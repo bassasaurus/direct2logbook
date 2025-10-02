@@ -41,8 +41,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DJANGO_ROOT = dirname(dirname(abspath(__file__)))
 
-SECURE_SSL_REDIRECT = False
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
@@ -59,6 +57,9 @@ SITE_ID = 8
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', cast=Csv())
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+CSRF_USE_SESSIONS = True
+SESSION_COOKIE_SECURE = True
+SECURE_SSL_REDIRECT = True
 
 # APPEND_SLASH = False
 
@@ -351,8 +352,6 @@ ANYMAIL = {
 EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
 
 DEFAULT_FROM_EMAIL = "no-reply@direct2logbook.com"
-
-CSRF_USE_SESSIONS = True
 
 CSP_IMG_SRC = ("'self'", "data:", "https:", "blob:")
 
