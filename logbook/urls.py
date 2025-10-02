@@ -31,7 +31,7 @@ urlpatterns = [
     path('', include('home.urls')),
     path('accounts/', include('allauth.urls')),
     path('admin/', admin.site.urls),
-    path('', include('flights.urls')),
+    path('flights/', include('flights.urls')),
     path('', include('pdf_output.urls')),
     path('', include('payments.urls')),
     path('', include('csv_app.urls')),

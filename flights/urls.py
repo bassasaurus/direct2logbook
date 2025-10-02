@@ -25,10 +25,10 @@ urlpatterns = [
          name='tailnumber-autocomplete'),
 
     # Archive views
-    path('flights/by_date/', FlightArchive.as_view(), name='flight_by_date'),
-    path('flights/by_date/<int:year>/',
+    path('by_date/', FlightArchive.as_view(), name='flight_by_date'),
+    path('by_date/<int:year>/',
          FlightArchiveYear.as_view(), name='flight_by_year'),
-    path('flights/by_date/<int:year>/<str:month>/',
+    path('by_date/<int:year>/<str:month>/',
          FlightArchiveMonth.as_view(), name='flight_by_month'),
 
     # Flight CRUD
