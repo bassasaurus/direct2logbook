@@ -317,32 +317,29 @@ CACHES = {
     }
 }
 
-if config('LOGGING', cast=bool) is True:
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'handlers': {
-            'file': {
-                'level': 'DEBUG',
-                'class': 'logging.FileHandler',
-                'filename': '/home/blakepowell/logs/django.log',
-            },
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': '/home/blakepowell/logs/django.log',
         },
-        'loggers': {
-            'django.request': {
-                'handlers': ['file'],
-                'level': 'DEBUG',
-                'propagate': True,
-            },
-            'django.security.csrf': {
-                'handlers': ['file'],
-                'level': 'DEBUG',
-                'propagate': False,
-            },
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['file'],
+            'level': 'WARNING',
+            'propagate': True,
         },
-    }
-else:
-    None
+        'django.security.csrf': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+    },
+}
 
 
 ANYMAIL = {
