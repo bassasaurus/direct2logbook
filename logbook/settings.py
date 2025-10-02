@@ -375,3 +375,24 @@ REST_FRAMEWORK = {
 
 # fix 3.2 upgrade error
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
+# --- Local development overrides ---
+if config('DEBUG', default=False, cast=bool):
+    # Don't force HTTPS locally
+    SECURE_SSL_REDIRECT = False
+    SECURE_HSTS_SECONDS = 0
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_HSTS_PRELOAD = False
+
+    # Allow cookies and CSRF over plain HTTP
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_SECURE = False
+
+    # Optional: allow local HTTP origins for CSRF
+    CSRF_TRUSTED_ORIGINS = [
+        "http://127.0.0.1:8000",
+        "http://localhost:8000",
+    ]
+
+    # Don’t require secure proxy headers in dev
+    SECURE_PROXY_SSL_HEADER = None
