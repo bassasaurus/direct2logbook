@@ -48,7 +48,7 @@
   // map draw airports
   $.ajax({
     type: "GET",
-    url: "/flights/geojson/airports/{{ user.pk }}",
+    url: "/flights/geojson/airports/{{ user.pk }}/",
     dataType: "json",
     async: true,
     success: function (latLng) {
@@ -84,7 +84,7 @@
 
   $.ajax({
     type: "GET",
-    url: "/flights/geojson/routes/{{ user.pk }}",
+    url: "/flights/geojson/routes/{{ user.pk }}/",
     dataType: "json",
     async: true,
     success: function (latlngs) {
