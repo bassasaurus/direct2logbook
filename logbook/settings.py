@@ -319,7 +319,7 @@ CACHES = {
 }
 
 
-if not config('DEBUG', default=False, cast=bool):
+if DEBUG is False:
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,
