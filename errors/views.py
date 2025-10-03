@@ -1,4 +1,14 @@
+from django.middleware.common import CommonMiddleware
+from django.http import HttpResponsePermanentRedirect
 from django.shortcuts import reverse, render
+
+
+def error_400(request, exception):
+    context = {
+        'title': '400',
+        'home_link': reverse('home')
+    }
+    return render(request, '400.html', context)
 
 
 def error_404(request, exception):
@@ -8,14 +18,6 @@ def error_404(request, exception):
         if redirect:
             return HttpResponsePermanentRedirect(redirect)
 
-    context = {
-        'title': '404',
-        'home_link': reverse('home')
-    }
-    return render(request, '404.html', context)
-
-
-def error_404(request, exception):
     context = {
         'title': '404',
         'home_link': reverse('home')
