@@ -14,7 +14,8 @@ def error_400(request, exception):
 def error_404(request, exception):
     # Let Django handle missing trailing slashes
     if not request.path.endswith('/'):
-        redirect = CommonMiddleware().get_full_path_with_slash(request)
+        redirect = CommonMiddleware(
+            get_response=lambda r: None).get_full_path_with_slash(request)
         if redirect:
             return HttpResponsePermanentRedirect(redirect)
 
