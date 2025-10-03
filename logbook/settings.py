@@ -318,29 +318,47 @@ CACHES = {
     }
 }
 
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'file': {
-#             'level': 'WARNING',
-#             'class': 'logging.FileHandler',
-#             'filename': '/home/blakepowell/logs/django.log',
-#         },
-#     },
-#     'loggers': {
-#         'django.request': {
-#             'handlers': ['file'],
-#             'level': 'WARNING',
-#             'propagate': True,
-#         },
-#         'django.security.csrf': {
-#             'handlers': ['file'],
-#             'level': 'DEBUG',
-#             'propagate': False,
-#         },
-#     },
-# }
+
+if not config('DEBUG', default=False, cast=bool):
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'verbose': {
+                'format': '[{asctime}] {levelname} {name}: {message}',
+                'style': '{',
+            },
+            'simple': {
+                'format': '{levelname}: {message}',
+                'style': '{',
+            },
+        },
+        'handlers': {
+            'file': {
+                'level': 'WARNING',
+                'class': 'logging.FileHandler',
+                'filename': '/home/blakepowell/logs/django.log',
+                'formatter': 'verbose',
+            },
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['file'],
+                'level': 'WARNING',
+                'propagate': True,
+            },
+            'django.request': {
+                'handlers': ['file'],
+                'level': 'WARNING',
+                'propagate': False,
+            },
+            'django.security.csrf': {
+                'handlers': ['file'],
+                'level': 'ERROR',
+                'propagate': False,
+            },
+        },
+    }
 
 
 ANYMAIL = {
