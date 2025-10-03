@@ -1,12 +1,18 @@
 from django.shortcuts import reverse, render
 
 
-def error_400(request, exception):
+def error_404(request, exception):
+    # Let Django handle missing trailing slashes
+    if not request.path.endswith('/'):
+        redirect = CommonMiddleware().get_full_path_with_slash(request)
+        if redirect:
+            return HttpResponsePermanentRedirect(redirect)
+
     context = {
-        'title': '400',
+        'title': '404',
         'home_link': reverse('home')
     }
-    return render(request, '400.html', context)
+    return render(request, '404.html', context)
 
 
 def error_404(request, exception):
