@@ -1,3 +1,4 @@
+from django.views.decorators.csrf import csrf_exempt
 from flights.models import Flight, Aircraft, TailNumber, Approach, Holding, Imported
 
 from flights.forms import FlightForm, AircraftForm, TailNumberForm, ImportedForm, ApproachFormSet, HoldingFormSet
@@ -66,6 +67,7 @@ class OwnObjectMixin(UserPassesTestMixin):
         return redirect(reverse('home'))
 
 
+@csrf_exempt
 def geoJSON_airports_view(request, user_id):
     if request.method == 'GET':
         user = request.user
@@ -75,6 +77,7 @@ def geoJSON_airports_view(request, user_id):
         return JsonResponse(data, content_type='application/json', safe=False)
 
 
+@csrf_exempt
 def geoJSON_routes_view(request, user_id):
     if request.method == 'GET':
         user = request.user
