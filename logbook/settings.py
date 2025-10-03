@@ -62,7 +62,7 @@ SESSION_COOKIE_SECURE = True
 SECURE_SSL_REDIRECT = True
 CSRF_COOKIE_DOMAIN = config('CSRF_COOKIE_DOMAIN')
 
-# APPEND_SLASH = False
+APPEND_SLASH = True
 
 # Application definition
 
