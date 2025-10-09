@@ -180,10 +180,10 @@ def pdf_generate(user_pk):
         canvas.saveState()
 
         # Draw header wings image if available from static
-        wings = _static_image_reader('pdf_output/wings.png')
-        if wings is not None:
-            canvas.drawImage(wings, 103, 205, width=800,
-                             height=229, mask='auto')
+        # wings = _static_image_reader('pdf_output/wings.png')
+        # if wings is not None:
+        #     canvas.drawImage(wings, 103, 205, width=800,
+        #                      height=229, mask='auto')
 
         canvas.setFont('Helvetica-Oblique', 7)
         canvas.drawString(
@@ -199,7 +199,7 @@ def pdf_generate(user_pk):
 
         canvas.setFont('Helvetica-Oblique', 7)
         canvas.drawString(
-            800, 30, "Powered by Direct2Logbook.com and ReportLab")
+            800, 30, "Powered by Direct2Logbook.com")
 
         # Draw signature from storage if exists (use storage name, not URL)
         try:
