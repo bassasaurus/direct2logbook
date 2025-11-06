@@ -24,7 +24,7 @@ from reportlab.platypus import (
     Image as RLImage,
 )
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.lib.pagesizes import legal, landscape
+from reportlab.lib.pagesizes import legal, letter, landscape
 from io import BytesIO
 from logbook.celery import app
 import os
@@ -155,9 +155,9 @@ def pdf_generate(user_pk):
     buffer = BytesIO()
     doc = SimpleDocTemplate(
         buffer,
-        pagesize=landscape(legal),
-        leftMargin=0.25 * inch,
-        rightMargin=0.25 * inch,
+        pagesize=landscape(letter),
+        leftMargin=0.3 * inch,
+        rightMargin=0.3 * inch,
         topMargin=0.5 * inch,
         bottomMargin=1.25 * inch,
     )
@@ -186,8 +186,8 @@ def pdf_generate(user_pk):
         #                      height=229, mask='auto')
 
         canvas.setFont('Helvetica-Oblique', 7)
-        canvas.drawString(
-            800, 30, "Powered by Direct2Logbook.com")
+        canvas.drawRightString(
+            10.75 * inch, 30, "Powered by Direct2Logbook.com")
 
         canvas.setFont('Helvetica', 10)
         page_number_text = f"{doc_.page}"
@@ -198,8 +198,11 @@ def pdf_generate(user_pk):
         canvas.saveState()
 
         canvas.setFont('Helvetica-Oblique', 7)
-        canvas.drawString(
-            800, 30, "Powered by Direct2Logbook.com")
+        canvas.drawRightString(
+            10.75 * inch,
+            30,
+            "Powered by Direct2Logbook.com"
+        )
 
         # Draw signature from storage if exists (use storage name, not URL)
         try:
@@ -508,7 +511,7 @@ def pdf_generate(user_pk):
 
     # --- Fixed rows-per-page pagination ---
     # Define ROWS_PER_PAGE constant for logbook rows per page
-    ROWS_PER_PAGE = 20
+    ROWS_PER_PAGE = 17
 
     # Build a prototype LongTable to get column widths
     all_data = [logbook_header] + logbook_display_rows
@@ -520,8 +523,8 @@ def pdf_generate(user_pk):
         ('LINEBELOW', (0, 0), (-1, -1), .25, colors.black),
         ('ALIGN', (4, 0), (-1, -1), 'RIGHT'),
         # Add padding to numeric columns to prevent overlap for large numbers
-        ('RIGHTPADDING', (4, 0), (-1, -1), 10),
-        ('LEFTPADDING', (4, 0), (-1, -1), 8),
+        ('RIGHTPADDING', (4, 0), (-1, -1), 8),
+        ('LEFTPADDING', (4, 0), (-1, -1), 6),
     ])
     proto_table.setStyle(proto_style)
     proto_table.wrapOn(None, doc.width, doc.height)
@@ -531,7 +534,7 @@ def pdf_generate(user_pk):
         for idx in [4, 5, 6, 7]:  # Block, PIC, SIC, XC
             col_widths[idx] += 10
 
-        # Ensure table fits within available width
+        # Ensure table fits within available width (11 inch landscape)
         total_width = sum(col_widths)
         available_width = doc.width
         if total_width > available_width:
