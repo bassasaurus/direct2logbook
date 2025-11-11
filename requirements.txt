@@ -33,6 +33,7 @@ django-extensions==4.1
 django-extra-views==0.16.0
 django-picklefield==3.3
 django-recaptcha==4.1.0
+django-signature-pad>=0.7.0
 django-sslserver==0.22
 django-storages==1.14.6
 django-timezone-field==7.1
@@ -65,7 +66,7 @@ parso==0.5.1
 Pillow==9.4.0
 pluggy==1.6.0
 prompt_toolkit==3.0.51
-psycopg2-binary==2.9.5
+psycopg[binary]>=3.1
 pycodestyle==2.5.0
 pycparser==2.19
 pydocstyle==4.0.1

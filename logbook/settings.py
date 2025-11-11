@@ -1,3 +1,4 @@
+import dj_database_url
 import os
 from os.path import abspath, dirname
 import sentry_sdk
@@ -203,24 +204,13 @@ WSGI_APPLICATION = 'logbook.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
-POSTGRES_DB_NAME = config('POSTGRES_DB_NAME')
-POSTGRES_UN = config('POSTGRES_UN')
-POSTGRES_PW = config('POSTGRES_PW')
-DB_HOST = config('DB_HOST')
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    # }
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': POSTGRES_DB_NAME,
-        'USER': POSTGRES_UN,
-        'PASSWORD': POSTGRES_PW,
-        'HOST': DB_HOST,
-        'PORT': '5432',
-    }
+    'default': dj_database_url.config(
+        default=config('DATABASE_URL'),
+        conn_max_age=600,  # Optional: Enable connection pooling
+        ssl_require=False,  # Optional: Set to True for production with SSL
+    )
 }
 
 CONN_MAX_AGE = None
