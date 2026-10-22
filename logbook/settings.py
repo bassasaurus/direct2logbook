@@ -5,6 +5,7 @@ from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.celery import CeleryIntegration
 from decouple import config, Csv
 from botocore.client import Config
+import dj_database_url
 
 DEBUG = config('DEBUG', default=False, cast=bool)
 
@@ -200,27 +201,14 @@ INTERNAL_IPS = '127.0.0.1:8000'
 
 WSGI_APPLICATION = 'logbook.wsgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/1.10/ref/settings/#databases
-
-POSTGRES_DB_NAME = config('POSTGRES_DB_NAME')
-POSTGRES_UN = config('POSTGRES_UN')
-POSTGRES_PW = config('POSTGRES_PW')
-DB_HOST = config('DB_HOST')
+# Database configuration
+# Works with local development, production, and Docker.
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    # }
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': POSTGRES_DB_NAME,
-        'USER': POSTGRES_UN,
-        'PASSWORD': POSTGRES_PW,
-        'HOST': DB_HOST,
-        'PORT': '5432',
-    }
+    'default': dj_database_url.parse(
+        config('DATABASE_URL'),
+        conn_max_age=0,
+    )
 }
 
 CONN_MAX_AGE = None
