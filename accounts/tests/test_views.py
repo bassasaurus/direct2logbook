@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from unittest.mock import patch
 from django.contrib.auth.models import User
@@ -8,6 +8,7 @@ from django.contrib.auth.models import Group
 import django_recaptcha
 
 
+@override_settings(SECURE_SSL_REDIRECT=False)
 class AccountViewsTest(TestCase):
     def setUp(self):
         # Ensure 'clients' group exists before creating users
