@@ -11,7 +11,7 @@ from django.core.validators import MinValueValidator, RegexValidator
 
 BOOL_CHOICES = ((True, 'Yes'), (False, 'No', None, ''))
 
-positive_validator = MinValueValidator(0.0, "Must be a positive number > 0.1")
+positive_validator = MinValueValidator(0, "Must be a positive number > 0.1")
 
 route_match = r'((?:[A-Z]{3,4}\-?)+)'
 route_validator = RegexValidator(
