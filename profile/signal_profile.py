@@ -12,67 +12,29 @@ from decouple import config
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
+    """
+    Create the local account records when a user is created.
+    External billing operations are intentionally excluded.
+    """
 
-    if created:
+    if not created:
+        return
 
-        name = '{} {}'.format(instance.first_name, instance.last_name)
+    # Create the user's profile.
+    Profile.objects.get_or_create(user=instance)
 
-        if settings.DEBUG:
-            stripe.api_key = config('STRIPE_TEST_SECRET_KEY')
-        else:
-            stripe.api_key = config('STRIPE_LIVE_SECRET_KEY')
+    # Assign the user to the clients group if it exists.
+    clients = Group.objects.filter(name='clients').first()
 
-        now = datetime.now()
-        trial_period = timedelta(days=14)
-        end_date = now + trial_period
-        timestamp = round(end_date.replace(tzinfo=timezone.utc).timestamp())
+    if clients:
+        instance.groups.add(clients)
 
-        customer_response = stripe.Customer.create(
-            description="{} {}".format(
-                instance.first_name, instance.last_name),
-            name=name,
-            email=instance.email
-        )
+    # Initialize the user's flight totals.
 
-        if settings.DEBUG:
-            plan = 'plan_FkX07tGXr4f3Mh'  # test mode trial
-        else:
-            plan = 'plan_Fkf5ex0bvWncFx'  # production trial
-
-        subscription_response = stripe.Subscription.create(
-            customer=customer_response.id,
-            collection_method="send_invoice",
-            days_until_due=14,
-            cancel_at_period_end=True,
-            items=[
-                {
-                    "plan": plan,  # trial plan
-                },
-            ],
-            trial_end=timestamp,
-        )
-
-        timestamp = subscription_response.trial_end
-
-        profile = Profile(
-            user=instance,
-            customer_id=customer_response.id,
-            subscription_id=subscription_response.id,
-            trial=True,
-            end_date=datetime.fromtimestamp(timestamp)
-        )
-        profile.save()
-
-        user = User.objects.get(pk=instance.pk)
-
-        clients = Group.objects.get(name='clients')
-        user.groups.add(clients)
-
-        total = Total(user=user, total='All')
-        total.save()
-
-    else:
-        None
+    Total.objects.get_or_create(
+        user=instance,
+        total='All',
+    )
 
 
 @receiver(post_save, sender=User)

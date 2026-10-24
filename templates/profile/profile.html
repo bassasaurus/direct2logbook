@@ -2,7 +2,7 @@
 
 {% block content %}
 <hr>
-{% if passed_end_date is True and not profile.free_access %}
+{% if not billing_pending and passed_end_date is True and not profile.free_access %}
 
 <h5 class="text-danger">Subscription expired</h5>
   <hr>
@@ -44,6 +44,11 @@
     {% if profile.free_access %}
       <h5>You have free access</h5>
 
+
+    {% elif billing_pending %}
+      <h5>Your trial is being set up.</h5>
+      <p>Refresh this page shortly. If setup does not finish, please
+        <a href="mailto:support@direct2logbook.com">contact support</a>.</p>
 
     {% elif profile.trial %}
       <h5 class="text-success">Free trial ends {{ profile.end_date|date:"M d, Y" }}</h5>
@@ -107,6 +112,7 @@
 </div>
 {% endif %}
 
+{% if not billing_pending and not profile.free_access %}
 <script src="https://js.stripe.com/v3/"></script>
 <script type="text/javascript">
   var stripe = Stripe('{{STRIPE_PUBLISHABLE_KEY}}');
@@ -139,6 +145,8 @@
     });
   });
 </script>
+
+{% endif %}
 
 <script>
   $('#csv').click(function(e) {

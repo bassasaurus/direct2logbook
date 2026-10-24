@@ -24,12 +24,14 @@ else:
 
 if DEBUG is False:
     STRIPE_SECRET_KEY = config('STRIPE_LIVE_SECRET_KEY')
+    STRIPE_TRIAL_PLAN = config('STRIPE_TRIAL_PLAN_LIVE')
     STRIPE_PUBLISHABLE_KEY = config('STRIPE_LIVE_PUBLISHABLE_KEY')
     ENDPOINT_SECRET_KEY = config('ENDPOINT_LIVE_SECRET')
     PLAN_MONTHLY = config('PLAN_MONTHLY_LIVE')
     PLAN_YEARLY = config('PLAN_YEARLY_LIVE')
 else:
     STRIPE_SECRET_KEY = config('STRIPE_TEST_SECRET_KEY')
+    STRIPE_TRIAL_PLAN = config('STRIPE_TRIAL_PLAN_TEST')
     STRIPE_PUBLISHABLE_KEY = config('STRIPE_TEST_PUBLISHABLE_KEY')
     ENDPOINT_SECRET_KEY = config('ENDPOINT_TEST_SECRET')
     PLAN_MONTHLY = config('PLAN_MONTHLY_TEST')
@@ -94,8 +96,8 @@ INSTALLED_APPS = [
     'pdf_output',
     'csv_app',
     'signature',
-
     'signature_pad',
+
     'rest_framework',
     'rest_framework.authtoken',
     'django_recaptcha',
@@ -109,6 +111,8 @@ INSTALLED_APPS = [
     'storages',
     'django_celery_results',
     'django_celery_beat',
+
+    'payments',
 ]
 
 AUTHENTICATION_BACKENDS = (
@@ -402,3 +406,15 @@ if config('DEBUG', default=False, cast=bool):
 
     # Don’t require secure proxy headers in dev
     SECURE_PROXY_SSL_HEADER = None
+
+
+# Preserve the worker/broker settings formerly in logbook.celery_config.
+CELERY_BROKER_URL = config('BROKER_URL')
+CELERY_BROKER_POOL_LIMIT = 1
+CELERY_BROKER_HEARTBEAT = None
+CELERY_BROKER_CONNECTION_TIMEOUT = 30
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_EVENT_QUEUE_EXPIRES = 60
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+CELERY_WORKER_CONCURRENCY = 2
+CELERY_WORKER_MAX_TASKS_PER_CHILD = 20
