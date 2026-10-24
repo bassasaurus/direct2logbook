@@ -5,6 +5,7 @@ from sentry_sdk.integrations.django import DjangoIntegration
 from sentry_sdk.integrations.celery import CeleryIntegration
 from decouple import config, Csv
 from botocore.client import Config
+import dj_database_url
 
 DEBUG = config('DEBUG', default=False, cast=bool)
 
@@ -23,12 +24,14 @@ else:
 
 if DEBUG is False:
     STRIPE_SECRET_KEY = config('STRIPE_LIVE_SECRET_KEY')
+    STRIPE_TRIAL_PLAN = config('STRIPE_TRIAL_PLAN_LIVE')
     STRIPE_PUBLISHABLE_KEY = config('STRIPE_LIVE_PUBLISHABLE_KEY')
     ENDPOINT_SECRET_KEY = config('ENDPOINT_LIVE_SECRET')
     PLAN_MONTHLY = config('PLAN_MONTHLY_LIVE')
     PLAN_YEARLY = config('PLAN_YEARLY_LIVE')
 else:
     STRIPE_SECRET_KEY = config('STRIPE_TEST_SECRET_KEY')
+    STRIPE_TRIAL_PLAN = config('STRIPE_TRIAL_PLAN_TEST')
     STRIPE_PUBLISHABLE_KEY = config('STRIPE_TEST_PUBLISHABLE_KEY')
     ENDPOINT_SECRET_KEY = config('ENDPOINT_TEST_SECRET')
     PLAN_MONTHLY = config('PLAN_MONTHLY_TEST')
@@ -93,8 +96,8 @@ INSTALLED_APPS = [
     'pdf_output',
     'csv_app',
     'signature',
-
     'signature_pad',
+
     'rest_framework',
     'rest_framework.authtoken',
     'django_recaptcha',
@@ -108,6 +111,8 @@ INSTALLED_APPS = [
     'storages',
     'django_celery_results',
     'django_celery_beat',
+
+    'payments',
 ]
 
 AUTHENTICATION_BACKENDS = (
@@ -200,27 +205,14 @@ INTERNAL_IPS = '127.0.0.1:8000'
 
 WSGI_APPLICATION = 'logbook.wsgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/1.10/ref/settings/#databases
-
-POSTGRES_DB_NAME = config('POSTGRES_DB_NAME')
-POSTGRES_UN = config('POSTGRES_UN')
-POSTGRES_PW = config('POSTGRES_PW')
-DB_HOST = config('DB_HOST')
+# Database configuration
+# Works with local development, production, and Docker.
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    # }
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': POSTGRES_DB_NAME,
-        'USER': POSTGRES_UN,
-        'PASSWORD': POSTGRES_PW,
-        'HOST': DB_HOST,
-        'PORT': '5432',
-    }
+    'default': dj_database_url.parse(
+        config('DATABASE_URL'),
+        conn_max_age=0,
+    )
 }
 
 CONN_MAX_AGE = None
@@ -414,3 +406,15 @@ if config('DEBUG', default=False, cast=bool):
 
     # Don’t require secure proxy headers in dev
     SECURE_PROXY_SSL_HEADER = None
+
+
+# Preserve the worker/broker settings formerly in logbook.celery_config.
+CELERY_BROKER_URL = config('BROKER_URL')
+CELERY_BROKER_POOL_LIMIT = 1
+CELERY_BROKER_HEARTBEAT = None
+CELERY_BROKER_CONNECTION_TIMEOUT = 30
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_EVENT_QUEUE_EXPIRES = 60
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+CELERY_WORKER_CONCURRENCY = 2
+CELERY_WORKER_MAX_TASKS_PER_CHILD = 20

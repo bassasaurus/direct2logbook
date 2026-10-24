@@ -117,26 +117,21 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         user = self.request.user
         profile = Profile.objects.get(user=user)
 
-        if settings.DEBUG is True:
-            # test mode defined in settings.py
-            context['STRIPE_PUBLISHABLE_KEY'] = settings.STRIPE_PUBLISHABLE_KEY
-            context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly(
-                'cus_HzEwJmFP2ftqVY')  # test user in stripe dashboard
-            context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly(
-                'cus_HzEwJmFP2ftqVY')  # test user in stripe dashboard
-        else:
-            context['STRIPE_PUBLISHABLE_KEY'] = settings.STRIPE_PUBLISHABLE_KEY
+        billing_ready = bool(
+            profile.customer_id and profile.subscription_id and profile.end_date
+        )
+        context['billing_pending'] = not billing_ready
+        context['STRIPE_PUBLISHABLE_KEY'] = settings.STRIPE_PUBLISHABLE_KEY
+        context['passed_end_date'] = bool(
+            profile.end_date and datetime.date.today() >= profile.end_date
+        )
+
+        if billing_ready and not profile.free_access:
+            stripe.api_key = settings.STRIPE_SECRET_KEY
             context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly(
                 profile.customer_id)
             context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly(
                 profile.customer_id)
-
-        today = datetime.datetime.now()
-
-        if today.date() < profile.end_date:
-            context['passed_end_date'] = False
-        else:
-            context['passed_end_date'] = True
 
         try:
             signature = Signature.objects.get(user=user)
@@ -144,7 +139,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
             signature = None
 
         context['signature'] = signature
-        context['profile'] = Profile.objects.get(user=user)
+        context['profile'] = profile
         context['customer_id'] = profile.customer_id
         context['user_email'] = str(user.email)
         context['title'] = "D-> | Profile"
