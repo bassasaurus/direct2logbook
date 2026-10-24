@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.contrib.auth.models import User
 from unittest.mock import patch
@@ -8,6 +8,7 @@ from datetime import date, timedelta
 from types import SimpleNamespace
 
 
+@override_settings(SECURE_SSL_REDIRECT=False)
 class PaymentViewsTest(TestCase):
     def setUp(self):
         from django.contrib.auth.models import Group

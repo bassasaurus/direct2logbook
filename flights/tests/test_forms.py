@@ -2,12 +2,6 @@ from flights.models import Aircraft, TailNumber
 from flights.forms import FlightForm, AircraftForm, TailNumberForm
 from django.test import TestCase
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save
-
-# Disable profile/Stripe signals during form tests
-from profile.signal_profile import create_user_profile, save_user_profile
-post_save.disconnect(create_user_profile, sender=User)
-post_save.disconnect(save_user_profile, sender=User)
 
 
 class FlightFormTests(TestCase):

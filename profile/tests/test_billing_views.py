@@ -9,6 +9,7 @@ from django.urls import reverse
 from payments.models import BillingProvisioning
 
 
+@override_settings(SECURE_SSL_REDIRECT=False)
 class ProfileBillingStateTests(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(

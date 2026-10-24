@@ -6,7 +6,7 @@ from datetime import date, timedelta
 
 from django.contrib.auth.models import User, Group
 from django.db.models.signals import post_save
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 # import your signal module so we can (dis)connect the exact receiver
@@ -14,6 +14,7 @@ import profile.signal_profile as profile_signals
 from profile.models import Profile
 
 
+@override_settings(SECURE_SSL_REDIRECT=False)
 class ProfileViewsTest(TestCase):
     def setUp(self):
         # Ensure the group your signal expects exists
