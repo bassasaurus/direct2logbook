@@ -50,3 +50,13 @@ class StripeWebhookEvent(models.Model):
     event_type = models.CharField(max_length=255)
     outcome = models.CharField(max_length=40, default='processed')
     processed_at = models.DateTimeField(auto_now_add=True)
+
+
+class StripeWebhookFailure(models.Model):
+    """Minimal failure metadata; receipts determine whether a failure recovered."""
+    event_id = models.CharField(max_length=255, primary_key=True)
+    event_type = models.CharField(max_length=255)
+    attempts = models.PositiveIntegerField(default=0)
+    first_failed_at = models.DateTimeField(auto_now_add=True)
+    last_failed_at = models.DateTimeField()
+    last_alerted_at = models.DateTimeField(null=True, blank=True)

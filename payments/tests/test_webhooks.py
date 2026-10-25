@@ -10,7 +10,7 @@ from django.contrib.auth import get_user_model
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
-from payments.models import StripeWebhookEvent
+from payments.models import StripeWebhookEvent, StripeWebhookFailure
 from profile.models import Profile
 
 
@@ -86,6 +86,16 @@ class StripeWebhookReliabilityTests(TestCase):
 
         self.assertEqual(self.retrieve.call_count, 1)
         self.assertEqual(StripeWebhookEvent.objects.count(), 1)
+
+    def test_processing_failure_is_tracked_and_successful_retry_recovers(self):
+        event = self.event()
+        with patch('payments.views.process_stripe_webhook', side_effect=RuntimeError('unavailable')):
+            self.assertEqual(self.send(event).status_code, 503)
+            self.assertEqual(self.send(event).status_code, 503)
+        self.assertEqual(StripeWebhookFailure.objects.get(pk=event['id']).attempts, 2)
+        self.assertFalse(StripeWebhookEvent.objects.exists())
+        self.assertEqual(self.send(event).status_code, 200)
+        self.assertTrue(StripeWebhookEvent.objects.filter(pk=event['id']).exists())
 
     def test_missing_signature_is_rejected(self):
         response = self.client.post(self.url, '{}', content_type='application/json')

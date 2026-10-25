@@ -370,6 +370,10 @@ EMAIL_BACKEND = "anymail.backends.mailgun.EmailBackend"
 
 DEFAULT_FROM_EMAIL = "no-reply@direct2logbook.com"
 
+# Enable in production with STRIPE_WEBHOOK_ALERT_EMAIL=admin@direct2logbook.com.
+# Sending is done by the scheduled check_stripe_webhooks command, never in a request.
+STRIPE_WEBHOOK_ALERT_EMAIL = config('STRIPE_WEBHOOK_ALERT_EMAIL', default='')
+
 CSP_IMG_SRC = ("'self'", "data:", "https:", "blob:")
 
 SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']
