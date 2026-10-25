@@ -10,6 +10,10 @@ from django.conf import settings
 from django.core.files.storage import default_storage
 from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
+from django.utils import timezone
+from email.utils import make_msgid
+import uuid
+from .models import PDFRequest
 from reportlab.lib.utils import ImageReader
 from reportlab.lib.units import inch
 from reportlab.lib import colors
@@ -144,13 +148,11 @@ def _derive_storage_key_from_signature(sig):
 
 # --- main task -------------------------------------------------------------
 
-@app.task
-def pdf_generate(user_pk):
-    # setup
-    user = User.objects.get(pk=user_pk)
+def _build_pdf(user):
+    user_pk = user.pk
 
     logger.info("pdf_generate: START user=%s env=%s fp=%s",
-                user_pk, _celery_env_report(), _func_fingerprint(pdf_generate))
+                user_pk, _celery_env_report(), _func_fingerprint(_build_pdf))
 
     buffer = BytesIO()
     doc = SimpleDocTemplate(
@@ -661,19 +663,56 @@ def pdf_generate(user_pk):
     pdf_bytes = buffer.getvalue()
     buffer.close()
 
-    # email the generated PDF (no need to persist unless you want to)
-    subject = f"Logbook for {user.first_name} {user.last_name}"
-    email = EmailMessage(
-        subject,
-        'Good luck on your interview!',
-        'noreply@direct2logbook.com',
-        [user.email],
-        reply_to=['noreply@direct2logbook.com'],
-        headers={'Message-ID': 'logbook'},
-    )
-    email.attach('Logbook.pdf', pdf_bytes, 'application/pdf')
-    email.send()
+    return pdf_bytes
 
+
+@app.task(bind=True, ignore_result=True)
+def pdf_generate(self, user_pk, request_id=None):
+    # Older queued messages contain only user_pk; create a receipt for them too.
+    if request_id is None:
+        job, _ = PDFRequest.objects.get_or_create(
+            task_id=self.request.id or str(uuid.uuid4()), defaults={'user_id': user_pk},
+        )
+    else:
+        job = PDFRequest.objects.get(pk=request_id)
+    if job.user_id != user_pk:
+        raise ValueError('PDF request owner mismatch')
+    claimed = PDFRequest.objects.filter(
+        pk=job.pk, status__in=[PDFRequest.Status.QUEUED, PDFRequest.Status.UNCONFIRMED],
+    ).update(status=PDFRequest.Status.PROCESSING, updated_at=timezone.now())
+    if not claimed:
+        return  # Duplicate delivery must not render or send again.
+
+    sending = False
+    try:
+        user = User.objects.get(pk=user_pk)
+        pdf_bytes = _build_pdf(user)
+        email = EmailMessage(
+            f'Logbook for {user.first_name} {user.last_name}',
+            'Good luck on your interview!', 'noreply@direct2logbook.com',
+            [user.email], reply_to=['noreply@direct2logbook.com'],
+            headers={'Message-ID': make_msgid(idstring=str(job.pk), domain='direct2logbook.com')},
+        )
+        email.attach('Logbook.pdf', pdf_bytes, 'application/pdf')
+        PDFRequest.objects.filter(pk=job.pk).update(
+            status=PDFRequest.Status.SENDING, updated_at=timezone.now(),
+        )
+        sending = True
+        sent = email.send(fail_silently=False)
+        if sent != 1:
+            # A zero result confirms this invocation did not submit a message.
+            sending = False
+            raise RuntimeError('Mail backend did not submit PDF email')
+        PDFRequest.objects.filter(pk=job.pk).update(
+            status=PDFRequest.Status.SENT, updated_at=timezone.now(),
+        )
+    except Exception:
+        PDFRequest.objects.filter(pk=job.pk).update(
+            status=PDFRequest.Status.UNCERTAIN if sending else PDFRequest.Status.FAILED,
+            updated_at=timezone.now(),
+        )
+        logger.exception('PDF request failed request_id=%s', job.pk)
+        raise
     return None
 
 
