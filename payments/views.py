@@ -1,7 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
 import json
 from django.http import HttpResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.views.decorators.http import require_POST
 import stripe
 from django.urls import reverse
 from profile.models import Profile
@@ -137,11 +139,13 @@ def stripe_webhook_view(request):
     return HttpResponse(status=200)
 
 
+@login_required
 def success_view(request, user):
-
-    user = User.objects.get(id=user)
-
-    profile = Profile.objects.get(user=user)
+    # Authorize the URL ID before making any request to Stripe.
+    user = get_object_or_404(User.objects.filter(pk=request.user.pk), pk=user)
+    profile = get_object_or_404(
+        Profile.objects.exclude(subscription_id=''), user=user,
+    )
 
     subscription_response = stripe.Subscription.retrieve(
         profile.subscription_id)
@@ -172,11 +176,13 @@ def canceled_view(request, user):
     return render(request, 'payments/canceled.html', context)
 
 
+@login_required
+@require_POST
+@csrf_protect
 def subscription_cancel_view(request):
-
-    user = request.user.pk
-
-    profile = Profile.objects.get(user=user)
+    profile = get_object_or_404(Profile, user=request.user)
+    if not profile.subscription_id:
+        return HttpResponse("No subscription is available to cancel.", status=400)
 
     canceled_subscription_response = stripe.Subscription.modify(
         profile.subscription_id,

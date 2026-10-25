@@ -244,7 +244,14 @@ class FlightList(LoginRequiredMixin, ProfileNotActiveMixin, ListView):
         return context
 
 
-class FlightCreate(LoginRequiredMixin, ProfileNotActiveMixin, CreateView):
+class UserOwnedFormViewMixin:
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+
+class FlightCreate(LoginRequiredMixin, ProfileNotActiveMixin, UserOwnedFormViewMixin, CreateView):
     model = Flight
     form_class = FlightForm
     template_name = 'flights/flight_create_form.html'
@@ -315,7 +322,7 @@ class FlightCreate(LoginRequiredMixin, ProfileNotActiveMixin, CreateView):
         return context
 
 
-class FlightUpdate(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, UpdateView):
+class FlightUpdate(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, UserOwnedFormViewMixin, UpdateView):
     model = Flight
     form_class = FlightForm
     template_name = 'flights/flight_update_form.html'
@@ -588,7 +595,7 @@ class TailNumberList(LoginRequiredMixin, ProfileNotActiveMixin, ListView):
         return context
 
 
-class TailNumberCreate(LoginRequiredMixin, ProfileNotActiveMixin, CreateView):
+class TailNumberCreate(LoginRequiredMixin, ProfileNotActiveMixin, UserOwnedFormViewMixin, CreateView):
     model = TailNumber
     form_class = TailNumberForm
     template_name = "tailnumbers/tailnumber_create_form.html"
@@ -616,7 +623,7 @@ class TailNumberCreate(LoginRequiredMixin, ProfileNotActiveMixin, CreateView):
         return super(TailNumberCreate, self).form_valid(form)
 
 
-class TailNumberUpdate(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, UpdateView):
+class TailNumberUpdate(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, UserOwnedFormViewMixin, UpdateView):
     model = TailNumber
     form_class = TailNumberForm
     template_name = 'tailnumbers/tailnumber_update_form.html'
@@ -706,7 +713,7 @@ class ImportedListView(LoginRequiredMixin, ProfileNotActiveMixin, ListView):
         return context
 
 
-class ImportedCreateView(LoginRequiredMixin, ProfileNotActiveMixin, CreateView):
+class ImportedCreateView(LoginRequiredMixin, ProfileNotActiveMixin, UserOwnedFormViewMixin, CreateView):
     model = Imported
     form_class = ImportedForm
     template_name = 'imported/imported_create.html'
@@ -730,7 +737,7 @@ class ImportedCreateView(LoginRequiredMixin, ProfileNotActiveMixin, CreateView):
         return context
 
 
-class ImportedUpdateView(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, UpdateView):
+class ImportedUpdateView(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, UserOwnedFormViewMixin, UpdateView):
     model = Imported
     form_class = ImportedForm
     template_name = 'imported/imported_update.html'
