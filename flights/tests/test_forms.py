@@ -44,7 +44,7 @@ class FlightFormTests(TestCase):
             'aircraft_type': self.aircraft.pk,
             'registration': self.tailnumber.pk,
         }
-        form = FlightForm(data=data)
+        form = FlightForm(data=data, user=self.user)
         self.assertTrue(form.is_valid(), msg=form.errors)
 
     def test_flight_form_invalid_blank_route(self):
@@ -53,7 +53,7 @@ class FlightFormTests(TestCase):
             'date': '2021-01-01',
             'duration': '02:30',
         }
-        form = FlightForm(data=data)
+        form = FlightForm(data=data, user=self.user)
         self.assertFalse(form.is_valid())
         self.assertIn('route', form.errors)
 
@@ -112,7 +112,7 @@ class TailNumberFormTests(TestCase):
             'is_135': False,
             'is_91': False,
         }
-        form = TailNumberForm(data=data)
+        form = TailNumberForm(data=data, user=user)
         self.assertTrue(form.is_valid(), msg=form.errors)
 
     def test_tailnumber_form_invalid_blank_registration(self):

@@ -15,6 +15,10 @@ class LoginRequiredMixin(LoginRequiredMixin):
 
 class UserUpdateView(LoginRequiredMixin, UpdateView):
 
+    def get_queryset(self):
+        # Keep URL IDs from selecting another account, for both GET and POST.
+        return super().get_queryset().filter(pk=self.request.user.pk)
+
     def get_context_data(self, **kwargs):
         context = super(UserUpdateView, self).get_context_data(**kwargs)
 

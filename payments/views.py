@@ -139,11 +139,13 @@ def stripe_webhook_view(request):
     return HttpResponse(status=200)
 
 
+@login_required
 def success_view(request, user):
-
-    user = User.objects.get(id=user)
-
-    profile = Profile.objects.get(user=user)
+    # Authorize the URL ID before making any request to Stripe.
+    user = get_object_or_404(User.objects.filter(pk=request.user.pk), pk=user)
+    profile = get_object_or_404(
+        Profile.objects.exclude(subscription_id=''), user=user,
+    )
 
     subscription_response = stripe.Subscription.retrieve(
         profile.subscription_id)

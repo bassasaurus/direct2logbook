@@ -12,16 +12,22 @@ class UserForm(forms.ModelForm):
         fields = ('first_name', 'last_name')
 
 
-class FlightForm(forms.ModelForm):
+class UserOwnedRelationsFormMixin:
+    owned_relation_fields = ()
 
-    aircraft = Aircraft.objects.all()
-    choices = []
-    for obj in aircraft:
-        j = 0
-        choices.append((j, str(obj)))
-        j += 1
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name in self.owned_relation_fields:
+            field = self.fields[name]
+            if user is not None and user.is_authenticated:
+                field.queryset = field.queryset.filter(user=user)
+            else:
+                # Missing caller context must never expose every user's records.
+                field.queryset = field.queryset.none()
 
-    aircraft_type = autocomplete.ModelSelect2(choices=choices)
+
+class FlightForm(UserOwnedRelationsFormMixin, forms.ModelForm):
+    owned_relation_fields = ('aircraft_type', 'registration')
 
     class Meta:
         model = Flight
@@ -82,7 +88,8 @@ class AircraftForm(forms.ModelForm):
         }
 
 
-class TailNumberForm(forms.ModelForm):
+class TailNumberForm(UserOwnedRelationsFormMixin, forms.ModelForm):
+    owned_relation_fields = ('aircraft',)
 
     class Meta:
         model = TailNumber
@@ -101,7 +108,8 @@ class TailNumberForm(forms.ModelForm):
         }
 
 
-class ImportedForm(forms.ModelForm):
+class ImportedForm(UserOwnedRelationsFormMixin, forms.ModelForm):
+    owned_relation_fields = ('aircraft_type',)
 
     class Meta:
         model = Imported
