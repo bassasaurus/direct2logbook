@@ -1,7 +1,9 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
 import json
 from django.http import HttpResponse
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_exempt, csrf_protect
+from django.views.decorators.http import require_POST
 import stripe
 from django.urls import reverse
 from profile.models import Profile
@@ -172,11 +174,13 @@ def canceled_view(request, user):
     return render(request, 'payments/canceled.html', context)
 
 
+@login_required
+@require_POST
+@csrf_protect
 def subscription_cancel_view(request):
-
-    user = request.user.pk
-
-    profile = Profile.objects.get(user=user)
+    profile = get_object_or_404(Profile, user=request.user)
+    if not profile.subscription_id:
+        return HttpResponse("No subscription is available to cancel.", status=400)
 
     canceled_subscription_response = stripe.Subscription.modify(
         profile.subscription_id,

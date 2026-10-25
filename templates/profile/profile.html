@@ -81,7 +81,10 @@
         <p><a href="" class="link text-success" id="monthly">Monthly</a></p>
       {% endif %}
       <p>Next billing date - {{ profile.end_date|date:"M d, Y" }}</p>
-      <a class="text-danger" href="{% url 'subscription_canceled'%}">Cancel</a>
+      <form method="post" action="{% url 'subscription_canceled' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-link text-danger p-0">Cancel</button>
+      </form>
 
     {% endif %}
 
