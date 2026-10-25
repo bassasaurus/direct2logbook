@@ -1,5 +1,12 @@
 <!-- breadcrumb -->
-<div class="d-flex justify-content-end">{% now "M j, Y | H:i" %} UTC</div>
+<div class="d-flex justify-content-end">
+  {% if request.resolver_match.url_name == 'home' %}
+    <time id="utc-clock" datetime="{% now 'c' %}" role="timer" aria-live="off"
+          style="font-variant-numeric: tabular-nums;">{% now "M j, Y | H:i:s" %} UTC</time>
+  {% else %}
+    {% now "M j, Y | H:i" %} UTC
+  {% endif %}
+</div>
 <div class="flex-row breadcrumb">
   <div class="col-9">
     {% if home_link %}
