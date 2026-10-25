@@ -2,7 +2,6 @@
 
 {% block content %}
 <hr>
-<p id="pdf-request-status" role="status" aria-live="polite"{% if pdf_request %} data-status-url="{% url 'pdf_status' pdf_request.pk %}"{% endif %}></p>
 <div class="row">
   <div class="col-lg-5">
     <h5>Recent flights</h5>
@@ -131,27 +130,68 @@
     var form = $('#pdf-request-form');
     var statusLine = $('#pdf-request-status');
     var pollTimer;
+    var hideTimer;
     var pollGeneration = 0;
+
+    function restorePrintButton() {
+      pending = false;
+      statusLine.empty();
+      button.prop('disabled', false).removeAttr('aria-busy').show();
+    }
+
+    function showPDFStatus(message, status) {
+      pending = true;
+      button.prop('disabled', true).attr('aria-busy', 'true').hide();
+      var colors = {
+        queued: 'text-info',
+        processing: 'text-info',
+        sending: 'text-info',
+        sent: 'text-success',
+        unconfirmed: 'text-warning',
+        delivery_uncertain: 'text-warning',
+        delayed: 'text-warning',
+        failed: 'text-danger'
+      };
+      statusLine.removeClass('text-info text-success text-warning text-danger text-muted')
+        .addClass(colors[status] || 'text-muted').text(message);
+    }
 
     function trackPDF(url) {
       if (!url) return;
       clearTimeout(pollTimer);
+      clearTimeout(hideTimer);
       var generation = ++pollGeneration;
+      if (!pending) showPDFStatus('Checking Lobook request…', 'processing');
       var started = Date.now();
       function check() {
         $.ajax({url: url, dataType: 'json', cache: false, timeout: 15000})
           .done(function (data) {
             if (generation !== pollGeneration) return;
-            statusLine.text(data.message);
+            showPDFStatus(data.message, data.status);
+            if (data.status === 'sent') {
+              if (data.hide_after_ms > 0) {
+                hideTimer = setTimeout(function () {
+                  if (generation === pollGeneration) restorePrintButton();
+                }, data.hide_after_ms);
+              } else {
+                restorePrintButton();
+              }
+            }
+            if (data.status === 'failed') {
+              hideTimer = setTimeout(function () {
+                if (generation === pollGeneration) restorePrintButton();
+              }, 30000);
+            }
             var terminal = ['sent', 'failed', 'delivery_uncertain', 'delayed'];
             if (terminal.indexOf(data.status) === -1 && Date.now() - started < 300000) {
               pollTimer = setTimeout(check, 10000);
             } else if (terminal.indexOf(data.status) === -1) {
-              statusLine.append(' Refresh this page later to check progress.');
+              statusLine.removeClass('text-info').addClass('text-warning')
+                .append(' Refresh this page later to check progress.');
             }
           }).fail(function () {
             if (generation !== pollGeneration) return;
-            statusLine.text('PDF status is temporarily unavailable. Refresh this page to check again.');
+            showPDFStatus('Lobook status is temporarily unavailable. Refresh this page to check again.', 'unconfirmed');
           });
       }
       check();
@@ -159,27 +199,14 @@
     trackPDF(statusLine.attr('data-status-url'));
 
     function showUnconfirmed(message) {
-      Swal.fire({
-        icon: 'warning',
-        title: 'PDF request not confirmed',
-        text: message || 'We could not confirm your PDF request. It may still have been queued. Please check your email before requesting another copy.'
-      });
+      showPDFStatus(message || 'We could not confirm your Lobook request. It may still be queued. Check your email before requesting another copy.', 'unconfirmed');
     }
 
     button.on('click', function (event) {
       event.preventDefault();
       if (pending) return;
       pending = true;
-      button.prop('disabled', true).attr('aria-busy', 'true');
-      Swal.fire({
-        title: 'Submitting PDF request…',
-        text: 'Please wait while we send your request.',
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        showConfirmButton: false,
-        didOpen: function () { Swal.showLoading(); }
-      });
-
+      showPDFStatus('Submitting Lobook request…', 'processing');
       $.ajax({
         type: 'POST',
         url: form.attr('action'),
@@ -191,22 +218,19 @@
           showUnconfirmed();
           return;
         }
+        showPDFStatus('Lobook request received. We will email it to ' + data.email + ' when ready.', 'queued');
         trackPDF(data.status_url);
-        Swal.fire({
-          icon: 'success',
-          title: 'PDF request queued',
-          text: 'Your PDF request is queued. We will email your logbook to ' + data.email + ' when it is ready.'
-        });
       }).fail(function (xhr) {
         var message = xhr.responseJSON && xhr.responseJSON.message;
         trackPDF(xhr.responseJSON && xhr.responseJSON.status_url);
-        if (xhr.status === 403) {
-          message = 'Your session could not be verified. Refresh the page and sign in again before requesting your PDF.';
+        if (xhr.status === 403 || xhr.status === 401) {
+          message = 'Your session could not be verified. Refresh the page and sign in again before requesting your Lobook.';
         }
         showUnconfirmed(message);
-      }).always(function () {
-        pending = false;
-        button.prop('disabled', false).removeAttr('aria-busy');
+        if (xhr.status === 403 || xhr.status === 401) {
+          showPDFStatus(message, 'failed');
+          hideTimer = setTimeout(restorePrintButton, 30000);
+        }
       });
     });
   })();

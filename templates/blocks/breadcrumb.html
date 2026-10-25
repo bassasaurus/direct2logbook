@@ -40,7 +40,8 @@
     <a class="" href="{% url 'flight_create' %}">New Flight</a>
     {% if 'home' in request.path %}
     |
-    <button id="pdf" type="button" class="btn btn-link p-0 align-baseline">Print PDF</button>
+    <button id="pdf" type="button" class="btn btn-link p-0 align-baseline">Print Lobook</button>
+    <span id="pdf-request-status" role="status" aria-live="polite"{% if pdf_request %} data-status-url="{% url 'pdf_status' pdf_request.pk %}"{% endif %}></span>
 
     {% endif %}
     {% if 'logbook' in request.path and 'remarks' not in request.path %}

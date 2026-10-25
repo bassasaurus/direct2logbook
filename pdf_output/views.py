@@ -38,7 +38,7 @@ def PDFView(request, user_id):
             'status_url': status_url,
             'status': 'unconfirmed',
             'message': (
-                'We could not confirm your PDF request. It may still have been queued. '
+                'We could not confirm your Lobook request. It may still have been queued. '
                 'Please check your email before requesting another copy.'
             ),
         }, status=503)
@@ -56,12 +56,12 @@ def PDFView(request, user_id):
 def pdf_status(request, request_id):
     job = get_object_or_404(PDFRequest, pk=request_id, user=request.user)
     messages = {
-        'queued': 'Your PDF request is queued.',
+        'queued': f'Lobook request received. We will email it to {request.user.email} when ready.',
         'unconfirmed': 'Queue submission could not be confirmed. Check here and your email before requesting another copy.',
-        'processing': 'Your PDF is being generated.',
-        'sending': 'Your PDF email is being submitted to the mail service.',
-        'sent': 'The mail service accepted your PDF email. Please check your inbox and spam folder.',
-        'failed': 'Your PDF could not be generated or submitted. Please try again or contact support.',
+        'processing': 'Your Lobook is being generated.',
+        'sending': 'Emailing your Lobook…',
+        'sent': 'Check your email',
+        'failed': 'Your Lobook could not be generated or submitted. The print button will return shortly so you can try again, or contact support.',
         'delivery_uncertain': 'We could not confirm email delivery. Check your inbox and spam folder before requesting another copy.',
     }
     status = job.status
@@ -70,7 +70,11 @@ def pdf_status(request, request_id):
             status = PDFRequest.Status.UNCERTAIN
         elif status in (PDFRequest.Status.QUEUED, PDFRequest.Status.PROCESSING):
             status = 'delayed'
-            messages[status] = 'Your PDF request is taking longer than expected. Contact support before requesting another copy.'
-    response = JsonResponse({'status': status, 'message': messages[status]})
+            messages[status] = 'Your Lobook request is taking longer than expected. Contact support before requesting another copy.'
+    payload = {'status': status, 'message': messages[status]}
+    if status == PDFRequest.Status.SENT:
+        age_ms = (timezone.now() - job.updated_at).total_seconds() * 1000
+        payload['hide_after_ms'] = max(0, min(30000, int(30000 - age_ms)))
+    response = JsonResponse(payload)
     response['Cache-Control'] = 'no-store'
     return response
