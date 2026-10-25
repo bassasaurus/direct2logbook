@@ -60,6 +60,8 @@ SITE_ID = 8
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', cast=Csv())
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# Identify the site to external map tiles without sharing page paths.
+SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 CSRF_USE_SESSIONS = True
 SESSION_COOKIE_SECURE = True
 SECURE_SSL_REDIRECT = True
