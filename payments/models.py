@@ -42,3 +42,11 @@ class BillingProvisioning(models.Model):
 
     def __str__(self):
         return f"{self.user_id}: {self.status}"
+
+
+class StripeWebhookEvent(models.Model):
+    """A receipt committed only after a signed event is handled successfully."""
+    event_id = models.CharField(max_length=255, primary_key=True)
+    event_type = models.CharField(max_length=255)
+    outcome = models.CharField(max_length=40, default='processed')
+    processed_at = models.DateTimeField(auto_now_add=True)
