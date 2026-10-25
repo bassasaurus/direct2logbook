@@ -11,6 +11,10 @@ from django.core.files.storage import default_storage
 from django.contrib.auth.models import User
 from django.core.mail import EmailMessage
 from django.utils import timezone
+from django.db import OperationalError as DatabaseOperationalError
+from django.db.models import F
+from celery.exceptions import Retry, SoftTimeLimitExceeded
+from botocore.exceptions import ClientError, ConnectionClosedError, EndpointConnectionError, ConnectTimeoutError, ReadTimeoutError
 from email.utils import make_msgid
 import uuid
 from .models import PDFRequest
@@ -43,6 +47,8 @@ import hashlib
 def _to_decimal_safe(val):
     try:
         return Decimal(str(val))
+    except SoftTimeLimitExceeded:
+        raise
     except Exception:
         return Decimal("0.0")
 
@@ -53,6 +59,8 @@ logger = logging.getLogger(__name__)
 def _func_fingerprint(func):
     try:
         src = inspect.getsource(func)
+    except SoftTimeLimitExceeded:
+        raise
     except Exception:
         src = repr(func)
     h = hashlib.sha256(src.encode("utf-8", errors="ignore")).hexdigest()[:12]
@@ -64,11 +72,15 @@ def _celery_env_report():
     try:
         boto_ver = boto3.__version__
         botocore_ver = botocore.__version__
+    except SoftTimeLimitExceeded:
+        raise
     except Exception:
         boto_ver = botocore_ver = "?"
     try:
         from django.core.files.storage import default_storage as ds
         storage_cls = f"{ds.__class__.__module__}.{ds.__class__.__name__}"
+    except SoftTimeLimitExceeded:
+        raise
     except Exception:
         storage_cls = "<unknown>"
     return {
@@ -108,6 +120,8 @@ def _dec_str(val):
     try:
         d = Decimal(str(val)).quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
         return str(d)
+    except SoftTimeLimitExceeded:
+        raise
     except Exception:
         return str(val)
 
@@ -128,6 +142,8 @@ def _static_image_reader(static_path: str):
         return None
     try:
         return ImageReader(abs_path)
+    except SoftTimeLimitExceeded:
+        raise
     except Exception:
         return None
 
@@ -228,6 +244,8 @@ def _build_pdf(user):
                         reader = _image_reader_from_storage(sig_key)
                         canvas.drawImage(
                             reader, 240, 50, width=100, height=40, mask='auto')
+        except SoftTimeLimitExceeded:
+            raise
         except Exception as e:
             logger.warning("PDF sig: failed to embed signature: %s", e)
             # Non-fatal if signature cannot be loaded
@@ -448,6 +466,8 @@ def _build_pdf(user):
             if val not in (None, '', '-'):
                 try:
                     return Decimal(str(val))
+                except SoftTimeLimitExceeded:
+                    raise
                 except Exception:
                     return Decimal("0.0")
             return Decimal("0.0")
@@ -492,12 +512,16 @@ def _build_pdf(user):
                 # Landings: int, show 0 if 0
                 try:
                     return str(int(val)) if val is not None else '0'
+                except SoftTimeLimitExceeded:
+                    raise
                 except Exception:
                     return '0'
             else:
                 # Other numerics: 1 decimal place
                 try:
                     return str(val.quantize(Decimal("0.1"), rounding=ROUND_HALF_UP))
+                except SoftTimeLimitExceeded:
+                    raise
                 except Exception:
                     return '0.0'
         else:
@@ -598,6 +622,8 @@ def _build_pdf(user):
                     else:
                         try:
                             col_sum += Decimal(str(val))
+                        except SoftTimeLimitExceeded:
+                            raise
                         except Exception:
                             pass
             footer_decimals[col] = col_sum
@@ -666,7 +692,22 @@ def _build_pdf(user):
     return pdf_bytes
 
 
-@app.task(bind=True, ignore_result=True)
+def _retryable_render_error(exc):
+    if isinstance(exc, (ConnectionError, TimeoutError, DatabaseOperationalError,
+                        ConnectionClosedError, EndpointConnectionError,
+                        ConnectTimeoutError, ReadTimeoutError)):
+        return True
+    if isinstance(exc, ClientError):
+        code = exc.response.get('Error', {}).get('Code')
+        status = exc.response.get('ResponseMetadata', {}).get('HTTPStatusCode', 0)
+        return status in (429, 500, 502, 503, 504) or code in (
+            'SlowDown', 'Throttling', 'ThrottlingException', 'RequestTimeout',
+        )
+    return False
+
+
+@app.task(bind=True, ignore_result=True, max_retries=2,
+          soft_time_limit=600, time_limit=660)
 def pdf_generate(self, user_pk, request_id=None):
     # Older queued messages contain only user_pk; create a receipt for them too.
     if request_id is None:
@@ -677,16 +718,22 @@ def pdf_generate(self, user_pk, request_id=None):
         job = PDFRequest.objects.get(pk=request_id)
     if job.user_id != user_pk:
         raise ValueError('PDF request owner mismatch')
+    retry_number = self.request.retries
     claimed = PDFRequest.objects.filter(
-        pk=job.pk, status__in=[PDFRequest.Status.QUEUED, PDFRequest.Status.UNCONFIRMED],
-    ).update(status=PDFRequest.Status.PROCESSING, updated_at=timezone.now())
+        pk=job.pk, render_attempts=retry_number,
+        status__in=[PDFRequest.Status.QUEUED, PDFRequest.Status.UNCONFIRMED,
+                    PDFRequest.Status.RETRYING],
+    ).update(status=PDFRequest.Status.PROCESSING,
+             render_attempts=F('render_attempts') + 1, updated_at=timezone.now())
     if not claimed:
         return  # Duplicate delivery must not render or send again.
 
     sending = False
+    rendering_complete = False
     try:
         user = User.objects.get(pk=user_pk)
         pdf_bytes = _build_pdf(user)
+        rendering_complete = True
         email = EmailMessage(
             f'Logbook for {user.first_name} {user.last_name}',
             'Good luck on your interview!', 'noreply@direct2logbook.com',
@@ -706,7 +753,30 @@ def pdf_generate(self, user_pk, request_id=None):
         PDFRequest.objects.filter(pk=job.pk).update(
             status=PDFRequest.Status.SENT, updated_at=timezone.now(),
         )
-    except Exception:
+    except Exception as exc:
+        if (not rendering_complete and not isinstance(exc, SoftTimeLimitExceeded)
+                and _retryable_render_error(exc) and retry_number < self.max_retries):
+            PDFRequest.objects.filter(pk=job.pk).update(
+                status=PDFRequest.Status.RETRYING, updated_at=timezone.now(),
+            )
+            logger.warning('Retrying PDF rendering request_id=%s attempt=%s',
+                           job.pk, retry_number + 1, exc_info=True)
+            try:
+                raise self.retry(
+                    exc=exc, args=(user_pk,), kwargs={'request_id': str(job.pk)},
+                    countdown=30 * (2 ** retry_number), retry=False,
+                )
+            except Retry:
+                raise
+            except Exception:
+                # Publication can be ambiguous. A retry accepted by the broker
+                # may already be processing, so never overwrite its newer state.
+                PDFRequest.objects.filter(
+                    pk=job.pk, status=PDFRequest.Status.RETRYING,
+                    render_attempts=retry_number + 1,
+                ).update(status=PDFRequest.Status.FAILED, updated_at=timezone.now())
+                logger.exception('Could not schedule PDF retry request_id=%s', job.pk)
+                raise
         PDFRequest.objects.filter(pk=job.pk).update(
             status=PDFRequest.Status.UNCERTAIN if sending else PDFRequest.Status.FAILED,
             updated_at=timezone.now(),

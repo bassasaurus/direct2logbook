@@ -132,8 +132,18 @@
     var pollTimer;
     var hideTimer;
     var pollGeneration = 0;
+    var displayGeneration = 0;
+    var displayQueue = Promise.resolve();
+    var displayedAt = 0;
+    var displayedStatus;
+    var displayedMessage;
 
     function restorePrintButton() {
+      displayGeneration++;
+      displayQueue = Promise.resolve();
+      displayedAt = 0;
+      displayedStatus = null;
+      displayedMessage = null;
       pending = false;
       statusLine.empty();
       button.prop('disabled', false).removeAttr('aria-busy').show();
@@ -142,9 +152,24 @@
     function showPDFStatus(message, status) {
       pending = true;
       button.prop('disabled', true).attr('aria-busy', 'true').hide();
+      var generation = displayGeneration;
+      displayQueue = displayQueue.then(function () {
+        if (generation !== displayGeneration) return;
+        if (message === displayedMessage && status === displayedStatus) return;
+        var progress = ['queued', 'processing', 'sending'];
+        var delay = progress.indexOf(displayedStatus) !== -1
+          ? Math.max(0, 1500 - (Date.now() - displayedAt)) : 0;
+        return new Promise(function (resolve) { setTimeout(resolve, delay); });
+      }).then(function () {
+        if (generation !== displayGeneration) return;
+        if (message === displayedMessage && status === displayedStatus) return;
+        displayedAt = Date.now();
+        displayedStatus = status;
+        displayedMessage = message;
       var colors = {
         queued: 'text-info',
         processing: 'text-info',
+        retrying: 'text-warning',
         sending: 'text-info',
         sent: 'text-success',
         unconfirmed: 'text-warning',
@@ -154,6 +179,8 @@
       };
       statusLine.removeClass('text-info text-success text-warning text-danger text-muted')
         .addClass(colors[status] || 'text-muted').text(message);
+      });
+      return displayQueue;
     }
 
     function trackPDF(url) {
@@ -167,12 +194,15 @@
         $.ajax({url: url, dataType: 'json', cache: false, timeout: 15000})
           .done(function (data) {
             if (generation !== pollGeneration) return;
-            showPDFStatus(data.message, data.status);
+            var receivedAt = Date.now();
+            showPDFStatus(data.message, data.status).then(function () {
+            if (generation !== pollGeneration) return;
             if (data.status === 'sent') {
-              if (data.hide_after_ms > 0) {
+              var remaining = Math.max(0, data.hide_after_ms - (Date.now() - receivedAt));
+              if (remaining > 0) {
                 hideTimer = setTimeout(function () {
                   if (generation === pollGeneration) restorePrintButton();
-                }, data.hide_after_ms);
+                }, remaining);
               } else {
                 restorePrintButton();
               }
@@ -182,6 +212,7 @@
                 if (generation === pollGeneration) restorePrintButton();
               }, 30000);
             }
+            });
             var terminal = ['sent', 'failed', 'delivery_uncertain', 'delayed'];
             if (terminal.indexOf(data.status) === -1 && Date.now() - started < 300000) {
               pollTimer = setTimeout(check, 10000);
@@ -228,8 +259,9 @@
         }
         showUnconfirmed(message);
         if (xhr.status === 403 || xhr.status === 401) {
-          showPDFStatus(message, 'failed');
-          hideTimer = setTimeout(restorePrintButton, 30000);
+          showPDFStatus(message, 'failed').then(function () {
+            hideTimer = setTimeout(restorePrintButton, 30000);
+          });
         }
       });
     });

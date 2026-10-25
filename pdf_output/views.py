@@ -58,6 +58,7 @@ def pdf_status(request, request_id):
     messages = {
         'queued': f'Lobook request received. We will email it to {request.user.email} when ready.',
         'unconfirmed': 'Queue submission could not be confirmed. Check here and your email before requesting another copy.',
+        'retrying': 'A temporary problem interrupted generation. We will retry your Lobook automatically.',
         'processing': 'Your Lobook is being generated.',
         'sending': 'Emailing your Lobook…',
         'sent': 'Check your email',
@@ -68,7 +69,7 @@ def pdf_status(request, request_id):
     if (timezone.now() - job.updated_at).total_seconds() > 900:
         if status == PDFRequest.Status.SENDING:
             status = PDFRequest.Status.UNCERTAIN
-        elif status in (PDFRequest.Status.QUEUED, PDFRequest.Status.PROCESSING):
+        elif status in (PDFRequest.Status.QUEUED, PDFRequest.Status.PROCESSING, PDFRequest.Status.RETRYING):
             status = 'delayed'
             messages[status] = 'Your Lobook request is taking longer than expected. Contact support before requesting another copy.'
     payload = {'status': status, 'message': messages[status]}
