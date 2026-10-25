@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from kombu.exceptions import OperationalError
+from pdf_output.models import PDFRequest
 
 
 @override_settings(SECURE_SSL_REDIRECT=False)
@@ -46,11 +47,16 @@ class PDFConfirmationTests(TestCase):
         response = self.client.post(self.url, {'csrfmiddlewaretoken': self.csrf_token()})
 
         self.assertEqual(response.status_code, 202)
+        job = PDFRequest.objects.get()
         self.assertEqual(response.json(), {
-            'status': 'queued', 'task_id': 'confirmed-pdf-task',
+            'status': 'queued', 'task_id': job.task_id,
             'email': self.user.email,
+            'status_url': reverse('pdf_status', args=[job.pk]),
         })
-        self.publish.assert_called_once_with(args=(self.user.pk,), retry=False)
+        self.publish.assert_called_once_with(
+            args=(self.user.pk,), kwargs={'request_id': str(PDFRequest.objects.get().pk)},
+            task_id=PDFRequest.objects.get().task_id, retry=False,
+        )
 
     def test_broker_failure_does_not_confirm_submission(self):
         token = self.csrf_token()
@@ -62,7 +68,10 @@ class PDFConfirmationTests(TestCase):
         self.assertEqual(response.json()['status'], 'unconfirmed')
         self.assertNotIn('task_id', response.json())
         self.assertIn('may still have been queued', response.json()['message'])
-        self.publish.assert_called_once_with(args=(self.user.pk,), retry=False)
+        self.publish.assert_called_once_with(
+            args=(self.user.pk,), kwargs={'request_id': str(PDFRequest.objects.get().pk)},
+            task_id=PDFRequest.objects.get().task_id, retry=False,
+        )
 
     def test_get_does_not_enqueue(self):
         response = self.client.get(self.url)
@@ -97,4 +106,7 @@ class PDFConfirmationTests(TestCase):
 
         self.assertEqual(response.status_code, 202)
         self.assertEqual(response.json()['email'], self.user.email)
-        self.publish.assert_called_once_with(args=(self.user.pk,), retry=False)
+        self.publish.assert_called_once_with(
+            args=(self.user.pk,), kwargs={'request_id': str(PDFRequest.objects.get().pk)},
+            task_id=PDFRequest.objects.get().task_id, retry=False,
+        )

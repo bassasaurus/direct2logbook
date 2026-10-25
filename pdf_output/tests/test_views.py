@@ -6,6 +6,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from signature.models import Signature
+from pdf_output.models import PDFRequest
 
 
 @override_settings(SECURE_SSL_REDIRECT=False)
@@ -47,5 +48,8 @@ class PDFOutputViewsTest(TestCase):
 
         self.assertEqual(response.status_code, 202)
         self.assertEqual(response.json()['status'], 'queued')
-        self.assertEqual(response.json()['task_id'], 'pdf-task-test')
-        mock_pdf_generate.assert_called_once_with(args=(self.user.pk,), retry=False)
+        self.assertEqual(response.json()['task_id'], PDFRequest.objects.get().task_id)
+        mock_pdf_generate.assert_called_once_with(
+            args=(self.user.pk,), kwargs={'request_id': str(PDFRequest.objects.get().pk)},
+            task_id=PDFRequest.objects.get().task_id, retry=False,
+        )

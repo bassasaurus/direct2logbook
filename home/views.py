@@ -1,3 +1,4 @@
+from pdf_output.models import PDFRequest
 from flights.models import (
     Flight, TailNumber, Aircraft, Total, Imported, Stat,
     Regs, Weight, Endorsement, Power)
@@ -31,6 +32,8 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
     def get_context_data(self, **kwargs):
         user = self.request.user
         context = super(HomeView, self).get_context_data(**kwargs)
+
+        context['pdf_request'] = PDFRequest.objects.filter(user=user).first()
 
         context['recent'] = Flight.objects.filter(
             user=user).order_by('-date')[:5]

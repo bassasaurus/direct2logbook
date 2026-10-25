@@ -2,6 +2,7 @@
 
 {% block content %}
 <hr>
+<p id="pdf-request-status" role="status" aria-live="polite"{% if pdf_request %} data-status-url="{% url 'pdf_status' pdf_request.pk %}"{% endif %}></p>
 <div class="row">
   <div class="col-lg-5">
     <h5>Recent flights</h5>
@@ -128,6 +129,34 @@
     var pending = false;
     var button = $('#pdf');
     var form = $('#pdf-request-form');
+    var statusLine = $('#pdf-request-status');
+    var pollTimer;
+    var pollGeneration = 0;
+
+    function trackPDF(url) {
+      if (!url) return;
+      clearTimeout(pollTimer);
+      var generation = ++pollGeneration;
+      var started = Date.now();
+      function check() {
+        $.ajax({url: url, dataType: 'json', cache: false, timeout: 15000})
+          .done(function (data) {
+            if (generation !== pollGeneration) return;
+            statusLine.text(data.message);
+            var terminal = ['sent', 'failed', 'delivery_uncertain', 'delayed'];
+            if (terminal.indexOf(data.status) === -1 && Date.now() - started < 300000) {
+              pollTimer = setTimeout(check, 10000);
+            } else if (terminal.indexOf(data.status) === -1) {
+              statusLine.append(' Refresh this page later to check progress.');
+            }
+          }).fail(function () {
+            if (generation !== pollGeneration) return;
+            statusLine.text('PDF status is temporarily unavailable. Refresh this page to check again.');
+          });
+      }
+      check();
+    }
+    trackPDF(statusLine.attr('data-status-url'));
 
     function showUnconfirmed(message) {
       Swal.fire({
@@ -162,6 +191,7 @@
           showUnconfirmed();
           return;
         }
+        trackPDF(data.status_url);
         Swal.fire({
           icon: 'success',
           title: 'PDF request queued',
@@ -169,6 +199,7 @@
         });
       }).fail(function (xhr) {
         var message = xhr.responseJSON && xhr.responseJSON.message;
+        trackPDF(xhr.responseJSON && xhr.responseJSON.status_url);
         if (xhr.status === 403) {
           message = 'Your session could not be verified. Refresh the page and sign in again before requesting your PDF.';
         }
