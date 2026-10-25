@@ -1,0 +1,61 @@
+.leaflet-marker-icon.airport-marker {
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+.airport-marker-content {
+  display: block;
+  position: relative;
+  width: 28px;
+  height: 28px;
+}
+.airport-marker-dot {
+  position: absolute;
+  top: 9px;
+  left: 9px;
+  width: 10px;
+  height: 10px;
+  box-sizing: border-box;
+  border: 2px solid #344c65;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(25, 40, 55, .18);
+}
+.airport-marker-label {
+  position: absolute;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #344c65;
+  font: 600 12px/1.2 Arial, sans-serif;
+  white-space: nowrap;
+  text-shadow: -1px -1px 2px #fff, 1px -1px 2px #fff,
+    -1px 1px 2px #fff, 1px 1px 2px #fff;
+}
+.airport-marker:focus {
+  outline: 2px solid #52799b;
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+.leaflet-popup.airport-details-popup .leaflet-popup-content-wrapper {
+  background: #fff;
+  opacity: 1;
+  color: #263440;
+  border: 1px solid #e1e6ea;
+  border-radius: 6px;
+  box-shadow: 0 3px 12px rgba(25, 40, 55, .16);
+}
+.leaflet-popup.airport-details-popup .leaflet-popup-content {
+  margin: 12px;
+  font: 12px/1.5 Arial, sans-serif;
+}
+.leaflet-popup.airport-details-popup .leaflet-popup-tip {
+  background: #fff;
+  box-shadow: none;
+}
+.leaflet-popup.airport-details-popup .leaflet-popup-tip-container {
+  width: 40px;
+  height: 20px;
+}
+.airport-details-name { font-weight: 600; }
+.airport-details-elevation { color: #74808b; }
