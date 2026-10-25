@@ -54,7 +54,10 @@ class PDFTrackingTests(TestCase):
         self.assertEqual(mail.outbox[0].to, [self.user.email])
         self.assertEqual(mail.outbox[0].attachments[0][1], b'%PDF-test')
         self.assertIn(str(self.job.pk), mail.outbox[0].extra_headers['Message-ID'])
-        self.assertIn('mail service accepted', self.client.get(self.url).json()['message'])
+        status = self.client.get(self.url).json()
+        self.assertEqual(status['message'], 'Check your email')
+        self.assertGreater(status['hide_after_ms'], 0)
+        self.assertLessEqual(status['hide_after_ms'], 30000)
 
     @patch('pdf_output.pdf_generate_task._build_pdf', side_effect=RuntimeError('render error'))
     @patch('pdf_output.pdf_generate_task.EmailMessage.send')
