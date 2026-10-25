@@ -120,17 +120,65 @@
   {% include 'new_user_modal.html' %}
 {% endif %}
 
+<form id="pdf-request-form" class="d-none" method="post" action="{% url 'pdf' user.pk %}">
+  {% csrf_token %}
+</form>
 <script>
-  $("#pdf").click(function() {
-    $.ajax({
-      type: "GET",
-      url: "{% url 'pdf' user.id %}",
-      success: Swal.fire(
-        'Your logbook will be sent to:',
-        '{{ user.email }}',
-        'success'),
+  (function () {
+    var pending = false;
+    var button = $('#pdf');
+    var form = $('#pdf-request-form');
+
+    function showUnconfirmed(message) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'PDF request not confirmed',
+        text: message || 'We could not confirm your PDF request. It may still have been queued. Please check your email before requesting another copy.'
+      });
+    }
+
+    button.on('click', function (event) {
+      event.preventDefault();
+      if (pending) return;
+      pending = true;
+      button.prop('disabled', true).attr('aria-busy', 'true');
+      Swal.fire({
+        title: 'Submitting PDF request…',
+        text: 'Please wait while we send your request.',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showConfirmButton: false,
+        didOpen: function () { Swal.showLoading(); }
+      });
+
+      $.ajax({
+        type: 'POST',
+        url: form.attr('action'),
+        data: form.serialize(),
+        dataType: 'json',
+        timeout: 45000
+      }).done(function (data, textStatus, xhr) {
+        if (xhr.status !== 202 || data.status !== 'queued' || !data.task_id) {
+          showUnconfirmed();
+          return;
+        }
+        Swal.fire({
+          icon: 'success',
+          title: 'PDF request queued',
+          text: 'Your PDF request is queued. We will email your logbook to ' + data.email + ' when it is ready.'
+        });
+      }).fail(function (xhr) {
+        var message = xhr.responseJSON && xhr.responseJSON.message;
+        if (xhr.status === 403) {
+          message = 'Your session could not be verified. Refresh the page and sign in again before requesting your PDF.';
+        }
+        showUnconfirmed(message);
+      }).always(function () {
+        pending = false;
+        button.prop('disabled', false).removeAttr('aria-busy');
+      });
     });
-  });
+  })();
 </script>
 
 <script>

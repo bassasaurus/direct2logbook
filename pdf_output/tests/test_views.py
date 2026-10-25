@@ -1,4 +1,5 @@
 from unittest.mock import patch
+from types import SimpleNamespace
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
@@ -39,10 +40,12 @@ class PDFOutputViewsTest(TestCase):
         self.assertTemplateUsed(response, "signature/signature_confirm_delete.html")
         self.assertContains(response, "Delete")
 
-    @patch("pdf_output.views.pdf_generate.delay")
-    def test_pdf_view_get(self, mock_pdf_generate):
-        response = self.client.get(reverse("pdf", args=[self.user.pk]))
+    @patch("pdf_output.views.pdf_generate.apply_async")
+    def test_pdf_view_post(self, mock_pdf_generate):
+        mock_pdf_generate.return_value = SimpleNamespace(id='pdf-task-test')
+        response = self.client.post(reverse("pdf", args=[self.user.pk]))
 
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Check your email")
-        mock_pdf_generate.assert_called_once_with(self.user.pk)
+        self.assertEqual(response.status_code, 202)
+        self.assertEqual(response.json()['status'], 'queued')
+        self.assertEqual(response.json()['task_id'], 'pdf-task-test')
+        mock_pdf_generate.assert_called_once_with(args=(self.user.pk,), retry=False)
