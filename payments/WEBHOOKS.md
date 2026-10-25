@@ -71,3 +71,48 @@ move reconciliation to a durable inbox/background processor.
 Receipts are not automatically retried locally, and must not be deleted to
 force replay without checking Stripe and local state first. A failed delivery
 can be retried through Stripe's delivery tools after fixing its cause.
+
+## Failure monitoring
+
+Signed events that fail processing are recorded separately in
+`StripeWebhookFailure`, outside the reconciliation transaction. Invalid signatures
+do not create records. Only event ID/type, attempt counts, and timestamps are
+stored, never customer details, exception text, or payloads. Successful receipts
+automatically exclude recovered events from alerts. Existing failures from before
+this deployment are not backfilled.
+
+Run the focused tests manually before deploying:
+
+```sh
+python manage.py test payments.tests.test_webhooks payments.tests.test_webhook_monitoring
+python manage.py test
+python manage.py makemigrations --check --dry-run
+```
+
+Deploy migration `payments.0005_stripewebhookfailure`, then set this in the
+production `.env` (leave unset locally to disable alert delivery):
+
+```dotenv
+STRIPE_WEBHOOK_ALERT_EMAIL=admin@direct2logbook.com
+```
+
+Restart Django after deployment. With the production virtual environment active,
+run `python manage.py check_stripe_webhooks` to verify configuration. It sends a
+summary email through the existing Mailgun backend if an event has failed at least
+three times, or remains unresolved for 15 minutes. Otherwise it prints that no
+alert is needed. Each unresolved event can alert again after one hour; each run
+handles at most 100 eligible events. Email failures leave alerts eligible for retry.
+
+Schedule independently of Celery so a worker outage does not stop the checks.
+Add this to `crontab -e` for the production app user:
+
+```cron
+*/5 * * * * cd /home/blakepowell/app && /home/blakepowell/venv/bin/python manage.py check_stripe_webhooks >> /home/blakepowell/logs/stripe-webhook-monitor.log 2>&1
+```
+
+Verify those paths before installing the entry, check the monitor log after its
+first run, and include it in the server's log rotation. A mail backend accepting
+the message does not guarantee inbox delivery. This monitor depends on the app
+database, scheduler, and email service; retain Stripe delivery monitoring for
+failures before Django runs, invalid signing secrets, or a complete server outage.
+Failure metadata and receipts are retained until explicitly cleaned up.

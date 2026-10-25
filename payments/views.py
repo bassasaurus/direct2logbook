@@ -11,6 +11,7 @@ from datetime import datetime
 from django.contrib.auth.models import User
 from django.conf import settings
 from payments.webhooks import InvalidWebhook, process_stripe_webhook
+from payments.webhook_monitoring import record_webhook_failure
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -35,10 +36,12 @@ def stripe_webhook_view(request):
         process_stripe_webhook(event)
     except InvalidWebhook:
         logger.warning('Malformed signed Stripe event rejected')
+        record_webhook_failure(event)
         return HttpResponse(status=400)
     except Exception:
         # Never acknowledge failed processing: Stripe should retry delivery.
         logger.exception('Stripe webhook processing failed for event_id=%s', event.get('id'))
+        record_webhook_failure(event)
         return HttpResponse(status=503)
     return HttpResponse(status=200)
 
