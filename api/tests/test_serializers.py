@@ -43,10 +43,10 @@ class TailNumberSerializerTests(TestCase):
             "is_135": False,
             "is_91": True,
         }
-        ser = TailNumberSerializer(data=data)
+        ser = TailNumberSerializer(data=data, context={"request": SimpleNamespace(user=self.user)})
         self.assertTrue(ser.is_valid(), ser.errors)
 
-        obj = ser.save()
+        obj = ser.save(user=self.user)
         self.assertIsInstance(obj, TailNumber)
         self.assertEqual(obj.user, self.user)
         self.assertEqual(obj.registration, "N123AB")
@@ -101,16 +101,16 @@ class AircraftSerializerTests(TestCase):
 
     def test_create_aircraft(self):
         """
-        AircraftSerializer should create an Aircraft tied to the given user.
+        AircraftSerializer uses the owner supplied by trusted server code.
         """
         data = {
             "user": self.user.id,
             "aircraft_type": "PA-28",
         }
-        ser = AircraftSerializer(data=data)
+        ser = AircraftSerializer(data=data, context={"request": SimpleNamespace(user=self.user)})
         self.assertTrue(ser.is_valid(), ser.errors)
 
-        obj = ser.save()
+        obj = ser.save(user=self.user)
         self.assertIsInstance(obj, Aircraft)
         self.assertEqual(obj.user, self.user)
         self.assertEqual(obj.aircraft_type, "PA-28")
@@ -212,9 +212,9 @@ class FlightSerializerTest(TestCase):
             "landings_day": 2,
             "approaches": [],
         }
-        ser = FlightSerializer(data=data)
+        ser = FlightSerializer(data=data, context={"request": SimpleNamespace(user=self.user)})
         self.assertTrue(ser.is_valid(), ser.errors)
-        instance = ser.save()
+        instance = ser.save(user=self.user)
         self.assertIsInstance(instance, Flight)
         self.assertEqual(instance.user, self.user)
         self.assertEqual(instance.aircraft_type, self.aircraft)
@@ -234,7 +234,7 @@ class FlightSerializerTest(TestCase):
             "duration": "-0.1",
             "approaches": [],
         }
-        ser = FlightSerializer(data=data)
+        ser = FlightSerializer(data=data, context={"request": SimpleNamespace(user=self.user)})
         self.assertFalse(ser.is_valid())
         # Should flag the validator on duration
         self.assertIn("duration", ser.errors)
@@ -249,7 +249,7 @@ class FlightSerializerTest(TestCase):
             "duration": "0.7",
             "approaches": [],
         }
-        ser = FlightSerializer(data=data)
+        ser = FlightSerializer(data=data, context={"request": SimpleNamespace(user=self.user)})
         self.assertFalse(ser.is_valid())
         # route should be flagged as required
         self.assertIn("route", ser.errors)

@@ -45,9 +45,18 @@ class UserViewSet(viewsets.ModelViewSet):
 #     permission_classes = [permissions.IsAuthenticated]
 
 
-class FlightViewSet(viewsets.ModelViewSet, CreateModelMixin):
-
+class OwnedRecordsViewSet(viewsets.ModelViewSet):
+    """Only the server chooses ownership, on both creation and update."""
     permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class FlightViewSet(OwnedRecordsViewSet):
     serializer_class = FlightSerializer
 
     def get_queryset(self):
@@ -55,42 +64,8 @@ class FlightViewSet(viewsets.ModelViewSet, CreateModelMixin):
         user = self.request.user
         return Flight.objects.filter(user=user)
 
-    def create(self, request, *args, **kwargs):
-        
-        request.data['user'] = self.request.user.pk
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-    def perform_create(self, serializer):
-        serializer.save()
-
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-
-        if getattr(instance, '_prefetched_objects_cache', None):
-            # If 'prefetch_related' has been applied to a queryset, we need to
-            # forcibly invalidate the prefetch cache on the instance.
-            instance._prefetched_objects_cache = {}
-
-        return Response(serializer.data)
-
-    def partial_update(self, request, *args, **kwargs):
-        kwargs['partial'] = True
-        return self.update(request, *args, **kwargs)
-
-    def perform_update(self, serializer):
-        serializer.save()
-
-    
-class AircraftViewSet(viewsets.ModelViewSet):
+class AircraftViewSet(OwnedRecordsViewSet):
 
     def get_queryset(self):
 
@@ -103,7 +78,7 @@ class AircraftViewSet(viewsets.ModelViewSet):
     pagination_class = Unpaginated
 
 
-class TailNumberViewSet(viewsets.ModelViewSet):
+class TailNumberViewSet(OwnedRecordsViewSet):
 
     permission_classes = [IsAuthenticated]
     serializer_class = TailNumberSerializer
@@ -114,20 +89,3 @@ class TailNumberViewSet(viewsets.ModelViewSet):
         # aircraft = self.request.GET['aircraft']
         # aircraft_object = Aircraft.objects.get(user=user, aircraft_type=aircraft)
         return TailNumber.objects.filter(user=user)
-        
-
-    def create(self, request, *args, **kwargs):
-
-        aircraft = Aircraft.objects.get(user=self.request.user.pk, aircraft_type = request.data['aircraft'])
-        request.data['user'] = self.request.user.pk
-        request.data['aircraft'] = aircraft.pk
-
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
-
-    def perform_create(self, serializer):
-        serializer.save()
