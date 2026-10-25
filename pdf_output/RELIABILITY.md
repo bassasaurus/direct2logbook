@@ -42,7 +42,8 @@ repository, but their records can remain in existing databases. The new name
 avoids treating the old 0001 record as proof that the request table exists; it does not require
 collectstatic because the status script is in the home template.
 
-Late acknowledgement and automatic stale-job recovery remain disabled. Separate user submissions still represent separate
+Late acknowledgement remains disabled. Stale-job reconciliation is available via
+the scheduled command documented below. Separate user submissions still represent separate
 requests and may each send an email. Request rows are retained until explicitly
 cleaned up; deleting a user cascades to their requests.
 
@@ -141,3 +142,49 @@ button unavailable. It retains the existing five-minute polling window; users ca
 reload to check long-running requests. Tests mock renderer/mail/retry boundaries
 and verify limits as configuration; they do not terminate real worker processes or
 exercise live broker timing. Manually verify a normal export after deployment.
+
+
+## Stale-job reconciliation
+
+`python manage.py reconcile_pdf_requests --dry-run` reports requests with no
+progress for more than 15 minutes. Without `--dry-run`, it closes stale queued,
+unconfirmed, retrying, and processing requests as failed. The user sees the
+existing failure message and can submit a fresh request after the print button
+returns. Stale sending becomes delivery uncertain; that request is never replayed.
+The command does not enqueue any task or send any email, and terminal states are
+left unchanged. Repeated runs do not reset timestamps or repeat the transition.
+
+The task's transition into sending now conditionally checks its processing state
+and attempt number. A renderer that resumes after recovery cannot send or reopen
+its closed request for retry. If an email already in flight later returns confirmed
+acceptance, its worker can resolve delivery uncertainty to sent. A late exception
+cannot erase the monitor's uncertain state.
+
+This is conservative recovery by closing abandoned work and enabling a fresh
+user request; it does not reconstruct lost tasks. Queue congestion can also make a
+request stale. A closed queued message is ignored if it eventually arrives.
+Generation may have to be requested again, but that closed request cannot later
+send an unexpected duplicate. Sending requests stay blocked pending inbox/provider
+review because the provider may already have accepted the message.
+
+No migration is needed for this change. Run manually:
+
+```sh
+python manage.py test pdf_output.tests
+python manage.py test
+python manage.py reconcile_pdf_requests --dry-run
+```
+
+Deploy in a maintenance window after active jobs finish; restart both Django and
+Celery. Ensure every old worker has stopped before enabling reconciliation: old
+code lacks the conditional send guard. Add this separate entry beside the existing
+webhook monitor in the production user's crontab:
+
+```cron
+*/5 * * * * cd /home/blakepowell/app && /home/blakepowell/venv/bin/python manage.py reconcile_pdf_requests >> /home/blakepowell/logs/pdf-request-monitor.log 2>&1
+```
+
+Verify those paths and inspect the log after the first run. It reports counts;
+nonzero recoveries also log a warning through `django.pdf_output`. Include the new
+log in server log rotation. This command has no email alerting and depends on cron
+and the database; complete infrastructure outages need independent monitoring.

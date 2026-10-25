@@ -741,24 +741,33 @@ def pdf_generate(self, user_pk, request_id=None):
             headers={'Message-ID': make_msgid(idstring=str(job.pk), domain='direct2logbook.com')},
         )
         email.attach('Logbook.pdf', pdf_bytes, 'application/pdf')
-        PDFRequest.objects.filter(pk=job.pk).update(
-            status=PDFRequest.Status.SENDING, updated_at=timezone.now(),
-        )
+        allowed_to_send = PDFRequest.objects.filter(
+            pk=job.pk, status=PDFRequest.Status.PROCESSING,
+            render_attempts=retry_number + 1,
+        ).update(status=PDFRequest.Status.SENDING, updated_at=timezone.now())
+        if not allowed_to_send:
+            # The stale-job monitor closed this attempt while rendering.
+            # Never let an old worker send after the user is allowed to retry.
+            return
         sending = True
         sent = email.send(fail_silently=False)
         if sent != 1:
             # A zero result confirms this invocation did not submit a message.
             sending = False
             raise RuntimeError('Mail backend did not submit PDF email')
-        PDFRequest.objects.filter(pk=job.pk).update(
-            status=PDFRequest.Status.SENT, updated_at=timezone.now(),
-        )
+        PDFRequest.objects.filter(
+            pk=job.pk, render_attempts=retry_number + 1,
+            status__in=[PDFRequest.Status.SENDING, PDFRequest.Status.UNCERTAIN],
+        ).update(status=PDFRequest.Status.SENT, updated_at=timezone.now())
     except Exception as exc:
         if (not rendering_complete and not isinstance(exc, SoftTimeLimitExceeded)
                 and _retryable_render_error(exc) and retry_number < self.max_retries):
-            PDFRequest.objects.filter(pk=job.pk).update(
-                status=PDFRequest.Status.RETRYING, updated_at=timezone.now(),
-            )
+            allowed_to_retry = PDFRequest.objects.filter(
+                pk=job.pk, status=PDFRequest.Status.PROCESSING,
+                render_attempts=retry_number + 1,
+            ).update(status=PDFRequest.Status.RETRYING, updated_at=timezone.now())
+            if not allowed_to_retry:
+                raise  # Recovery closed this attempt; do not reopen it.
             logger.warning('Retrying PDF rendering request_id=%s attempt=%s',
                            job.pk, retry_number + 1, exc_info=True)
             try:
@@ -777,7 +786,10 @@ def pdf_generate(self, user_pk, request_id=None):
                 ).update(status=PDFRequest.Status.FAILED, updated_at=timezone.now())
                 logger.exception('Could not schedule PDF retry request_id=%s', job.pk)
                 raise
-        PDFRequest.objects.filter(pk=job.pk).update(
+        PDFRequest.objects.filter(
+            pk=job.pk, render_attempts=retry_number + 1,
+            status__in=[PDFRequest.Status.PROCESSING, PDFRequest.Status.SENDING],
+        ).update(
             status=PDFRequest.Status.UNCERTAIN if sending else PDFRequest.Status.FAILED,
             updated_at=timezone.now(),
         )
