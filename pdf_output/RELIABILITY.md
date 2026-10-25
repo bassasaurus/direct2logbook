@@ -42,8 +42,7 @@ repository, but their records can remain in existing databases. The new name
 avoids treating the old 0001 record as proof that the request table exists; it does not require
 collectstatic because the status script is in the home template.
 
-No automatic retries, late acknowledgement, hard limits, or recovery command
-are enabled in this first step. Separate user submissions still represent separate
+Late acknowledgement and automatic stale-job recovery remain disabled. Separate user submissions still represent separate
 requests and may each send an email. Request rows are retained until explicitly
 cleaned up; deleting a user cascades to their requests.
 
@@ -100,5 +99,45 @@ and stale-job reconciliation around those records. Verify behavior with mocked
 broker, renderer, and mail boundaries before a live manual export test.
 
 The audit preceded the first implementation above. The remaining priorities
-are bounded rendering retries/time limits, stale-job reconciliation, and signature
-warnings. No test suite was run by the assistant; tests are run manually by the user.
+are stale-job reconciliation and signature warnings. No test suite was run by the assistant; tests are run manually by the user.
+
+
+## Bounded rendering retries and execution limits
+
+Migration `0009_pdfrequest_render_attempts` adds a durable attempt counter and a
+retrying status. Apply it locally before opening the home page or testing an
+export. Deployment requires the migration and restarting Django and Celery;
+use a maintenance window and allow existing work to finish before the update.
+
+```sh
+python manage.py migrate pdf_output
+python manage.py test pdf_output.tests
+python manage.py test
+python manage.py makemigrations --check --dry-run
+```
+
+Rendering gets at most three attempts. Temporary database/connection/timeouts,
+storage throttling, and selected storage server failures can retry after 30 and
+60 seconds. Missing files, denied storage access, bad data, and ordinary rendering
+errors fail without retry. Rendering's optional signature fallback remains nonfatal
+for storage errors, but soft timeouts now escape its fallback handlers.
+
+Every attempt has a 600-second soft limit and 660-second hard limit. Use the
+prefork worker pool (the existing worker default): soft limits depend on platform
+signal and pool support. Soft timeouts fail generation, or mark email delivery
+uncertain if sending had begun. Hard termination cannot run cleanup; stale
+processing/sending states continue to show the existing delay/uncertainty warning.
+No automatic replay is attempted after a hard kill.
+
+Only failures before rendering completes can schedule retries. Email submission
+never retries automatically. Atomic claims compare the durable attempt count with
+the message's retry number, preventing a duplicate older attempt from claiming a
+scheduled retry. Retry publication failure records a failed request unless a newer
+attempt has already advanced its state. A successfully published retry can still
+be lost in a later worker outage; this is not durable inbox/outbox recovery.
+
+The inline status displays an amber automatic-retry message and keeps the print
+button unavailable. It retains the existing five-minute polling window; users can
+reload to check long-running requests. Tests mock renderer/mail/retry boundaries
+and verify limits as configuration; they do not terminate real worker processes or
+exercise live broker timing. Manually verify a normal export after deployment.
