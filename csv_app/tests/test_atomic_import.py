@@ -166,13 +166,13 @@ class CSVAtomicImportTests(TestCase):
         self.assertTrue(response.context['inspect_form'].errors)
         self.assertEqual(self.client.post(reverse('csv_upload')).status_code, 400)
 
-    def test_validation_failure_response_does_not_claim_success(self):
-        session = self.client.session
+    def test_invalid_batch_content_still_fails_atomically_in_worker_service(self):
         from csv_app.models import CSVImportBatch
+        from csv_app.csv_import import confirm_csv_import
         batch = CSVImportBatch.objects.create(user=self.user, content=content([row(**{'4': 'invalid'})]), row_count=1)
-        response = self.client.post(reverse('csv_upload'), {'batch_id': batch.pk})
-        self.assertEqual(response.status_code, 400)
-        self.assertIn('No flights were imported', response.json()['message'])
+        with self.assertRaises(CSVValidationError):
+            confirm_csv_import(self.request, batch.pk)
+        self.assertFalse(Flight.objects.exists())
 
     def test_export_import_columns_align(self):
         self.import_file()

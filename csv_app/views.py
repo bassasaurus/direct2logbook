@@ -3,13 +3,14 @@ import csv
 from django.http import HttpResponse, JsonResponse, Http404
 from django import forms
 from flights.models import Flight
-from csv_app.csv_import import confirm_csv_import
+from .submission import queue_csv_import
 from .models import CSVImportBatch
 import uuid
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
+from django.db import transaction
 from django.views.decorators.csrf import csrf_protect
-from django.db.models import Sum
+from django.db.models import Sum, F
 from .validation import parse_csv, CSVValidationError, CSVPreviewExpired, MAX_BYTES
 import logging
 
@@ -157,6 +158,10 @@ def csv_inspect_view(request):
         'inspect_form': form, 'title': 'CSV Upload',
         'home_link': reverse('home'), 'parent_link': reverse('profile'),
         'parent_name': 'Profile',
+        'latest_import': CSVImportBatch.objects.filter(
+            user=request.user, completed=False, status__in=[CSVImportBatch.Status.QUEUED,
+                CSVImportBatch.Status.PROCESSING, CSVImportBatch.Status.UNCONFIRMED],
+        ).order_by(F('submitted_at').desc(nulls_last=True), '-created_at').first(),
     }
     if request.method == 'POST':
         request.session.pop('file', None)
@@ -168,7 +173,7 @@ def csv_inspect_view(request):
                 content = raw.decode('utf-8-sig')
                 rows, preview = parse_csv(content)
                 batch = CSVImportBatch.objects.create(user=request.user, content=content, row_count=len(rows))
-                context.update(file=preview, preview_ready=True, row_count=len(rows), batch=batch)
+                context.update(file=preview, preview_ready=True, row_count=len(rows), batch=batch, latest_import=None, csv_filename=form.cleaned_data['file'].name)
             except UnicodeDecodeError:
                 form.add_error('file', 'Save the CSV with UTF-8 encoding.')
             except CSVValidationError as exc:
@@ -176,6 +181,7 @@ def csv_inspect_view(request):
     return render(request, 'csv_app/inspect_csv.html', context)
 
 
+@transaction.non_atomic_requests
 @login_required
 @require_POST
 @csrf_protect
@@ -185,7 +191,7 @@ def csv_upload_view(request):
     except (ValueError, TypeError, AttributeError):
         return JsonResponse({'message': 'Inspect a valid CSV file before importing.'}, status=400)
     try:
-        batch, duplicate = confirm_csv_import(request, batch_id)
+        batch, duplicate = queue_csv_import(request.user, batch_id)
         count = batch.row_count
     except CSVPreviewExpired as exc:
         return JsonResponse({'message': str(exc)}, status=410)
@@ -196,5 +202,37 @@ def csv_upload_view(request):
     except Exception:
         logger.exception('CSV import failed user_id=%s', request.user.pk)
         return JsonResponse({'message': 'Completion could not be confirmed. Retry this same confirmation to check without importing duplicates.'}, status=503)
-    return JsonResponse({'status': 'completed', 'row_count': count, 'already_completed': duplicate,
-                         'message': f'Import complete: {count} flights. Review your aircraft and tailnumber details.'})
+    payload = csv_import_status_data(batch)
+    payload['already_submitted'] = duplicate
+    payload['already_completed'] = batch.completed and duplicate
+    code = 200 if batch.completed else (503 if batch.status == CSVImportBatch.Status.UNCONFIRMED else
+                                       409 if batch.status == CSVImportBatch.Status.FAILED else 202)
+    return JsonResponse(payload, status=code)
+
+
+def csv_import_status_data(batch):
+    messages = {
+        'preview': 'Your CSV preview is ready to import.',
+        'queued': f'Import queued: {batch.row_count} flights. You can leave this page and check back later.',
+        'unconfirmed': 'Queue submission could not be confirmed. Check progress here before starting another import.',
+        'processing': f'Importing {batch.row_count} flights. Changes will appear together when the import finishes.',
+        'completed': f'Import complete: {batch.row_count} flights. Review your aircraft and tailnumber details.',
+        'failed': batch.error_message or 'The import could not finish. Upload and inspect the file again.',
+    }
+    status = CSVImportBatch.Status.COMPLETED if batch.completed else batch.status
+    return {
+        'status': status, 'row_count': batch.row_count,
+        'imported_count': batch.row_count if batch.completed else 0,
+        'message': messages[status],
+        'status_url': reverse('csv_import_status', args=[batch.pk]),
+    }
+
+
+@login_required
+@require_GET
+def csv_import_status(request, batch_id):
+    from django.shortcuts import get_object_or_404
+    batch = get_object_or_404(CSVImportBatch, pk=batch_id, user=request.user)
+    response = JsonResponse(csv_import_status_data(batch))
+    response['Cache-Control'] = 'no-store'
+    return response

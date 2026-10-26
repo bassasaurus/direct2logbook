@@ -1,130 +1,126 @@
-# CSV integrity and security
+# CSV import reliability and security
 
-CSV inspection, import, and download require login. Import is a CSRF-protected
-POST. It still executes synchronously; the existing Celery-decorated callable is
-invoked directly, not published to the broker. Do not enqueue HttpRequest objects.
+## Upload and confirmation
 
-## Validation and atomic saving
+Inspection, confirmation, download, and status require login. Confirmation is a
+CSRF-protected POST. A preview validates the entire UTF-8 file (including a BOM)
+before any flight data changes. Limits remain 2 MB and 1,000 flights. Dates accept
+YYYY-MM-DD, MM/DD/YYYY, and MM-DD-YYYY; numeric values must be finite and
+nonnegative. Per-flight hours cannot exceed 99.9 and are rounded to one decimal.
+Counts must be whole numbers. Aircraft type is at most four characters;
+registration uses the existing ten-character database limit because nationality
+prefixes mean a five-character total limit would reject legitimate registrations.
+Headers accept the 19-column format or the older 18-column download, which has
+zero approaches inserted. Downloads now include approach counts; imported counts
+are assigned ILS, so this is not a lossless export of approach types or holdings.
 
-Preview reads at most 2 MB plus one byte and accepts UTF-8 (including a BOM).
-A file may contain up to 1,000 flights. All rows are parsed before saving flights.
-Headers must match the displayed format, accepting common label aliases; the
-older 18-column download is also accepted with zero approaches inserted.
+Each preview gets a UUID batch belonging to the user. Tabs keep separate batch
+IDs; raw CSV content is stored in the batch table rather than the session. Preview
+content expires after ten minutes unless confirmation has submitted it for work.
+Another user's token returns 404, an invalid/missing token 400, and an expired
+preview 410. Separate previews of identical files are separate imports; legitimate
+identical flights are never silently deduplicated.
 
-Supported dates are YYYY-MM-DD, MM/DD/YYYY, and MM-DD-YYYY. Hours must be finite,
-nonnegative, and no greater than 99.9, and are rounded to one decimal place.
-Approach and landing counts must be nonnegative whole numbers within the database
-integer range. Aircraft/registration/route are required. Aircraft type is limited to four
-characters. Registration retains the database field limit of ten characters;
-there is no universal five-character limit including the nationality prefix.
-Country-specific registration format validation is not yet implemented. Error messages identify the data row where possible.
-Uploading an invalid replacement file clears the previously staged session file.
+## Background submission and progress
 
-The complete import, including newly created aircraft, registrations, approaches,
-and normal signal-driven map/statistics/totals writes, runs in one transaction.
-Imports acquire the user's database row lock to serialize concurrent imports for
-that user. A registration assigned to a different aircraft type is rejected.
-No automatic cleanup changes the user's existing aircraft assignments.
+The non-atomic HTTP submission view uses a conditional database update to persist
+queued state and a task ID before publishing. The Celery task is
+`csv_app.tasks.import_csv_batch` and receives only user ID and batch UUID. The
+broker task ID matches the batch's stored ID. Never queue the legacy low-level
+`csv_import(request, file)` callable, which remains an internal implementation.
 
-The completion notification runs after commit, with a valid unique Message-ID.
-Notification exceptions are logged without converting a completed import into a
-failure. It is not automatically resent. The page reports the actual import
-response, and general errors conservatively ask the user to check the logbook
-before retrying because commit acknowledgements can themselves be ambiguous.
+Normally POST returns 202 queued/importing, or 200 if the completed receipt is
+already available. Publication exceptions return 503 with an unconfirmed status
+and owner-scoped status URL. Repeating a POST never republishes an accepted or
+unconfirmed batch. A fast completion is not overwritten by publication errors.
+Failed jobs return 409 and ask for a fresh preview. The initial publish uses
+`retry=False`; there is no automatic import retry policy.
 
-Downloads now include the approaches column. The format represents approach
-counts and the importer assigns their type as ILS, as advertised by the existing
-upload form. This does not preserve distinct approach types or holding data.
+The GET status URL shows queued, importing, completed, failed, or queue
+unconfirmed. Responses use Cache-Control: no-store. The page polls every two
+seconds for up to twenty minutes; a reload resumes only the latest queued, importing, or queue-unconfirmed batch.
+Completed and failed messages do not reappear on a fresh page load.
+Progress is phase-based: row counts become imported only when the whole
+transaction commits. There are no misleading percentages for uncommitted rows.
+A new preview clears the old status display but does not cancel the old job.
+File selection and inspection share a compact toolbar. Inspect is disabled until
+selection and shows Inspecting during preview submission. Import stays in place
+and changes through Submitting, Queued, Importing, and Imported; the final state
+links to the logbook. Expired/failed previews offer Choose another CSV. Transport
+uncertainty offers Check request, which safely resubmits the same batch token.
 
-## Remaining work
+The worker claims queued/unconfirmed batches with a matching task ID, then locks
+the user's row and the batch for the import transaction. This serializes imports
+for a user, including totals signals. Duplicate workers cannot repeat the import.
+Repeated HTTP submissions and GET progress reads use MVCC and do not wait for the
+long import transaction. Flights, new aircraft/registrations, approaches, totals,
+the completion receipt, and clearing CSV content commit together. Failure rolls
+these changes back; failure status and clearing its staged content are recorded
+afterward. A lost commit acknowledgement cannot overwrite a completed receipt.
 
-Web confirmation now uses durable, owner-scoped batch tokens as described below.
-The low-level importer still requires its caller to enforce idempotency; future
-background tasks must carry a batch identifier, never just repeat the raw import.
+Email runs after commit, and notification failure is logged without rerunning or
+undoing the import. Email is not automatically resent. CSV receipt completion
+means flight data committed, not that email reached an inbox.
 
-Imports remain synchronous and use existing per-flight signals, so large imports
-can be slow. The file/row caps bound input, not execution time. Stage payloads
-are stored in the batch table and cleared on successful completion. Unconfirmed previews expire after 10 minutes; their CSV content is cleared by
-the scheduled command documented below. Minimal receipt metadata is retained. Notification delivery is logged, not
-tracked in a dedicated state machine.
+## Time limits and interrupted workers
 
-## Manual checks
+Each task has a 900-second soft limit and 960-second hard limit. Use the prefork
+worker pool (the current default). Soft timeouts roll back the import and record
+a failure. Hard kills cannot run cleanup; the existing cleanup command closes
+unlocked queued/unconfirmed/importing jobs without progress for twenty minutes.
+It uses PostgreSQL skip_locked to leave an active import transaction alone.
+Closed jobs clear their payload and require a new preview. The worker rechecks
+status and task ID under lock, so a late worker cannot reopen a closed batch.
 
-```sh
-python manage.py test csv_app.tests
-python manage.py test
-```
+There is no transactional outbox: a process can die between recording queued
+state and publishing. Stalled-job cleanup closes such requests rather than
+blindly replaying them. No late acknowledgement or automatic broker redelivery
+has been enabled. Completion receipts stay indefinitely to prevent reimports.
+The map JSON save signal reconnects in a finally block, including after a timeout.
 
-Migration `csv_app.0001_importbatch` is required for durable confirmations. Tests cover typed approaches, validation, rollback of
-partial writes and totals, post-commit notifications, authentication/CSRF, and
-export/import column alignment. They mock email and do not run real imports
-against the user's database. The assistant runs tests with user authorization and reports their terminal
-output in the chat. Syntax and whitespace checks are also performed.
+## Preview cleanup and monitoring
 
+`python manage.py cleanup_csv_previews --dry-run` reports expired unconfirmed
+preview payloads and stalled background jobs. Without --dry-run, it clears
+expired preview data and closes up to 100 eligible stalled jobs per run. Completed
+receipts and imported flights are never deleted. Minimal expired/failed batch
+metadata remains. Token deadlines are enforced even if cron is down; scheduler
+outages delay physical removal but do not extend preview validity.
 
-## Durable batch confirmation
-
-Every validated preview creates a UUID batch belonging to the signed-in user.
-The preview button submits that token with the CSRF-protected POST. Uploaded
-payloads are no longer stored in the session. Distinct tabs keep distinct tokens;
-a newer preview cannot silently replace the file confirmed in an older tab.
-
-Confirmation locks the user's row and the batch in a transaction. Flight writes,
-derived totals, completion timestamp, row count, and clearing the staged payload
-commit together. Concurrent or repeated confirmations wait for the first outcome,
-then return the same receipt without adding flights or scheduling email again.
-A write failure rolls everything back, leaving the same batch retryable. A lost
-response can safely be checked by repeating the same confirmation.
-
-Other users' tokens and nonexistent UUIDs return 404. Missing or malformed tokens
-return 400. Legacy session-only preview pages must be inspected again after
-upgrading. Separate previews, even of identical file contents, remain separate
-imports: legitimate identical flights are not silently removed or merged.
-
-Deploy migration `0001_importbatch` before accepting new CSV previews. Restart
-Django and Celery together during deployment to load the current import code.
-The import remains synchronous; no new queued CSV task or automatic retry policy
-has been enabled. Completion receipts do not expire. Unconfirmed previews expire after 10 minutes
-and return 410, even if scheduled cleanup is temporarily unavailable.
-
-Tests include PostgreSQL concurrent confirmations on separate database
-connections, ownership isolation, repeat submissions, failure/retry, email errors,
-and independent previews. No test imports into the live local application database.
-
-
-## Expired preview cleanup
-
-`python manage.py cleanup_csv_previews --dry-run` counts unconfirmed previews
-older than 10 minutes that still contain CSV data. Without `--dry-run`, it clears
-their content. It never deletes imported flights or completed confirmation
-receipts. Minimal expired-batch metadata also remains, so old tokens return 410
-with instructions to inspect the file again. Other users still receive 404.
-
-The confirmation service enforces the deadline even if cron is down. Successful
-confirmation is checked before expiry: old completed tokens return their original
-receipt without importing again. The cleanup UPDATE checks pending status and
-age in the database; an import that holds the row lock can finish and commit
-before cleanup rechecks its predicates. A failed import rolls back and can then
-be cleaned up if expired.
-
-No additional migration is required for expiry; it uses created_at and completed
-from `0001_importbatch`. Test and preview the operation before scheduling:
-
-```sh
-python manage.py test csv_app.tests
-python manage.py test
-python manage.py cleanup_csv_previews --dry-run
-```
-
-After deploying/restarting the current code, add a five-minute entry beside the
-existing monitoring jobs in the production user's crontab:
+Keep the existing five-minute cron entry; it now handles both functions:
 
 ```cron
 */5 * * * * cd /home/blakepowell/app && /home/blakepowell/venv/bin/python manage.py cleanup_csv_previews >> /home/blakepowell/logs/csv-preview-cleanup.log 2>&1
 ```
 
-Verify paths before installation and include this log in rotation. Payloads become
-ineligible for import at 10 minutes and are cleared at the next five-minute run; scheduler
-outages delay removal but never extend token validity. Check the first run's log
-for the number cleared. Database backups have their own retention policy; this
-command does not alter them.
+Inspect its output after deployment and include this log in server log rotation.
+Backups have their own retention policy. This command does not alter backups or
+send alerts. Completely unavailable infrastructure needs independent monitoring.
+
+## Validation and deployment
+
+```sh
+python manage.py test csv_app.tests
+python manage.py test
+python manage.py makemigrations --check --dry-run
+python manage.py cleanup_csv_previews --dry-run
+```
+
+Tests mock broker/email boundaries and run imports against a disposable test
+database. PostgreSQL concurrency tests cover simultaneous submissions, duplicate
+workers/confirmations, live progress reads, and cleanup skipping active locks.
+The assistant runs tests with user authorization and posts terminal output.
+
+Migration `0002_background_import` adds phase/task metadata and maps existing
+completed receipts to completed status. It depends on `0001_importbatch`.
+Deploy in a maintenance window after active work finishes: pull the code, migrate,
+and restart Django and Celery before accepting new submissions. Every worker
+must register `csv_app.tasks.import_csv_batch`; an old worker can discard an
+unrecognized task. No static asset was added in this background-import change;
+collectstatic is harmless but not newly required by it.
+
+The local migration is applied by the assistant after tests/migration checks.
+Before the manual check, restart the local Celery worker with the updated code.
+Then inspect a disposable sample and confirm that POST queues it, progress updates,
+exactly one import commits, and a repeat confirmation returns the receipt. Do not
+import fictional sample flights into a production user's live logbook.

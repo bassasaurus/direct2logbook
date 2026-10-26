@@ -103,7 +103,7 @@ def csv_import(request, file):
 
 
 @transaction.atomic
-def confirm_csv_import(request, batch_id):
+def confirm_csv_import(request, batch_id, expected_task_id=None):
     # Match the import's user-first lock ordering. All duplicate confirmations
     # wait for the original transaction and then read its committed outcome.
     get_user_model().objects.select_for_update().get(pk=request.user.pk)
@@ -113,6 +113,10 @@ def confirm_csv_import(request, batch_id):
         raise Http404('Import not found')
     if batch.completed:
         return batch, True
+    if expected_task_id is not None and (
+        batch.task_id != expected_task_id or batch.status != CSVImportBatch.Status.PROCESSING
+    ):
+        return batch, True  # A stale/duplicate worker must never reopen this batch.
     if batch.is_expired:
         raise CSVPreviewExpired('This CSV preview has expired. Upload and inspect the file again.')
     count = csv_import(request, batch.content)
@@ -120,5 +124,8 @@ def confirm_csv_import(request, batch_id):
     batch.completed = True
     batch.completed_at = timezone.now()
     batch.content = ''
-    batch.save(update_fields=['row_count', 'completed', 'completed_at', 'content'])
+    batch.status = CSVImportBatch.Status.COMPLETED
+    batch.updated_at = timezone.now()
+    batch.error_message = ''
+    batch.save(update_fields=['row_count', 'completed', 'completed_at', 'content', 'status', 'updated_at', 'error_message'])
     return batch, False

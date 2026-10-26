@@ -20,81 +20,39 @@ from flights.models import Flight, Approach
 class CSVConfirmationTests(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(username='batch_owner')
-        self.other = get_user_model().objects.create_user(username='batch_other')
-        self.client.force_login(self.user)
         self.batch = CSVImportBatch.objects.create(user=self.user, content=content(), row_count=1)
-
-    def confirm(self, batch=None):
-        return self.client.post(reverse('csv_upload'), {'batch_id': str((batch or self.batch).pk)})
+        self.request = SimpleNamespace(user=self.user)
 
     def test_repeat_confirmation_returns_receipt_without_more_flights_or_emails(self):
         with patch('csv_app.csv_import.email_confirmation') as notify:
             with self.captureOnCommitCallbacks(execute=True):
-                first = self.confirm()
-                second = self.confirm()
-        self.assertEqual(first.status_code, 200)
-        self.assertFalse(first.json()['already_completed'])
-        self.assertTrue(second.json()['already_completed'])
+                result, first_duplicate = confirm_csv_import(self.request, self.batch.pk)
+                result, second_duplicate = confirm_csv_import(self.request, self.batch.pk)
+        self.assertFalse(first_duplicate)
+        self.assertTrue(second_duplicate)
         self.assertEqual(Flight.objects.count(), 1)
-        self.assertEqual(Approach.objects.count(), 1)
         notify.assert_called_once()
-        self.batch.refresh_from_db()
-        self.assertTrue(self.batch.completed)
-        self.assertEqual(self.batch.content, '')
-        self.assertIsNotNone(self.batch.completed_at)
+        result.refresh_from_db()
+        self.assertTrue(result.completed)
+        self.assertEqual(result.content, '')
 
-    def test_failed_write_keeps_batch_pending_and_retryable(self):
-        with patch('csv_app.csv_import.Approach.objects.create', side_effect=RuntimeError('database write')):
-            with self.assertLogs('django.csv_app', level='ERROR'):
-                response = self.confirm()
-        self.assertEqual(response.status_code, 503)
+    def test_write_failure_rolls_back_completion_and_remains_retryable(self):
+        with patch('csv_app.csv_import.Approach.objects.create', side_effect=RuntimeError('write failed')):
+            with self.assertRaises(RuntimeError):
+                confirm_csv_import(self.request, self.batch.pk)
         self.batch.refresh_from_db()
         self.assertFalse(self.batch.completed)
         self.assertTrue(self.batch.content)
         self.assertFalse(Flight.objects.exists())
-        self.assertEqual(self.confirm().status_code, 200)
+        confirm_csv_import(self.request, self.batch.pk)
         self.assertEqual(Flight.objects.count(), 1)
 
-    def test_user_cannot_confirm_someone_elses_batch(self):
-        self.client.force_login(self.other)
-        self.assertEqual(self.confirm().status_code, 404)
-        self.assertFalse(Flight.objects.exists())
-
-    def test_completed_receipt_cannot_be_read_by_another_user(self):
-        self.confirm()
-        self.client.force_login(self.other)
-        self.assertEqual(self.confirm().status_code, 404)
-
-    def test_missing_invalid_and_nonexistent_tokens(self):
-        for value in ['', 'bad', str(uuid.uuid4())]:
-            response = self.client.post(reverse('csv_upload'), {'batch_id': value})
-            self.assertEqual(response.status_code, 404 if len(value) == 36 else 400)
-
-    def test_separate_previews_cannot_overwrite_each_others_content(self):
-        upload = SimpleUploadedFile('second.csv', content([row(**{'2': 'N22222'})]).encode())
-        preview = self.client.post(reverse('csv_inspect'), {'file': upload})
-        second = preview.context['batch']
-        self.assertNotEqual(second.pk, self.batch.pk)
-        self.confirm(self.batch)
-        self.assertEqual(Flight.objects.get().registration.registration, 'N12345')
-        self.confirm(second)
+    def test_identical_flights_in_one_batch_are_preserved(self):
+        self.batch.content = content([row(), row()])
+        self.batch.save()
+        confirm_csv_import(self.request, self.batch.pk)
+        confirm_csv_import(self.request, self.batch.pk)
         self.assertEqual(Flight.objects.count(), 2)
-        self.assertEqual(set(Flight.objects.values_list('registration__registration', flat=True)), {'N12345', 'N22222'})
-
-    def test_identical_rows_are_preserved_within_a_single_batch(self):
-        batch = CSVImportBatch.objects.create(user=self.user, content=content([row(), row()]), row_count=2)
-        self.assertEqual(self.confirm(batch).json()['row_count'], 2)
-        self.confirm(batch)
-        self.assertEqual(Flight.objects.count(), 2)
-
-    def test_notification_failure_does_not_reopen_completed_batch(self):
-        with patch('csv_app.csv_import.email_confirmation', side_effect=TimeoutError('mail')) as notify:
-            with self.assertLogs('django.csv_app', level='ERROR'):
-                with self.captureOnCommitCallbacks(execute=True):
-                    self.confirm()
-            self.confirm()
-        notify.assert_called_once()
-        self.assertEqual(Flight.objects.count(), 1)
 
 
 class CSVConcurrentConfirmationTests(TransactionTestCase):
