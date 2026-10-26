@@ -91,6 +91,7 @@ INSTALLED_APPS = [
 
     # apps
     'api',
+    'operations',
     'errors',
     'profile',
     'accounts',
@@ -424,3 +425,10 @@ CELERY_EVENT_QUEUE_EXPIRES = 60
 CELERY_WORKER_PREFETCH_MULTIPLIER = 1
 CELERY_WORKER_CONCURRENCY = 2
 CELERY_WORKER_MAX_TASKS_PER_CHILD = 20
+
+
+# Off-server PostgreSQL backups via an encrypted rclone Google Drive remote.
+DB_BACKUP_REMOTE = config('DB_BACKUP_REMOTE', default='')
+DB_BACKUP_RCLONE_CONFIG = config('DB_BACKUP_RCLONE_CONFIG', default='')
+DB_BACKUP_STATE_DIR = config('DB_BACKUP_STATE_DIR', default='')
+DB_BACKUP_ALERT_EMAIL = config('DB_BACKUP_ALERT_EMAIL', default='')
