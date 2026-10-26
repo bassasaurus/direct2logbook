@@ -58,6 +58,7 @@
       <h4>Upload .csv</h4>
       <p>Format your file according to the format below. UTF-8, up to 2 MB and 1,000 flights per import.</p>
       {{ inspect_form.errors }}
+      {% if preview_ready %}<p class="text-muted">This preview expires after 10 minutes. Completed imports stay protected against duplicate confirmations.</p>{% endif %}
       <hr>
       <div class="row">
         {% if not preview_ready %}
@@ -167,8 +168,8 @@
     }).fail(function (xhr) {
       var message = xhr.responseJSON && xhr.responseJSON.message;
       if (xhr.status === 403) message = 'Your session could not be verified. Refresh and sign in again.';
-      Swal.fire('Import not confirmed', message || 'Retry this same confirmation to check without importing duplicates.', 'warning');
-      button.removeAttr('aria-busy').prop('disabled', false);
+      Swal.fire(xhr.status === 410 ? 'Preview expired' : 'Import not confirmed', message || 'Retry this same confirmation to check without importing duplicates.', 'warning');
+      button.removeAttr('aria-busy').prop('disabled', xhr.status === 410);
     });
   });
 </script>

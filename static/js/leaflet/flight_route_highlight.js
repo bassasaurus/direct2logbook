@@ -11,6 +11,17 @@
   var airports = L.geoJSON(data.airports, {pointToLayer: createAirportMarker}).addTo(mymap);
   if (airports.getBounds().isValid()) bounds.extend(airports.getBounds());
 
+  // Circle bounds depend on Leaflet's projection. Establish a view before
+  // adding paths, including months containing only a local A-to-A flight.
+  Object.keys(data.routes).forEach(function (id) {
+    data.routes[id].forEach(function (point) { bounds.extend(point); });
+  });
+  if (bounds.isValid()) {
+    mymap.fitBounds(bounds, {padding: [40, 40], maxZoom: 11});
+  } else {
+    mymap.setView([20, 0], 2.1);
+  }
+
   Object.keys(data.routes).forEach(function (id) {
     var points = data.routes[id];
     if (!points.length) return;

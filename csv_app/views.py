@@ -10,7 +10,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 from django.views.decorators.csrf import csrf_protect
 from django.db.models import Sum
-from .validation import parse_csv, CSVValidationError, MAX_BYTES
+from .validation import parse_csv, CSVValidationError, CSVPreviewExpired, MAX_BYTES
 import logging
 
 logger = logging.getLogger('django.csv_app')
@@ -187,6 +187,8 @@ def csv_upload_view(request):
     try:
         batch, duplicate = confirm_csv_import(request, batch_id)
         count = batch.row_count
+    except CSVPreviewExpired as exc:
+        return JsonResponse({'message': str(exc)}, status=410)
     except CSVValidationError as exc:
         return JsonResponse({'message': str(exc) + ' No flights were imported.'}, status=400)
     except Http404:

@@ -23,6 +23,10 @@ class CSVValidationError(ValueError):
     pass
 
 
+class CSVPreviewExpired(CSVValidationError):
+    pass
+
+
 def number(value, integer=False):
     try:
         value = Decimal(value.strip() or '0')

@@ -44,8 +44,8 @@ background tasks must carry a batch identifier, never just repeat the raw import
 
 Imports remain synchronous and use existing per-flight signals, so large imports
 can be slow. The file/row caps bound input, not execution time. Stage payloads
-are stored in the batch table and cleared on successful completion. Pending batches
-currently remain until explicitly cleaned up; automatic retention is future work. Notification delivery is logged, not
+are stored in the batch table and cleared on successful completion. Unconfirmed previews expire after 10 minutes; their CSV content is cleared by
+the scheduled command documented below. Minimal receipt metadata is retained. Notification delivery is logged, not
 tracked in a dedicated state machine.
 
 ## Manual checks
@@ -84,10 +84,47 @@ imports: legitimate identical flights are not silently removed or merged.
 Deploy migration `0001_importbatch` before accepting new CSV previews. Restart
 Django and Celery together during deployment to load the current import code.
 The import remains synchronous; no new queued CSV task or automatic retry policy
-has been enabled. Completion receipts and unconfirmed previews have no automatic
-expiry yet. If deleting them manually, understand that an old completed token
-will subsequently return 404, rather than becoming usable again.
+has been enabled. Completion receipts do not expire. Unconfirmed previews expire after 10 minutes
+and return 410, even if scheduled cleanup is temporarily unavailable.
 
 Tests include PostgreSQL concurrent confirmations on separate database
 connections, ownership isolation, repeat submissions, failure/retry, email errors,
 and independent previews. No test imports into the live local application database.
+
+
+## Expired preview cleanup
+
+`python manage.py cleanup_csv_previews --dry-run` counts unconfirmed previews
+older than 10 minutes that still contain CSV data. Without `--dry-run`, it clears
+their content. It never deletes imported flights or completed confirmation
+receipts. Minimal expired-batch metadata also remains, so old tokens return 410
+with instructions to inspect the file again. Other users still receive 404.
+
+The confirmation service enforces the deadline even if cron is down. Successful
+confirmation is checked before expiry: old completed tokens return their original
+receipt without importing again. The cleanup UPDATE checks pending status and
+age in the database; an import that holds the row lock can finish and commit
+before cleanup rechecks its predicates. A failed import rolls back and can then
+be cleaned up if expired.
+
+No additional migration is required for expiry; it uses created_at and completed
+from `0001_importbatch`. Test and preview the operation before scheduling:
+
+```sh
+python manage.py test csv_app.tests
+python manage.py test
+python manage.py cleanup_csv_previews --dry-run
+```
+
+After deploying/restarting the current code, add a five-minute entry beside the
+existing monitoring jobs in the production user's crontab:
+
+```cron
+*/5 * * * * cd /home/blakepowell/app && /home/blakepowell/venv/bin/python manage.py cleanup_csv_previews >> /home/blakepowell/logs/csv-preview-cleanup.log 2>&1
+```
+
+Verify paths before installation and include this log in rotation. Payloads become
+ineligible for import at 10 minutes and are cleared at the next five-minute run; scheduler
+outages delay removal but never extend token validity. Check the first run's log
+for the number cleared. Database backups have their own retention policy; this
+command does not alter them.

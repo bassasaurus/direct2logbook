@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth import get_user_model
 from email.utils import make_msgid
 import logging
-from .validation import parse_csv, CSVValidationError
+from .validation import parse_csv, CSVValidationError, CSVPreviewExpired
 
 logger = logging.getLogger('django.csv_app')
 from django.core.mail import EmailMessage
@@ -113,6 +113,8 @@ def confirm_csv_import(request, batch_id):
         raise Http404('Import not found')
     if batch.completed:
         return batch, True
+    if batch.is_expired:
+        raise CSVPreviewExpired('This CSV preview has expired. Upload and inspect the file again.')
     count = csv_import(request, batch.content)
     batch.row_count = count
     batch.completed = True
