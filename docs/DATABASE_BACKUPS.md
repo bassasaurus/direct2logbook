@@ -103,10 +103,31 @@ Adjust with the operator if a different backup window is needed.
 
 Check the first cron runs and include logs in server log rotation. A nightly
 schedule means up to roughly one day of data loss between successful backups.
-No automatic remote deletion or retention pruning is enabled. Unique backups
-accumulate until an operator chooses a retention policy. Monitor B2 storage and transaction allowances;
-insufficient space will fail the backup and freshness check. No live upload,
-cloud authorization, cron change, or remote deletion is performed by the tests.
+Retention is a separate opt-in command. Start with a preview:
+
+```sh
+/home/blakepowell/venv/bin/python manage.py prune_database_backups
+```
+
+It requires a healthy latest backup, a dedicated remote subfolder, valid manifests
+and matching archive sizes. It keeps every backup within 30 days and at least the
+newest seven verified backups regardless of age. Incomplete runs and unknown names
+are left for investigation. The backup lock prevents overlapping backup/prune jobs.
+Review the preview before enabling `--apply`, which permanently deletes only the
+archive and manifest of each eligible run. B2 hard-delete is enabled for these
+specific removals so hidden versions do not accumulate from retention operations.
+Existing hidden versions and failed uploads still need separate review. Bucket
+Object Lock or restricted key permissions can prevent deletion; failures alert.
+Retention does not guarantee a fixed storage limit as database size grows.
+
+After the preview is reviewed, replace the daily backup cron line with:
+
+```cron
+0 8 * * * cd /home/blakepowell/app && (/home/blakepowell/venv/bin/python manage.py backup_database && /home/blakepowell/venv/bin/python manage.py prune_database_backups --apply) >> /home/blakepowell/logs/database-backup.log 2>&1
+```
+
+Leave the hourly health check in place. The `&&` ensures failed backups do not
+trigger pruning. Unit tests do not perform cloud uploads, remote deletions or cron changes.
 
 ## Restore drill
 
