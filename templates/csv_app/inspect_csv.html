@@ -78,7 +78,7 @@
     </div>
   </form>
 </div>
-
+<p id="csv-import-status" role="status" aria-live="polite"{% if latest_import %} data-status-url="{% url 'csv_import_status' latest_import.pk %}"{% endif %}></p>
 
 <div class="table-responsive csv-table-container" role="region" aria-label="CSV preview and format guide" tabindex="0">
     <table class="table table-sm csv-preview-table table-striped table-bordered">
@@ -151,27 +151,65 @@
     var filename = this.files && this.files.length ? this.files[0].name : 'Choose CSV file';
     $(this).siblings('.custom-file-label').text(filename);
   });
-  $('#csv_upload').on('click', function (event) {
-    event.preventDefault();
-    var button = $(this);
-    if (button.attr('aria-busy') === 'true') return;
-    button.attr('aria-busy', 'true').prop('disabled', true);
-    $.ajax({
-      type: 'POST',
-      url: "{% url 'csv_upload' %}",
-      data: {csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(), batch_id: $('#csv-batch-id').val()},
-      dataType: 'json',
-      timeout: 45000
-    }).done(function (data) {
-      Swal.fire('Import complete', data.message, 'success');
-      button.hide();
-    }).fail(function (xhr) {
-      var message = xhr.responseJSON && xhr.responseJSON.message;
-      if (xhr.status === 403) message = 'Your session could not be verified. Refresh and sign in again.';
-      Swal.fire(xhr.status === 410 ? 'Preview expired' : 'Import not confirmed', message || 'Retry this same confirmation to check without importing duplicates.', 'warning');
-      button.removeAttr('aria-busy').prop('disabled', xhr.status === 410);
+  (function () {
+    var button = $('#csv_upload');
+    var status = $('#csv-import-status');
+    var pending = false;
+    var timer;
+    var generation = 0;
+    function show(message, state) {
+      var color = state === 'completed' ? 'text-success' : state === 'failed' ? 'text-danger' :
+        state === 'unconfirmed' ? 'text-warning' : 'text-info';
+      status.removeClass('text-info text-success text-warning text-danger').addClass(color).text(message);
+    }
+    function track(url, lockButton) {
+      if (!url) return;
+      clearTimeout(timer);
+      var current = ++generation;
+      var started = Date.now();
+      function check() {
+        $.ajax({url: url, dataType: 'json', cache: false, timeout: 15000})
+          .done(function (data) {
+            if (current !== generation) return;
+            show(data.message, data.status);
+            if (data.status === 'completed' || data.status === 'failed') {
+              if (lockButton) button.hide().removeAttr('aria-busy');
+              return;
+            }
+            if (Date.now() - started < 1200000) timer = setTimeout(check, 2000);
+            else status.append(' Refresh this page to check again.');
+          }).fail(function () {
+            if (current !== generation) return;
+            show('Import status is temporarily unavailable. Refresh this page to check again before starting another import.', 'unconfirmed');
+          });
+      }
+      check();
+    }
+    track(status.attr('data-status-url'), false);
+    button.on('click', function () {
+      if (pending) return;
+      pending = true;
+      button.prop('disabled', true).attr('aria-busy', 'true');
+      show('Submitting your import request…', 'queued');
+      $.ajax({
+        type: 'POST', url: "{% url 'csv_upload' %}",
+        data: {csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(), batch_id: $('#csv-batch-id').val()},
+        dataType: 'json', timeout: 45000
+      }).done(function (data) {
+        show(data.message, data.status);
+        if (data.status === 'completed' || data.status === 'failed') button.hide().removeAttr('aria-busy');
+        else track(data.status_url, true);
+      }).fail(function (xhr) {
+        var data = xhr.responseJSON || {};
+        var message = data.message;
+        if (xhr.status === 403) message = 'Your session could not be verified. Refresh and sign in again.';
+        show(message || 'Queue submission could not be confirmed. Retry this same confirmation to check safely.', 'unconfirmed');
+        if (data.status_url && data.status !== 'failed') track(data.status_url, true);
+        else if (xhr.status === 410 || data.status === 'failed') button.hide().removeAttr('aria-busy');
+        else { pending = false; button.prop('disabled', false).removeAttr('aria-busy'); }
+      });
     });
-  });
+  })();
 </script>
 
 {% endblock %}
