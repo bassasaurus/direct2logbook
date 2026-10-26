@@ -9,6 +9,11 @@
     max-width: 20rem;
   }
 
+  .csv-primary-action { min-width: 9rem; }
+  .csv-toolbar { gap: .75rem; }
+  .csv-actions { gap: .5rem; }
+  .csv-selected-file { max-width: 24rem; }
+
   .csv-table-container {
     width: 100%;
     max-width: 100%;
@@ -51,34 +56,37 @@
   }
 </style>
 <hr>
-<div>
-  <form action="" class="" method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <div class="form-group">
-      <h4>Upload .csv</h4>
-      <p>Format your file according to the format below. UTF-8, up to 2 MB and 1,000 flights per import.</p>
-      {{ inspect_form.errors }}
-      {% if preview_ready %}<p class="text-muted">This preview expires after 10 minutes. Completed imports stay protected against duplicate confirmations.</p>{% endif %}
-      <hr>
-      <div class="row">
-        {% if not preview_ready %}
-        <div class="col-12 col-sm-auto mb-2 mb-sm-0">
-          <div class="custom-file csv-file-picker">
-            {{ inspect_form.file|add_class:"custom-file-input"|attr:"accept:.csv,text/csv" }}
-            <label class="custom-file-label text-truncate" for="{{ inspect_form.file.id_for_label }}">Choose CSV file</label>
-          </div>
-        </div>
-        <div class="col-12 col-sm-auto"><button class="btn btn-primary" type="submit">Inspect</button></div>
-        {% endif %}
-        {% if preview_ready %}
-          <div class="col-4"><a href="{% url 'csv_inspect' %}">Try again</a></div>
-          <div class="col-4"><input type="hidden" id="csv-batch-id" value="{{ batch.pk }}"><button type="button" class="btn btn-primary" id="csv_upload">Import {{ row_count }} flights</button></div>
-        {% endif %}
+<form id="csv-preview-form" method="post" enctype="multipart/form-data" class="mb-3">
+  {% csrf_token %}
+  <h4>{% if preview_ready %}Review your flights{% else %}Import logbook CSV{% endif %}</h4>
+  {% if preview_ready %}
+    <p class="text-muted mb-2">Review the {{ row_count }} flight{{ row_count|pluralize }} below, then confirm the import.</p>
+    {% if csv_filename %}<p class="small text-muted text-truncate csv-selected-file mb-2">{{ csv_filename }}</p>{% endif %}
+  {% else %}
+    <p class="text-muted mb-2">Choose a file to preview before importing. UTF-8 CSV, up to 2 MB and 1,000 flights.</p>
+  {% endif %}
+  {{ inspect_form.errors }}
+  <div class="csv-toolbar d-flex flex-wrap align-items-center">
+    {% if preview_ready %}
+      <input type="hidden" id="csv-batch-id" value="{{ batch.pk }}">
+      <a class="btn btn-outline-secondary" id="csv-choose-another" href="{% url 'csv_inspect' %}">Choose another CSV</a>
+      <div class="csv-actions d-flex flex-wrap align-items-center">
+        <button type="button" class="btn btn-primary csv-primary-action" id="csv_upload">Import {{ row_count }} flight{{ row_count|pluralize }}</button>
+        <a class="btn btn-outline-primary d-none" id="csv-view-logbook" href="{% url 'flight_list' %}">View logbook</a>
       </div>
-    </div>
-  </form>
-</div>
-<p id="csv-import-status" role="status" aria-live="polite"{% if latest_import %} data-status-url="{% url 'csv_import_status' latest_import.pk %}"{% endif %}></p>
+    {% else %}
+      <div class="custom-file csv-file-picker">
+        {{ inspect_form.file|add_class:"custom-file-input"|attr:"accept:.csv,text/csv" }}
+        <label class="custom-file-label text-truncate" for="{{ inspect_form.file.id_for_label }}">Choose CSV file</label>
+      </div>
+      <div class="csv-actions d-flex flex-wrap align-items-center">
+        <button class="btn btn-primary csv-primary-action" id="csv-inspect-submit" type="submit" disabled>Inspect file</button>
+      </div>
+    {% endif %}
+  </div>
+  {% if preview_ready %}<p class="small text-muted mt-2 mb-0">Preview expires after 10 minutes. A new upload creates a separate import.</p>{% endif %}
+  <p id="csv-import-status" class="small mt-2 mb-0 d-none" role="status" aria-live="polite"{% if latest_import %} data-status-url="{% url 'csv_import_status' latest_import.pk %}"{% endif %}></p>
+</form>
 
 <div class="table-responsive csv-table-container" role="region" aria-label="CSV preview and format guide" tabindex="0">
     <table class="table table-sm csv-preview-table table-striped table-bordered">
@@ -117,12 +125,13 @@
         {% else %}
         <tr>
           <td class="text-left">Formats:<br> <!-- date -->
-            mm-dd-yyyy<br>
-            mm/dd/yyy
+            YYYY-MM-DD<br>
+            MM/DD/YYYY<br>
+            MM-DD-YYYY
           </td>
-          <td>Abc/123</td> <!-- type -->
-          <td>Abc/123</td> <!-- reg -->
-          <td>ICAO or ATA<br> <!-- route -->
+          <td>C172</td> <!-- type -->
+          <td>N726T</td> <!-- reg -->
+          <td>ICAO or IATA<br> <!-- route -->
             MMUN-IAH-DFW-CYOW</td>
           <td class="text-right">##.#</td> <!-- duration -->
           <td class="text-right">##.#</td> <!-- pic -->
@@ -148,19 +157,42 @@
 
 <script>
   $('#id_file').on('change', function () {
-    var filename = this.files && this.files.length ? this.files[0].name : 'Choose CSV file';
-    $(this).siblings('.custom-file-label').text(filename);
+    var selected = this.files && this.files.length;
+    $(this).siblings('.custom-file-label').text(selected ? this.files[0].name : 'Choose CSV file');
+    $('#csv-inspect-submit').prop('disabled', !selected);
+  });
+  $('#csv-preview-form').on('submit', function () {
+    $('#csv-inspect-submit').prop('disabled', true).attr('aria-busy', 'true').text('Inspecting…');
   });
   (function () {
     var button = $('#csv_upload');
     var status = $('#csv-import-status');
+    var another = $('#csv-choose-another');
     var pending = false;
     var timer;
     var generation = 0;
+
     function show(message, state) {
       var color = state === 'completed' ? 'text-success' : state === 'failed' ? 'text-danger' :
-        state === 'unconfirmed' ? 'text-warning' : 'text-info';
-      status.removeClass('text-info text-success text-warning text-danger').addClass(color).text(message);
+        state === 'unconfirmed' || state === 'expired' ? 'text-warning' : 'text-info';
+      status.removeClass('d-none text-info text-success text-warning text-danger').addClass(color).text(message);
+    }
+    function setButton(state) {
+      var labels = {submitting: 'Submitting…', queued: 'Queued', processing: 'Importing…',
+        unconfirmed: 'Checking request…', completed: 'Imported', failed: 'Import failed', expired: 'Preview expired'};
+      var terminal = ['completed', 'failed', 'expired'].indexOf(state) !== -1;
+      var color = state === 'completed' ? 'btn-success' : state === 'failed' ? 'btn-outline-danger' :
+        state === 'expired' ? 'btn-outline-secondary' : 'btn-primary';
+      pending = true;
+      button.removeClass('btn-primary btn-success btn-outline-danger btn-outline-secondary')
+        .addClass(color).prop('disabled', true).text(labels[state] || 'Importing…');
+      if (terminal) button.removeAttr('aria-busy');
+      else button.attr('aria-busy', 'true');
+      if (state === 'completed') $('#csv-view-logbook').removeClass('d-none');
+    }
+    function allowStatusCheck() {
+      pending = false;
+      button.removeAttr('aria-busy').prop('disabled', false).text('Check request');
     }
     function track(url, lockButton) {
       if (!url) return;
@@ -172,15 +204,17 @@
           .done(function (data) {
             if (current !== generation) return;
             show(data.message, data.status);
-            if (data.status === 'completed' || data.status === 'failed') {
-              if (lockButton) button.hide().removeAttr('aria-busy');
-              return;
-            }
+            if (lockButton) setButton(data.status);
+            if (data.status === 'completed' || data.status === 'failed') return;
             if (Date.now() - started < 1200000) timer = setTimeout(check, 2000);
-            else status.append(' Refresh this page to check again.');
+            else {
+              status.append(' Refresh this page to check again.');
+              if (lockButton) allowStatusCheck();
+            }
           }).fail(function () {
             if (current !== generation) return;
-            show('Import status is temporarily unavailable. Refresh this page to check again before starting another import.', 'unconfirmed');
+            show('Import status is temporarily unavailable. Check this request again before starting another import.', 'unconfirmed');
+            if (lockButton) allowStatusCheck();
           });
       }
       check();
@@ -188,8 +222,10 @@
     track(status.attr('data-status-url'), false);
     button.on('click', function () {
       if (pending) return;
-      pending = true;
-      button.prop('disabled', true).attr('aria-busy', 'true');
+      clearTimeout(timer);
+      generation++;
+      setButton('submitting');
+      another.addClass('disabled').attr({'aria-disabled': 'true', tabindex: '-1'});
       show('Submitting your import request…', 'queued');
       $.ajax({
         type: 'POST', url: "{% url 'csv_upload' %}",
@@ -197,16 +233,23 @@
         dataType: 'json', timeout: 45000
       }).done(function (data) {
         show(data.message, data.status);
-        if (data.status === 'completed' || data.status === 'failed') button.hide().removeAttr('aria-busy');
-        else track(data.status_url, true);
+        setButton(data.status);
+        if (data.status !== 'completed' && data.status !== 'failed') track(data.status_url, true);
       }).fail(function (xhr) {
         var data = xhr.responseJSON || {};
+        var state = xhr.status === 410 ? 'expired' : data.status || 'unconfirmed';
         var message = data.message;
         if (xhr.status === 403) message = 'Your session could not be verified. Refresh and sign in again.';
-        show(message || 'Queue submission could not be confirmed. Retry this same confirmation to check safely.', 'unconfirmed');
-        if (data.status_url && data.status !== 'failed') track(data.status_url, true);
-        else if (xhr.status === 410 || data.status === 'failed') button.hide().removeAttr('aria-busy');
-        else { pending = false; button.prop('disabled', false).removeAttr('aria-busy'); }
+        if (xhr.status === 404) message = 'This preview is no longer available. Choose another CSV.';
+        show(message || 'Queue submission could not be confirmed. Check this same request safely.', state);
+        if (data.status_url && data.status !== 'failed') {
+          setButton(state);
+          track(data.status_url, true);
+        } else if (xhr.status === 410 || data.status === 'failed' || xhr.status === 400 || xhr.status === 403 || xhr.status === 404) {
+          setButton(xhr.status === 410 ? 'expired' : 'failed');
+        } else allowStatusCheck();
+      }).always(function () {
+        another.removeClass('disabled').removeAttr('aria-disabled tabindex');
       });
     });
   })();

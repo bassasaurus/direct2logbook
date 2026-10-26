@@ -173,7 +173,7 @@ def csv_inspect_view(request):
                 content = raw.decode('utf-8-sig')
                 rows, preview = parse_csv(content)
                 batch = CSVImportBatch.objects.create(user=request.user, content=content, row_count=len(rows))
-                context.update(file=preview, preview_ready=True, row_count=len(rows), batch=batch, latest_import=None)
+                context.update(file=preview, preview_ready=True, row_count=len(rows), batch=batch, latest_import=None, csv_filename=form.cleaned_data['file'].name)
             except UnicodeDecodeError:
                 form.add_error('file', 'Save the CSV with UTF-8 encoding.')
             except CSVValidationError as exc:

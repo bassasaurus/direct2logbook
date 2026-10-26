@@ -43,6 +43,11 @@ Completed and failed messages do not reappear on a fresh page load.
 Progress is phase-based: row counts become imported only when the whole
 transaction commits. There are no misleading percentages for uncommitted rows.
 A new preview clears the old status display but does not cancel the old job.
+File selection and inspection share a compact toolbar. Inspect is disabled until
+selection and shows Inspecting during preview submission. Import stays in place
+and changes through Submitting, Queued, Importing, and Imported; the final state
+links to the logbook. Expired/failed previews offer Choose another CSV. Transport
+uncertainty offers Check request, which safely resubmits the same batch token.
 
 The worker claims queued/unconfirmed batches with a matching task ID, then locks
 the user's row and the batch for the import transaction. This serializes imports
