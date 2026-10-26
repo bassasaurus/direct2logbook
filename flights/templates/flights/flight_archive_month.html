@@ -1,13 +1,27 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load columns %}
 {% block content %}
+<style>
+  .monthly-flight-list {
+    max-height: 18rem;
+    overflow-y: auto;
+  }
+  .monthly-flight-list a { overflow-wrap: anywhere; }
+  .monthly-flight-list a.map-route-active {
+    color: #0056b3;
+    background: rgba(0, 123, 255, .1);
+    border-radius: .25rem;
+  }
+  @media (min-width: 992px) {
+    .monthly-flight-list { max-height: 500px; }
+  }
+</style>
 
 <hr>
 <div class="row">
   <div class="col">
     {% for year in years reversed %}
-      <a href="/flights/by_date/{{ year|date:'Y' }}">{{ year|date:"Y" }}</a>
+      <a href="{% url 'flight_by_year' year=year|date:'Y' %}">{{ year|date:"Y" }}</a>
     {% endfor %}
   </div>
 </div>
@@ -16,42 +30,30 @@
   <div class="col">
       <div class="">
         {% if previous_month %}
-            <a href='/flights/by_date/{{ previous_month|date:"Y" }}/{{ previous_month|date:"b" }}' class="">- {{ previous_month|date:"F" }}, {{ next_month|date:"Y" }}</a>
+            <a href="{% url 'flight_by_month' year=previous_month|date:'Y' month=previous_month|date:'b' %}" class="">- {{ previous_month|date:"F" }}, {{ previous_month|date:"Y" }}</a>
         {% endif %}
         <span class="font-weight-bold">| {{ month|date:"F" }}, {{ month|date:"Y" }} |</span>
         {% if next_month %}
-            <a href='/flights/by_date/{{ next_month|date:"Y" }}/{{ next_month|date:"b" }}' class="">{{ next_month|date:"F" }}, {{ next_month|date:"Y" }} +</a>
+            <a href="{% url 'flight_by_month' year=next_month|date:'Y' month=next_month|date:'b' %}" class="">{{ next_month|date:"F" }}, {{ next_month|date:"Y" }} +</a>
         {% endif %}
       </div>
   </div>
 </div>
 <hr>
-<div class="row flex-sm-row">
-    {% for col in object_list|columns:2 reversed %}
-      <div class="justify-content-left">
-        <div class="col flex-md-column">
-            {% for flight in col reversed %}
-              <a href="{% url 'flight_detail' flight.pk %}">
-                {{ flight.date }} {{ flight.registration }} |
-                <span class="text-nowrap">{{ flight.route }}</span>
-                <hr style="margin: 0px;">
-              </a>
-            {% endfor %}
-          </div>
-      </div>
-    {% endfor %}
-</div>
-<br>
 <div class="row">
-  <div id="mapid" class="col image-shadow custom-popup">
-    {% include 'leaflet.html' %}
+  <div class="col-12 col-lg-4 mb-3 mb-lg-0">
+    <div class="monthly-flight-list pr-lg-2" role="region" aria-label="Flights this month" tabindex="0">
+      {% for flight in object_list reversed %}
+        <a class="d-block py-2" data-flight-id="{{ flight.pk }}" href="{% url 'flight_detail' flight.pk %}">
+          {{ flight.date }} {{ flight.registration }} | {{ flight.route }}
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="col-12 col-lg-8">
+    <div id="mapid" class="image-shadow custom-popup">
+      {% include 'leaflet.html' %}
+    </div>
   </div>
 </div>
-
-
-
-
-
-
-
 {% endblock %}

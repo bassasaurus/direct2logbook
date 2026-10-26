@@ -47,6 +47,7 @@
     return result;
   }
 
+  {% if not flight_map %}
   // map draw airports
   $.ajax({
     type: "GET",
@@ -90,4 +91,10 @@
       }
     },
   });
+  {% endif %}
 </script>
+
+{% if flight_map %}
+  {{ flight_map|json_script:"flight-map-data" }}
+  <script src="{% static 'js/leaflet/flight_route_highlight.js' %}"></script>
+{% endif %}

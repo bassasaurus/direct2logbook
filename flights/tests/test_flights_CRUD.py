@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.contrib.auth.models import User, Group
 from django.urls import reverse
 from flights.models import Aircraft, TailNumber, Flight
@@ -80,3 +80,14 @@ class FlightCRUDTests(TestCase):
         flight_id = self.flight.id
         self.flight.delete()
         self.assertFalse(Flight.objects.filter(id=flight_id).exists())
+
+
+    @override_settings(SECURE_SSL_REDIRECT=False)
+    def test_delete_view_returns_to_logbook(self):
+        self.user.profile.active = True
+        self.user.profile.expired = False
+        self.user.profile.save()
+        self.client.force_login(self.user)
+        response = self.client.post(reverse('flight_delete', args=[self.flight.pk]))
+        self.assertFalse(Flight.objects.filter(pk=self.flight.pk).exists())
+        self.assertRedirects(response, reverse('flight_list'), fetch_redirect_response=False)

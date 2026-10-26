@@ -17,6 +17,7 @@ from profile.views import ProfileNotActiveMixin
 
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect, reverse
+from django.urls import reverse_lazy
 
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
@@ -26,6 +27,7 @@ from django.db import IntegrityError
 from dal import autocomplete
 from accounts.views import LoginRequiredMixin
 from flights.get_map_data import get_map_data
+from flights.map_routes import flight_map_data
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.utils.encoding import force_str
@@ -193,7 +195,7 @@ class FlightArchiveMonth(LoginRequiredMixin, ProfileNotActiveMixin, MonthArchive
         context = super(FlightArchiveMonth, self).get_context_data(**kwargs)
         user = self.request.user
         object_list = self.object_list.filter(user=user)
-        get_map_data(object_list, user)
+        context['flight_map'] = flight_map_data(object_list)
 
         context['title'] = "D-> | Flights by Month"
         context['home_link'] = reverse('home')
@@ -411,7 +413,7 @@ class FlightDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, De
 class FlightDelete(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, DeleteView):
     model = Flight
     template_name = 'flights/flight_delete.html'
-    success_url = '/logbook/'
+    success_url = reverse_lazy('flight_list')
 
     def get_context_data(self, **kwargs):
         context = super(FlightDelete, self).get_context_data(**kwargs)
@@ -428,7 +430,7 @@ class AircraftCreate(LoginRequiredMixin, ProfileNotActiveMixin, CreateView):
     model = Aircraft
     form_class = AircraftForm
     template_name = "aircraft/aircraft_create_form.html"
-    success_url = "/aircraft/"
+    success_url = reverse_lazy('aircraft_list')
 
     def form_valid(self, form):
         object = form.save(commit=False)
@@ -452,7 +454,7 @@ class AircraftUpdate(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, 
     model = Aircraft
     form_class = AircraftForm
     template_name = 'aircraft/aircraft_update_form.html'
-    success_url = '/aircraft/'
+    success_url = reverse_lazy('aircraft_list')
 
     def get_context_data(self, **kwargs):
         context = super(AircraftUpdate, self).get_context_data(**kwargs)
@@ -528,7 +530,7 @@ class AircraftDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, 
 class AircraftDelete(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, DeleteView):
     model = Aircraft
     template_name = 'aircraft/aircraft_delete.html'
-    success_url = '/aircraft/'
+    success_url = reverse_lazy('aircraft_list')
 
     def get_context_data(self, **kwargs):
         context = super(AircraftDelete, self).get_context_data(**kwargs)
@@ -682,7 +684,7 @@ class TailNumberDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin
 class TailNumberDelete(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, DeleteView):
     model = TailNumber
     template_name = 'tailnumbers/tailnumber_delete.html'
-    success_url = '/aircraft/'
+    success_url = reverse_lazy('aircraft_list')
 
     def get_context_data(self, **kwargs):
         context = super(TailNumberDelete, self).get_context_data(**kwargs)
@@ -717,7 +719,7 @@ class ImportedCreateView(LoginRequiredMixin, ProfileNotActiveMixin, UserOwnedFor
     model = Imported
     form_class = ImportedForm
     template_name = 'imported/imported_create.html'
-    success_url = '/aircraft/'
+    success_url = reverse_lazy('aircraft_list')
 
     def form_valid(self, form):
         object = form.save(commit=False)
@@ -741,7 +743,7 @@ class ImportedUpdateView(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMix
     model = Imported
     form_class = ImportedForm
     template_name = 'imported/imported_update.html'
-    success_url = '/aircraft/'
+    success_url = reverse_lazy('aircraft_list')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -772,7 +774,7 @@ class ImportedDetailView(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMix
 class ImportedDeleteView(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, DeleteView):
     model = Imported
     template_name = 'imported/imported_delete.html'
-    success_url = '/aircraft/'
+    success_url = reverse_lazy('aircraft_list')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

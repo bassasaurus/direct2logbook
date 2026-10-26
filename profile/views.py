@@ -1,3 +1,4 @@
+from django.urls import reverse_lazy
 from django.shortcuts import redirect, reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.mixins import UserPassesTestMixin
@@ -78,12 +79,8 @@ class ProfileView(LoginRequiredMixin, TemplateView):
                     'plan': plan_monthly,
                 }],
             },
-            success_url='https://www.direct2logbook.com/payments/success/{}'.format(
-                user.pk),
-            cancel_url='https://www.direct2logbook.com/payments/cancel/{}'.format(
-                user.pk),
-            # success_url='http://localhost:8000/payments/success/{}'.format(user.pk),
-            # cancel_url='http://localhost:8000/payments/cancel/{}'.format(user.pk),
+            success_url=self.request.build_absolute_uri(reverse('payment_success', args=[user.pk])),
+            cancel_url=self.request.build_absolute_uri(reverse('payment_canceled', args=[user.pk])),
         )
 
         return session_monthly.id
@@ -102,12 +99,8 @@ class ProfileView(LoginRequiredMixin, TemplateView):
                     'plan': plan_yearly,
                 }],
             },
-            success_url='https://www.direct2logbook.com/payments/success/{}'.format(
-                user.pk),
-            cancel_url='https://www.direct2logbook.com/payments/cancel/{}'.format(
-                user.pk),
-            # success_url='http://localhost:8000/payments/success/{}'.format(user.pk),
-            # cancel_url='http://localhost:8000/payments/cancel/{}'.format(user.pk),
+            success_url=self.request.build_absolute_uri(reverse('payment_success', args=[user.pk])),
+            cancel_url=self.request.build_absolute_uri(reverse('payment_canceled', args=[user.pk])),
         )
 
         return session_yearly.id
@@ -165,4 +158,4 @@ class ProfileUpdateView(LoginRequiredMixin, OwnObjectProfileMixin, UpdateView):
     model = Profile
     form_class = ProfileForm
     template_name = 'profile/profile_update.html'
-    success_url = '/accounts/profile/'
+    success_url = reverse_lazy('profile')

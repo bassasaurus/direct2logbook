@@ -1,3 +1,4 @@
+from django.urls import reverse_lazy
 from django.shortcuts import reverse
 from django.contrib.auth.models import User
 from django.views.generic import UpdateView
@@ -9,7 +10,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 class LoginRequiredMixin(LoginRequiredMixin):
-    login_url = '/accounts/login'
+    login_url = reverse_lazy('account_login')
     # redirect_field_name = None
 
 
@@ -31,7 +32,7 @@ class UserUpdateView(LoginRequiredMixin, UpdateView):
     model = User
     form_class = UserForm
     template_name = 'profile/user_update.html'
-    success_url = '/accounts/profile/'
+    success_url = reverse_lazy('profile')
 
 
 # Views from allauth
@@ -113,7 +114,7 @@ class PasswordResetDoneView(PasswordResetDoneView):
         return context
 
 
-class PasswordResetFromKeyView(LoginRequiredMixin, PasswordResetFromKeyView):
+class PasswordResetFromKeyView(PasswordResetFromKeyView):
 
     def get_context_data(self, **kwargs):
         context = super(PasswordResetFromKeyView,
@@ -127,7 +128,7 @@ class PasswordResetFromKeyView(LoginRequiredMixin, PasswordResetFromKeyView):
         return context
 
 
-class PasswordResetFromKeyDoneView(LoginRequiredMixin, AllauthPasswordResetFromKeyDoneView):
+class PasswordResetFromKeyDoneView(AllauthPasswordResetFromKeyDoneView):
 
     def get_context_data(self, **kwargs):
         context = super(PasswordResetFromKeyDoneView,

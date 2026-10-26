@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views.generic import CreateView, DeleteView
 from django.shortcuts import get_object_or_404
 from .forms import SignatureForm
@@ -11,7 +11,7 @@ from .models import Signature
 class SignatureCreateView(LoginRequiredMixin, CreateView):
     model = Signature
     form_class = SignatureForm
-    success_url = '/accounts/profile'
+    success_url = reverse_lazy('profile')
 
     def form_valid(self, form):
         form.instance.user = self.request.user
@@ -31,7 +31,7 @@ class SignatureCreateView(LoginRequiredMixin, CreateView):
 class SignatureDeleteView(LoginRequiredMixin, DeleteView):
     model = Signature
     template_name = 'signature/signature_confirm_delete.html'
-    success_url = '/accounts/profile/'
+    success_url = reverse_lazy('profile')
 
     def get_queryset(self):
         return Signature.objects.filter(user=self.request.user)

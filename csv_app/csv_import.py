@@ -1,10 +1,17 @@
-import csv
-import io
 from flights.models import Flight, Aircraft, TailNumber, MapData, Approach
-from dateutil.parser import parse
 import re
 from logbook.celery import app
-from .formatters import check_date, check_float, format_route, check_text, convertBool, assign_ils
+from django.db import transaction
+from django.http import Http404
+from django.utils import timezone
+from .models import CSVImportBatch
+from django.core.exceptions import ValidationError
+from django.contrib.auth import get_user_model
+from email.utils import make_msgid
+import logging
+from .validation import parse_csv, CSVValidationError
+
+logger = logging.getLogger('django.csv_app')
 from django.core.mail import EmailMessage
 
 
@@ -53,81 +60,63 @@ def email_confirmation(request):
 
         [request.user.email],
         reply_to=['no-reply@direct2logbook.com'],
-        headers={'Message-ID': 'Logbook '},
+        headers={'Message-ID': make_msgid(domain='direct2logbook.com')},
     )
-    email.send()
+    if email.send(fail_silently=False) != 1:
+        logger.warning('CSV completion email was not submitted user_id=%s', request.user.pk)
+
+
+def _notify_import_complete(request):
+    try:
+        email_confirmation(request)
+    except Exception:
+        # Imported data stays committed even if notification fails.
+        logger.exception('CSV completion email failed user_id=%s', request.user.pk)
 
 
 @app.task
 def csv_import(request, file):
-
+    rows, _ = parse_csv(file)  # Parse the whole file before touching flight data.
     user = request.user
+    with transaction.atomic():
+        # Serialize imports for this user, including existing totals signals.
+        get_user_model().objects.select_for_update().get(pk=user.pk)
+        for index, row in enumerate(rows, start=2):
+            values = row.copy()
+            aircraft, _ = Aircraft.objects.get_or_create(user=user, aircraft_type=values.pop('aircraft'))
+            registration, _ = TailNumber.objects.get_or_create(
+                user=user, registration=values.pop('registration'), defaults={'aircraft': aircraft},
+            )
+            if registration.aircraft_id != aircraft.pk:
+                raise CSVValidationError(f'Row {index}: registration belongs to a different aircraft type.')
+            approaches = values.pop('approaches')
+            flight = Flight(user=user, aircraft_type=aircraft, registration=registration, **values)
+            try:
+                flight.full_clean(exclude=['route_data', 'app_markers', 'app_polylines'])
+            except ValidationError as exc:
+                raise CSVValidationError(f'Row {index}: {"; ".join(exc.messages)}') from exc
+            flight.save()  # Keep normal map, statistics, and totals signals.
+            if approaches:
+                Approach.objects.create(flight_object=flight, approach_type='ILS', number=approaches)
+        transaction.on_commit(lambda: _notify_import_complete(request))
+    return len(rows)
 
-    io_string = io.StringIO(file)
-    next(io_string)  # skips header row
 
-    flight_object_list = []
-
-    for row in csv.reader(io_string, delimiter=','):
-
-        # makes any empty entry default to 0
-        for n, i in enumerate(row):
-            if i == '':
-                row[n] = 0
-
-        if Aircraft.objects.filter(user=user, aircraft_type=row[1]).exists():
-            pass
-
-        else:
-            Aircraft.objects.create(user=user, aircraft_type=str(row[1]))
-
-        if TailNumber.objects.filter(user=user, registration=row[2]).exists():
-            pass
-
-        else:
-            aircraft = Aircraft.objects.get(user=user, aircraft_type=row[1])
-            TailNumber.objects.create(
-                user=user, aircraft=aircraft, registration=str(row[2]))
-
-        aircraft_type = Aircraft.objects.get(user=user, aircraft_type=str(row[1]))
-        registration = TailNumber.objects.get(user=user, registration=str(row[2]))
-
-        route_data = save_route_data(user, row[3])
-
-        flight = Flight(
-            user=user,
-            date=parse(row[0]).strftime("%Y-%m-%d"),
-            aircraft_type=aircraft_type,
-            registration=registration,
-            route=format_route(row[3]),
-            duration=round(float(row[4]), 1),
-            pilot_in_command=convertBool(row[5]),
-            second_in_command=convertBool(row[6]),
-            cross_country=convertBool(row[7]),
-            night=round(float(row[8]), 1),
-            instrument=round(float(row[9]), 1),
-
-            landings_day=int(row[11]),
-            landings_night=int(row[12]),
-            simulated_instrument=round(float(row[13]), 1),
-            instructor=convertBool(row[14]),
-            dual=convertBool(row[15]),
-            solo=convertBool(row[16]),
-            simulator=convertBool(row[17]),
-            remarks=check_text(row[18]),
-            route_data=route_data,
-        )
-
-        flight_object_list.append(flight)
-
-        flight.save()
-
-        approach = Approach(
-            flight_object=flight,
-            approach_type=assign_ils(row[10]),
-            number=row[10]
-        )
-
-        approach.save()
-
-    email_confirmation(request)
+@transaction.atomic
+def confirm_csv_import(request, batch_id):
+    # Match the import's user-first lock ordering. All duplicate confirmations
+    # wait for the original transaction and then read its committed outcome.
+    get_user_model().objects.select_for_update().get(pk=request.user.pk)
+    try:
+        batch = CSVImportBatch.objects.select_for_update().get(pk=batch_id, user=request.user)
+    except CSVImportBatch.DoesNotExist:
+        raise Http404('Import not found')
+    if batch.completed:
+        return batch, True
+    count = csv_import(request, batch.content)
+    batch.row_count = count
+    batch.completed = True
+    batch.completed_at = timezone.now()
+    batch.content = ''
+    batch.save(update_fields=['row_count', 'completed', 'completed_at', 'content'])
+    return batch, False
