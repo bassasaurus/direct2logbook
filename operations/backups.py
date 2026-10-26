@@ -191,5 +191,72 @@ def check_database_backups(max_age_hours=26):
         if files.get('database.dump') != status['bytes'] or 'manifest.json' not in files:
             raise ValueError('Missing or unexpected backup files')
     except (ValueError, KeyError, TypeError):
-        raise BackupError('The verified backup is missing or has an unexpected size on Google Drive.')
+        raise BackupError('The verified backup is missing or has an unexpected size on cloud storage.')
     return status
+
+
+def retention_candidates(manifests, now, latest_run_id):
+    """Reject ambiguous inventories before choosing any destructive action."""
+    ordered = []
+    seen = set()
+    for item in manifests:
+        try:
+            run_id = item['run_id']
+            if not re.fullmatch(r'\d{8}T\d{6}Z-[0-9a-f]{32}', run_id) or run_id in seen:
+                raise ValueError()
+            seen.add(run_id)
+            created = datetime.fromisoformat(item['created_at'])
+            verified = datetime.fromisoformat(item['verified_at'])
+            if created.tzinfo is None or verified.tzinfo is None:
+                raise ValueError()
+            if created > verified or verified > now or created.strftime('%Y%m%dT%H%M%SZ') != run_id[:16]:
+                raise ValueError()
+            if item['verification'] != 'downloaded-and-hash-matched' or item['bytes'] <= 0:
+                raise ValueError()
+            if not re.fullmatch('[0-9a-f]{64}', item['sha256']):
+                raise ValueError()
+            ordered.append((created, run_id))
+        except (KeyError, TypeError, ValueError):
+            raise BackupError('Retention stopped: invalid or duplicate backup manifest.')
+    if latest_run_id not in seen:
+        raise BackupError('Retention stopped: latest verified backup is absent from inventory.')
+    ordered.sort(reverse=True)
+    return [run_id for created, run_id in ordered[7:]
+            if run_id != latest_run_id and (now - created).total_seconds() > 30 * 86400]
+
+
+def prune_database_backups(apply=False):
+    remote, config, folder, tools = _configuration()
+    if not remote.split(':', 1)[1].strip('/'):
+        raise BackupError('Retention requires a dedicated backup subfolder.')
+    base = remote.rstrip('/') + '/'
+    command = [tools['rclone'], '--config', str(config), '--contimeout', '15s', '--timeout', '60s']
+    with _lock(folder):
+        latest = check_database_backups()
+        try:
+            directories = json.loads(_run(command + ['lsjson', remote, '--dirs-only'], timeout=120))
+            manifests = []
+            for directory in directories:
+                run_id = directory['Name']
+                if not re.fullmatch(r'\d{8}T\d{6}Z-[0-9a-f]{32}', run_id):
+                    continue
+                files = json.loads(_run(command + ['lsjson', base + run_id, '--files-only'], timeout=120))
+                sizes = {entry['Name']: entry['Size'] for entry in files}
+                # Partial runs are retained for operator investigation.
+                if 'manifest.json' not in sizes:
+                    continue
+                if set(sizes) != {'manifest.json', 'database.dump'}:
+                    raise ValueError()
+                manifest = json.loads(_run(command + ['cat', base + run_id + '/manifest.json'], timeout=120))
+                if manifest['run_id'] != run_id or manifest['bytes'] != sizes['database.dump']:
+                    raise ValueError()
+                manifests.append(manifest)
+            candidates = retention_candidates(manifests, datetime.now(timezone.utc), latest['run_id'])
+        except (KeyError, TypeError, ValueError):
+            raise BackupError('Retention stopped: malformed remote backup inventory.')
+        if apply:
+            for run_id in candidates:
+                # Explicit filenames only: never purge the bucket or unrelated objects.
+                for name in ('database.dump', 'manifest.json'):
+                    _run(command + ['--b2-hard-delete', 'deletefile', base + run_id + '/' + name], timeout=120)
+        return [base + run_id for run_id in candidates]

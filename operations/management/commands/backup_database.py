@@ -3,7 +3,7 @@ from operations.backups import BackupError, alert_failure, run_database_backup
 
 
 class Command(BaseCommand):
-    help = 'Create a PostgreSQL backup, upload via rclone crypt to Drive, and download-verify it.'
+    help = 'Create a PostgreSQL backup, upload via rclone crypt to cloud storage, and download-verify it.'
 
     def handle(self, *args, **options):
         try:

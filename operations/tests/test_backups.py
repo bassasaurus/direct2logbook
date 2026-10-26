@@ -168,3 +168,78 @@ class DatabaseBackupTests(SimpleTestCase):
     def test_invalid_freshness_interval_is_rejected(self):
         with self.assertRaises(CommandError):
             call_command('check_database_backups', max_age_hours=0)
+
+
+class RetentionPolicyTests(SimpleTestCase):
+    def setUp(self):
+        self.now = datetime.now(timezone.utc)
+        self.manifests = []
+        for index in range(40):
+            created = self.now - timedelta(days=index + 1)
+            self.manifests.append(dict(run_id=created.strftime('%Y%m%dT%H%M%SZ') + '-' + f'{index:032x}',
+                created_at=created.isoformat(), verified_at=created.isoformat(), bytes=10,
+                sha256='a' * 64, verification='downloaded-and-hash-matched'))
+        self.latest = self.manifests[0]['run_id']
+
+    def select(self):
+        from operations.backups import retention_candidates
+        return retention_candidates(self.manifests, self.now, self.latest)
+
+    def test_only_archives_older_than_thirty_days_are_selected(self):
+        self.assertEqual(self.select(), [item['run_id'] for item in self.manifests[30:]])
+
+    def test_seven_old_backups_remain_during_prolonged_gaps(self):
+        self.manifests = self.manifests[32:]
+        self.latest = self.manifests[0]['run_id']
+        self.assertEqual(len(self.select()), 1)
+        self.manifests = self.manifests[:7]
+        self.assertEqual(self.select(), [])
+
+    def test_malformed_manifest_and_missing_latest_stop_retention(self):
+        self.manifests[-1]['run_id'] = '../other'
+        with self.assertRaises(BackupError):
+            self.select()
+        self.manifests.pop()
+        self.latest = 'missing'
+        with self.assertRaises(BackupError):
+            self.select()
+
+    def test_future_and_duplicate_records_stop_retention(self):
+        self.manifests.append(self.manifests[0])
+        with self.assertRaises(BackupError):
+            self.select()
+        self.manifests.pop()
+        self.manifests[0]['verified_at'] = (self.now + timedelta(days=1)).isoformat()
+        with self.assertRaises(BackupError):
+            self.select()
+
+    def test_dry_run_and_apply_use_only_exact_backup_filenames(self):
+        from operations.backups import prune_database_backups
+        from contextlib import nullcontext
+        # Avoid the exact 30-day boundary while the real clock advances.
+        self.manifests.pop(29)
+        config = ('backups:postgresql', Path('/private/config'), Path('/private/state'), {'rclone': 'rclone'})
+        def invoke(args, timeout=120):
+            if '--dirs-only' in args:
+                return json.dumps([{'Name': item['run_id']} for item in self.manifests])
+            if '--files-only' in args:
+                return json.dumps([{'Name': 'database.dump', 'Size': 10}, {'Name': 'manifest.json', 'Size': 300}])
+            if 'cat' in args:
+                return json.dumps(next(item for item in self.manifests if item['run_id'] in args[-1]))
+            if 'deletefile' in args:
+                return ''
+            raise AssertionError(args)
+        with patch('operations.backups._configuration', return_value=config), \
+             patch('operations.backups._lock', return_value=nullcontext()), \
+             patch('operations.backups.check_database_backups', return_value={'run_id': self.latest}), \
+             patch('operations.backups._run', side_effect=invoke) as runner:
+            candidates = prune_database_backups()
+            self.assertEqual(len(candidates), 10)
+            self.assertFalse(any('deletefile' in call.args[0] for call in runner.call_args_list))
+            runner.reset_mock()
+            prune_database_backups(apply=True)
+            deleted = [call.args[0] for call in runner.call_args_list if 'deletefile' in call.args[0]]
+            self.assertEqual(len(deleted), 20)
+            self.assertEqual({args[-1] for args in deleted},
+                {remote + '/' + name for remote in candidates for name in ('database.dump', 'manifest.json')})
+            self.assertTrue(all('--b2-hard-delete' in args for args in deleted))
