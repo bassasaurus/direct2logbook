@@ -1,14 +1,23 @@
 from django.shortcuts import render, reverse, redirect
 import csv
-from django.http import HttpResponse
-from django.template.response import TemplateResponse
+from django.http import HttpResponse, JsonResponse, Http404
 from django import forms
 from flights.models import Flight
-from csv_app.csv_import import csv_import
-from csv_app.csv_inspect import csv_inspect
-import io
+from csv_app.csv_import import confirm_csv_import
+from .models import CSVImportBatch
+import uuid
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_GET, require_POST, require_http_methods
+from django.views.decorators.csrf import csrf_protect
+from django.db.models import Sum
+from .validation import parse_csv, CSVValidationError, CSVPreviewExpired, MAX_BYTES
+import logging
+
+logger = logging.getLogger('django.csv_app')
 
 
+@login_required
+@require_GET
 def csv_download_view(request):
     user = request.user
     # Create the HttpResponse object with the appropriate CSV header.
@@ -30,8 +39,7 @@ def csv_download_view(request):
         'cross country',
         'night',
         'instrument',
-        # appr
-        # hold
+        'approaches',
         'day landing',
         'night landing',
         'simulated instrument',
@@ -116,8 +124,7 @@ def csv_download_view(request):
             xc,
             night,
             ifr,
-            # appr
-            # hold
+            flight.approach_set.aggregate(total=Sum('number'))['total'] or 0,
             day_ldg,
             night_ldg,
             sim_inst,
@@ -134,64 +141,60 @@ def csv_download_view(request):
 class InspectForm(forms.Form):
     file = forms.FileField()
 
+    def clean_file(self):
+        upload = self.cleaned_data['file']
+        if upload.size > MAX_BYTES:
+            raise forms.ValidationError('The CSV must be no larger than 2 MB.')
+        return upload
 
+
+@login_required
+@csrf_protect
+@require_http_methods(['GET', 'POST'])
 def csv_inspect_view(request):
+    form = InspectForm(request.POST or None, request.FILES or None)
+    context = {
+        'inspect_form': form, 'title': 'CSV Upload',
+        'home_link': reverse('home'), 'parent_link': reverse('profile'),
+        'parent_name': 'Profile',
+    }
     if request.method == 'POST':
-
-        inspect_form = InspectForm(request.POST, request.FILES)
-
-        # user uploads file
-        if inspect_form.is_valid():
-
-            # catch if file is .csv or not
-            file = request.FILES['file']
-
-            decoded_file = file.read().decode('utf-8')
-            io_string = io.StringIO(decoded_file)
-            next(io_string)  # skips header row
-            file = csv.reader(io_string, delimiter=',')
-
-            inspected_file = csv_inspect(file)
-            inspected_file.seek(0, 0)
-
-            display_file = csv.reader(inspected_file, delimiter=',')
-
-            request.session['file'] = decoded_file
-
-            # file is formatted and displayed to user on same page
-
-            # if the file looks ok, then user can save it to db
-            return TemplateResponse(
-                request,
-                'csv_app/inspect_csv.html', {
-                    'file': display_file,
-                    'inspect_form': inspect_form,
-                }
-            )
-
-    # if file fails tests or doesn't exist
-    else:
-
-        inspect_form = InspectForm()
-
-    return render(
-        request,
-        'csv_app/inspect_csv.html', {
-            'inspect_form': inspect_form,
-            'title': 'CSV Upload',
-            'home_link': reverse('home'),
-            'parent_link': reverse('profile'),
-            'parent_name': 'Profile',
-        }
-    )
+        request.session.pop('file', None)
+        if form.is_valid():
+            try:
+                raw = form.cleaned_data['file'].read(MAX_BYTES + 1)
+                if len(raw) > MAX_BYTES:
+                    raise CSVValidationError('The CSV must be no larger than 2 MB.')
+                content = raw.decode('utf-8-sig')
+                rows, preview = parse_csv(content)
+                batch = CSVImportBatch.objects.create(user=request.user, content=content, row_count=len(rows))
+                context.update(file=preview, preview_ready=True, row_count=len(rows), batch=batch)
+            except UnicodeDecodeError:
+                form.add_error('file', 'Save the CSV with UTF-8 encoding.')
+            except CSVValidationError as exc:
+                form.add_error('file', str(exc))
+    return render(request, 'csv_app/inspect_csv.html', context)
 
 
+@login_required
+@require_POST
+@csrf_protect
 def csv_upload_view(request):
-
-    # print('upload_csv')
-
-    file = request.session['file']
-
-    csv_import(request, file)
-
-    return redirect(reverse('home'))
+    try:
+        batch_id = uuid.UUID(request.POST.get('batch_id', ''))
+    except (ValueError, TypeError, AttributeError):
+        return JsonResponse({'message': 'Inspect a valid CSV file before importing.'}, status=400)
+    try:
+        batch, duplicate = confirm_csv_import(request, batch_id)
+        count = batch.row_count
+    except CSVPreviewExpired as exc:
+        return JsonResponse({'message': str(exc)}, status=410)
+    except CSVValidationError as exc:
+        return JsonResponse({'message': str(exc) + ' No flights were imported.'}, status=400)
+    except Http404:
+        raise
+    except Exception:
+        logger.exception('CSV import failed user_id=%s', request.user.pk)
+        return JsonResponse({'message': 'Completion could not be confirmed. Retry this same confirmation to check without importing duplicates.'}, status=503)
+    return JsonResponse({'status': 'completed', 'row_count': count, 'already_completed': duplicate,
+                         'message': f'Import complete: {count} flights. Review your aircraft and tailnumber details.'})

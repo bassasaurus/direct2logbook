@@ -37,11 +37,11 @@
 
 </head>
 
-<body>
+<body class="app-layout">
   {% if user.is_authenticated %}
   {% include 'blocks/navbar.html' %}
-  <div style="margin-top: 115px;">
-    <div class="container">
+  <div class="app-main" style="margin-top: 115px;">
+    <div class="{% block page_container_class %}container{% endblock %}">
       <div style="margin-top: 25px">
         {% for message in messages %}
           {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
@@ -60,7 +60,7 @@
   {% include 'blocks/footer.html' %}
   {% else %}
   {% include 'blocks/navbar.html' %}
-  <div style="margin-top:130px;">
+  <div class="app-main" style="margin-top:130px;">
     <div class="row justify-content-center align-items-center">
       <div class="col-6">
         {% block account_content %}

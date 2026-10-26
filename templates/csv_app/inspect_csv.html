@@ -1,24 +1,53 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
+{% block page_container_class %}container-fluid px-3 px-lg-4{% endblock %}
 {% block content %}
 
 <style>
-  .container-outer {
-    overflow: scroll;
-    width: auto;
-    height: 400px;
+  .csv-file-picker {
+    width: 100%;
+    max-width: 20rem;
   }
 
-  ;
-
-  .container-inner {
-    width: auto;
+  .csv-table-container {
+    width: 100%;
+    max-width: 100%;
+    max-height: 65vh;
+    overflow: auto;
   }
 
-  table th {
+  .csv-preview-table {
+    width: 100%;
+    min-width: 55rem;
+    margin-bottom: 0;
+    table-layout: auto;
+    font-size: clamp(.75rem, .8vw, .875rem);
+  }
+
+  .csv-preview-table th,
+  .csv-preview-table td {
+    padding: .35rem;
+    vertical-align: top;
+  }
+
+  .csv-preview-table th {
     position: sticky;
     top: 0;
+    z-index: 1;
     background: white;
+    white-space: normal;
+  }
+
+  .csv-preview-table td {
+    white-space: nowrap;
+  }
+
+  .csv-preview-table td:nth-child(4),
+  .csv-preview-table td:last-child {
+    min-width: 7rem;
+    max-width: 20rem;
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 </style>
 <hr>
@@ -27,16 +56,23 @@
     {% csrf_token %}
     <div class="form-group">
       <h4>Upload .csv</h4>
-      <p>Format your file according to the format below.</p>
+      <p>Format your file according to the format below. UTF-8, up to 2 MB and 1,000 flights per import.</p>
+      {{ inspect_form.errors }}
+      {% if preview_ready %}<p class="text-muted">This preview expires after 10 minutes. Completed imports stay protected against duplicate confirmations.</p>{% endif %}
       <hr>
       <div class="row">
-        {% if not request.FILES %}
-        <div class="col-5">{{ inspect_form.file }}</div>
-        <div class="col-4"><button class="btn btn-primary" type="submit">Inspect</button></div>
+        {% if not preview_ready %}
+        <div class="col-12 col-sm-auto mb-2 mb-sm-0">
+          <div class="custom-file csv-file-picker">
+            {{ inspect_form.file|add_class:"custom-file-input"|attr:"accept:.csv,text/csv" }}
+            <label class="custom-file-label text-truncate" for="{{ inspect_form.file.id_for_label }}">Choose CSV file</label>
+          </div>
+        </div>
+        <div class="col-12 col-sm-auto"><button class="btn btn-primary" type="submit">Inspect</button></div>
         {% endif %}
-        {% if request.FILES %}
+        {% if preview_ready %}
           <div class="col-4"><a href="{% url 'csv_inspect' %}">Try again</a></div>
-          <div class="col-4"><a class="btn btn-primary" id="csv_upload" href="">Upload .csv</a></div>
+          <div class="col-4"><input type="hidden" id="csv-batch-id" value="{{ batch.pk }}"><button type="button" class="btn btn-primary" id="csv_upload">Import {{ row_count }} flights</button></div>
         {% endif %}
       </div>
     </div>
@@ -44,9 +80,8 @@
 </div>
 
 
-<div class="container-outer">
-  <div class="container-inner">
-    <table class="table table-sm custom-table table-striped table-bordered">
+<div class="table-responsive csv-table-container" role="region" aria-label="CSV preview and format guide" tabindex="0">
+    <table class="table table-sm csv-preview-table table-striped table-bordered">
       <thead>
         <tr>
           <th class="text-left">Date</th>
@@ -71,7 +106,7 @@
         </tr>
       </thead>
       <tbody>
-        {% if request.FILES %}
+        {% if preview_ready %}
         {% for row in file %}
         <tr>
           {% for field in row %}
@@ -109,18 +144,32 @@
         {% endif %}
       </tbody>
     </table>
-  </div>
 </div>
 
 <script>
-  $("#csv_upload").click(function() {
+  $('#id_file').on('change', function () {
+    var filename = this.files && this.files.length ? this.files[0].name : 'Choose CSV file';
+    $(this).siblings('.custom-file-label').text(filename);
+  });
+  $('#csv_upload').on('click', function (event) {
+    event.preventDefault();
+    var button = $(this);
+    if (button.attr('aria-busy') === 'true') return;
+    button.attr('aria-busy', 'true').prop('disabled', true);
     $.ajax({
-      type: "GET",
+      type: 'POST',
       url: "{% url 'csv_upload' %}",
-      success: Swal.fire(
-        'This will take some time',
-        "We'll notify you at {{ user.email }} when it's complete!",
-        'success'),
+      data: {csrfmiddlewaretoken: $('input[name="csrfmiddlewaretoken"]').val(), batch_id: $('#csv-batch-id').val()},
+      dataType: 'json',
+      timeout: 45000
+    }).done(function (data) {
+      Swal.fire('Import complete', data.message, 'success');
+      button.hide();
+    }).fail(function (xhr) {
+      var message = xhr.responseJSON && xhr.responseJSON.message;
+      if (xhr.status === 403) message = 'Your session could not be verified. Refresh and sign in again.';
+      Swal.fire(xhr.status === 410 ? 'Preview expired' : 'Import not confirmed', message || 'Retry this same confirmation to check without importing duplicates.', 'warning');
+      button.removeAttr('aria-busy').prop('disabled', xhr.status === 410);
     });
   });
 </script>

@@ -8,10 +8,10 @@
     <hr>
       <div class="btn-group">
         {% if previous_month %}
-            <a href='/flights/by_date/{{ previous_month|date:"Y" }}/{{ previous_month|date:"b" }}' class="btn btn-outline-secondary btn-sm">- Month</a>
+            <a href="{% url 'flight_by_month' year=previous_month|date:'Y' month=previous_month|date:'b' %}" class="btn btn-outline-secondary btn-sm">- Month</a>
         {% endif %}
         {% if next_month %}
-            <a href='/flights/by_date/{{ next_month|date:"Y" }}/{{ next_month|date:"b" }}' class="btn btn-outline-secondary btn-sm">Month +</a>
+            <a href="{% url 'flight_by_month' year=next_month|date:'Y' month=next_month|date:'b' %}" class="btn btn-outline-secondary btn-sm">Month +</a>
         {% endif %}
       </div>
     <div><hr></div>

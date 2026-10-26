@@ -188,12 +188,19 @@
       clearTimeout(pollTimer);
       clearTimeout(hideTimer);
       var generation = ++pollGeneration;
-      if (!pending) showPDFStatus('Checking Lobook request…', 'processing');
+      if (!pending) {
+        pending = true;
+        button.prop('disabled', true).attr('aria-busy', 'true');
+      }
       var started = Date.now();
       function check() {
         $.ajax({url: url, dataType: 'json', cache: false, timeout: 15000})
           .done(function (data) {
             if (generation !== pollGeneration) return;
+            if (data.status === 'sent' && data.hide_after_ms <= 0) {
+              restorePrintButton();
+              return;
+            }
             var receivedAt = Date.now();
             showPDFStatus(data.message, data.status).then(function () {
             if (generation !== pollGeneration) return;

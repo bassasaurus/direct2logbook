@@ -25,7 +25,7 @@ class TestAccountsURLs(SimpleTestCase):
     #     self.assertEqual(resolve(url).func.view_class, ConnectionsView)
 
     def test_password_set_url_resolves(self):
-        url = reverse('account_set_passwoçrd')
+        url = reverse('account_set_password')
         self.assertEqual(resolve(url).func.view_class, PasswordSetView)
 
     def test_password_change_url_resolves(self):
@@ -33,10 +33,8 @@ class TestAccountsURLs(SimpleTestCase):
         self.assertEqual(resolve(url).func.view_class, PasswordChangeView)
 
     def test_password_reset_url_resolves(self):
-        # NOTE: Duplicate name in your urlpatterns
-        url = reverse('account_change_password')
-        # Also maps to PasswordResetView
-        self.assertEqual(resolve(url).func.view_class, PasswordChangeView)
+        url = reverse('account_reset_password')
+        self.assertEqual(resolve(url).func.view_class, PasswordResetView)
 
     def test_password_reset_done_url_resolves(self):
         url = reverse('account_password_reset_done')
