@@ -428,3 +428,6 @@ DB_BACKUP_REMOTE = config('DB_BACKUP_REMOTE', default='')
 DB_BACKUP_RCLONE_CONFIG = config('DB_BACKUP_RCLONE_CONFIG', default='')
 DB_BACKUP_STATE_DIR = config('DB_BACKUP_STATE_DIR', default='')
 DB_BACKUP_ALERT_EMAIL = config('DB_BACKUP_ALERT_EMAIL', default='')
+
+# Existing manually configured Sentry cron monitor; empty disables check-ins.
+DB_BACKUP_SENTRY_MONITOR_SLUG = config('DB_BACKUP_SENTRY_MONITOR_SLUG', default='')

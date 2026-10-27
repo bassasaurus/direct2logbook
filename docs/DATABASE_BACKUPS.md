@@ -143,3 +143,43 @@ The earlier production-dump drill verified 56 tables and their COPY-content hash
 A Backblaze B2 round-trip and a restore of its retrieved encrypted backup still
 need to be completed after account connection; unit tests cannot establish that
 Backblaze access and the server's installed binaries are configured correctly.
+
+## Sentry cron monitoring
+
+Create the monitor manually in the Django Sentry project (5178641). Use slug
+`daily-database-backup`, schedule `0 8 * * *`, the server's actual timezone,
+15-minute grace period, 60-minute maximum runtime, and failure/recovery thresholds
+of one. Connect an alert with the desired recipient; creating issues alone does
+not verify notification delivery. The application does not overwrite monitor settings.
+
+After deployment, add to the production .env:
+
+```dotenv
+DB_BACKUP_SENTRY_MONITOR_SLUG=daily-database-backup
+```
+
+Replace the daily backup/retention cron line (do not add a duplicate):
+
+```cron
+0 8 * * * cd /home/blakepowell/app && /home/blakepowell/venv/bin/python manage.py scheduled_database_backup >> /home/blakepowell/logs/database-backup.log 2>&1
+```
+
+Keep the hourly freshness check and unrelated cron entries. The wrapper runs the
+same verified backup, then retention with --apply only if backup succeeded. It
+sends in_progress and matching ok/error check-ins, and flushes on command exit.
+DEBUG, empty monitor slug, or an inactive Sentry client disables check-ins, but
+backup/retention still run. Errors submitting telemetry do not prevent backups.
+A kill, machine outage, or missing terminal check-in is detected by Sentry's
+missed-run/timeout rules once the monitor has received its first check-in.
+
+Run once manually after deployment and confirm a successful production check-in:
+
+```sh
+/home/blakepowell/venv/bin/python manage.py scheduled_database_backup
+```
+
+A successful local command does not prove Sentry received it: verify the hosted
+monitor's check-in and next expected run. Check the first automatic cron run too.
+Manual `backup_database` and `prune_database_backups` remain available without
+scheduled check-ins, so restore drills and previews do not alter monitor status.
+No migrations, dependency updates, or collectstatic are required for this change.
