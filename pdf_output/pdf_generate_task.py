@@ -24,6 +24,7 @@ from reportlab.lib.units import inch
 from reportlab.lib import colors
 from reportlab.platypus import (
     Paragraph,
+    Flowable,
     Table,
     SimpleDocTemplate,
     Spacer,
@@ -43,6 +44,38 @@ import sys
 import platform
 import inspect
 import hashlib
+
+
+class PageWidthTable(Flowable):
+    """Scale a whole table to the frame width while retaining page splitting."""
+
+    def __init__(self, table):
+        super().__init__()
+        self.table = table
+        self.hAlign = 'LEFT'
+        self.scale = 1.0
+
+    def wrap(self, available_width, available_height):
+        natural_width, natural_height = self.table.wrapOn(
+            self.canv, available_width, available_height)
+        self.scale = min(1.0, available_width / natural_width) if natural_width else 1.0
+        self.width = natural_width * self.scale
+        self.height = natural_height * self.scale
+        return self.width, self.height
+
+    def split(self, available_width, available_height):
+        self.wrap(available_width, available_height)
+        parts = self.table.splitOn(self.canv, available_width / self.scale,
+                                   available_height / self.scale)
+        return [PageWidthTable(part) for part in parts]
+
+    def draw(self):
+        self.canv.saveState()
+        try:
+            self.canv.scale(self.scale, self.scale)
+            self.table.drawOn(self.canv, 0, 0)
+        finally:
+            self.canv.restoreState()
 
 
 def _to_decimal_safe(val):
@@ -314,7 +347,7 @@ def _build_pdf(user):
     ]
 
     total_data.insert(0, total_header)
-    total_table = Table(total_data, hAlign='LEFT')
+    total_table = Table(total_data, repeatRows=1, hAlign='LEFT')
     total_table.setStyle(TableStyle([
         ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold', 10),
         ('LINEBELOW', (0, 0), (-1, 0), 1.0, colors.black),
@@ -323,7 +356,7 @@ def _build_pdf(user):
         ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
     ]))
 
-    story.append(total_table)
+    story.append(PageWidthTable(total_table))
     story.append(spacer)
 
     # role_table
@@ -392,7 +425,7 @@ def _build_pdf(user):
         "<para size=15 align=left><u><b>Misc Summary</b></u></para>", style=styles["Normal"]))
     story.append(spacer)
     misc_data = [[role_table, regs_table, weight_table, endorsement_table]]
-    story.append(Table(misc_data, hAlign="LEFT"))
+    story.append(PageWidthTable(Table(misc_data, hAlign="LEFT")))
     story.append(spacer)
 
     # aircraft stats table
@@ -434,7 +467,7 @@ def _build_pdf(user):
         ('ALIGN', (1, 0), (-1, -1), 'RIGHT'),
     ]))
 
-    story.append(stat_table)
+    story.append(PageWidthTable(stat_table))
     story.append(spacer)
 
     # logbook section (page-level subtotals)

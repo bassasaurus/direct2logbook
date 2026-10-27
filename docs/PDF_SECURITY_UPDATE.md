@@ -14,8 +14,8 @@ plain text table cells and Canvas drawString do not parse Paragraph markup.
 Tests generate real PDFs using synthetic flight rows, malformed names, entities,
 and a PNG signature, without database, storage, email, or cloud access. Visual
 checks covered normal cover, summary/logbook pages, and literal markup cover.
-The summary table is wide and showed existing right-edge clipping with the synthetic
-fixture; summary layout redesign is outside this security fix. Long cover names
+The original synthetic fixture exposed existing summary clipping. The subsequent
+single-table width fix is described in PDF_SUMMARY_WIDTH.md. Long cover names
 wrap with readable line spacing after this change.
 
 ## Deployment
