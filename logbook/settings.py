@@ -431,3 +431,8 @@ DB_BACKUP_ALERT_EMAIL = config('DB_BACKUP_ALERT_EMAIL', default='')
 
 # Existing manually configured Sentry cron monitor; empty disables check-ins.
 DB_BACKUP_SENTRY_MONITOR_SLUG = config('DB_BACKUP_SENTRY_MONITOR_SLUG', default='')
+
+# Root filesystem alerting reuses the existing backup recipient/private state location.
+DISK_ALERT_EMAIL = config('DISK_ALERT_EMAIL', default=DB_BACKUP_ALERT_EMAIL)
+DISK_ALERT_STATE_DIR = config('DISK_ALERT_STATE_DIR',
+    default=os.path.join(DB_BACKUP_STATE_DIR, 'disk-monitor') if DB_BACKUP_STATE_DIR else '')
