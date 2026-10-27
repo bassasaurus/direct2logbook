@@ -1,8 +1,6 @@
 import os
 from os.path import abspath, dirname
-import sentry_sdk
-from sentry_sdk.integrations.django import DjangoIntegration
-from sentry_sdk.integrations.celery import CeleryIntegration
+from logbook.monitoring import configure_sentry
 from decouple import config, Csv
 from botocore.client import Config
 import dj_database_url
@@ -12,13 +10,11 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 print('Dev settings = ', config('DEBUG'))
 
 
-if DEBUG is False:
-    sentry_sdk.init(
-        dsn="https://65a9a45f86104c29873f4bdbfa6846b9@sentry.io/5178641",
-        integrations=[DjangoIntegration(), CeleryIntegration()],
-        send_default_pii=True
-    )
-else:
+# The fallback keeps existing production reporting working during deployment.
+SENTRY_DSN = config('SENTRY_DSN', default='https://65a9a45f86104c29873f4bdbfa6846b9@sentry.io/5178641')
+SENTRY_ENVIRONMENT = config('SENTRY_ENVIRONMENT', default='production' if not DEBUG else 'development')
+configure_sentry(debug=DEBUG, dsn=SENTRY_DSN, environment=SENTRY_ENVIRONMENT)
+if DEBUG:
     print('Sentry Not Active')
 
 
