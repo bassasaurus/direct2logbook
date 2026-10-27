@@ -1,4 +1,5 @@
 from decimal import ROUND_HALF_UP
+from xml.sax.saxutils import escape
 import logging
 from flights.models import Flight, Total, Stat, Regs, Power, Weight, Endorsement
 from signature.models import Signature
@@ -269,7 +270,7 @@ def _build_pdf(user):
 
     story.append(spacer15)
     story.append(spacer025)
-    text = f"<para size=50 align=center>Logbook for {user.first_name} {user.last_name}</para>"
+    text = f"<para size=50 leading=60 align=center>Logbook for {escape(user.first_name)} {escape(user.last_name)}</para>"
     title = Paragraph(text, style=styles["Normal"])
     story.append(title)
     story.append(spacer15)
