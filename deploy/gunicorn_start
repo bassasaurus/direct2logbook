@@ -2,6 +2,7 @@
 set -eu
 
 APP_DIR=/home/blakepowell/app
+APP_VENV="${APP_VENV:-/home/blakepowell/venv}"
 GUNICORN_USER=blakepowell
 GUNICORN_GROUP=blakepowell
 
@@ -9,7 +10,7 @@ cd "$APP_DIR"
 export DJANGO_SETTINGS_MODULE=logbook.settings
 export PYTHONPATH="$APP_DIR${PYTHONPATH:+:$PYTHONPATH}"
 
-exec /home/blakepowell/venv/bin/gunicorn logbook.wsgi:application \
+exec "$APP_VENV/bin/gunicorn" logbook.wsgi:application \
   --name logbook \
   --workers 3 \
   --worker-class sync \
