@@ -1,0 +1,14 @@
+Hi {{ first_name|default:"there" }},
+
+Welcome to Direct2Logbook! Your account was created using Google, and your email is verified.
+
+We're setting up your 30-day free trial. No credit card is required. Your subscription details will update automatically on your profile page when setup finishes.
+
+Start your logbook here:
+{{ home_url }}
+
+You can sign in again using the same Google account.
+
+Questions? Contact support@direct2logbook.com.
+
+The Direct2Logbook team

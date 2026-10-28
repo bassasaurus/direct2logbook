@@ -4,14 +4,7 @@
 <hr>
 {% if not billing_pending and passed_end_date is True and not profile.free_access %}
 
-<h5 class="text-danger">Subscription expired</h5>
-  <hr>
-  <p>You have either canceled the subscription or your card is no longer valid<p>
-  <p>Expired on - {{ profile.end_date|date:"M d, Y" }}</p>
-  <h5 class="text-success">Subscribe now</h5>
-  <h5><a href="" class="link text-success" id="monthly">Monthly</a>
-  <span>- or -</span>
-  <a href="" class="link text-success" id="yearly">Yearly</a></h5>
+{% include 'profile/subscription.html' %}
 
 {% else %}
 
@@ -41,52 +34,7 @@
     Date Joined - {{ user.date_joined|date:"M d, Y"  }}
     <hr>
 
-    {% if profile.free_access %}
-      <h5>You have free access</h5>
-
-
-    {% elif billing_pending %}
-      <h5>Your trial is being set up.</h5>
-      <p>Refresh this page shortly. If setup does not finish, please
-        <a href="mailto:support@direct2logbook.com">contact support</a>.</p>
-
-    {% elif profile.trial %}
-      <h5 class="text-success">Free trial ends {{ profile.end_date|date:"M d, Y" }}</h5>
-      <h5 class="text-success">Subscribe now</h5>
-      <h5><a href="" class="link text-success" id="monthly">Monthly</a>
-      <span>- or -</span>
-      <a href="" class="link text-success" id="yearly">Yearly</a></h5>
-
-    {% elif not profile.trial and profile.trial_expiring %}
-    <h5 class="text-danger">Trial expiring soon</h5>
-      <p>Expired on - {{ profile.end_date|date:"M d, Y" }}</p>
-      <h5 class="text-success">Subscribe now</h5>
-      <h5><a href="" class="link text-success" id="monthly">Monthly</a>
-      <span>- or -</span>
-      <a href="" class="link text-success" id="yearly">Yearly</a></h5>
-
-    {% elif profile.canceled %}
-    <h5 class="text-danger">You have unsubscribed and will lose accces on {{ profile.end_date|date:"M d, Y" }}</h5>
-      <h5 class="text-success">Resubscribe now</h5>
-      <h5><a href="" class="link text-success" id="monthly">Monthly</a>
-      <span>- or -</span>
-      <a href="" class="link text-success" id="yearly">Yearly</a></h5>
-
-    {% else %}
-      <h5>Subscription active</h5>
-      <p>Change Subscription</p>
-      {% if profile.monthly %}
-        <p><a href="" class="link text-success" id="yearly">Yearly</a></p>
-      {% elif profile.yearly %}
-        <p><a href="" class="link text-success" id="monthly">Monthly</a></p>
-      {% endif %}
-      <p>Next billing date - {{ profile.end_date|date:"M d, Y" }}</p>
-      <form method="post" action="{% url 'subscription_canceled' %}">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-link text-danger p-0">Cancel</button>
-      </form>
-
-    {% endif %}
+    {% include 'profile/subscription.html' %}
 
     <hr>
     <h5>Email</h5> {{ user.email }}<br>
@@ -167,4 +115,35 @@
   });
 </script>
 
+{% if billing_pending and not profile.free_access %}
+<script>
+(function () {
+  const deadline = Date.now() + 120000;
+  const message = document.getElementById('billing-refresh-message');
+  async function checkBilling() {
+    if (Date.now() >= deadline) {
+      message.textContent = 'Setup is taking longer than expected. Refresh this page to check again.';
+      return;
+    }
+    if (!document.hidden) {
+      try {
+        const response = await fetch('{% url "billing_status" %}', {
+          credentials: 'same-origin', cache: 'no-store',
+          headers: {'Accept': 'application/json'}, signal: AbortSignal.timeout(5000)
+        });
+        if (response.redirected || response.status === 401 || response.status === 403) return;
+        if (response.ok && (await response.json()).ready) {
+          window.location.reload();
+          return;
+        }
+      } catch (error) {
+        // Retry transient errors until the bounded polling period ends.
+      }
+    }
+    window.setTimeout(checkBilling, 2000);
+  }
+  window.setTimeout(checkBilling, 2000);
+}());
+</script>
+{% endif %}
 {% endblock %}

@@ -70,6 +70,166 @@ a:link:active, a:visited:active {
   }
 }
 
+.gsi-material-button {
+  position: relative;
+  box-sizing: border-box;
+  display: inline-flex;
+  width: 100%;
+  align-items: center;
+  height: 40px;
+  padding: 0 12px;
+  overflow: hidden;
+  color: #1f1f1f;
+  font: 500 14px/20px 'Google Sans', Roboto, Arial, sans-serif;
+  letter-spacing: .25px;
+  border: 1px solid #747775;
+  border-radius: 999px;
+  background: #fff;
+  cursor: pointer;
+  transition: background-color .218s, border-color .218s, box-shadow .218s;
+}
+
+.gsi-material-button-content-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.gsi-material-button-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.gsi-material-button-contents {
+  flex-grow: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+}
+
+.gsi-material-button-state {
+  position: absolute;
+  inset: 0;
+  background: #303030;
+  opacity: 0;
+  transition: opacity .218s;
+}
+
+.gsi-material-button:hover {
+  box-shadow: 0 1px 3px rgba(60, 64, 67, .3);
+}
+
+.gsi-material-button:hover .gsi-material-button-state {
+  opacity: .08;
+}
+
+.gsi-material-button:active .gsi-material-button-state,
+.gsi-material-button:focus-visible .gsi-material-button-state {
+  opacity: .12;
+}
+
+.gsi-material-button:focus-visible {
+  outline: 2px solid #1a73e8;
+  outline-offset: 3px;
+}
+
+.subscription-card {
+  overflow-x: auto;
+  border: 1px solid #e2e6ea;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(24, 39, 55, .04);
+}
+
+.subscription-layout {
+  display: grid;
+  grid-template-columns: 130px minmax(180px, 1fr) auto;
+  column-gap: 24px;
+  align-items: center;
+  min-width: 560px;
+}
+
+.subscription-layout > div:first-child {
+  grid-column: 1;
+  grid-row: 1 / span 3;
+  display: block !important;
+  margin-bottom: 0 !important;
+}
+
+.subscription-layout > p {
+  grid-column: 2;
+  margin-bottom: 0 !important;
+}
+
+.subscription-layout > p:first-of-type {
+  grid-row: 1;
+}
+
+.subscription-layout > p:nth-of-type(2) {
+  grid-row: 2;
+}
+
+.subscription-layout > .subscription-actions {
+  grid-column: 3;
+  grid-row: 1 / span 3;
+  flex-wrap: nowrap !important;
+}
+
+.subscription-layout .subscription-actions button {
+  white-space: nowrap;
+}
+
+.subscription-card .badge {
+  padding: .45em .8em;
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+.subscription-actions {
+  margin: -.25rem;
+}
+
+.subscription-actions > * {
+  margin: .25rem;
+}
+
+@media (max-width: 575.98px) {
+  .subscription-layout {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: .5rem;
+    min-width: 0;
+  }
+
+  .subscription-layout > div:first-child {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .subscription-layout > p {
+    grid-column: 1;
+  }
+
+  .subscription-layout > p:first-of-type {
+    grid-row: 2;
+  }
+
+  .subscription-layout > p:nth-of-type(2) {
+    grid-row: 3;
+  }
+
+  .subscription-layout > .subscription-actions {
+    grid-column: 1;
+    grid-row: 4;
+    flex-wrap: wrap !important;
+    margin-top: .5rem;
+  }
+}
+
 /* Keep the footer full width and at the bottom of short pages. */
 body.app-layout {
   display: flex;

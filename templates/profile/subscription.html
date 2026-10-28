@@ -1,0 +1,64 @@
+<div class="row">
+<div class="col-12">
+<section class="card subscription-card mb-3" aria-labelledby="subscription-heading">
+  <div class="card-body p-3 subscription-layout">
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-1">
+      <h5 id="subscription-heading" class="mb-2 mr-3">Subscription</h5>
+      {% if profile.free_access %}
+        <span class="badge badge-success mb-2">Free access</span>
+      {% elif billing_pending %}
+        <span class="badge badge-info mb-2">Setting up</span>
+      {% elif passed_end_date %}
+        <span class="badge badge-danger mb-2">Expired</span>
+      {% elif profile.canceled %}
+        <span class="badge badge-warning mb-2">Canceled</span>
+      {% elif profile.trial %}
+        <span class="badge badge-success mb-2">Free trial</span>
+      {% elif profile.trial_expiring %}
+        <span class="badge badge-warning mb-2">Expiring soon</span>
+      {% else %}
+        <span class="badge badge-success mb-2">Active</span>
+      {% endif %}
+    </div>
+
+    {% if profile.free_access %}
+      <p class="mb-0">You have free access</p>
+    {% elif billing_pending %}
+      <p class="font-weight-bold mb-2">Your trial is being set up.</p>
+      <p class="text-muted mb-0"><span id="billing-refresh-message" role="status">This page will update automatically when your trial is ready.</span>
+        If setup does not finish, please <a href="mailto:support@direct2logbook.com">contact support</a>.</p>
+    {% elif passed_end_date %}
+      <p class="font-weight-bold mb-1">Subscription expired</p>
+      <p class="text-muted mb-3">Access ended {{ profile.end_date|date:"M d, Y" }}. Choose a plan to subscribe again.</p>
+      {% include 'profile/subscription_plans.html' %}
+    {% elif profile.trial %}
+      <p class="font-weight-bold mb-1">Free trial ends {{ profile.end_date|date:"M d, Y" }}</p>
+      <p class="text-muted mb-3">Choose a plan to continue after your trial.</p>
+      {% include 'profile/subscription_plans.html' %}
+    {% elif profile.trial_expiring %}
+      <p class="font-weight-bold mb-1">Trial expiring soon</p>
+      <p class="text-muted mb-3">Trial end date: {{ profile.end_date|date:"M d, Y" }}</p>
+      {% include 'profile/subscription_plans.html' %}
+    {% elif profile.canceled %}
+      <p class="font-weight-bold mb-1">Your subscription is canceled</p>
+      <p class="text-muted mb-3">You can use your logbook until {{ profile.end_date|date:"M d, Y" }}.</p>
+      {% include 'profile/subscription_plans.html' %}
+    {% else %}
+      <p class="font-weight-bold mb-1">Subscription active{% if profile.monthly %} · Monthly{% elif profile.yearly %} · Yearly{% endif %}</p>
+      <p class="text-muted mb-3">Next billing date: {{ profile.end_date|date:"M d, Y" }}</p>
+      <div class="d-flex flex-wrap align-items-center subscription-actions">
+        {% if profile.monthly %}
+          <button type="button" class="btn btn-outline-dark btn-sm" id="yearly">Switch to yearly</button>
+        {% elif profile.yearly %}
+          <button type="button" class="btn btn-outline-dark btn-sm" id="monthly">Switch to monthly</button>
+        {% endif %}
+        <form method="post" action="{% url 'subscription_canceled' %}" class="mb-0">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-link text-danger btn-sm">Cancel subscription</button>
+        </form>
+      </div>
+    {% endif %}
+  </div>
+</section>
+</div>
+</div>
