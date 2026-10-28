@@ -74,7 +74,7 @@ PyJWT==2.15.1
 python-crontab==2.4.0
 python-dateutil==2.9.0.post0
 python-decouple==3.8
-python-dotenv==1.1.1
+python-dotenv==1.2.2
 python3-openid==3.1.0
 pytz==2019.1
 reportlab==5.1.0
