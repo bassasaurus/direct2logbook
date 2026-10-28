@@ -10,7 +10,8 @@
 
     <h1>{% trans "Sign In" %}</h1>
     <hr>
-  <!-- social account goes here -->
+    {% trans "Or" as google_separator %}
+    {% include "account/snippets/google_button.html" with separator_text=google_separator %}
 
     <form class="login" method="POST" action="{% url 'account_login' %}">
       {% csrf_token %}
@@ -18,7 +19,7 @@
       <p>{{ form.login |add_class:"form-control" |attr:"placeholder:example@email.com"}}</p>
       {{ form.login.errors }}
       <p>{{ form.password |add_class:"form-control" |attr:"placeholder:password"}}</p>
-      {{ form.passord.errors }}
+      {{ form.password.errors }}
       {% if redirect_field_value %}
       <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
       {% endif %}

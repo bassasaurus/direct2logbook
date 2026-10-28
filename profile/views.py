@@ -10,6 +10,9 @@ import datetime
 from accounts.views import LoginRequiredMixin
 from logbook import settings
 from django.views import View
+from django.http import JsonResponse
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 from signature.models import Signature
 import base64
 
@@ -141,6 +144,16 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         context['page_title'] = 'Profile'
 
         return context
+
+
+@method_decorator(never_cache, name='dispatch')
+class BillingStatusView(LoginRequiredMixin, View):
+    def get(self, request):
+        profile = Profile.objects.get(user=request.user)
+        ready = profile.free_access or bool(
+            profile.customer_id and profile.subscription_id and profile.end_date
+        )
+        return JsonResponse({'ready': ready})
 
 
 class ProfileUpdateView(LoginRequiredMixin, OwnObjectProfileMixin, UpdateView):

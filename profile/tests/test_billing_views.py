@@ -90,3 +90,32 @@ class ProfileBillingStateTests(TestCase):
         self.assertNotContains(response, "Your trial is being set up.")
         self.assertNotContains(response, "redirectToCheckout")
         checkout.assert_not_called()
+
+    @patch('profile.views.stripe.checkout.Session.create')
+    def test_status_changes_when_own_trial_is_ready_without_stripe_calls(self, checkout):
+        url = reverse('billing_status')
+        response = self.client.get(url)
+        self.assertEqual(response.json(), {'ready': False})
+        self.assertIn('no-store', response['Cache-Control'])
+        self.profile.customer_id = 'cus_ready'
+        self.profile.subscription_id = 'sub_ready'
+        self.profile.end_date = date.today() + timedelta(days=30)
+        self.profile.save()
+        self.assertEqual(self.client.get(url).json(), {'ready': True})
+        checkout.assert_not_called()
+
+    def test_status_cannot_select_another_users_subscription(self):
+        other = get_user_model().objects.create_user(username='other_billing')
+        other.profile.free_access = True
+        other.profile.save()
+        response = self.client.get(reverse('billing_status'), {'user': other.pk})
+        self.assertEqual(response.json(), {'ready': False})
+
+    def test_status_requires_login(self):
+        self.client.logout()
+        self.assertEqual(self.client.get(reverse('billing_status')).status_code, 302)
+
+    def test_status_is_ready_for_free_access(self):
+        self.profile.free_access = True
+        self.profile.save()
+        self.assertEqual(self.client.get(reverse('billing_status')).json(), {'ready': True})

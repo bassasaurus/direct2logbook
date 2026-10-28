@@ -1,0 +1,13 @@
+Hi {{ first_name|default:"there" }},
+
+Google sign-in has been successfully linked to your existing Direct2Logbook account.
+You can now sign in using the Google account you just connected. Your existing
+logbook and subscription have not changed.
+
+Review your connected accounts here:
+{{ connections_url }}
+
+If you did not make this change, sign in to review your connected accounts and
+contact support@direct2logbook.com immediately.
+
+The Direct2Logbook team

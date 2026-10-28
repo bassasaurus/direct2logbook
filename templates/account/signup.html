@@ -6,10 +6,14 @@
 {% block head_title %}{% trans "Signup" %}{% endblock %}
 
 {% block account_content %}
-<h1>{% trans "Sign Up" %}</h1>
+<div class="d-flex flex-wrap justify-content-between align-items-baseline">
+  <h1 class="mb-0">{% trans "Sign Up" %}</h1>
+  <p class="mb-0 ml-auto text-right">{% blocktrans %}Already have an account?<a href="{{ login_url }}"> Sign in</a>.{% endblocktrans %}</p>
+</div>
 <hr>
 
-<p>{% blocktrans %}Already have an account?<a href="{{ login_url }}"> Sign in</a>.{% endblocktrans %}</p>
+{% trans "Or sign up below" as google_separator %}
+{% include "account/snippets/google_button.html" with separator_text=google_separator %}
 
 <form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
   {% csrf_token %}
