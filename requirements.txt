@@ -23,7 +23,7 @@ cron-descriptor==1.4.5
 cryptography==41.0.1
 defusedxml==0.6.0
 dj-database-url==3.0.1
-Django==5.2
+Django==5.2.18
 django-allauth==65.9.0
 django-anymail==13.1
 django-autocomplete-light==3.12.1
