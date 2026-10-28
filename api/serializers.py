@@ -120,7 +120,11 @@ class FlightSerializer(serializers.ModelSerializer):
                 if not isinstance(row, dict) or row.get('number') != '']
         nested = FlightApproachWriteSerializer(data=rows, many=True)
         if not nested.is_valid():
-            raise serializers.ValidationError({'approaches': nested.errors})
+            errors = nested.errors
+            # Preserve the mobile API's row-indexed list contract across DRF 3.18.
+            if isinstance(errors, dict) and all(isinstance(key, int) for key in errors):
+                errors = [errors.get(index, {}) for index in range(len(rows))]
+            raise serializers.ValidationError({'approaches': errors})
 
         self._validated_approaches = nested.validated_data
         current_flight_id = self.instance.pk if self.instance is not None else None

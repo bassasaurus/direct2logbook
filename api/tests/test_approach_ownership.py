@@ -53,6 +53,17 @@ class FlightApproachOwnershipTests(APITestCase):
         self.assertEqual(self.other_approach.approach_type, 'ILS')
         self.assertEqual(self.other_approach.flight_object_id, self.other_flight.pk)
 
+    def test_invalid_approach_keeps_mobile_row_indexed_error_list(self):
+        response = self.patch_approaches([
+            {'approach_type': 'ILS', 'number': 1},
+            {'approach_type': 'ILS', 'number': 'not-a-count'},
+        ])
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertIsInstance(response.data['approaches'], list)
+        self.assertEqual(response.data['approaches'][0], {})
+        self.assertIn('number', response.data['approaches'][1])
+        self.assertEqual(Approach.objects.filter(flight_object=self.flight).count(), 1)
+
     def test_same_users_other_flight_approach_is_rejected(self):
         response = self.patch_approaches([
             {'id': self.sibling_approach.pk, 'approach_type': 'GPS', 'number': 3},
