@@ -1,0 +1,22 @@
+#!/bin/bash
+set -eu
+
+APP_DIR=/home/blakepowell/app
+GUNICORN_USER=blakepowell
+GUNICORN_GROUP=blakepowell
+
+cd "$APP_DIR"
+export DJANGO_SETTINGS_MODULE=logbook.settings
+export PYTHONPATH="$APP_DIR${PYTHONPATH:+:$PYTHONPATH}"
+
+exec /home/blakepowell/venv/bin/gunicorn logbook.wsgi:application \
+  --name logbook \
+  --workers 3 \
+  --worker-class sync \
+  --user="$GUNICORN_USER" \
+  --group="$GUNICORN_GROUP" \
+  --bind=unix:/home/blakepowell/run/gunicorn.sock \
+  --no-control-socket \
+  --log-level=debug \
+  --log-file=- \
+  "$@"
