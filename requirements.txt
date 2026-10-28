@@ -84,7 +84,7 @@ s3transfer==0.13.0
 sentry-sdk==2.73.0
 six==1.17.0
 snowballstemmer==2.0.0
-soupsieve==1.9.4
+soupsieve==2.9
 sqlparse==0.5.3
 stripe==5.5.0
 tokenize_rt==6.2.0
