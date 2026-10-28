@@ -26,7 +26,6 @@ django-anymail==13.1
 django-autocomplete-light==3.12.1
 django-celery-beat==2.8.1
 django-columns==0.1.0
-django-debug-toolbar==2.2
 django-extensions==4.1
 django-extra-views==0.16.0
 django-picklefield==3.3
@@ -42,7 +41,6 @@ djangorestframework==3.18.3
 docutils==0.15.2
 dotenv==0.9.9
 egg==0.2.0
-future==0.18.0
 gunicorn==26.2.0
 huey==2.3.0
 idna==3.20
@@ -50,7 +48,6 @@ importlib-metadata==10.1.0
 isort==4.3.21
 jedi==0.14.1
 jmespath==1.0.1
-jsonpickle==1.2
 kombu==5.5.4
 mccabe==0.6.1
 more-itertools==7.2.0

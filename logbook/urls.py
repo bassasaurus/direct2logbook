@@ -47,9 +47,3 @@ handler400 = error_400
 handler403 = error_403
 handler404 = error_404
 handler500 = error_500
-
-# if settings.DEBUG:
-#     import debug_toolbar
-#     urlpatterns = [
-#         path('__debug__/', include(debug_toolbar.urls)),
-#     ] + urlpatterns
