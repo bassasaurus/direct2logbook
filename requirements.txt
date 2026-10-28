@@ -26,7 +26,7 @@ django-anymail==13.1
 django-autocomplete-light==3.12.1
 django-celery-beat==2.8.1
 django-columns==0.1.0
-django-debug-toolbar==2.2
+django-debug-toolbar==2.2.1
 django-extensions==4.1
 django-extra-views==0.16.0
 django-picklefield==3.3
