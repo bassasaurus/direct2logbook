@@ -582,6 +582,11 @@ def _build_pdf(user):
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
         ('LINEBELOW', (0, 0), (-1, -1), .25, colors.black),
         ('ALIGN', (4, 0), (-1, -1), 'RIGHT'),
+        ('RIGHTPADDING', (0, 0), (0, -1), 10),
+        ('LEFTPADDING', (1, 0), (1, -1), 8),
+        ('RIGHTPADDING', (2, 0), (2, -1), 10),
+        ('LEFTPADDING', (3, 0), (3, -1), 8),
+        ('RIGHTPADDING', (3, 0), (3, -1), 10),
         # Add padding to numeric columns to prevent overlap for large numbers
         ('RIGHTPADDING', (4, 0), (-1, -1), 8),
         ('LEFTPADDING', (4, 0), (-1, -1), 6),
@@ -594,12 +599,8 @@ def _build_pdf(user):
         for idx in [4, 5, 6, 7]:  # Block, PIC, SIC, XC
             col_widths[idx] += 10
 
-        # Ensure table fits within available width (11 inch landscape)
-        total_width = sum(col_widths)
-        available_width = doc.width
-        if total_width > available_width:
-            scale = available_width / total_width
-            col_widths = [w * scale for w in col_widths]
+        # Keep natural widths: PageWidthTable scales text, padding and columns
+        # together. Shrinking columns alone makes dates overlap aircraft types.
 
     numeric_cols = [4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17, 18]
 
@@ -641,7 +642,7 @@ def _build_pdf(user):
         if is_first:
             story.append(header_para)
             story.append(Spacer(1, first_spacer_h))
-        story.append(this_page_table)
+        story.append(PageWidthTable(this_page_table))
         # --- Compute page totals (footer) for this page ---
         footer_vals = ['Current page'] + \
             ['' for _ in range(len(logbook_header)-1)]
@@ -712,7 +713,7 @@ def _build_pdf(user):
         ]))
         # Insert a fixed spacer to separate table and footer
         story.append(Spacer(1, 0.1 * inch))
-        story.append(footer_table)
+        story.append(PageWidthTable(footer_table))
         if not is_last:
             story.append(PageBreak())
 
