@@ -12,9 +12,9 @@ stale at 3.7.6 and is corrected, but runtime.txt does not install Python on this
 native Supervisor deployment. Python 3.12 has upstream security support to Oct 2028.
 
 - Pillow 13.0.0 addresses remaining 12.3.0 advisory matches and needs >=3.11.
-- Native packages updated for Python 3.12 wheels: NumPy 2.5.4, pandas 3.1.0,
-  lxml 6.1.3, psycopg2-binary 2.9.13. pandas is only imported in the legacy Flica
-  scraper; that scraper was not executed (it initiates real external requests).
+- Native packages updated for Python 3.12 wheels included psycopg2-binary 2.9.13,
+  NumPy, pandas and lxml. The latter three were subsequently removed with the
+  obsolete scraper that was their only application consumer.
 - six 1.17.0, python-decouple 3.8, importlib-metadata 10.1.0 and zipp 4.1.2
   replace versions relying on removed Python internals. The old six and decouple
   caused real startup failures in the rehearsal; these were fixed, not ignored.
