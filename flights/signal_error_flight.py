@@ -16,7 +16,7 @@ def map_error(sender, instance, dispatch_uid='map_error', **kwargs):
     icao = MapData.objects.values_list('icao', flat=True)
     iata = MapData.objects.values_list('iata', flat=True)
 
-    route = re.split('\W+', instance.route)
+    route = re.split(r'\W+', instance.route)
 
     for code in route:
         if code not in icao and code not in iata:
@@ -39,7 +39,7 @@ def duplicate_error(sender, instance, dispatch_uid='duplicate_error', **kwargs):
     iata = MapData.objects.values_list('iata', flat=True)
     iata = list(iata)
 
-    route = re.split('\W+', instance.route)
+    route = re.split(r'\W+', instance.route)
 
     for code in route:
         if iata.count(code) > 1:

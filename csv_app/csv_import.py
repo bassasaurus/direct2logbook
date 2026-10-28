@@ -18,7 +18,7 @@ from django.core.mail import EmailMessage
 def save_route_data(user, route):
 
     route_data = []
-    route = re.split('\W+', route)  # separate individual codes
+    route = re.split(r'\W+', route)  # separate individual codes
 
     icao = MapData.objects.values_list('icao', flat=True)
     iata = MapData.objects.values_list('iata', flat=True)

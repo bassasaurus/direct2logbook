@@ -10,7 +10,7 @@ def save_route_data(sender, instance, dispatch_uid='save_route_data', **kwargs):
     user = instance.user
 
     route_data = []
-    route = re.split('\W+', instance.route)  # separate individual codes
+    route = re.split(r'\W+', instance.route)  # separate individual codes
 
     icao = MapData.objects.values_list('icao', flat=True)
     iata = MapData.objects.values_list('iata', flat=True)
