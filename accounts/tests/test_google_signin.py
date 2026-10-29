@@ -7,6 +7,7 @@ from allauth.socialaccount.providers.google.provider import GoogleProvider
 from django.contrib.auth import get_user_model
 from django.contrib.sites.models import Site
 from django.core import mail
+from django.core.cache import cache
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
@@ -15,6 +16,7 @@ from django.urls import reverse
                    EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
 class GoogleSigninTests(TestCase):
     def setUp(self):
+        cache.clear()
         welcome = patch('accounts.signals.send_google_welcome.apply_async')
         self.welcome = welcome.start()
         self.addCleanup(welcome.stop)

@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Django and JavaScript
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ci-only-password
+          POSTGRES_DB: direct2logbook_ci
+        ports: [5432:5432]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DJANGO_SETTINGS_MODULE: logbook.settings_ci
+      DATABASE_URL: postgres://postgres:ci-only-password@localhost:5432/direct2logbook_ci
+      BROKER_URL: memory://
+      UV_CACHE_DIR: /tmp/direct2logbook-uv-cache
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12.16'
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '22'
+      - name: Install exact application dependencies
+        run: |
+          python -m venv "$RUNNER_TEMP/ci-tools"
+          "$RUNNER_TEMP/ci-tools/bin/python" -m pip install 'uv==0.13.6'
+          python -m venv .venv
+          "$RUNNER_TEMP/ci-tools/bin/uv" pip sync --python .venv/bin/python requirements.txt
+          "$RUNNER_TEMP/ci-tools/bin/uv" pip check --python .venv/bin/python
+      - name: Check Django, migrations, tests and static files
+        run: |
+          .venv/bin/python -m pip check
+          .venv/bin/python manage.py check
+          .venv/bin/python manage.py makemigrations --check --dry-run
+          .venv/bin/python manage.py test --noinput
+          .venv/bin/python manage.py migrate --noinput
+          .venv/bin/python manage.py collectstatic --noinput
+          node --test flights/tests/js/*.test.js
+      - name: Check deployment script syntax
+        run: |
+          bash -n deploy/production.sh
+          shellcheck deploy/production.sh

@@ -106,7 +106,7 @@ ENV/
 .rdb
 
 .idea/
-.github/
+.venv/
 
 # user files
 media/
