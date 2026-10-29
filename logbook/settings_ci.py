@@ -22,7 +22,7 @@ _defaults = {
     'SENTRY_DSN': '',
     'STRIPE_TEST_SECRET_KEY': 'sk_test_ci_only',
     'STRIPE_TRIAL_PLAN_TEST': 'plan_ci_trial',
-    'STRIPE_PUBLISHABLE_KEY': 'pk_test_ci_only',
+    'STRIPE_TEST_PUBLISHABLE_KEY': 'pk_test_ci_only',
     'ENDPOINT_TEST_SECRET': 'whsec_ci_only',
     'PLAN_MONTHLY_TEST': 'plan_ci_monthly',
     'PLAN_YEARLY_TEST': 'plan_ci_yearly',
