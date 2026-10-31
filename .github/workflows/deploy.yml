@@ -61,3 +61,5 @@ jobs:
             -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$hosts_file" \
             -o ConnectTimeout=15 "$DEPLOY_USER@$DEPLOY_HOST" \
             "bash -s -- '$GITHUB_SHA'" < deploy/production.sh
+      - name: Check production pages and static assets
+        run: python3 deploy/smoke.py

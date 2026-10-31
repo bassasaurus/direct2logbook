@@ -166,3 +166,37 @@ Keep the off-server backup and existing restore procedure available.
 - https://docs.github.com/en/actions/tutorials/use-containerized-services/create-postgresql-service-containers
 - https://docs.github.com/en/actions/concepts/workflows-and-actions/deployment-environments
 - https://docs.astral.sh/uv/pip/sync/
+
+## Post-deployment smoke checks
+
+After the SSH deployment succeeds, Actions runs `python3 deploy/smoke.py` from the
+GitHub runner. It checks the public login/signup forms, signup reCAPTCHA, linked
+same-origin CSS/JavaScript, and anonymous redirects for home and CSV upload.
+Requests use HTTPS certificate verification and a 15-second timeout each. Missing
+content, unexpected redirects, and unavailable assets fail the workflow with the
+failed check in its log. This checks HTTP content, not browser rendering or Google
+verification. It does not log in, submit forms, create users, send email, or queue jobs.
+
+A smoke-check failure occurs **after deployment**: the new code stays running.
+Inspect the failing URL and server logs; do not assume a red workflow rolled back.
+The earlier server-side deployment failure handling remains unchanged.
+
+For a manual check from your Mac:
+
+```bash
+python deploy/smoke.py
+```
+
+After changes affecting authenticated flows, use a dedicated test account and:
+
+1. Sign up and complete email verification (or use Google); confirm trial details.
+2. Sign out and sign back in.
+3. Create a test flight and confirm it appears correctly in the logbook.
+4. Preview and confirm a small CSV import; wait for the completion message and
+   verify the imported records, then delete the test records.
+5. Request a logbook PDF; confirm the live status completes and the email arrives
+   with a readable attachment.
+
+These authenticated checks remain manual until a dedicated production test account
+and cleanup procedure are configured. Automated read-only checks do not prove
+Celery processing, Stripe provisioning, or actual email delivery.
