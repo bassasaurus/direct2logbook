@@ -56,6 +56,11 @@ SITE_ID = 8
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', cast=Csv())
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+# Production is reachable through Nginx -> Gunicorn's private Unix socket.
+# Nginx appends its peer to X-Forwarded-For; trust only that rightmost entry.
+ALLAUTH_TRUSTED_PROXY_COUNT = config(
+    'ALLAUTH_TRUSTED_PROXY_COUNT', default=0 if DEBUG else 1, cast=int,
+)
 # Identify the site to external map tiles without sharing page paths.
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 CSRF_USE_SESSIONS = True

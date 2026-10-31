@@ -200,3 +200,17 @@ After changes affecting authenticated flows, use a dedicated test account and:
 These authenticated checks remain manual until a dedicated production test account
 and cleanup procedure are configured. Automated read-only checks do not prove
 Celery processing, Stripe provisioning, or actual email delivery.
+
+## Allauth client IP behind Nginx
+
+Production defaults `ALLAUTH_TRUSTED_PROXY_COUNT` to 1; development defaults to 0.
+The environment variable of the same name can override this for another topology.
+This matches Nginx's `proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for`
+and Gunicorn's private Unix socket. Allauth uses the rightmost forwarded address,
+which Nginx appends, rather than trusting a visitor-supplied prefix. Keep Gunicorn
+inaccessible directly from the Internet. Revisit this setting if the proxy chain
+changes; do not disable rate limiting to resolve IP detection errors.
+
+Without this configuration, a Unix-socket request can have no `REMOTE_ADDR`, and
+allauth rejects authentication with `Unable to determine client IP address` (403).
+After deploying, verify email/password login in a fresh browser session.
