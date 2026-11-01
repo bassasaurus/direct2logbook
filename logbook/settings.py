@@ -449,3 +449,6 @@ DB_BACKUP_SENTRY_MONITOR_SLUG = config('DB_BACKUP_SENTRY_MONITOR_SLUG', default=
 DISK_ALERT_EMAIL = config('DISK_ALERT_EMAIL', default=DB_BACKUP_ALERT_EMAIL)
 DISK_ALERT_STATE_DIR = config('DISK_ALERT_STATE_DIR',
     default=os.path.join(DB_BACKUP_STATE_DIR, 'disk-monitor') if DB_BACKUP_STATE_DIR else '')
+
+# Explicitly enable production background-job alerts; no default recipient locally.
+BACKGROUND_JOB_ALERT_EMAIL = config('BACKGROUND_JOB_ALERT_EMAIL', default='')

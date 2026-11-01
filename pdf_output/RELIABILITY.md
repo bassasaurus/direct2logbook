@@ -188,3 +188,11 @@ Verify those paths and inspect the log after the first run. It reports counts;
 nonzero recoveries also log a warning through `django.pdf_output`. Include the new
 log in server log rotation. This command has no email alerting and depends on cron
 and the database; complete infrastructure outages need independent monitoring.
+
+## Operational email alerts
+
+The separate `check_background_jobs` command now reports failed/stalled PDF
+requests and unresolved delivery uncertainty in a combined operator email digest.
+The reconciliation command itself still does not send alerts or replay jobs.
+See [background-job monitoring](../docs/BACKGROUND_JOB_MONITORING.md) for the
+recipient, five-minute cron entry, hourly cooldown, and production verification.

@@ -116,3 +116,10 @@ the message does not guarantee inbox delivery. This monitor depends on the app
 database, scheduler, and email service; retain Stripe delivery monitoring for
 failures before Django runs, invalid signing secrets, or a complete server outage.
 Failure metadata and receipts are retained until explicitly cleaned up.
+
+## Trial-provisioning alerts
+
+Trial provisioning is distinct from incoming Stripe webhooks. Its new pending
+records and unresolved failed/stalled attempts are covered by the separate
+`check_background_jobs` command. The webhook monitor remains unchanged.
+See [background-job monitoring](../docs/BACKGROUND_JOB_MONITORING.md).
