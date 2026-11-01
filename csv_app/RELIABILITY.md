@@ -124,3 +124,10 @@ Before the manual check, restart the local Celery worker with the updated code.
 Then inspect a disposable sample and confirm that POST queues it, progress updates,
 exactly one import commits, and a repeat confirmation returns the receipt. Do not
 import fictional sample flights into a production user's live logbook.
+
+## Operational email alerts
+
+The separate `check_background_jobs` command reports recent failed imports and
+stalled queued/processing jobs in a combined operator email digest. It does not
+import, replay, or close batches; retain the existing cleanup command.
+See [background-job monitoring](../docs/BACKGROUND_JOB_MONITORING.md) for setup.

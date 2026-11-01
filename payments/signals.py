@@ -7,6 +7,7 @@ from django.db import transaction
 from django.dispatch import receiver
 from kombu.exceptions import OperationalError
 
+from payments.models import BillingProvisioning
 from payments.tasks import provision_trial_task
 
 
@@ -34,6 +35,8 @@ def queue_trial_after_email_confirmation(sender, request, email_address, **kwarg
     if not email_address.verified:
         return
 
+    # Persist queue intent before commit, so a lost publication can be monitored.
+    BillingProvisioning.objects.using(email_address._state.db).get_or_create(user_id=email_address.user_id)
     transaction.on_commit(
         partial(publish_trial_provisioning, email_address.user_id),
         using=email_address._state.db,
@@ -47,4 +50,5 @@ def queue_trial_after_verified_google_signup(sender, request, user, sociallogin=
         return
     if not EmailAddress.objects.filter(user=user, email=user.email, verified=True).exists():
         return
+    BillingProvisioning.objects.using(user._state.db).get_or_create(user_id=user.pk)
     transaction.on_commit(partial(publish_trial_provisioning, user.pk), using=user._state.db)

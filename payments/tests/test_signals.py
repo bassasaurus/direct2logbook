@@ -7,6 +7,8 @@ from django.db import transaction
 from django.test import RequestFactory, TestCase
 from kombu.exceptions import OperationalError
 
+from payments.models import BillingProvisioning
+
 
 class EmailConfirmedProvisioningTests(TestCase):
     def setUp(self):
@@ -34,6 +36,9 @@ class EmailConfirmedProvisioningTests(TestCase):
         with self.captureOnCommitCallbacks(execute=True) as callbacks:
             self.send_confirmation()
             delay.assert_not_called()
+            self.assertTrue(BillingProvisioning.objects.filter(
+                user=self.user, status=BillingProvisioning.Status.PENDING,
+            ).exists())
 
         self.assertEqual(len(callbacks), 1)
         delay.assert_called_once_with(args=(self.user.pk,), retry=False)
@@ -47,6 +52,7 @@ class EmailConfirmedProvisioningTests(TestCase):
 
         self.assertEqual(callbacks, [])
         delay.assert_not_called()
+        self.assertFalse(BillingProvisioning.objects.filter(user=self.user).exists())
 
     @patch("payments.signals.provision_trial_task.apply_async")
     def test_unverified_email_does_not_queue(self, delay):
@@ -92,6 +98,9 @@ class EmailConfirmedProvisioningTests(TestCase):
 
         self.email_address.refresh_from_db()
         self.assertTrue(self.email_address.verified)
+        self.assertTrue(BillingProvisioning.objects.filter(
+            user=self.user, status=BillingProvisioning.Status.PENDING,
+        ).exists())
         publish.assert_called_once_with(args=(self.user.pk,), retry=False)
         provision.assert_not_called()
         self.assertEqual(following_callback, [True])
