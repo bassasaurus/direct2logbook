@@ -5,7 +5,7 @@ from django.db.models import Q
 
 from django.core.exceptions import ObjectDoesNotExist
 from flights.queryset_helpers import avoid_none
-from flights.rolling_stats import assign_rolling_values
+from flights.rolling_stats import assign_rolling_values, normalize_total_category
 from django.dispatch import receiver
 
 
@@ -66,7 +66,9 @@ def total_all_update(sender, instance, dispatch_uid="total_all_update", **kwargs
     total = Total.objects.filter(user=instance.user)
 
     for object in total:
-        key = str(object.total)
+        key = normalize_total_category(object.total)
+        if key is None:
+            continue  # Preserve unsupported legacy rows for operator review.
         flight = flight_queries[key]
         imported = imported_queries[key]
 

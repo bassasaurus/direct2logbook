@@ -24,6 +24,12 @@ CATEGORY_FILTERS = {
 }
 
 
+def normalize_total_category(label):
+    category = label.strip().upper()
+    category = 'All' if category == 'ALL' else category
+    return category if category in CATEGORY_FILTERS else None
+
+
 def rolling_values(flights, imported, as_of=None):
     as_of = as_of or timezone.localdate()
     bounds = {field: as_of - timedelta(days=days) for field, days in WINDOW_DAYS.items()}
@@ -55,7 +61,7 @@ def refresh_rolling_stats(as_of=None, user_id=None, dry_run=False):
     if user_id is not None:
         stats = stats.filter(user_id=user_id)
         totals = totals.filter(user_id=user_id)
-    counts = {'stats': 0, 'totals': 0}
+    counts = {'stats': 0, 'totals': 0, 'skipped_total_ids': []}
     users = stats.order_by().values_list('user_id', flat=True).union(
         totals.order_by().values_list('user_id', flat=True))
     for owner_id in users.iterator():
@@ -72,9 +78,13 @@ def refresh_rolling_stats(as_of=None, user_id=None, dry_run=False):
                     if isinstance(summary, Stat):
                         scope = Q(aircraft_type__aircraft_type=summary.aircraft_type)
                     else:
-                        if summary.total not in CATEGORY_FILTERS:
-                            raise ValueError('Unrecognized Total category; no fields updated for this user.')
-                        scope = CATEGORY_FILTERS[summary.total]
+                        category = normalize_total_category(summary.total)
+                        if category is None:
+                            # Unknown labels have no safe filtering rule. Preserve
+                            # their data and report them without blocking other rows.
+                            counts['skipped_total_ids'].append(summary.pk)
+                            continue
+                        scope = CATEGORY_FILTERS[category]
                     values = rolling_values(
                         Flight.objects.filter(user_id=owner_id).filter(scope),
                         Imported.objects.filter(user_id=owner_id).filter(scope), as_of,
