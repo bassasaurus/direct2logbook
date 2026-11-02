@@ -20,10 +20,21 @@ jobs:
           REF: ${{ github.ref }}
         run: test "$REF" = refs/heads/master
   verify:
+    name: Verify existing master CI
     needs: branch
-    uses: ./.github/workflows/ci.yml
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
     permissions:
       contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - name: Require passed CI for this exact master commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 deploy/verify_ci.py
   deploy:
     name: Deploy verified commit
     needs: verify
