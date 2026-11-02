@@ -188,14 +188,14 @@ class FlightArchiveMonth(LoginRequiredMixin, ProfileNotActiveMixin, MonthArchive
     allow_future = False
 
     def get_queryset(self):
-        queryset = Flight.objects.filter(user=self.request.user)
+        queryset = Flight.objects.filter(user=self.request.user).select_related('registration')
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super(FlightArchiveMonth, self).get_context_data(**kwargs)
         user = self.request.user
-        object_list = self.object_list.filter(user=user)
-        context['flight_map'] = flight_map_data(object_list)
+        # Reuse the owner-scoped date-filtered queryset that the template renders.
+        context['flight_map'] = flight_map_data(self.object_list)
 
         context['title'] = "D-> | Flights by Month"
         context['home_link'] = reverse('home')
@@ -234,7 +234,10 @@ class FlightList(LoginRequiredMixin, ProfileNotActiveMixin, ListView):
     paginate_by = 40
 
     def get_queryset(self):
-        return Flight.objects.filter(user=self.request.user).order_by('-date')
+        return (Flight.objects.filter(user=self.request.user)
+                .select_related('aircraft_type', 'registration')
+                .prefetch_related('approach_set', 'holding_set')
+                .order_by('-date'))
 
     def get_context_data(self, **kwargs):
         context = super(FlightList, self).get_context_data(**kwargs)
