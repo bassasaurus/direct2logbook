@@ -1,0 +1,11 @@
+<nav class="detail-action-toolbar" aria-label="Record actions">
+  <span class="detail-record-actions">
+    <a href="{{ update_url }}" class="detail-update {% if detail_has_errors %}btn btn-outline-danger{% else %}text-primary{% endif %}">Update</a>
+    <a href="{{ delete_url }}" class="text-danger detail-delete">Delete</a>
+  </span>
+  <span class="detail-toolbar-divider" aria-hidden="true"></span>
+  <span class="detail-navigation-actions">
+    <a href="{% url 'flight_create' %}">New Flight</a>
+    {% if show_remarks %}<a href="{% url 'remarks' %}">Remarks</a>{% endif %}
+  </span>
+</nav>

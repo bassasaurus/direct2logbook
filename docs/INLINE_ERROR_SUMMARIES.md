@@ -37,7 +37,8 @@ Messages and route strings are escaped normally by Django templates.
 These notices appear above the record and map instead of opening an overlay.
 The existing contextual Update action has a red outline when the notice is
 present and is a plain blue link otherwise. Delete stays red and the same text
-size in both states, with a 10px gap between the actions. The notices do not
+size in both states, with consistent gaps between actions. Record actions and navigation are grouped
+by a subtle divider, without pipe characters; the toolbar wraps on narrow screens. The notices do not
 duplicate the Update action.
 They flag record completeness/airport lookup issues; they do not certify the
 operational validity of a flight, prevent saving, or change logged time.

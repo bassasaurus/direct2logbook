@@ -259,13 +259,12 @@ body.app-layout {
 .detail-record-actions {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  margin-right: 22px;
+  gap: 12px;
 }
 
 .detail-record-actions .detail-update {
   display: inline-block;
-  padding: 5px 12px;
+  padding: 4px 10px;
   border: 1px solid transparent;
   border-radius: .25rem;
   font: inherit;
@@ -277,4 +276,29 @@ body.app-layout {
 
 .detail-record-actions .detail-delete {
   font: inherit;
+}
+
+.detail-action-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.detail-navigation-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.detail-toolbar-divider {
+  flex: 0 0 1px;
+  height: 22px;
+  background: #ced4da;
+}
+
+@media (max-width: 420px) {
+  .detail-action-toolbar { gap: 10px; }
+  .detail-toolbar-divider { display: none; }
+  .detail-navigation-actions { flex-basis: 100%; }
 }

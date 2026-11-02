@@ -6,12 +6,14 @@ or a remembered account-wide preference.
 
 ## Selection rules
 
-- Three-character code with one distinct US airport match: select that airport
-  without a warning. A US match means country, after trimming/case normalization,
+- A code with one distinct airport match: select that airport without a warning,
+  regardless of country. BOG, KIN and SDQ therefore pass when unambiguous.
+- For a three-character code with several distinct matches, prefer US matches.
+  With one US match, select it automatically. A US match means country, after trimming/case normalization,
   is `United States`. Other matching countries are not selected by this code.
 - Several distinct US matches: ask the user to select among those US airports.
-- Three-character code with no US match: ask the user to confirm the matching
-  non-US airport, even when there is only one candidate.
+- Several distinct matches with no US match: ask the user to choose among
+  those airports.
 - Four-character code: match ICAO directly, including non-US airports.
 - No match: retain the unknown-code warning so the route can be corrected.
 
@@ -96,8 +98,7 @@ python manage.py test flights.tests.test_airport_resolution flights.tests.test_i
 python manage.py makemigrations --check --dry-run
 ```
 
-Coverage includes the BQN/BBG/LBX cases, duplicate airport rows, non-US single
-matches, direct four-character matches, multiple US candidates, per-occurrence
+Coverage includes the BQN/BBG/LBX cases, duplicate airport rows, unambiguous international matches, direct four-character matches, multiple US candidates, per-occurrence
 choices, ownership/CSRF protection, stale forms, invalid IDs, route edits, review,
 web/app/CSV consistency, legacy map refresh, and map generation without recursive
 Flight saves. No tests send customer mail or call a geolocation service.
