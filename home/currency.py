@@ -18,15 +18,12 @@ helo_query = Q(aircraft_type__aircraft_category='R') & Q(
 gyro_query = Q(aircraft_type__aircraft_category='R') & Q(
     aircraft_type__aircraft_class='GYRO')
 
-today = datetime.date.today()
-last_2yr = today - datetime.timedelta(days=730)
-last_90 = today - datetime.timedelta(days=90)
-
-type_rating = Q(aircraft_type__requires_type=True) & Q(date__gte=last_2yr)
-
-
 # type currency
 def type_currency(user):
+    today = datetime.date.today()
+    last_90 = today - datetime.timedelta(days=90)
+    last_2yr = today - datetime.timedelta(days=730)
+    type_rating = Q(aircraft_type__requires_type=True, date__gte=last_2yr, date__lte=today)
 
     flights = Flight.objects.filter(user=user).filter(type_rating)
 
@@ -312,7 +309,7 @@ def medical_duration(user):  # still need to start calculations from next month 
             day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
 
     else:
-        expiry_date = today - datetime.timedelta(days=1)
+        expiry_date = current_date - datetime.timedelta(days=1)
 
 # ------------------------------------
 
