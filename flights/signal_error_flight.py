@@ -1,55 +1,15 @@
-from flights.models import Flight, MapData
+from flights.models import Flight
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-import re
+from flights.error_checks import route_warning_values
 
 
-@receiver(post_save, sender=Flight)
-def map_error(sender, instance, dispatch_uid='map_error', **kwargs):
-
-    user = instance.user
-
-    errors = ''
-    message = ''
-
-    # search against tuples
-    icao = MapData.objects.values_list('icao', flat=True)
-    iata = MapData.objects.values_list('iata', flat=True)
-
-    route = re.split(r'\W+', instance.route)
-
-    for code in route:
-        if code not in icao and code not in iata:
-            errors = errors + code + ', '
-            message = errors + " Not in database"
-        else:
-            message = ''
-
-    Flight.objects.filter(user=user).filter(pk=instance.pk).update(map_error=message)
-
-
-@receiver(post_save, sender=Flight)
-def duplicate_error(sender, instance, dispatch_uid='duplicate_error', **kwargs):
-
-    user = instance.user
-
-    errors = ''
-
-    # search against tuple
-    iata = MapData.objects.values_list('iata', flat=True)
-    iata = list(iata)
-
-    route = re.split(r'\W+', instance.route)
-
-    for code in route:
-        if iata.count(code) > 1:
-            # print(code, iata.count(code))
-            errors = errors + code + ', '
-            message = errors + " Duplicate in database"
-        else:
-            message = ''
-
-    Flight.objects.filter(user=user).filter(pk=instance.pk).update(duplicate_error=message)
+@receiver(post_save, sender=Flight, dispatch_uid='flight_route_warnings')
+def update_route_warnings(sender, instance, **kwargs):
+    values = route_warning_values(instance.route)
+    Flight.objects.filter(user_id=instance.user_id, pk=instance.pk).update(**values)
+    for field, value in values.items():
+        setattr(instance, field, value)
 
 
 @receiver(post_save, sender=Flight)

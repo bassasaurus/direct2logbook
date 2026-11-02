@@ -1,0 +1,8 @@
+{% if flight.has_errors %}
+<section class="alert alert-danger" aria-label="Flight errors">
+  <h5>Please correct the following errors</h5>
+  <ul class="pl-3">
+    {% for error in flight.validation_errors %}<li>{{ error }}</li>{% endfor %}
+  </ul>
+</section>
+{% endif %}

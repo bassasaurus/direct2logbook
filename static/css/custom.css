@@ -248,3 +248,33 @@ body.app-layout {
   width: 100%;
   max-width: none;
 }
+
+/* Keep error text visible when table cells or their contents define colors. */
+#logbook tr.logbook-row-error td,
+#logbook tr.logbook-row-error small {
+  color: #dc3545;
+}
+
+/* Stable, equal-sized detail actions; only an erroneous Update is outlined. */
+.detail-record-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: 22px;
+}
+
+.detail-record-actions .detail-update {
+  display: inline-block;
+  padding: 5px 12px;
+  border: 1px solid transparent;
+  border-radius: .25rem;
+  font: inherit;
+}
+
+.detail-record-actions .detail-update.btn-outline-danger {
+  border-color: #dc3545;
+}
+
+.detail-record-actions .detail-delete {
+  font: inherit;
+}

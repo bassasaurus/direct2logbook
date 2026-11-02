@@ -3,11 +3,18 @@
 {% load static %}
 
 <hr>
-{% if aircraft_needs_tailnumber %}
-<div class="mt-4">
-  <p class="text-danger">{{ aircraft_needs_tailnumber }}</p>
-</div>
-<hr>
+{% if detail_has_errors %}
+<section class="alert alert-danger" aria-label="Aircraft errors">
+  <h5>Please correct the following errors</h5>
+  <ul class="pl-3">
+    {% if power_error %}<li>Please select Piston or Turbine.</li>{% endif %}
+    {% if config_error %}<li>Please select the aircraft configuration.</li>{% endif %}
+    {% if weight_error %}<li>Please choose a weight category.</li>{% endif %}
+    {% if category_error %}<li>Please choose a category.</li>{% endif %}
+    {% if class_error %}<li>Please choose a class.</li>{% endif %}
+    {% if aircraft_needs_tailnumber %}<li>{{ aircraft_needs_tailnumber }}. <a class="alert-link" href="{% url 'tailnumber_create' %}">Add a tailnumber</a></li>{% endif %}
+  </ul>
+</section>
 {% endif %}
 <div class="row">
   <div class="col-12">
@@ -47,51 +54,5 @@
   </div>
 </div>
 
-
-{% if power_error or config_error or weight_error %}
-
-<div class="modal fade" id="errors">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Please correct the following errors</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">×</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        {% if not aircraft.turbine and not aircraft.piston %}
-        <p class="text-danger">Please select Piston or Turbine</p>
-        <hr>
-        {% endif %}
-        {% if not aircraft.compleks and not aircraft.simple %}
-        <p class="text-danger">Please select Simple or Complex<p>
-            <hr>
-            {% endif %}
-            {% if weight_error %}
-            <p class="text-danger">Please choose a weight category<p>
-                <hr>
-                {% endif %}
-                {% if category_error %}
-                <p class="text-danger">Please choose a Category<p>
-                    <hr>
-                    {% endif %}
-                    {% if class_error %}
-                    <p class="text-danger">Please choose a Class<p>
-                        <hr>
-                        {% endif %}
-                        <a href="{% url 'aircraft_update' aircraft.pk %}" class="btn btn-outline-secondary">Update</a>
-      </div>
-    </div>
-  </div>
-</div>
-
-{% endif %}
-
-<script>
-  $(function() {
-    $("#errors").modal();
-  });
-</script>
 
 {% endblock %}

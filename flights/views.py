@@ -28,6 +28,7 @@ from dal import autocomplete
 from accounts.views import LoginRequiredMixin
 from flights.get_map_data import get_map_data
 from flights.map_routes import flight_map_data
+from flights.error_checks import flight_error_filter
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.utils.encoding import force_str
@@ -234,13 +235,22 @@ class FlightList(LoginRequiredMixin, ProfileNotActiveMixin, ListView):
     paginate_by = 40
 
     def get_queryset(self):
-        return (Flight.objects.filter(user=self.request.user)
+        queryset = Flight.objects.filter(user=self.request.user)
+        if self.request.GET.get('errors') == '1':
+            queryset = queryset.filter(flight_error_filter())
+        return (queryset
                 .select_related('aircraft_type', 'registration')
                 .prefetch_related('approach_set', 'holding_set')
-                .order_by('-date'))
+                .order_by('-date', 'pk'))
 
     def get_context_data(self, **kwargs):
         context = super(FlightList, self).get_context_data(**kwargs)
+
+        errors = (Flight.objects.filter(user=self.request.user).filter(flight_error_filter())
+                  .select_related('aircraft_type', 'registration').order_by('-date', 'pk'))
+        context['flight_error_count'] = errors.count()
+        context['flight_error_summary'] = errors[:10]
+        context['errors_only'] = self.request.GET.get('errors') == '1'
 
         context['title'] = "D-> | Logbook"
         context['parent_name'] = 'Home'
@@ -404,6 +414,7 @@ class FlightDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, De
         context['next_flight'] = next_flight
         context['previous_flight'] = previous_flight
 
+        context['detail_has_errors'] = self.object.has_errors
         context['title'] = "D-> | Flight Detail"
         context['page_title'] = "Detail"
         context['home_link'] = reverse('home')
@@ -522,6 +533,10 @@ class AircraftDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, 
         else:
             context['weight_error'] = False
 
+        context['detail_has_errors'] = any(context.get(key) for key in (
+            'power_error', 'config_error', 'weight_error', 'category_error',
+            'class_error', 'aircraft_needs_tailnumber',
+        ))
         context['title'] = "D-> | " + str(self.object)
         context['page_title'] = str(self.object)
         context['home_link'] = reverse('home')
@@ -672,6 +687,7 @@ class TailNumberDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin
         else:
             context['new_user_flight'] = False
 
+        context['detail_has_errors'] = not (tailnumber.is_91 or tailnumber.is_135 or tailnumber.is_121)
         context['title'] = "D-> | " + str(self.object)
         context['page_title'] = str(self.object)
         context['home_link'] = reverse('home')

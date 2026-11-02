@@ -26,16 +26,22 @@
 <div class="row">
   <div class="col">
     {% if '/aircraft/detail/' in request.path %}
-    <a href="{% url 'aircraft_update' aircraft.pk %}" class="text-dark">Update</a>&nbsp|&nbsp
-    <a href="{% url 'aircraft_delete' aircraft.pk %}" class="text-danger">Delete</a>&nbsp|&nbsp
+    <span class="detail-record-actions">
+      <a href="{% url 'aircraft_update' aircraft.pk %}" class="detail-update {% if detail_has_errors %}btn btn-outline-danger{% else %}text-primary{% endif %}">Update</a>
+      <a href="{% url 'aircraft_delete' aircraft.pk %}" class="text-danger detail-delete">Delete</a>
+    </span>
     {% endif %}
     {% if '/logbook/detail/' in request.path %}
-    <a href="{% url 'flight_update' flight.pk %}" class="text-dark">Update</a>&nbsp|&nbsp
-    <a href="{% url 'flight_delete' flight.pk %}" class="text-danger">Delete</a>&nbsp|&nbsp
+    <span class="detail-record-actions">
+      <a href="{% url 'flight_update' flight.pk %}" class="detail-update {% if detail_has_errors %}btn btn-outline-danger{% else %}text-primary{% endif %}">Update</a>
+      <a href="{% url 'flight_delete' flight.pk %}" class="text-danger detail-delete">Delete</a>
+    </span>
     {% endif %}
     {% if '/tailnumbers/detail/' in request.path %}
-    <a href="{% url 'tailnumber_update' tailnumber.pk %}" class="text-dark">Update</a>&nbsp|&nbsp
-    <a href="{% url 'tailnumber_delete' tailnumber.pk %}" class="text-danger">Delete</a>&nbsp|&nbsp
+    <span class="detail-record-actions">
+      <a href="{% url 'tailnumber_update' tailnumber.pk %}" class="detail-update {% if detail_has_errors %}btn btn-outline-danger{% else %}text-primary{% endif %}">Update</a>
+      <a href="{% url 'tailnumber_delete' tailnumber.pk %}" class="text-danger detail-delete">Delete</a>
+    </span>
     {% endif %}
     <a class="" href="{% url 'flight_create' %}">New Flight</a>
     {% if 'home' in request.path %}
