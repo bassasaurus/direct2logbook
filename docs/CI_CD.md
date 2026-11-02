@@ -25,7 +25,10 @@ After this workflow is merged into master and production setup is complete:
 
 1. Open **Actions → Deploy production → Run workflow**.
 2. Select **master**. Other refs fail the branch guard.
-3. The selected commit runs CI again before deployment can access production secrets.
+3. The selected commit must already have a successful push-CI run on master.
+   Deployment verifies that exact SHA without reinstalling the CI environment or
+   rerunning its test suite. Missing, pending or unsuccessful CI blocks deployment
+   before production secrets are available. Wait for CI and run deployment again.
 4. GitHub's production environment protections, if configured, require approval.
 5. The server verifies it is clean/on master and that the requested exact SHA is
    still the current master head. If master advanced, run the workflow again.
@@ -214,3 +217,29 @@ changes; do not disable rate limiting to resolve IP detection errors.
 Without this configuration, a Unix-socket request can have no `REMOTE_ADDR`, and
 allauth rejects authentication with `Unable to determine client IP address` (403).
 After deploying, verify email/password login in a fresh browser session.
+
+## Reusing CI verification during deployment
+
+The `Verify existing master CI` job uses a read-only Actions token to query
+GitHub's `ci.yml` workflow runs, restricted to event `push`, branch `master` and
+the exact `GITHUB_SHA` selected by Run workflow. A successful PR run is not a
+substitute: squash merges produce a different master commit that must pass CI.
+
+The latest matching run must be completed with conclusion success. Its workflow,
+repository, branch and SHA are checked again in the response. The required
+`Django and JavaScript` job must also have succeeded in that run's exact attempt;
+a skipped job or an old successful attempt cannot satisfy the gate. Missing runs,
+API errors, unexpected responses, pending/failed/cancelled runs or jobs all block
+the deployment. There is no bypass or fallback to testing an older commit.
+
+Run deployment after the CI check for master is green. If you start too early,
+wait for CI to finish and rerun deployment. The gate does not wait for tests,
+trigger a new CI run, or access production secrets. It uses Python's standard
+library and no new packages or third-party Actions.
+
+PR and master CI still run normally. The production backup, dependency sync,
+Django checks, migration plan/application, collectstatic, Supervisor restarts,
+HTTPS health check and read-only smoke tests are unchanged. The server still
+rejects deployment if master advances after the workflow was dispatched.
+
+API reference: https://docs.github.com/en/rest/actions/workflow-runs#list-workflow-runs-for-a-workflow
