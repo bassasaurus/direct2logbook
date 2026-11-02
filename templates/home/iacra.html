@@ -13,7 +13,7 @@
       <td class="text-center">PIC and SIC</td>
       <td class="text-center">Cross Country Instruction Recieved</td>
       <td class="text-center">Cross Country Solo</td>
-      <td class="text-center">Cross Country PIC/SIC</td>
+      <td class="text-center">Cross Country PIC and SIC</td>
       <td class="text-center">Instrument</td>
       <td class="text-center">Night Instruction Recieved</td>
       <td class="text-center">Night Take-Off / Landing</td>
@@ -28,7 +28,7 @@
       <td class="text-center">PIC</td>
       <td rowspan="4" class="text-center">{{ airplane_xc_dual }}</td>
       <td rowspan="4" class="text-center">{{ airplane_xc_solo }}</td>
-      <td rowspan="4" class="text-center">{{ airplane_xc_pic_sic }}</td>
+      <td class="text-center">PIC</td>
       <td rowspan="4" class="text-center">{{ airplane_ifr }}</td>
       <td rowspan="4" class="text-center">{{ airplane_night_dual }}</td>
       <td rowspan="4" class="text-center">{{ airplane_ldg_night }}</td>
@@ -37,15 +37,18 @@
     </tr>
     <tr>
       <td class="text-center">{{ airplane_pic }}</td>
+      <td class="text-center">{{ airplane_xc_pic }}</td>
       <td class="text-center">{{ airplane_night_ldg_pic }}</td>
     </tr>
     <tr>
+      <td class="text-center">SIC</td>
       <td class="text-center">SIC</td>
       <td class="text-center">SIC</td>
 
     </tr>
     <tr>
       <td class="text-center">{{ airplane_sic }}</td>
+      <td class="text-center">{{ airplane_xc_sic }}</td>
       <td class="text-center">{{ airplane_night_ldg_sic }}</td>
     </tr>
     <tr>
@@ -56,7 +59,7 @@
       <td class="text-center">PIC</td>
       <td rowspan="4" class="text-center">{{ rotorcraft_xc_dual }}</td>
       <td rowspan="4" class="text-center">{{ rotorcraft_xc_solo }}</td>
-      <td rowspan="4" class="text-center">{{ rotorcraft_xc_pic_sic }}</td>
+      <td class="text-center">PIC</td>
       <td rowspan="4" class="text-center">{{ rotor_ifr }}</td>
       <td rowspan="4" class="text-center">{{ rotorcraft_night_dual }}</td>
       <td rowspan="4" class="text-center">{{ rotor_ldg_night }}</td>
@@ -65,14 +68,17 @@
     </tr>
     <tr>
       <td class="text-center">{{ rotor_pic }}</td>
+      <td class="text-center">{{ rotorcraft_xc_pic }}</td>
       <td class="text-center">{{ rotorcraft_night_ldg_pic }}</td>
     </tr>
     <tr>
       <td class="text-center">SIC</td>
       <td class="text-center">SIC</td>
+      <td class="text-center">SIC</td>
     </tr>
     <tr>
       <td class="text-center">{{ rotor_sic }}</td>
+      <td class="text-center">{{ rotorcraft_xc_sic }}</td>
       <td class="text-center">{{ rotorcraft_night_ldg_sic }}</td>
     </tr>
   </tbody>

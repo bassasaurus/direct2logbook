@@ -280,15 +280,13 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
             context['airplane_xc_solo'] = round(
                 airplane_xc_solo.get('duration__sum'), 1)
 
-        airplane_xc_pic_sic_query = Q(cross_country=True) & (
-            Q(pilot_in_command=True) | Q(second_in_command=True))
-        airplane_xc_pic_sic = Flight.objects.filter(user=user).filter(
-            airplane_query, airplane_xc_pic_sic_query).aggregate(Sum('duration'))
-        if not airplane_xc_pic_sic.get('duration__sum'):
-            context['airplane_xc_pic_sic'] = 0.0
-        else:
-            context['airplane_xc_pic_sic'] = round(
-                airplane_xc_pic_sic.get('duration__sum'), 1)
+        airplane_xc = Flight.objects.filter(user=user).filter(
+            airplane_query, cross_country=True).aggregate(
+                pic=Sum('duration', filter=Q(pilot_in_command=True)),
+                sic=Sum('duration', filter=Q(second_in_command=True)),
+            )
+        context['airplane_xc_pic'] = round(airplane_xc['pic'] or 0, 1)
+        context['airplane_xc_sic'] = round(airplane_xc['sic'] or 0, 1)
 
         airplane_night_dual = Flight.objects.filter(user=user).filter(
             airplane_query, night=True, dual=True).aggregate(Sum('duration'))
@@ -342,15 +340,13 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
             context['rotorcraft_xc_solo'] = round(
                 rotorcraft_xc_solo.get('duration__sum'), 1)
 
-        rotorcraft_xc_pic_sic_query = Q(cross_country=True) & (
-            Q(pilot_in_command=True) | Q(second_in_command=True))
-        rotorcraft_xc_pic_sic = Flight.objects.filter(user=user).filter(
-            rotorcraft_query, rotorcraft_xc_pic_sic_query).aggregate(Sum('duration'))
-        if not rotorcraft_xc_pic_sic.get('duration__sum'):
-            context['rotorcraft_xc_pic_sic'] = 0.0
-        else:
-            context['rotorcraft_xc_pic_sic'] = round(
-                rotorcraft_xc_pic_sic.get('duration__sum'), 1)
+        rotorcraft_xc = Flight.objects.filter(user=user).filter(
+            rotorcraft_query, cross_country=True).aggregate(
+                pic=Sum('duration', filter=Q(pilot_in_command=True)),
+                sic=Sum('duration', filter=Q(second_in_command=True)),
+            )
+        context['rotorcraft_xc_pic'] = round(rotorcraft_xc['pic'] or 0, 1)
+        context['rotorcraft_xc_sic'] = round(rotorcraft_xc['sic'] or 0, 1)
 
         rotorcraft_night_dual = Flight.objects.filter(user=user).filter(
             rotorcraft_query, night=True, dual=True).aggregate(Sum('duration'))
