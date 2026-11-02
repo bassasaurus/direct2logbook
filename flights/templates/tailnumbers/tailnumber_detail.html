@@ -3,6 +3,12 @@
 {% load static %}
 
 <hr>
+{% if detail_has_errors %}
+<section class="alert alert-danger" aria-label="Tailnumber errors">
+  <h5>Please correct the following errors</h5>
+  <p>Please select FAR 91, 135 or 121.</p>
+</section>
+{% endif %}
 
 <div class="row">
   <div class="col-12">
@@ -40,32 +46,6 @@
     </div>
   </div>
 </div>
-
-{% if not tailnumber.is_91  and not tailnumber.is_135 and not tailnumber.is_121 %}
-<div class="modal fade" id="errors">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Please correct the following errors</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">×</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p class="text-danger">Please select FAR 91, 135 or 121</p>
-        <hr>
-      </div>
-    </div>
-  </div>
-</div>
-{% else %}
-{% endif %}
-
-<script>
-  $(function() {
-    $("#errors").modal();
-  });
-</script>
 
 {% if new_user_flight or new_user_aircraft or new_user_tailnumber is True %}
 {% include 'new_user_modal.html' %}

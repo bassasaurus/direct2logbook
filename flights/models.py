@@ -323,6 +323,15 @@ class Flight(models.Model):
             models.Index(fields=['route', 'date', 'duration']),
         ]
 
+    @property
+    def validation_errors(self):
+        from flights.error_checks import flight_error_messages
+        return flight_error_messages(self)
+
+    @property
+    def has_errors(self):
+        return bool(self.validation_errors)
+
     def get_absolute_url(self):
         return reverse('flight_detail', kwargs={'pk': self.pk})
 
