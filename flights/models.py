@@ -306,6 +306,7 @@ class Flight(models.Model):
     solo = models.BooleanField(default=False, blank=True)
     hold = models.BooleanField(
         default=False, blank=True, verbose_name="Hold")
+    route_airport_choices = models.JSONField(default=dict, blank=True, editable=False)
     route_data = PickledObjectField(null=True, blank=True)
     map_error = models.CharField(max_length=100, null=True, blank=True)
     duplicate_error = models.CharField(max_length=100, null=True, blank=True)
@@ -322,6 +323,15 @@ class Flight(models.Model):
         indexes = [
             models.Index(fields=['route', 'date', 'duration']),
         ]
+
+    def save(self, *args, **kwargs):
+        if not isinstance(self.route_airport_choices, dict):
+            self.route_airport_choices = {}
+        if self.route_airport_choices and self.route_airport_choices.get('route') != self.route:
+            self.route_airport_choices = {}
+            if kwargs.get('update_fields') is not None:
+                kwargs['update_fields'] = set(kwargs['update_fields']) | {'route_airport_choices'}
+        return super().save(*args, **kwargs)
 
     @property
     def validation_errors(self):

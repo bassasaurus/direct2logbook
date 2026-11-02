@@ -4,7 +4,8 @@
 {% block content %}
 
 <hr>
-{% include "flights/error_alert.html" %}
+{% if not airport_confirmation_form.has_unresolved %}{% include "flights/error_alert.html" %}{% endif %}
+{% include "flights/airport_confirmation.html" %}
 <div class="row">
   <div class="col-12">
     <div class="btn-group">

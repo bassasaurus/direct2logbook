@@ -1,0 +1,24 @@
+{% if airport_confirmation_form.pending %}
+<section class="alert {% if airport_confirmation_form.has_unresolved %}alert-danger{% else %}alert-info{% endif %}" aria-label="Confirm airport locations">
+  <h5>Which airports did you mean?</h5>
+  <p>Confirm the locations below so we can map your route correctly. Your route stays <strong>{{ airport_confirmation_form.flight.route }}</strong>.</p>
+  {% if other_flight_errors %}<ul>{% for error in other_flight_errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
+  <form method="post" action="{% url 'confirm_flight_airports' flight.pk %}">
+    {% csrf_token %}
+    {{ airport_confirmation_form.non_field_errors }}
+    {% for hidden in airport_confirmation_form.hidden_fields %}{{ hidden }}{{ hidden.errors }}{% endfor %}
+    {% for field in airport_confirmation_form.visible_fields %}
+    <fieldset class="mb-3">
+      <legend class="h6">{{ field.label }}</legend>
+      {{ field.errors }}
+      {% for radio in field %}<div class="form-check my-2">{{ radio }}</div>{% endfor %}
+    </fieldset>
+    {% endfor %}
+    <button class="btn btn-primary btn-lg" type="submit">Confirm airports</button>
+  </form>
+</section>
+{% endif %}
+
+{% if not airport_confirmation_form.pending and airport_confirmation_form.has_confirmed %}
+<p><a href="{% url 'flight_detail' flight.pk %}?airports=review">Review airport choices</a></p>
+{% endif %}

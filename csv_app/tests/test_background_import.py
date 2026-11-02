@@ -169,12 +169,13 @@ class CSVBackgroundImportTests(TestCase):
         self.assertEqual(import_csv_batch.soft_time_limit, 900)
         self.assertEqual(import_csv_batch.time_limit, 960)
 
-    def test_map_signal_reconnects_after_soft_timeout(self):
+    def test_map_signal_stays_connected_after_soft_timeout(self):
         from django.db.models.signals import post_save
         from flights.signal_make_json_field import make_json_field
         from types import SimpleNamespace
-        instance = SimpleNamespace(route='KAAA-KBBB', save=lambda **kwargs: None)
-        with patch.object(instance, 'save', side_effect=SoftTimeLimitExceeded()):
+        instance = SimpleNamespace(route='KAAA-KBBB', pk=1, user_id=self.user.pk)
+        with patch('flights.signal_make_json_field.Flight.objects.filter') as filtered:
+            filtered.return_value.update.side_effect = SoftTimeLimitExceeded()
             try:
                 with self.assertRaises(SoftTimeLimitExceeded):
                     make_json_field(Flight, instance, created=True)

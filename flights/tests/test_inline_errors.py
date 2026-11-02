@@ -24,8 +24,8 @@ class InlineErrorTests(TestCase):
             simple=True, small=True, aircraft_category='A', aircraft_class='SEL')
         self.tail = TailNumber.objects.create(user=self.user, aircraft=self.aircraft, registration='N123A', is_91=True)
         self.client.force_login(self.user)
-        self.first = MapData.objects.create(icao='KAAA', iata='AAA')
-        MapData.objects.create(icao='KBBB', iata='BBB')
+        self.first = MapData.objects.create(icao='KAAA', iata='AAA', country='United States')
+        MapData.objects.create(icao='KBBB', iata='BBB', country='United States')
 
     def flight(self, user=None, **kwargs):
         values = dict(user=user or self.user, date=date(2025, 1, 1), aircraft_type=self.aircraft,
@@ -115,11 +115,11 @@ class InlineErrorTests(TestCase):
         self.assertEqual(values['duplicate_error'], '')
 
     def test_ambiguous_codes_survive_valid_later_legs_and_clear_after_correction(self):
-        MapData.objects.create(icao='KCCC', iata='AAA')
+        MapData.objects.create(icao='KCCC', iata='AAA', country='United States')
         flight = self.flight(route='AAA-KBBB')
         update_route_warnings(Flight, flight)
         flight.refresh_from_db()
-        self.assertEqual(flight.duplicate_error, 'Ambiguous airport codes: AAA')
+        self.assertEqual(flight.duplicate_error, 'Confirm airport locations: AAA')
         self.assertEqual(flight.map_error, '')
         flight.route = 'KAAA-KBBB'
         Flight.objects.filter(pk=flight.pk).update(route=flight.route)
@@ -150,7 +150,7 @@ class InlineErrorTests(TestCase):
 
     def test_backfill_cannot_overwrite_warnings_after_a_concurrent_route_edit(self):
         flight = self.flight(route='KAAA-XXXX-KBBB')
-        def edited(route, rows):
+        def edited(route, rows, choices=None):
             Flight.objects.filter(pk=flight.pk).update(route='KAAA-KBBB', map_error='')
             return {'map_error': 'Unknown airport codes: XXXX', 'duplicate_error': ''}
         with patch('flights.management.commands.refresh_flight_route_warnings.route_warning_values', side_effect=edited):
