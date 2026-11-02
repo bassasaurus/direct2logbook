@@ -48,7 +48,7 @@ def resolve_route(route, choices=None, airports=None):
         domestic = [airport for airport in candidates if is_us(airport)] if len(code) == 3 else []
         if domestic:
             candidates = domestic
-        automatic = len(candidates) == 1 and (len(code) == 4 or bool(domestic))
+        automatic = len(candidates) == 1
         selected = next((airport for airport in candidates if airport.pk == saved.get(str(position))), None)
         airport = candidates[0] if automatic else selected
         result.append(dict(position=position, code=code, airport=airport, candidates=candidates,

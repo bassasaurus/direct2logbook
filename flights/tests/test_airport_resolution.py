@@ -34,6 +34,7 @@ class AirportResolutionTests(TestCase):
         self.lbx_us = self.airport('LBX', 'KLBX', 'Texas Gulf Coast', 'United States', 29.10, -95.46)
         self.lbx_other = self.airport('LBX', 'RPLU', 'Lubang', 'Philippines', 13.85, 120.10)
         self.foreign = self.airport('ZZZ', 'EGZZ', 'Foreign airport', 'United Kingdom', 50, -1)
+        self.airport('ZZZ', 'EHZZ', 'Second foreign airport', 'Netherlands', 52, 5)
 
     def airport(self, code, icao, name, country, lat=10, lon=20):
         return MapData.objects.create(iata=code, icao=icao, name=name, city=name,
@@ -59,10 +60,11 @@ class AirportResolutionTests(TestCase):
         self.lbx_us.country = ' united states '
         self.lbx_us.save()
         self.assertEqual(resolve_route('LBX')[0]['airport'].pk, self.lbx_us.pk)
-        result = resolve_route('ZZZ')[0]
-        self.assertTrue(result['needs_confirmation'])
-        self.assertEqual([airport.pk for airport in result['candidates']], [self.foreign.pk])
-        self.assertEqual(map_values([result])['route_data'], [])
+        unique = self.airport('BOG', 'SKBO', 'Bogota', 'Colombia')
+        result = resolve_route('BOG')[0]
+        self.assertFalse(result['needs_confirmation'])
+        self.assertEqual(result['airport'].pk, unique.pk)
+        self.assertEqual(map_values([result])['route_data'][0].pk, unique.pk)
 
     def test_two_distinct_us_airports_prompt_but_duplicate_icao_rows_do_not(self):
         self.assertEqual(len(resolve_route('BQN')[0]['candidates']), 1)
@@ -191,3 +193,28 @@ class AirportResolutionTests(TestCase):
         self.assertEqual(features['features'][0]['properties']['icao'], 'KLBX')
         self.assertIn(str(self.lbx_us.latitude), line)
         self.assertNotIn(str(self.lbx_other.latitude), line)
+
+    def test_bog_kin_sdq_pass_without_confirmation_in_all_map_outputs(self):
+        expected = [self.airport('BOG', 'SKBO', 'Bogota', 'Colombia'),
+                    self.airport('KIN', 'MKJP', 'Kingston', 'Jamaica'),
+                    self.airport('SDQ', 'MDSD', 'Santo Domingo', 'Dominican Republic')]
+        flight = self.flight('BOG-KIN-SDQ')
+        update_route_warnings(Flight, flight)
+        save_route_data(Flight, flight)
+        make_json_field(Flight, flight)
+        flight.refresh_from_db()
+        self.assertFalse(flight.map_error or flight.duplicate_error)
+        self.assertEqual([airport.pk for airport in flight.route_data], [airport.pk for airport in expected])
+        self.assertEqual([marker['icao'] for marker in flight.app_markers], ['SKBO', 'MKJP', 'MDSD'])
+        self.assertEqual([airport.pk for airport in csv_route_data(self.user, flight.route)],
+                         [airport.pk for airport in expected])
+        self.assertFalse(AirportConfirmationForm(flight=flight).pending)
+        self.assertEqual(flight.route, 'BOG-KIN-SDQ')
+
+    def test_duplicate_foreign_records_for_same_airport_are_not_ambiguous(self):
+        self.airport('BOG', 'SKBO', 'Bogota', 'Colombia')
+        self.airport('BOG', 'SKBO', 'El Dorado', 'Colombia')
+        result = resolve_route('BOG')[0]
+        self.assertEqual(len(result['candidates']), 1)
+        self.assertFalse(result['needs_confirmation'])
+        self.assertEqual(result['airport'].icao, 'SKBO')

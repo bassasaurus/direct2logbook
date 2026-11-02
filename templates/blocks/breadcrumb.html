@@ -25,24 +25,19 @@
 <hr>
 <div class="row">
   <div class="col">
-    {% if '/aircraft/detail/' in request.path %}
-    <span class="detail-record-actions">
-      <a href="{% url 'aircraft_update' aircraft.pk %}" class="detail-update {% if detail_has_errors %}btn btn-outline-danger{% else %}text-primary{% endif %}">Update</a>
-      <a href="{% url 'aircraft_delete' aircraft.pk %}" class="text-danger detail-delete">Delete</a>
-    </span>
-    {% endif %}
-    {% if '/logbook/detail/' in request.path %}
-    <span class="detail-record-actions">
-      <a href="{% url 'flight_update' flight.pk %}" class="detail-update {% if detail_has_errors %}btn btn-outline-danger{% else %}text-primary{% endif %}">Update</a>
-      <a href="{% url 'flight_delete' flight.pk %}" class="text-danger detail-delete">Delete</a>
-    </span>
-    {% endif %}
-    {% if '/tailnumbers/detail/' in request.path %}
-    <span class="detail-record-actions">
-      <a href="{% url 'tailnumber_update' tailnumber.pk %}" class="detail-update {% if detail_has_errors %}btn btn-outline-danger{% else %}text-primary{% endif %}">Update</a>
-      <a href="{% url 'tailnumber_delete' tailnumber.pk %}" class="text-danger detail-delete">Delete</a>
-    </span>
-    {% endif %}
+    {% if request.resolver_match.url_name == 'flight_detail' and flight %}
+      {% url 'flight_update' flight.pk as update_url %}
+      {% url 'flight_delete' flight.pk as delete_url %}
+      {% include 'blocks/detail_actions.html' with show_remarks=True %}
+    {% elif request.resolver_match.url_name == 'aircraft_detail' and aircraft %}
+      {% url 'aircraft_update' aircraft.pk as update_url %}
+      {% url 'aircraft_delete' aircraft.pk as delete_url %}
+      {% include 'blocks/detail_actions.html' with show_remarks=False %}
+    {% elif request.resolver_match.url_name == 'tailnumber_detail' and tailnumber %}
+      {% url 'tailnumber_update' tailnumber.pk as update_url %}
+      {% url 'tailnumber_delete' tailnumber.pk as delete_url %}
+      {% include 'blocks/detail_actions.html' with show_remarks=False %}
+    {% else %}
     <a class="" href="{% url 'flight_create' %}">New Flight</a>
     {% if 'home' in request.path %}
     |
@@ -61,6 +56,7 @@
     <a class="" href="{% url 'tailnumber_create' %}">New Tailnumber</a>
     |
     <a class="" href="{% url 'imported_create' %}">Import Previous Aircraft</a>
+    {% endif %}
     {% endif %}
   </div>
 </div>
