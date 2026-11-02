@@ -45,3 +45,36 @@ separately before changing its currency/statistics calculations. Browser asset
 sizes, map payload sizes, large-account indexes and production request latency
 also remain outside this first change. Avoid broad caching until ownership,
 freshness and invalidation requirements are clear.
+
+## Home dashboard: repeated per-request calculations
+
+The next pass measures the complete rendered home response with Django's test
+client, synthetic owner/foreign-user flights, and three recent ASEL landings.
+Unlike the earlier table-component numbers, these counts include authentication,
+context and template work. Counts vary with account contents and cache warmth.
+
+| Dashboard fixture | Before | After |
+| --- | ---: | ---: |
+| Three flights, one aircraft, cold Site/template caches | 77 queries | 64 queries |
+| Three flights, one aircraft, warmed caches | 74 queries | 61 queries |
+| Three flights, 21 aircraft, warmed caches | 114 queries | 61 queries |
+
+Each landing-currency helper used to run twice to retrieve its count and current
+flag. Each now runs once, unpacking its existing result. The medical helper runs
+once instead of five times. No formulas or currency windows change, and nothing
+is cached between requests. Missing aircraft registration/import information is
+now found with two correlated `Exists` predicates in a single aircraft query,
+keeping both child lookups scoped to the logged-in owner. Onboarding flags use
+`exists()` rather than loading all aircraft, registrations or flights into memory.
+
+Regression tests verify helper call counts, current/non-current landing results,
+medical current status, onboarding flags, owner isolation, registration/import
+handling, and a constant query count when adding 20 aircraft. Run:
+
+```bash
+python manage.py test home.tests.test_dashboard_performance
+```
+
+This reduces duplicate work but does not combine the many independent totals and
+aggregates. It does not benchmark production latency or revise aviation currency
+rules. Those are separate reviews, not implied by these query-count reductions.
