@@ -41,8 +41,8 @@ class MonthlyMapOwnershipTests(TestCase):
         self.user.profile.expired = False
         self.user.profile.save()
         self.client.force_login(self.user)
-        self.a = MapData.objects.create(icao='KAAA', iata='AAA', latitude=10, longitude=20)
-        self.b = MapData.objects.create(icao='KBBB', iata='BBB', latitude=30, longitude=40)
+        self.a = MapData.objects.create(country='United States', icao='KAAA', iata='AAA', latitude=10, longitude=20)
+        self.b = MapData.objects.create(country='United States', icao='KBBB', iata='BBB', latitude=30, longitude=40)
 
     def flight(self, user, day):
         aircraft, _ = Aircraft.objects.get_or_create(user=user, aircraft_type='C172')

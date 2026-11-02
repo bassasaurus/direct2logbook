@@ -121,3 +121,45 @@ class ImportedForm(UserOwnedRelationsFormMixin, forms.ModelForm):
             'is_135': forms.CheckboxInput(),
             'is_91': forms.CheckboxInput(),
         }
+
+
+class AirportConfirmationForm(forms.Form):
+    route = forms.CharField(widget=forms.HiddenInput, max_length=50, strip=False)
+    review = forms.BooleanField(widget=forms.HiddenInput, required=False)
+
+    def __init__(self, *args, flight, review=False, **kwargs):
+        from flights.airport_resolution import flight_resolution
+        super().__init__(*args, **kwargs)
+        self.flight = flight
+        self.resolution = flight_resolution(flight)
+        self.initial['route'] = flight.route
+        self.initial['review'] = review
+        self.has_unresolved = any(item['needs_confirmation'] for item in self.resolution)
+        self.has_confirmed = any(item['confirmed'] for item in self.resolution)
+        self.pending = [item for item in self.resolution
+                        if item['needs_confirmation'] or (review and item['requires_choice'])]
+        for item in self.pending:
+            choices = []
+            for airport in item['candidates']:
+                location = ', '.join(value for value in (airport.city, airport.state, airport.country) if value)
+                label = f'{airport.name} — {location}'
+                if airport.icao:
+                    label += f' ({airport.icao})'
+                choices.append((str(airport.pk), label))
+            self.fields[f'airport_{item["position"]}'] = forms.ChoiceField(
+                label=f'Which airport did you mean for {item["code"]} (route position {item["position"] + 1})?',
+                choices=choices, widget=forms.RadioSelect,
+                initial=str(item['airport'].pk) if item['confirmed'] else None,
+            )
+
+    def clean_route(self):
+        route = self.cleaned_data['route']
+        if route != self.flight.route:
+            raise forms.ValidationError('The route changed. Refresh the flight and confirm its current airports.')
+        return route
+
+    def selections(self):
+        airports = {str(item['position']): item['airport'].pk for item in self.resolution if item['confirmed']}
+        airports.update({name.removeprefix('airport_'): int(value)
+                         for name, value in self.cleaned_data.items() if name.startswith('airport_')})
+        return {'route': self.flight.route, 'airports': airports}

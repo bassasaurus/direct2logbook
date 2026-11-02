@@ -4,7 +4,7 @@ from flights.views import (
     AircraftAutocomplete, TailNumberAutocomplete,
     geoJSON_routes_view, geoJSON_airports_view,
     FlightArchive, FlightArchiveYear, FlightArchiveMonth,
-    FlightList, FlightCreate, FlightUpdate, FlightDetail, FlightDelete, RemarksList,
+    FlightList, FlightCreate, FlightUpdate, FlightDetail, FlightDelete, RemarksList, ConfirmFlightAirports,
     TailNumberList, TailNumberCreate, TailNumberUpdate, TailNumberDetail, TailNumberDelete,
     AircraftCreate, AircraftUpdate, AircraftDetail, AircraftDelete,
     ImportedListView, ImportedCreateView, ImportedUpdateView, ImportedDetailView, ImportedDeleteView
@@ -30,6 +30,8 @@ urlpatterns = [
          FlightArchiveYear.as_view(), name='flight_by_year'),
     path('by_date/<int:year>/<str:month>/',
          FlightArchiveMonth.as_view(), name='flight_by_month'),
+
+    path('logbook/confirm-airports/<int:pk>/', ConfirmFlightAirports.as_view(), name='confirm_flight_airports'),
 
     # Flight CRUD
     path('logbook/', FlightList.as_view(), name='flight_list'),

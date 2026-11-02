@@ -1,5 +1,4 @@
 from django.core.cache import cache
-from flights.models import MapData
 
 
 def get_map_data(queryset, user):
@@ -10,11 +9,12 @@ def get_map_data(queryset, user):
     seen_map_objs = set()
 
     for flight in queryset:
-        for airport in flight.route_data:
-            line_json.append([airport.latitude, airport.longitude])
+        for airport in flight.route_data or []:
+            if airport is not None:
+                line_json.append([airport.latitude, airport.longitude])
 
     for flight in queryset:
-        for map_obj in flight.route_data:
+        for map_obj in flight.route_data or []:
             if map_obj not in seen_map_objs:
                 seen_map_objs.add(map_obj)
 

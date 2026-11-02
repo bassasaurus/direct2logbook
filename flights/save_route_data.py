@@ -1,21 +1,6 @@
-import re
-from flights.models import MapData
+from flights.airport_resolution import flight_resolution, map_values
 
 
 def save_route_data(instance):
-
-    route_data = []
-    route = re.split('\W+', instance.route)  # separate individual code
-
-    for code in route:  # XXXX, XXXX, XXXX
-        if code == '':
-            pass
-        else:
-            iata_kwargs = {'iata': code}
-            icao_kwargs = {'icao': code}
-            map_object = (MapData.objects.filter(**iata_kwargs) | MapData.objects.filter(**icao_kwargs)).first()
-
-        route_data.append(map_object)
-
-    instance.route_data = route_data
+    instance.route_data = map_values(flight_resolution(instance))['route_data']
     instance.save()

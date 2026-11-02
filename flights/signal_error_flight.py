@@ -1,12 +1,12 @@
 from flights.models import Flight
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from flights.error_checks import route_warning_values
+from flights.airport_resolution import flight_resolution, warning_values
 
 
 @receiver(post_save, sender=Flight, dispatch_uid='flight_route_warnings')
 def update_route_warnings(sender, instance, **kwargs):
-    values = route_warning_values(instance.route)
+    values = warning_values(flight_resolution(instance))
     Flight.objects.filter(user_id=instance.user_id, pk=instance.pk).update(**values)
     for field, value in values.items():
         setattr(instance, field, value)

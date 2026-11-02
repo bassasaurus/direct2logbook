@@ -11,12 +11,12 @@ from django.utils.text import capfirst
 
 from django.forms import inlineformset_factory
 
-from django.views.generic import ListView, CreateView, UpdateView, DetailView, DeleteView
+from django.views.generic import View, ListView, CreateView, UpdateView, DetailView, DeleteView
 from django.views.generic.dates import YearArchiveView, MonthArchiveView, ArchiveIndexView
 from profile.views import ProfileNotActiveMixin
 
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
-from django.shortcuts import render, redirect, reverse
+from django.shortcuts import render, redirect, reverse, get_object_or_404
 from django.urls import reverse_lazy
 
 from django.core.cache import cache
@@ -29,6 +29,8 @@ from accounts.views import LoginRequiredMixin
 from flights.get_map_data import get_map_data
 from flights.map_routes import flight_map_data
 from flights.error_checks import flight_error_filter
+from flights.forms import AirportConfirmationForm
+from flights.airport_resolution import flight_resolution, warning_values, map_values
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.utils.encoding import force_str
@@ -362,6 +364,7 @@ class FlightUpdate(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, Us
             context['approaches'] = ApproachFormSet(instance=self.get_object())
             context['holding'] = HoldingFormSet(instance=self.get_object())
 
+        context['airport_confirmation_form'] = AirportConfirmationForm(flight=self.get_object(), review=self.request.GET.get('airports') == 'review')
         context['title'] = "D-> | Update Flight"
         context['parent_name'] = 'Logbook'
         context['parent_link'] = reverse('flight_list')
@@ -414,7 +417,10 @@ class FlightDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, De
         context['next_flight'] = next_flight
         context['previous_flight'] = previous_flight
 
-        context['detail_has_errors'] = self.object.has_errors
+        context['airport_confirmation_form'] = AirportConfirmationForm(flight=self.object, review=self.request.GET.get('airports') == 'review')
+        context['other_flight_errors'] = [message for message in self.object.validation_errors
+                                         if message != self.object.duplicate_error]
+        context['detail_has_errors'] = self.object.has_errors or context['airport_confirmation_form'].has_unresolved
         context['title'] = "D-> | Flight Detail"
         context['page_title'] = "Detail"
         context['home_link'] = reverse('home')
@@ -422,6 +428,24 @@ class FlightDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, De
         context['parent_name'] = 'Logbook'
 
         return context
+
+
+class ConfirmFlightAirports(LoginRequiredMixin, ProfileNotActiveMixin, View):
+    def post(self, request, pk):
+        with transaction.atomic():
+            flight = get_object_or_404(Flight.objects.select_for_update().filter(user=request.user), pk=pk)
+            form = AirportConfirmationForm(request.POST, flight=flight,
+                review=request.POST.get('review', '').lower() in ('true', '1', 'on'))
+            if not form.is_valid():
+                return render(request, 'flights/confirm_airports.html',
+                              {'flight': flight, 'airport_confirmation_form': form}, status=400)
+            flight.route_airport_choices = form.selections()
+            resolution = flight_resolution(flight)
+            values = {**warning_values(resolution), **map_values(resolution),
+                      'route_airport_choices': flight.route_airport_choices}
+            Flight.objects.filter(pk=flight.pk, user=request.user).update(**values)
+        messages.success(request, 'Airport choices saved. Your route text is unchanged.')
+        return redirect('flight_detail', pk=flight.pk)
 
 
 class FlightDelete(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, DeleteView):

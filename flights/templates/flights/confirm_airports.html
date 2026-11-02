@@ -1,0 +1,7 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>Confirm airports</h1>
+{% include 'flights/airport_confirmation.html' %}
+{% if not airport_confirmation_form.pending %}{{ airport_confirmation_form.errors }}{% endif %}
+<a href="{% url 'flight_detail' flight.pk %}">Back to flight</a>
+{% endblock %}

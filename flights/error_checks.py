@@ -1,7 +1,5 @@
 """Shared persisted-error presentation and airport-code checks."""
-from collections import Counter
 from decimal import Decimal
-import re
 
 from django.db.models import Q
 
@@ -25,23 +23,10 @@ def flight_error_messages(flight):
 
 
 def route_codes(route):
-    return list(dict.fromkeys(code for code in re.split(r'\W+', route) if code))
+    from flights.airport_resolution import route_segments
+    return list(dict.fromkeys(route_segments(route)))
 
 
-def route_warning_values(route, airport_rows=None):
-    from flights.models import MapData
-    codes = route_codes(route)
-    if airport_rows is None:
-        airport_rows = MapData.objects.filter(Q(icao__in=codes) | Q(iata__in=codes)).values_list('icao', 'iata')
-    known = set()
-    iata_counts = Counter()
-    for icao, iata in airport_rows:
-        known.update((icao, iata))
-        if iata:
-            iata_counts[iata] += 1
-    missing = [code for code in codes if code not in known]
-    ambiguous = [code for code in codes if iata_counts[code] > 1]
-    return {
-        'map_error': 'Unknown airport codes: ' + ', '.join(missing) if missing else '',
-        'duplicate_error': 'Ambiguous airport codes: ' + ', '.join(ambiguous) if ambiguous else '',
-    }
+def route_warning_values(route, airport_rows=None, choices=None):
+    from flights.airport_resolution import resolve_route, warning_values
+    return warning_values(resolve_route(route, choices, airport_rows))
