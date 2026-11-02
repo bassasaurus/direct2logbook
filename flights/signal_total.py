@@ -2,10 +2,10 @@ from flights.models import Total, Flight, Imported
 
 from django.db.models.signals import post_save, post_delete
 from django.db.models import Q
-import datetime
 
 from django.core.exceptions import ObjectDoesNotExist
 from flights.queryset_helpers import avoid_none
+from flights.rolling_stats import assign_rolling_values
 from django.dispatch import receiver
 
 
@@ -98,41 +98,5 @@ def total_all_update(sender, instance, dispatch_uid="total_all_update", **kwargs
 
         object.landings_total = object.landings_day + object.landings_night
 
-        try:
-            last_flown = flight.latest('date')
-            object.last_flown = last_flown.date
-
-        except ObjectDoesNotExist:
-            object.last_flown = None
-
-        today = datetime.date.today()
-
-        last_30 = today - datetime.timedelta(days=30)
-        last_30 = flight.filter(date__lte=today, date__gte=last_30)
-        object.last_30 = avoid_none(last_30, 'duration') + avoid_none(imported, 'last_30')
-
-        last_60 = today - datetime.timedelta(days=60)
-        last_60 = flight.filter(date__lte=today, date__gte=last_60)
-        object.last_60 = avoid_none(last_60, 'duration') + avoid_none(imported, 'last_60')
-
-        last_90 = today - datetime.timedelta(days=90)
-        last_90 = flight.filter(date__lte=today, date__gte=last_90)
-        object.last_90 = avoid_none(last_90, 'duration') + avoid_none(imported, 'last_90')
-
-        last_180 = today - datetime.timedelta(days=180)
-        last_180 = flight.filter(date__lte=today, date__gte=last_180)
-        object.last_180 = avoid_none(last_180, 'duration') + avoid_none(imported, 'last_180')
-
-        last_yr = today - datetime.timedelta(days=365)
-        last_yr = flight.filter(date__lte=today, date__gte=last_yr)
-        object.last_yr = avoid_none(last_yr, 'duration') + avoid_none(imported, 'last_yr')
-
-        last_2yr = today - datetime.timedelta(days=730)
-        last_2yr = flight.filter(date__lte=today, date__gte=last_2yr)
-        object.last_2yr = avoid_none(last_2yr, 'duration') + avoid_none(imported, 'last_2yr')
-
-        ytd = datetime.date(today.year, 1, 1)
-        ytd = flight.filter(date__lte=today, date__gte=ytd)
-        object.ytd = avoid_none(ytd, 'duration') + avoid_none(imported, 'ytd')
-
+        assign_rolling_values(object, flight, imported)
         object.save()
