@@ -12,7 +12,7 @@ from .currency import (
     helo_vfr_day, helo_vfr_night, gyro_vfr_day, gyro_vfr_night,
     medical_duration, type_currency)
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Q, Sum, F
+from django.db.models import Q, Sum, F, Exists, OuterRef
 from django.shortcuts import render, redirect
 
 
@@ -38,13 +38,13 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
         context['recent'] = Flight.objects.filter(
             user=user).order_by('-date')[:5]
 
-        aircraft_list = []
-        for aircraft in Aircraft.objects.filter(user=user).all():
-            if TailNumber.objects.filter(user=user).filter(aircraft__aircraft_type=aircraft).exists() or Imported.objects.filter(user=user).filter(aircraft_type=aircraft).exists():
-                pass
-            else:
-                aircraft_list.append(aircraft)
-                context['aircraft_needs_tailnumber'] = aircraft_list
+        # Check all aircraft in one query instead of two lookups per aircraft.
+        aircraft_list = list(Aircraft.objects.filter(user=user).annotate(
+            has_tailnumber=Exists(TailNumber.objects.filter(user=user, aircraft_id=OuterRef('pk'))),
+            has_imported=Exists(Imported.objects.filter(user=user, aircraft_type_id=OuterRef('pk'))),
+        ).filter(has_tailnumber=False, has_imported=False))
+        if aircraft_list:
+            context['aircraft_needs_tailnumber'] = aircraft_list
 
         # cat/class vfr day, night currency
         try:
@@ -395,56 +395,30 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
         context['aircraft_type_rating'] = Aircraft.objects.filter(user=user).filter(requires_type=True)
         context['type_currency'] = type_currency(user)
 
-        context['amel_vfr_day'] = amel_vfr_day(user)[0]
-        context['amel_vfr_day_current'] = amel_vfr_day(user)[1]
-        context['amel_vfr_night'] = amel_vfr_night(user)[0]
-        context['amel_vfr_night_current'] = amel_vfr_night(user)[1]
+        context['amel_vfr_day'], context['amel_vfr_day_current'] = amel_vfr_day(user)
+        context['amel_vfr_night'], context['amel_vfr_night_current'] = amel_vfr_night(user)
 
-        context['asel_vfr_day'] = asel_vfr_day(user)[0]
-        context['asel_vfr_day_current'] = asel_vfr_day(user)[1]
-        context['asel_vfr_night'] = asel_vfr_night(user)[0]
-        context['asel_vfr_night_current'] = asel_vfr_night(user)[1]
+        context['asel_vfr_day'], context['asel_vfr_day_current'] = asel_vfr_day(user)
+        context['asel_vfr_night'], context['asel_vfr_night_current'] = asel_vfr_night(user)
 
-        context['ases_vfr_day'] = ases_vfr_day(user)[0]
-        context['ases_vfr_day_current'] = ases_vfr_day(user)[1]
-        context['ases_vfr_night'] = ases_vfr_night(user)[0]
-        context['ases_vfr_night_current'] = ases_vfr_night(user)[1]
+        context['ases_vfr_day'], context['ases_vfr_day_current'] = ases_vfr_day(user)
+        context['ases_vfr_night'], context['ases_vfr_night_current'] = ases_vfr_night(user)
 
-        context['ames_vfr_day'] = ames_vfr_day(user)[0]
-        context['ames_vfr_day_current'] = ames_vfr_day(user)[1]
-        context['ames_vfr_night'] = ames_vfr_night(user)[0]
-        context['ames_vfr_night_current'] = ames_vfr_night(user)[1]
+        context['ames_vfr_day'], context['ames_vfr_day_current'] = ames_vfr_day(user)
+        context['ames_vfr_night'], context['ames_vfr_night_current'] = ames_vfr_night(user)
 
-        context['helo_vfr_day'] = helo_vfr_day(user)[0]
-        context['helo_vfr_day_current'] = helo_vfr_day(user)[1]
-        context['helo_vfr_night'] = helo_vfr_night(user)[0]
-        context['helo_vfr_night_current'] = helo_vfr_night(user)[1]
+        context['helo_vfr_day'], context['helo_vfr_day_current'] = helo_vfr_day(user)
+        context['helo_vfr_night'], context['helo_vfr_night_current'] = helo_vfr_night(user)
 
-        context['gyro_vfr_day'] = gyro_vfr_day(user)[0]
-        context['gyro_vfr_day_current'] = gyro_vfr_day(user)[1]
-        context['gyro_vfr_night'] = gyro_vfr_night(user)[0]
-        context['gyro_vfr_night_current'] = gyro_vfr_night(user)[1]
+        context['gyro_vfr_day'], context['gyro_vfr_day_current'] = gyro_vfr_day(user)
+        context['gyro_vfr_night'], context['gyro_vfr_night_current'] = gyro_vfr_night(user)
 
-        context['expiry_date'] = medical_duration(user)[0]
-        context['this_month'] = medical_duration(user)[1]
-        context['expiring'] = medical_duration(user)[2]
-        context['expired'] = medical_duration(user)[3]
-        context['current'] = medical_duration(user)[4]
+        (context['expiry_date'], context['this_month'], context['expiring'],
+         context['expired'], context['current']) = medical_duration(user)
 
-        if len(Aircraft.objects.filter(user=user)) == 0:
-            context['new_user_aircraft'] = True
-        else:
-            context['new_user_aircraft'] = False
-
-        if len(TailNumber.objects.filter(user=user)) == 0:
-            context['new_user_tailnumber'] = True
-        else:
-            context['new_user_tailnumber'] = False
-
-        if len(Flight.objects.filter(user=user)) == 0:
-            context['new_user_flight'] = True
-        else:
-            context['new_user_flight'] = False
+        context['new_user_aircraft'] = not Aircraft.objects.filter(user=user).exists()
+        context['new_user_tailnumber'] = not TailNumber.objects.filter(user=user).exists()
+        context['new_user_flight'] = not Flight.objects.filter(user=user).exists()
 
         context['flights'] = Flight.objects.filter(user=user)
         context['totals'] = Total.objects.filter(
