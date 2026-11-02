@@ -130,3 +130,52 @@ class RollingStatisticsTests(TestCase):
     def test_missing_or_null_last_dates_are_none_not_1900(self):
         Imported.objects.bulk_create([Imported(user=self.user, aircraft_type=self.aircraft, total_time=10)])
         self.assertIsNone(self.values(self.as_of)['last_flown'])
+
+    def test_legacy_uppercase_and_padded_known_categories_refresh_normally(self):
+        self.flight(self.as_of)
+        rows = [Total.objects.create(user=self.user, total=label, total_time=100, last_30=99)
+                for label in ('ALL', ' all ', 'asel', ' ASEL ')]
+        result = refresh_rolling_stats(self.as_of, user_id=self.user.pk)
+        self.assertEqual(result['skipped_total_ids'], [])
+        for row in rows:
+            label = row.total
+            row.refresh_from_db()
+            self.assertEqual(row.last_30, Decimal('2.5'))
+            self.assertEqual(row.total_time, Decimal('100'))
+            self.assertEqual(row.total, label)  # Don't rewrite or merge historical rows.
+
+    def test_unknown_categories_are_reported_and_preserved_without_blocking_users(self):
+        self.flight(self.as_of)
+        unknown = Total.objects.create(user=self.user, total='Legacy custom', last_30=99)
+        result = refresh_rolling_stats(self.as_of)
+        self.assertEqual(result['skipped_total_ids'], [unknown.pk])
+        unknown.refresh_from_db()
+        self.total.refresh_from_db()
+        self.stat.refresh_from_db()
+        other_total = Total.objects.get(user=self.other, total='All')
+        self.assertEqual(unknown.last_30, Decimal('99'))
+        self.assertEqual(self.total.last_30, Decimal('2.5'))
+        self.assertEqual(self.stat.last_30, Decimal('2.5'))
+        self.assertEqual(other_total.last_30, 0)
+
+    def test_dry_run_reports_unknown_categories_without_writes(self):
+        unknown = Total.objects.create(user=self.user, total='', last_30=99)
+        out, errors = StringIO(), StringIO()
+        call_command('refresh_rolling_stats', '--dry-run', stdout=out, stderr=errors)
+        self.assertIn('Would refresh', out.getvalue())
+        self.assertIn('Skipped 1 Total row', errors.getvalue())
+        self.assertIn(str(unknown.pk), errors.getvalue())
+        self.total.refresh_from_db()
+        self.assertEqual(self.total.last_30, Decimal('99'))
+
+    def test_save_handler_also_accepts_legacy_all_and_preserves_unknown_rows(self):
+        legacy = Total.objects.create(user=self.user, total='ALL', total_time=99)
+        unknown = Total.objects.create(user=self.user, total='Legacy custom', total_time=99)
+        flight = self.flight(self.as_of)
+        with patch('flights.rolling_stats.timezone.localdate', return_value=self.as_of):
+            total_all_update(Flight, flight)
+        legacy.refresh_from_db()
+        unknown.refresh_from_db()
+        self.assertEqual(legacy.total_time, Decimal('2.5'))
+        self.assertEqual(legacy.last_30, Decimal('2.5'))
+        self.assertEqual(unknown.total_time, Decimal('99'))
