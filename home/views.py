@@ -280,8 +280,8 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
             context['airplane_xc_solo'] = round(
                 airplane_xc_solo.get('duration__sum'), 1)
 
-        airplane_xc_pic_sic_query = Q(cross_country=True) & Q(
-            pilot_in_command=True) | Q(second_in_command=True)
+        airplane_xc_pic_sic_query = Q(cross_country=True) & (
+            Q(pilot_in_command=True) | Q(second_in_command=True))
         airplane_xc_pic_sic = Flight.objects.filter(user=user).filter(
             airplane_query, airplane_xc_pic_sic_query).aggregate(Sum('duration'))
         if not airplane_xc_pic_sic.get('duration__sum'):
@@ -342,8 +342,8 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
             context['rotorcraft_xc_solo'] = round(
                 rotorcraft_xc_solo.get('duration__sum'), 1)
 
-        rotorcraft_xc_pic_sic_query = Q(cross_country=True) & Q(
-            pilot_in_command=True) | Q(second_in_command=True)
+        rotorcraft_xc_pic_sic_query = Q(cross_country=True) & (
+            Q(pilot_in_command=True) | Q(second_in_command=True))
         rotorcraft_xc_pic_sic = Flight.objects.filter(user=user).filter(
             rotorcraft_query, rotorcraft_xc_pic_sic_query).aggregate(Sum('duration'))
         if not rotorcraft_xc_pic_sic.get('duration__sum'):
