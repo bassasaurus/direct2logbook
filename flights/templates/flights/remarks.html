@@ -13,7 +13,10 @@
   <div class="col-12">
   {% for flight in object_list %}
     {% if flight.remarks %}
-      <p><a href ="{% url 'flight_detail' flight.pk %}" class="">{{ flight.date }} | {{ flight.route }} | {{ flight.remarks }}</a></p>
+      <article class="mb-4">
+        <a href="{% url 'flight_detail' flight.pk %}">{{ flight.date|date:"m/d/Y" }} | {{ flight.route }}</a>
+        <p class="mt-1 mb-0" style="white-space: pre-wrap; overflow-wrap: anywhere;">{{ flight.remarks }}</p>
+      </article>
     {% endif %}
   {% endfor %}
   </div>

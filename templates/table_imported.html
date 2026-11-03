@@ -48,7 +48,7 @@
     <td class="text-right">{{ import.simulator }}</td>
     <td class="text-right">{{ import.landings_day }}</td>
     <td class="text-right">{{ import.landings_night }}</td>
-    <td class="text-right">{{ import.last_flown }}</td>
+    <td class="text-right">{{ import.last_flown|date:"m/d/Y"|default:"-" }}</td>
     <td class="text-right">{{ import.last_30 }}</td>
     <td class="text-right">{{ import.last_60 }}</td>
     <td class="text-right">{{ import.last_90 }}</td>

@@ -1,3 +1,5 @@
+from datetime import date, datetime
+from urllib.parse import urlencode
 from django.views.decorators.csrf import csrf_exempt
 from flights.models import Flight, Aircraft, TailNumber, Approach, Holding, Imported
 
@@ -143,7 +145,11 @@ class FlightArchive(LoginRequiredMixin, ProfileNotActiveMixin, ArchiveIndexView)
         context = super(FlightArchive, self).get_context_data(**kwargs)
         user = self.request.user
         object_list = self.object_list.filter(user=user)
-        get_map_data(object_list, user)
+        context['flight_map'] = flight_map_data(object_list)
+        groups = {}
+        for flight in object_list:
+            groups.setdefault(str(flight.date.year), []).append(str(flight.pk))
+        context['flight_map']['groups'] = groups
 
         context['title'] = "D-> | Map"
         context['parent_name'] = 'Home'
@@ -171,7 +177,11 @@ class FlightArchiveYear(LoginRequiredMixin, ProfileNotActiveMixin, YearArchiveVi
         context = super(FlightArchiveYear, self).get_context_data(**kwargs)
         user = self.request.user
         object_list = self.object_list.filter(user=user)
-        get_map_data(object_list, user)
+        context['flight_map'] = flight_map_data(object_list)
+        groups = {}
+        for flight in object_list:
+            groups.setdefault(flight.date.strftime('%m'), []).append(str(flight.pk))
+        context['flight_map']['groups'] = groups
 
         context['title'] = "D-> | Flights by Year"
         context['home_link'] = reverse('home')
@@ -236,6 +246,27 @@ class FlightList(LoginRequiredMixin, ProfileNotActiveMixin, ListView):
     template_name = "flights/flight_list.html"
     paginate_by = 40
 
+    def get(self, request, *args, **kwargs):
+        jump = request.GET.get('jump_month', '')
+        self.jump_error = ''
+        if jump:
+            try:
+                selected = (datetime.strptime(jump, '%m/%d/%Y').date()
+                            if '/' in jump else date.fromisoformat(jump + '-01'))
+            except ValueError:
+                self.jump_error = 'Choose a valid month and year.'
+            else:
+                flights = self.get_queryset()
+                target = flights.filter(date__year=selected.year, date__month=selected.month).first()
+                if target:
+                    position = flights.filter(date__gt=target.date).count()
+                    params = {'page': position // self.paginate_by + 1}
+                    if request.GET.get('errors') == '1':
+                        params['errors'] = '1'
+                    return redirect(reverse('flight_list') + '?' + urlencode(params) + '#logbook')
+                self.jump_error = 'No flights found for that month in this logbook view.'
+        return super().get(request, *args, **kwargs)
+
     def get_queryset(self):
         queryset = Flight.objects.filter(user=self.request.user)
         if self.request.GET.get('errors') == '1':
@@ -253,6 +284,27 @@ class FlightList(LoginRequiredMixin, ProfileNotActiveMixin, ListView):
         context['flight_error_count'] = errors.count()
         context['flight_error_summary'] = errors[:10]
         context['errors_only'] = self.request.GET.get('errors') == '1'
+
+        page = context['page_obj']
+        visible_pages = set(page.paginator.get_elided_page_range(page.number, on_each_side=2, on_ends=1))
+        page_dates = list(page.paginator.object_list.values_list('date', flat=True))
+        page_links = []
+        gap = 0
+        in_gap = False
+        for number in page.paginator.page_range:
+            hidden = number not in visible_pages
+            if hidden and not in_gap:
+                gap += 1
+                page_links.append({'gap_button': gap})
+            dates = page_dates[(number - 1) * self.paginate_by:number * self.paginate_by]
+            page_links.append({'number': number, 'gap': gap if hidden else None,
+                               'oldest': dates[-1] if dates else None,
+                               'newest': dates[0] if dates else None})
+            in_gap = hidden
+        context['jump_error'] = getattr(self, 'jump_error', '')
+        context['jump_month'] = self.request.GET.get('jump_month', '')
+        context['logbook_page_links'] = page_links
+        context['page_flights'] = list(page.object_list)
 
         context['title'] = "D-> | Logbook"
         context['parent_name'] = 'Home'
@@ -692,7 +744,6 @@ class TailNumberDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin
         user = self.request.user
         flights = Flight.objects.filter(
             user=user).filter(registration=self.object)
-        get_map_data(flights, user)
 
         context = super(TailNumberDetail, self).get_context_data(**kwargs)
 
@@ -720,6 +771,7 @@ class TailNumberDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin
         context['child_name'] = tailnumber.aircraft
         context['child_link'] = reverse('aircraft_detail', args=[
                                         self.object.aircraft.pk])
+        context['flight_map'] = flight_map_data(flights)
         context['flights'] = flights
         return context
 

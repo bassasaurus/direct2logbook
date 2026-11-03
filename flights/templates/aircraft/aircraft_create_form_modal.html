@@ -13,7 +13,7 @@
         <form action="{% url 'aircraft_create' %}" class="" method="post">
             {% csrf_token %}
             {% include 'aircraft/aircraft_form.html' %}
-            <button class="btn btn-primary btn-sm" type="submit">Submit</button>
+            <button class="btn btn-primary btn-sm mt-3" type="submit">Create Aircraft</button>
         </form>
       </div>
     </div>

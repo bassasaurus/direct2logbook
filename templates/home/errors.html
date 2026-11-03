@@ -9,7 +9,7 @@
       <tbody>
         {% for flight in flight_errors %}
         <tr>
-          <td><a href="{% url 'flight_detail' flight.pk %}" style="margin-top: 5px;" class="text-danger text-no-wrap">{{ flight.date }} | {{ flight.route }}</a></td><br />
+          <td><a href="{% url 'flight_detail' flight.pk %}" style="margin-top: 5px;" class="text-danger text-no-wrap">{{ flight.date|date:"m/d/Y" }} | {{ flight.route }}</a></td><br />
         </tr>
         {% endfor %}
       </tbody>

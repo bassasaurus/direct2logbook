@@ -5,23 +5,9 @@
 <hr>
 <div class="row">
   <div class="col">
-    {% for year in years reversed %}
-      <a href="{% url 'flight_by_year' year=year|date:'Y' %}">{{ year|date:"Y" }}</a>
+    {% for navigation_year in years reversed %}
+      <a href="{% url 'flight_by_year' year=navigation_year|date:'Y' %}"{% if navigation_year.year == year.year %} class="font-weight-bold text-dark" aria-current="page"{% endif %}>{{ navigation_year|date:"Y" }}</a>
     {% endfor %}
-  </div>
-</div>
-<hr>
-<div class="row">
-  <div class="col">
-      <div class="">
-        {% if next_year %}
-            <a href="{% url 'flight_by_year' year=next_year|date:'Y' %}" class="">+ {{ next_year|date:"Y" }}</a>
-        {% endif %}
-          <span class="font-weight-bold">| {{ year|date:"Y" }} |</span>
-        {% if previous_year %}
-            <a href="{% url 'flight_by_year' year=previous_year|date:'Y' %}" class="">{{ previous_year|date:"Y" }} -</a>
-        {% endif %}
-      </div>
   </div>
 </div>
 <hr>
@@ -29,7 +15,7 @@
   <div class="col">
     <div style="display: inline;" class="align-center">
 			{% for date in date_list %}
-          <a href="{% url 'flight_by_month' year=year|date:'Y' month=date|date:'b' %}"class="">{{ date|date:"F" }}</a> |
+          <a href="{% url 'flight_by_month' year=year|date:'Y' month=date|date:'b' %}" data-route-group="{{ date|date:'m' }}">{{ date|date:"F" }}</a> |
       {% endfor %}
       </div>
 

@@ -7,11 +7,12 @@
 {% if not airport_confirmation_form.has_unresolved %}{% include "flights/error_alert.html" %}{% endif %}
 {% include "flights/airport_confirmation.html" %}
 <div class="row">
-  <div class="col-12">
-    <div class="btn-group">
-      <a href="{% url 'flight_detail' previous_flight.pk %}" class="text-dark">Previous Flight</a>&nbsp|&nbsp
-      <a href="{% url 'flight_detail'  next_flight.pk %}" class="text-dark">Next Flight</a>
-    </div>
+  <div class="col-12 flight-detail-action-row">
+    <span class="context-navigation-links">
+      <a href="{% url 'flight_detail' previous_flight.pk %}" class="text-primary"><span aria-hidden="true">← </span>Previous</a>
+      <span aria-hidden="true">|</span>
+      <a href="{% url 'flight_detail' next_flight.pk %}" class="text-primary">Next<span aria-hidden="true"> →</span></a>
+    </span>
   </div>
 </div>
 <hr>
@@ -37,11 +38,7 @@
       {% if flight.dual %}| Dual{% endif %}
       {% if flight.solo %}| Solo{% endif %}
     </h6>
-    <h6>
-      {% if flight.remarks %}Remarks:<p>
-        <h7>{{flight.remarks}}</h7>
-      </p>{% endif %}
-    </h6>
+    <p class="mb-0">Remarks: {% if flight.remarks %}<span style="white-space: pre-wrap;">{{ flight.remarks }}</span>{% else %}None{% endif %}</p>
 
   </div>
 </div>

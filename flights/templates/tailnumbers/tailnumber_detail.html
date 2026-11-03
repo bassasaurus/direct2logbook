@@ -22,26 +22,20 @@
 <hr>
 
 <div class="row">
-  <div style="" class="col-12">
+  <div class="col-12 col-lg-4 mb-3 mb-lg-0">
     <h4>Routes</h4>
-  </div>
-  <div class="col-12">
-    {% if flights|length == 0 %}
-    <h1>No Data</h1>
-    {% else %}
-    <div class="list-inline">
+    <div class="tailnumber-flight-list pr-lg-2" role="region" aria-label="Flights for this tailnumber" tabindex="0">
       {% for flight in flights %}
-      <span class="list-inline-item"><a href="{% url 'flight_detail' flight.pk %}" class="">{{ flight.date }} {{ flight.route }} </a><br></span>
+        <a class="d-block py-2" data-flight-id="{{ flight.pk }}" href="{% url 'flight_detail' flight.pk %}">
+          {{ flight.date|date:"m/d/Y" }} | {{ flight.route }}
+        </a>
+      {% empty %}
+        <p>No Data</p>
       {% endfor %}
     </div>
-    {% endif %}
   </div>
-</div>
-<hr>
-
-<div class="row">
-  <div class="col-12">
-    <div style="margin-top: 10px;" id="mapid" class="col image-shadow custom-popup">
+  <div class="col-12 col-lg-8">
+    <div id="mapid" class="image-shadow custom-popup">
       {% include 'leaflet.html' %}
     </div>
   </div>

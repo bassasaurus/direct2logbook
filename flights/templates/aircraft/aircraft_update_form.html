@@ -1,19 +1,16 @@
 {% extends 'base.html' %}
 {% block content %}
-<hr>
 <div class="row justify-content-center">
   <div class="col-lg-12 col-sm-12">
-    <form action="" class="" method="post">
+    <form action="" class="mt-3" method="post">
       {% csrf_token %}
       <div class="form-group">
         <h4>Update {{ aircraft.aircraft_type }}</h4>
         <p>Required *</p>
         <p class="text-danger">{{ form.non_field_errors }}</p>
       </div>
-      <hr>
       {% include 'aircraft/aircraft_form.html' %}
-      <hr>
-      <button class="btn-shadow btn-shadow-dark btn-block" type="submit">Update</button>
+      <button class="btn btn-primary mt-3" type="submit">Save changes</button>
     </form>
   </div>
 </div>

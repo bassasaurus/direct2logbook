@@ -40,7 +40,7 @@ class InlineErrorTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'text-danger logbook-row-error')
         self.assertContains(response, f'href="{reverse("flight_update", args=[bad.pk])}" class="btn btn-sm btn-outline-danger">Update')
-        self.assertContains(response, f'href ="{reverse("flight_detail", args=[good.pk])}" class="btn btn-sm btn-outline-primary">View')
+        self.assertContains(response, f'class="logbook-detail-link" href="{reverse("flight_detail", args=[good.pk])}"')
         self.assertContains(response, '1 flight needs attention')
         self.assertContains(response, 'Unknown airport codes: XXXX')
 
@@ -91,7 +91,7 @@ class InlineErrorTests(TestCase):
         self.assertContains(response, '&lt;script&gt;unsafe&lt;/script&gt;')
         self.assertNotContains(response, '<script>unsafe</script>')
         self.assertNotContains(response, 'id="errors"')
-        self.assertLess(response.content.index(b'aria-label="Flight errors"'), response.content.index(b'Previous Flight'))
+        self.assertLess(response.content.index(b'aria-label="Flight errors"'), response.content.index(b'Previous</a>'))
 
     @patch('flights.views.get_map_data')
     def test_aircraft_and_tail_errors_are_inline_and_healthy_notices_hidden(self, map_data):
@@ -180,3 +180,29 @@ class InlineErrorTests(TestCase):
             self.assertContains(response, 'class="text-danger detail-delete">Delete</a>', count=1)
             self.assertContains(response, f'href="{reverse(update, args=[pk])}" class="detail-update btn btn-outline-danger">Update</a>', count=1)
             self.assertEqual(response.content.count(f'href="{reverse(update, args=[pk])}"'.encode()), 1)
+
+    def test_pagination_date_ranges_match_page_boundaries(self):
+        for _ in range(40):
+            self.flight(date=date(2025, 2, 1))
+        self.flight(date=date(2024, 12, 1))
+        self.flight(user=self.other, date=date(2020, 1, 1))
+        response = self.client.get(reverse('flight_list'))
+        self.assertContains(response, 'title="Page 1: Feb 2025 – Feb 2025"')
+        self.assertContains(response, 'title="Page 2: Dec 2024 – Dec 2024"')
+        self.assertNotContains(response, 'Jan 2020')
+
+    def test_logbook_keeps_dedicated_remarks_page_link(self):
+        self.flight()
+        response = self.client.get(reverse('flight_list'))
+        self.assertContains(response, 'Show all remarks')
+        self.assertContains(response, 'href="' + reverse('remarks') + '"')
+
+    @patch('flights.views.get_map_data')
+    def test_aircraft_summary_shows_only_selected_attributes(self, map_data):
+        response = self.client.get(reverse('aircraft_detail', args=[self.aircraft.pk]))
+        self.assertContains(response, '<li>ASEL</li>')
+        self.assertContains(response, '<li>Piston</li>')
+        self.assertContains(response, '<li>Simple</li>')
+        self.assertContains(response, '<li>Small</li>')
+        self.assertNotContains(response, '<li>Turbine</li>')
+        self.assertNotContains(response, '<li>Complex</li>')

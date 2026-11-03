@@ -14,8 +14,7 @@
         <form action="{% url 'tailnumber_create' %}" class="" method="post">
             {% csrf_token %}
             {% include 'tailnumbers/tailnumber_form.html' %}
-            <hr>
-            <button class="btn btn-primary btn-sm" type="submit">Submit</button>
+            <button class="btn btn-primary btn-sm mt-3" type="submit">Create Tailnumber</button>
         </form>
       </div>
     </div>

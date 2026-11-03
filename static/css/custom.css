@@ -259,19 +259,20 @@ body.app-layout {
 .detail-record-actions {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: .25rem;
 }
 
 .detail-record-actions .detail-update {
   display: inline-block;
-  padding: 4px 10px;
-  border: 1px solid transparent;
+  padding: 0;
+  border: 0;
   border-radius: .25rem;
   font: inherit;
 }
 
 .detail-record-actions .detail-update.btn-outline-danger {
-  border-color: #dc3545;
+  outline: 1px solid #dc3545;
+  outline-offset: 2px;
 }
 
 .detail-record-actions .detail-delete {
@@ -280,25 +281,184 @@ body.app-layout {
 
 .detail-action-toolbar {
   display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .5rem 1rem;
+}
+
+/* Use the home-page link rhythm in every contextual navigation group. */
+.context-navigation-links {
+  display: inline-flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 16px;
+  justify-content: flex-start;
+  gap: .25rem;
+  font: inherit;
 }
 
-.detail-navigation-actions {
+.context-navigation-item {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: .25rem;
+  max-width: 100%;
 }
 
-.detail-toolbar-divider {
-  flex: 0 0 1px;
+.context-navigation-links a,
+.context-navigation-links #pdf {
+  font: inherit;
+}
+
+.context-action-links {
+  text-align: left;
+}
+
+.flight-detail-action-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .5rem 1rem;
+  margin-top: .75rem;
+}
+
+[data-flight-id].map-route-active,
+[data-route-group].map-route-active {
+  color: #0056b3;
+  background: rgba(0, 123, 255, .1);
+  border-radius: .25rem;
+}
+
+.tailnumber-flight-list {
+  max-height: 18rem;
+  overflow-y: auto;
+}
+.tailnumber-flight-list a { overflow-wrap: anywhere; }
+@media (min-width: 992px) {
+  .tailnumber-flight-list { max-height: 500px; }
+}
+
+.logbook-flight-row { cursor: pointer; }
+#logbook .logbook-flight-row:hover,
+#logbook .logbook-flight-row:focus-within { background-color: rgba(0, 123, 255, .08); }
+#logbook .logbook-detail-link,
+#logbook .logbook-detail-link:hover,
+#logbook .logbook-detail-link:focus {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* The frozen first cell needs an opaque background to avoid doubling row tint. */
+#logbook .logbook-flight-row > td:first-child { background-color: #fff !important; }
+#logbook tbody .logbook-stripe > td:first-child {
+  background-color: #f2f2f2 !important;
+}
+#logbook.table-striped tbody .logbook-flight-row:hover > td:first-child,
+#logbook.table-striped tbody .logbook-flight-row:focus-within > td:first-child,
+#logbook .logbook-flight-row:hover > td,
+#logbook .logbook-flight-row:focus-within > td {
+  background-color: #ebf5ff !important;
+}
+
+.logbook-pagination {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 3rem);
+  width: 100%;
+}
+.logbook-pagination > .page-item:not([hidden]) {
+  text-align: center;
+}
+.logbook-pagination > .page-item:first-child,
+.logbook-pagination > .page-item:last-child { grid-column: span 2; }
+.logbook-pagination .page-link {
+  width: 100%;
+  min-width: 2.75rem;
+  white-space: nowrap;
+}
+
+#logbook .logbook-stripe { background-color: #f2f2f2; }
+#logbook .logbook-remarks-preview > td {
+  background: #f4f8fc;
+  padding: .75rem;
+  border-bottom: 1px solid #dee2e6;
+  text-align: left;
+}
+.logbook-remarks-content {
+  position: sticky;
+  left: .75rem;
+  max-width: min(65rem, calc(100vw - 4rem));
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.logbook-route-cell { position: relative; }
+.logbook-remarks-toggle {
+  position: absolute;
+  right: 1px;
+  bottom: 1px;
+  width: 22px;
   height: 22px;
-  background: #ced4da;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: .65rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.logbook-remarks-toggle[aria-expanded="true"] span { display: inline-block; transform: rotate(180deg); }
+.logbook-remarks-toggle:focus-visible { outline: 2px solid #007bff; outline-offset: 2px; }
+@media (pointer: coarse) {
+  .logbook-remarks-toggle { width: 24px; height: 24px; }
 }
 
-@media (max-width: 420px) {
-  .detail-action-toolbar { gap: 10px; }
-  .detail-toolbar-divider { display: none; }
-  .detail-navigation-actions { flex-basis: 100%; }
+.page-breadcrumb {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .5rem 1rem;
+}
+.breadcrumb-path { flex: 1 1 16rem; min-width: 0; overflow-wrap: anywhere; }
+.page-breadcrumb .detail-record-actions { margin-left: auto; }
+@media (max-width: 575.98px) {
+  .page-breadcrumb .breadcrumb-path { flex-basis: 100%; }
+  .page-breadcrumb .detail-record-actions { margin-left: 0; min-height: 44px; }
+  .page-breadcrumb .detail-record-actions a { padding-top: .5rem; padding-bottom: .5rem; }
+}
+
+.profile-section { margin: 1.5rem 0; }
+.profile-section h5 { margin-bottom: 1rem; }
+.profile-details {
+  display: grid;
+  grid-template-columns: 5.5rem minmax(0, 1fr);
+  column-gap: 1rem;
+  row-gap: .6rem;
+  margin-bottom: 1rem;
+}
+.profile-details dt { font-weight: 500; }
+.profile-details dd { margin: 0; overflow-wrap: anywhere; }
+.profile-account-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .25rem .5rem; }
+.profile-signature-image { display: block; width: 24rem; max-width: 100%; height: auto; margin-bottom: 1rem; }
+
+.aircraft-detail-summary {
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem .75rem;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.aircraft-detail-summary:empty { display: none; }
+.aircraft-detail-summary li + li::before {
+  content: "|";
+  margin-right: .75rem;
 }

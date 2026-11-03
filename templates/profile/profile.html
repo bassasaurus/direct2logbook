@@ -8,59 +8,60 @@
 
 {% else %}
 
-<div class="row">
-  <div class="col-12">
-      <h5>{{ user.first_name }} {{ user.last_name}}</h5>
-      <hr>
-        <p>
-          {% if signature %}
-          <img src="{{ signature.signature }}" alt="Signature" style="width: 50%; height: 75%"/>   
-          <hr>
-          {% endif %}
-        </p>
-        
-        <p>
-          {% if not signature %}
-            <a href="{% url 'signature_create' %}">Create New Signature</a>
-          {% else %}
-            <a id="" class="text-danger" href="{% url 'signature_delete' user.pk %}">Delete Signature</a>
-          {% endif %}
-        </p>
+<section aria-labelledby="account-heading" class="profile-section">
+  <h5 id="account-heading">Account</h5>
+  <div class="row">
+    <div class="col-12">
+      <dl class="profile-details">
+        <dt>Name</dt><dd>{% if user.first_name or user.last_name %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}</dd>
+        <dt>Email</dt><dd>{{ user.email }}</dd>
+        {% if user.profile.company %}<dt>Company</dt><dd>{{ user.profile.company }}</dd>{% endif %}
+        <dt>Joined</dt><dd>{{ user.date_joined|date:"m/d/Y" }}</dd>
+      </dl>
+      <div class="profile-account-actions">
+        <a href="{% url 'user_update' user.pk %}">Update name</a>
+        <span aria-hidden="true">|</span>
+        <a href="{% url 'account_email' %}">Update email</a>
+        <span aria-hidden="true">|</span>
+        <a href="{% url 'account_change_password' %}">Change password</a>
+      </div>
+    </div>
 
-    <hr>
-    <a href="{% url 'user_update' user.pk %}">Update name</a><br>
-    <a href="{% url 'account_change_password' %}">Change password</a><br>
-    <hr>
-    Date Joined - {{ user.date_joined|date:"M d, Y"  }}
-    <hr>
-
-    {% include 'profile/subscription.html' %}
-
-    <hr>
-    <h5>Email</h5> {{ user.email }}<br>
-    <a href="{% url 'account_email' %}">Update email</a><br>
-
-    <hr>
-    <h5>Company</h5> {{ user.profile.company }}
-    <hr>
-    <h5>Medical Certificate</h5>
-    Issued - {{ user.profile.medical_issue_date }} |
-    Type -
-    {% if user.profile.first_class == True %} 1st Class |{% else %}{% endif %}
-    {% if user.profile.second_class == True %} 2nd Class |{% else %}{% endif %}
-    {% if user.profile.third_class == True %} 3rd Class |{% else %}{% endif %}
-    {% if user.profile.over_40 == True %} Over 40 {% else %}{% endif %}
-    <p><a class="" href="{% url 'profile_update' user.profile.pk %}">Update medical info</a></p>
-
-    <hr>
-    <p><a href="{% url 'csv_inspect' %}">Upload from .csv</a></p>
-    <p><a id="csv" href="{% url 'csv_download' %}">Download your data.</a></p>
-    <hr>
-    <p>Questions or problems with the app? Email us <a target="new" href="mailto:support@direct2logbook.com?subject=Support">here</a></p>
-    <p>Include a screenshot if possible, and a description of the error. More info is better</p>
-    <hr>
   </div>
-</div>
+</section>
+<hr>
+<section aria-labelledby="signature-heading" class="profile-section">
+      <h5 id="signature-heading">Signature</h5>
+      {% if signature %}
+        <img src="{{ signature.signature }}" alt="Signature" class="img-fluid profile-signature-image">
+        <a class="text-danger" href="{% url 'signature_delete' user.pk %}">Delete Signature</a>
+      {% else %}
+        <a href="{% url 'signature_create' %}">Create New Signature</a>
+      {% endif %}
+</section>
+<hr>
+{% include 'profile/subscription.html' %}
+<hr>
+<section aria-labelledby="medical-heading" class="profile-section">
+  <h5 id="medical-heading">Medical Certificate</h5>
+  <dl class="profile-details">
+    <dt>Issued</dt><dd>{{ user.profile.medical_issue_date|date:"m/d/Y"|default:"Not recorded" }}</dd>
+    <dt>Class</dt><dd>{% if user.profile.first_class %}1st Class{% elif user.profile.second_class %}2nd Class{% elif user.profile.third_class %}3rd Class{% else %}Not recorded{% endif %}{% if user.profile.over_40 %} | Over 40{% endif %}</dd>
+  </dl>
+  <a href="{% url 'profile_update' user.profile.pk %}">Update medical info</a>
+</section>
+<hr>
+<section aria-labelledby="data-heading" class="profile-section">
+  <h5 id="data-heading" class="mb-2">Data</h5>
+  <div class="context-navigation-links">
+    <a href="{% url 'csv_inspect' %}">Upload CSV</a>
+    <span aria-hidden="true">|</span>
+    <a id="csv" href="{% url 'csv_download' %}">Download your data</a>
+  </div>
+</section>
+<hr>
+<p class="mb-1">Questions or problems? <a href="mailto:support@direct2logbook.com?subject=Support">Contact support</a>.</p>
+<p class="text-muted">Include a screenshot and a description of the issue.</p>
 {% endif %}
 
 {% if not billing_pending and not profile.free_access %}

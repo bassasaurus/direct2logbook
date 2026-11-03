@@ -18,7 +18,7 @@
     <div style="overflow:auto;" >
       {% for flight in object_list %}
           <li class=list-unstyled><a href ="{% url 'flight_detail' flight.pk %}" class="btn btn-outline-secondary btn-sm">
-                      {{ flight.date }} |
+                      {{ flight.date|date:"m/d/Y" }} |
       				{{ flight.registration }}
       				{{ flight.route }}</a></li>
       {% endfor %}
