@@ -29,11 +29,53 @@ class UserOwnedRelationsFormMixin:
 class FlightForm(UserOwnedRelationsFormMixin, forms.ModelForm):
     owned_relation_fields = ('aircraft_type', 'registration')
 
+    airport_choices = forms.JSONField(required=False, max_length=5000, widget=forms.HiddenInput)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.initial['airport_choices'] = self.instance.route_airport_choices or {}
+
+    def clean_route(self):
+        from flights.airport_resolution import resolve_route
+        route = self.cleaned_data['route']
+        unknown = list(dict.fromkeys(item['code'] for item in resolve_route(route) if item['unknown']))
+        if unknown:
+            raise forms.ValidationError('Unknown airport codes: ' + ', '.join(unknown) + '. Correct the route before saving.')
+        return route
+
+    def clean_airport_choices(self):
+        from flights.airport_resolution import resolve_route
+        value = (self.cleaned_data.get('airport_choices') or {}
+                 if 'airport_choices' in self.data else self.initial.get('airport_choices', {}))
+        route = self.cleaned_data.get('route', '')
+        if not isinstance(value, dict):
+            raise forms.ValidationError('Invalid airport selection.')
+        if not value or value.get('route') != route:
+            return {}
+        selections = value.get('airports', {})
+        if not isinstance(selections, dict):
+            raise forms.ValidationError('Invalid airport selection.')
+        resolution = resolve_route(route)
+        valid = {str(item['position']): {airport.pk for airport in item['candidates']} for item in resolution}
+        for position, airport_id in selections.items():
+            if type(airport_id) is not int or airport_id not in valid.get(position, set()):
+                raise forms.ValidationError('An airport selection is no longer valid. Check your route again.')
+        return {'route': route, 'airports': selections}
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        instance.route_airport_choices = self.cleaned_data.get('airport_choices') or {}
+        if commit:
+            instance.save()
+            self.save_m2m()
+        return instance
+
     class Meta:
         model = Flight
         exclude = ['user']
         fields = '__all__'
         widgets = {
+            'remarks': forms.Textarea(attrs={'rows': 3, 'maxlength': 500}),
             'date': forms.DateInput(
                 format="%m/%d/%Y"
             ),

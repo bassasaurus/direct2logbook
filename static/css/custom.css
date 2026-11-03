@@ -462,3 +462,54 @@ body.app-layout {
   content: "|";
   margin-right: .75rem;
 }
+
+.flight-entry-fields .select2-container { width: 100% !important; }
+.flight-entry-fields fieldset { min-width: 0; }
+.flight-entry-fields legend { margin-bottom: 1rem; }
+.flight-entry-fields #approach_form td { padding: .25rem .5rem .25rem 0; }
+
+.approach-holding-layout { display: flex; flex-wrap: wrap; align-items: flex-start; gap: .75rem 1.5rem; }
+.approach-holding-layout #approach_form { width: auto; max-width: 100%; flex: 0 1 auto; }
+.flight-entry-fields #approach_form .approach-number { width: 5rem; }
+.approach-holding-option { padding-top: .75rem; }
+
+.flight-entry-fields #approach_form {
+  border: 1px solid #ced4da;
+  border-radius: .25rem;
+  padding: .5rem;
+}
+
+.flight-picker-row { display: flex; align-items: center; gap: .75rem; }
+.flight-picker-control { flex: 1 1 0; min-width: 0; }
+.flight-picker-row > a { flex: 0 0 7.5rem; white-space: nowrap; }
+
+.flight-entry-fields .flight-picker-control .select2-container {
+  min-width: 0 !important;
+  max-width: 100%;
+  width: 100% !important;
+}
+
+.flight-entry-fields #id_landings_day,
+.flight-entry-fields #id_landings_night,
+.flight-entry-fields #id_duration,
+.flight-entry-fields #id_night,
+.flight-entry-fields #id_instrument,
+.flight-entry-fields #id_simulated_instrument {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+.flight-entry-fields #id_landings_day::-webkit-inner-spin-button,
+.flight-entry-fields #id_landings_day::-webkit-outer-spin-button,
+.flight-entry-fields #id_landings_night::-webkit-inner-spin-button,
+.flight-entry-fields #id_landings_night::-webkit-outer-spin-button,
+.flight-entry-fields #id_duration::-webkit-inner-spin-button,
+.flight-entry-fields #id_duration::-webkit-outer-spin-button,
+.flight-entry-fields #id_night::-webkit-inner-spin-button,
+.flight-entry-fields #id_night::-webkit-outer-spin-button,
+.flight-entry-fields #id_instrument::-webkit-inner-spin-button,
+.flight-entry-fields #id_instrument::-webkit-outer-spin-button,
+.flight-entry-fields #id_simulated_instrument::-webkit-inner-spin-button,
+.flight-entry-fields #id_simulated_instrument::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}

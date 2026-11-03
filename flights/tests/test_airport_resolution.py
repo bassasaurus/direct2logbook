@@ -1,3 +1,4 @@
+import json
 from datetime import date
 from io import StringIO
 from unittest.mock import patch
@@ -9,7 +10,7 @@ from django.urls import reverse
 
 from csv_app.csv_import import save_route_data as csv_route_data
 from flights.airport_resolution import resolve_route, map_values, warning_values
-from flights.forms import AirportConfirmationForm
+from flights.forms import AirportConfirmationForm, FlightForm
 from flights.models import Aircraft, Flight, MapData, TailNumber, Total
 from flights.signal_error_flight import update_route_warnings
 from flights.signal_route_data import save_route_data
@@ -218,3 +219,57 @@ class AirportResolutionTests(TestCase):
         self.assertEqual(len(result['candidates']), 1)
         self.assertFalse(result['needs_confirmation'])
         self.assertEqual(result['airport'].icao, 'SKBO')
+
+    def test_live_route_check_reuses_resolution_rules_and_is_read_only(self):
+        before = Flight.objects.count()
+        response = self.client.get(reverse('route_airport_check'), {'route': 'BBG-ZZZ-QQQQ'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Cache-Control'], 'no-store')
+        entries = response.json()['entries']
+        self.assertEqual([entry['status'] for entry in entries], ['recognized', 'ambiguous', 'unknown'])
+        self.assertEqual(entries[0]['airport']['id'], self.bbg_us.pk)
+        self.assertEqual(len(entries[1]['candidates']), 2)
+        self.assertEqual(Flight.objects.count(), before)
+
+    def test_live_route_check_requires_login_and_bounds_input(self):
+        self.assertEqual(Client().get(reverse('route_airport_check'), {'route': 'BQN'}).status_code, 302)
+        self.assertEqual(self.client.get(reverse('route_airport_check'), {'route': 'A' * 51}).status_code, 400)
+        self.assertEqual(self.client.post(reverse('route_airport_check'), {'route': 'BQN'}).status_code, 405)
+
+    def live_choice_form(self, choices, route='BQN-ZZZ', instance=None):
+        data = {'date': '01/01/2025', 'aircraft_type': self.aircraft.pk,
+                'registration': self.tail.pk, 'route': route, 'duration': '1.0',
+                'pilot_in_command': True}
+        if choices is not None:
+            data['airport_choices'] = json.dumps(choices)
+        return FlightForm(data=data, instance=instance, user=self.user)
+
+    def test_live_airport_choice_is_validated_and_saved_before_route_signals(self):
+        choices = {'route': 'BQN-ZZZ', 'airports': {'1': self.foreign.pk}}
+        form = self.live_choice_form(choices)
+        self.assertTrue(form.is_valid(), form.errors)
+        form.instance.user = self.user
+        flight = form.save()
+        flight.refresh_from_db()
+        self.assertEqual(flight.route_airport_choices, choices)
+        self.assertFalse(flight.duplicate_error)
+        self.assertEqual(flight.route_data[-1].pk, self.foreign.pk)
+
+    def test_live_choice_rejects_wrong_airport_and_preserves_existing_choice_without_js(self):
+        form = self.live_choice_form({'route': 'BQN-ZZZ', 'airports': {'1': self.bbg_us.pk}})
+        self.assertFalse(form.is_valid())
+        self.assertIn('airport_choices', form.errors)
+        choices = {'route': 'BQN-ZZZ', 'airports': {'1': self.foreign.pk}}
+        flight = self.flight('BQN-ZZZ', route_airport_choices=choices)
+        form = self.live_choice_form(None, instance=flight)
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.save().route_airport_choices, choices)
+        form = self.live_choice_form(choices, route='BQN-BBG', instance=flight)
+        self.assertTrue(form.is_valid(), form.errors)
+        self.assertEqual(form.save().route_airport_choices, {})
+
+    def test_flight_form_blocks_unknown_airports_without_browser_validation(self):
+        form = self.live_choice_form({}, route='BQN-QQQQ')
+        self.assertFalse(form.is_valid())
+        self.assertIn('QQQQ', form.errors['route'][0])
+        self.assertIn('Correct the route before saving', form.errors['route'][0])

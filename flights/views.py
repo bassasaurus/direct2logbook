@@ -32,7 +32,7 @@ from flights.get_map_data import get_map_data
 from flights.map_routes import flight_map_data
 from flights.error_checks import flight_error_filter
 from flights.forms import AirportConfirmationForm
-from flights.airport_resolution import flight_resolution, warning_values, map_values
+from flights.airport_resolution import flight_resolution, warning_values, map_values, resolve_route
 
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.utils.encoding import force_str
@@ -128,6 +128,25 @@ class TailNumberAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetVie
             qs = qs.filter(registration__istartswith=self.q)
 
         return qs
+
+
+class RouteAirportCheck(LoginRequiredMixin, ProfileNotActiveMixin, View):
+    def get(self, request):
+        route = request.GET.get('route', '')
+        if len(route) > 50:
+            return JsonResponse({'error': 'Route must be 50 characters or fewer.'}, status=400)
+        def airport_data(airport):
+            return {'id': airport.pk, 'name': airport.name, 'city': airport.city,
+                    'country': airport.country, 'icao': airport.icao}
+        entries = []
+        for item in resolve_route(route):
+            entries.append({'position': item['position'], 'code': item['code'],
+                            'status': 'unknown' if item['unknown'] else 'ambiguous' if item['needs_confirmation'] else 'recognized',
+                            'airport': airport_data(item['airport']) if item['airport'] else None,
+                            'candidates': [airport_data(airport) for airport in item['candidates']]})
+        response = JsonResponse({'entries': entries})
+        response['Cache-Control'] = 'no-store'
+        return response
 
 
 class FlightArchive(LoginRequiredMixin, ProfileNotActiveMixin, ArchiveIndexView):
