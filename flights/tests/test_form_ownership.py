@@ -5,12 +5,14 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from flights.forms import FlightForm, ImportedForm, TailNumberForm
-from flights.models import Aircraft, Flight, Imported, TailNumber
+from flights.models import MapData, Aircraft, Flight, Imported, TailNumber
 
 
 @override_settings(SECURE_SSL_REDIRECT=False)
 class FormRelationshipOwnershipTests(TestCase):
     def setUp(self):
+        MapData.objects.create(icao='KJFK', iata='JFK', name='John F Kennedy', country='United States')
+        MapData.objects.create(icao='KLAX', iata='LAX', name='Los Angeles', country='United States')
         self.user = get_user_model().objects.create_user(username='form_owner')
         self.other = get_user_model().objects.create_user(username='form_other')
         self.aircraft = Aircraft.objects.create(user=self.user, aircraft_type='C172')

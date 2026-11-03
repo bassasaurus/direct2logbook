@@ -1,7 +1,7 @@
 
 from django.urls import path
 from flights.views import (
-    AircraftAutocomplete, TailNumberAutocomplete,
+    AircraftAutocomplete, TailNumberAutocomplete, RouteAirportCheck,
     geoJSON_routes_view, geoJSON_airports_view,
     FlightArchive, FlightArchiveYear, FlightArchiveMonth,
     FlightList, FlightCreate, FlightUpdate, FlightDetail, FlightDelete, RemarksList, ConfirmFlightAirports,
@@ -17,6 +17,8 @@ urlpatterns = [
     path('geojson/routes/<int:user_id>/',
          geoJSON_routes_view, name='geojson_routes'),
 
+
+    path('route-airport-check/', RouteAirportCheck.as_view(), name='route_airport_check'),
 
     # autocomplete urls
     path('aircraft-autocomplete/', AircraftAutocomplete.as_view(),

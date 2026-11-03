@@ -1,4 +1,4 @@
-from flights.models import Aircraft, TailNumber
+from flights.models import MapData, Aircraft, TailNumber
 from flights.forms import FlightForm, AircraftForm, TailNumberForm
 from django.test import TestCase
 from django.contrib.auth.models import User
@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 
 class FlightFormTests(TestCase):
     def setUp(self):
+        MapData.objects.create(icao='KJFK', iata='JFK', name='John F Kennedy', country='United States')
+        MapData.objects.create(icao='KLAX', iata='LAX', name='Los Angeles', country='United States')
         self.user = User.objects.create_user(
             username='temp', email='temp@example.com', password='pass')
         self.aircraft = Aircraft.objects.create(
