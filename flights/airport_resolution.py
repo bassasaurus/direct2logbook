@@ -5,13 +5,16 @@ from django.db.models import Q
 
 from flights.models import MapData
 
+ROUTABLE_CODE_KINDS = ('icao', 'iata', 'faa', 'legacy')
+
 
 def route_segments(route):
     return [code for code in re.split(r'[^A-Za-z0-9]+', route.upper()) if code]
 
 
 def matching_airports(codes):
-    return list(MapData.objects.filter(Q(icao__in=codes) | Q(iata__in=codes)).order_by('name', 'pk'))
+    return list(MapData.objects.filter(Q(icao__in=codes) | Q(iata__in=codes) | Q(codes__code__in=codes, codes__kind__in=ROUTABLE_CODE_KINDS))
+                .distinct().prefetch_related('codes').order_by('name', 'pk'))
 
 
 def is_us(airport):
@@ -31,6 +34,13 @@ def distinct_airports(airports):
     return sorted(groups.values(), key=lambda airport: (airport.name.casefold(), airport.pk))
 
 
+def airport_matches_code(airport, code):
+    aliases = [alias for alias in airport.codes.all() if alias.kind in ROUTABLE_CODE_KINDS]
+    if len(code) == 4 and code.isalpha():
+        return airport.icao.strip().upper() == code or any(alias.code == code and alias.kind == 'icao' for alias in aliases)
+    return code in (airport.iata.strip().upper(), airport.icao.strip().upper()) or any(alias.code == code for alias in aliases)
+
+
 def resolve_route(route, choices=None, airports=None):
     segments = route_segments(route)
     airports = matching_airports(set(segments)) if airports is None else list(airports)
@@ -39,11 +49,7 @@ def resolve_route(route, choices=None, airports=None):
         saved = {}
     result = []
     for position, code in enumerate(segments):
-        if len(code) == 4:
-            matches = [airport for airport in airports if airport.icao.strip().upper() == code]
-        else:
-            matches = [airport for airport in airports
-                       if code in (airport.iata.strip().upper(), airport.icao.strip().upper())]
+        matches = [airport for airport in airports if airport_matches_code(airport, code)]
         candidates = distinct_airports(matches)
         domestic = [airport for airport in candidates if is_us(airport)] if len(code) == 3 else []
         if domestic:

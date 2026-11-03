@@ -1,11 +1,10 @@
 from itertools import islice
 
 from django.core.management.base import BaseCommand
-from django.db.models import Q
 
 from flights.error_checks import route_codes, route_warning_values
-from flights.models import Flight, MapData
-from flights.airport_resolution import resolve_route, map_values
+from flights.models import Flight
+from flights.airport_resolution import resolve_route, map_values, matching_airports
 
 
 class Command(BaseCommand):
@@ -24,7 +23,7 @@ class Command(BaseCommand):
         checked = changed = 0
         while batch := list(islice(iterator, 200)):
             codes = {code for flight in batch for code in route_codes(flight.route)}
-            rows = list(MapData.objects.filter(Q(icao__in=codes) | Q(iata__in=codes)))
+            rows = matching_airports(codes)
             updates = []
             for flight in batch:
                 checked += 1

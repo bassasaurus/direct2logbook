@@ -1,3 +1,5 @@
+import csv
+from types import SimpleNamespace
 import json
 from datetime import date
 from io import StringIO
@@ -8,10 +10,11 @@ from django.core.management import call_command
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
-from csv_app.csv_import import save_route_data as csv_route_data
+from csv_app.csv_import import csv_import, save_route_data as csv_route_data
+from csv_app.validation import HEADERS
 from flights.airport_resolution import resolve_route, map_values, warning_values
 from flights.forms import AirportConfirmationForm, FlightForm
-from flights.models import Aircraft, Flight, MapData, TailNumber, Total
+from flights.models import Aircraft, AirportCode, Flight, MapData, TailNumber, Total
 from flights.signal_error_flight import update_route_warnings
 from flights.signal_route_data import save_route_data
 from flights.signal_make_json_field import make_json_field
@@ -273,3 +276,47 @@ class AirportResolutionTests(TestCase):
         self.assertFalse(form.is_valid())
         self.assertIn('QQQQ', form.errors['route'][0])
         self.assertIn('Correct the route before saving', form.errors['route'][0])
+
+    def test_faa_aliases_work_in_live_validation_forms_csv_and_maps(self):
+        self.lbx_us.iata = 'LJN'
+        self.lbx_us.save(update_fields=['iata'])
+        AirportCode.objects.create(airport=self.lbx_us, code='LBX', kind='faa')
+        public = self.airport('', '', 'Kent State University', 'United States', 41.15, -81.42)
+        private = self.airport('', '', 'Private airfield', 'United States', 28, -81)
+        AirportCode.objects.create(airport=public, code='1G3', kind='faa')
+        AirportCode.objects.create(airport=private, code='8FL6', kind='faa')
+        route = '1G3-8FL6-LBX-LJN-KLBX'
+        expected = [public.pk, private.pk, self.lbx_us.pk, self.lbx_us.pk, self.lbx_us.pk]
+        resolution = resolve_route(route)
+        self.assertEqual([item['airport'].pk for item in resolution], expected)
+        self.assertFalse(any(item['unknown'] or item['needs_confirmation'] for item in resolution))
+        response = self.client.get(reverse('route_airport_check'), {'route': route})
+        self.assertEqual([entry['status'] for entry in response.json()['entries']], ['recognized'] * 5)
+        form = self.live_choice_form({}, route=route)
+        self.assertTrue(form.is_valid(), form.errors)
+        form.instance.user = self.user
+        flight = form.save()
+        flight.refresh_from_db()
+        self.assertEqual(flight.route, route)
+        self.assertEqual([airport.pk for airport in flight.route_data], expected)
+        self.assertFalse(flight.map_error or flight.duplicate_error)
+        self.assertEqual([airport.pk for airport in csv_route_data(self.user, route)], expected)
+        self.assertEqual(len(flight.app_polylines['coordinates']), 5)
+        content = StringIO()
+        writer = csv.writer(content)
+        writer.writerow(HEADERS)
+        writer.writerow(['01/02/2025', 'C172', 'N123A', route, '1.0', '1', '0', '0',
+                         '0', '0', '0', '1', '0', '0', '0', '0', '0', '0', 'FAA code import'])
+        self.assertEqual(csv_import.run(SimpleNamespace(user=self.user), content.getvalue()), 1)
+        imported = Flight.objects.exclude(pk=flight.pk).get(user=self.user)
+        self.assertEqual(imported.route, route)
+        self.assertEqual([airport.pk for airport in imported.route_data], expected)
+        self.assertFalse(imported.map_error or imported.duplicate_error)
+
+    def test_non_us_local_and_gps_codes_do_not_conflict_with_iata(self):
+        bogota = self.airport('BOG', 'SKBO', 'Bogota', 'Colombia')
+        local = self.airport('BOV', '', 'Boang', 'Papua New Guinea')
+        AirportCode.objects.create(airport=local, code='BOG', kind='local')
+        AirportCode.objects.create(airport=local, code='BOG', kind='gps')
+        self.assertEqual(resolve_route('BOG')[0]['airport'].pk, bogota.pk)
+        self.assertFalse(resolve_route('BOG')[0]['needs_confirmation'])
