@@ -102,3 +102,17 @@ Coverage includes the BQN/BBG/LBX cases, duplicate airport rows, unambiguous int
 choices, ownership/CSRF protection, stale forms, invalid IDs, route edits, review,
 web/app/CSV consistency, legacy map refresh, and map generation without recursive
 Flight saves. No tests send customer mail or call a geolocation service.
+
+## External refreshes and FAA identifiers
+
+See [Airport database sync](AIRPORT_DATABASE_SYNC.md) for the preview/apply command.
+The shared lookup also searches `AirportCode` aliases, including FAA local codes
+and historical identifiers preserved during refreshes. A code such as FAA `LBX`
+and IATA `LJN` can therefore identify the same airport, while `1G3` and `8FL6`
+remain valid alphanumeric FAA identifiers. Four-letter alphabetic codes continue
+to match ICAO, including historical ICAO aliases. All route checks, CSV map
+building, and the warning/map refresh command use this same lookup.
+
+Airport rows are never removed by the sync because a source marks them closed or
+omits them. The refresh retains the application's primary keys and all existing
+per-flight choices; source changes requiring identity review are reported.

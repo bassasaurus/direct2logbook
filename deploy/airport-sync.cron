@@ -1,0 +1,4 @@
+# Production server uses UTC. Apply fresh airport data on the 1st at 08:30Z.
+# Append this entry to the existing blakepowell crontab AFTER deploying the command.
+# Existing daily backups run at 08:00Z. Logs directory already exists.
+30 8 1 * * cd /home/blakepowell/app && /usr/bin/flock -n /home/blakepowell/logs/airport-sync.lock /home/blakepowell/venv312/bin/python manage.py scheduled_airport_sync >> /home/blakepowell/logs/airport-sync.log 2>&1

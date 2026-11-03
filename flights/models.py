@@ -36,6 +36,10 @@ class MapData(models.Model):
     longitude = models.FloatField(null=True, blank=True, default=0)
     elevation = models.IntegerField(null=True, blank=True, default=0)
 
+    ourairports_id = models.PositiveIntegerField(null=True, blank=True, unique=True, editable=False)
+    ourairports_ident = models.CharField(max_length=40, blank=True, default='', editable=False)
+    airport_type = models.CharField(max_length=30, blank=True, default='', editable=False)
+
     class Meta:
         ordering = ['city', 'state', 'country']
         verbose_name_plural = "Map Data"
@@ -43,6 +47,15 @@ class MapData(models.Model):
             models.Index(fields=['iata']),
             models.Index(fields=['icao']),
         ]
+
+
+class AirportCode(models.Model):
+    airport = models.ForeignKey(MapData, on_delete=models.CASCADE, related_name='codes')
+    code = models.CharField(max_length=12, db_index=True)
+    kind = models.CharField(max_length=10)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['airport', 'code', 'kind'], name='airport_code_kind_unique')]
 
 
 class Stat(models.Model):

@@ -452,3 +452,7 @@ DISK_ALERT_STATE_DIR = config('DISK_ALERT_STATE_DIR',
 
 # Explicitly enable production background-job alerts; no default recipient locally.
 BACKGROUND_JOB_ALERT_EMAIL = config('BACKGROUND_JOB_ALERT_EMAIL', default='')
+
+# Monthly airport-reference refresh writes reports outside the Git checkout.
+AIRPORT_SYNC_REPORT_DIR = config(
+    'AIRPORT_SYNC_REPORT_DIR', default=os.path.join(os.path.dirname(BASE_DIR), 'logs', 'airport-sync'))

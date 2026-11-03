@@ -73,8 +73,8 @@ class TailnumberAdmin(admin.ModelAdmin):
     list_filter = ('user',)
 
 class MapDataAdmin(admin.ModelAdmin):
-    list_display = ('icao', 'iata', 'name', 'city', 'state', 'country', 'latitude', 'longitude', 'elevation')
-    search_fields = ('city', 'state', 'country', 'iata', 'icao')
+    list_display = ('icao', 'iata', 'name', 'city', 'state', 'country', 'airport_type', 'ourairports_id')
+    search_fields = ('city', 'state', 'country', 'iata', 'icao', 'codes__code')
     empty_value_display = ''
 
 class TotalAdmin(admin.ModelAdmin):

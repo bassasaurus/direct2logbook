@@ -36,7 +36,7 @@
   {{ form.route |attr:"id:route" |attr:"autocomplete:off" |attr:"placeholder:Route * (e.g. IAH-LAX)" |attr:"aria-describedby:route-help" |add_class:"form-control" }}
   {{ form.airport_choices }}{{ form.airport_choices.errors }}
   <div id="route-airport-feedback" class="mt-2" role="status" aria-live="polite" data-check-url="{% url 'route_airport_check' %}"></div>
-  <small id="route-help" class="form-text text-muted">Use IATA or ICAO airport codes, for example IAH-LAX or KIAH-KLAX. Spaces are formatted automatically.</small>
+  <small id="route-help" class="form-text text-muted">Use FAA, IATA or ICAO airport codes, for example 1G3-IAH or KIAH-KLAX. Spaces are formatted automatically.</small>
 </div>
 <div class="form-group col-12 col-lg-8 pt-lg-2"><div class="d-flex flex-wrap" role="group" aria-label="Role and flight type">
 <div class="form-check form-check-inline mr-3 mb-2">
