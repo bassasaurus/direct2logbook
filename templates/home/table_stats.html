@@ -43,7 +43,7 @@
     <td class="text-right">{{ stat.simulator }}</td>
     <td class="text-right">{{ stat.landings_day }}</td>
     <td class="text-right">{{ stat.landings_night }}</td>
-    <td class="text-right">{{ stat.last_flown }}</td>
+    <td class="text-right">{{ stat.last_flown|date:"m/d/Y"|default:"-" }}</td>
     <td class="text-right">{{ stat.last_30 }}</td>
     <td class="text-right">{{ stat.last_60 }}</td>
     <td class="text-right">{{ stat.last_90 }}</td>

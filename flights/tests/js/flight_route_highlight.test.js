@@ -5,7 +5,7 @@ const test = require('node:test');
 const vm = require('node:vm');
 const script = fs.readFileSync(path.join(__dirname, '../../../static/js/leaflet/flight_route_highlight.js'), 'utf8');
 
-function render(routes) {
+function render(routes, groups) {
   let ready = false;
   const paths = [];
   const links = Object.keys(routes).map(function (id) {
@@ -14,6 +14,10 @@ function render(routes) {
       classList: {toggle: function () {}},
       addEventListener: function (name, handler) { this.handlers[name] = handler; }
     };
+  });
+  Object.keys(groups || {}).forEach(function (year) {
+    links.push({dataset: {routeGroup: year}, handlers: {}, classList: {},
+      addEventListener: function (name, handler) { this.handlers[name] = handler; }});
   });
   links.forEach(function (link) {
     link.classList.toggle = function (name, value) { link.selected = value; };
@@ -46,7 +50,7 @@ function render(routes) {
   };
   vm.runInNewContext(script, {
     document: {
-      getElementById: () => ({textContent: JSON.stringify({routes: routes, airports: {features: []}})}),
+      getElementById: () => ({textContent: JSON.stringify({routes: routes, groups: groups, airports: {features: []}})}),
       querySelectorAll: () => links
     },
     mymap: map, createAirportMarker: function () {},
@@ -90,4 +94,21 @@ test('missing route coordinates still initialize a usable map', function () {
   assert.equal(result.paths.length, 0);
   result.links[0].handlers.mouseenter();
   assert.equal(result.links[0].selected, false);
+});
+
+test('year hover highlights all matching routes and restores them on leave', function () {
+  const result = render({'10': [[10, 20], [30, 40]], '11': [[20, 30]], '12': [[40, 50]]}, {'2025': ['10', '11']});
+  const year = result.links[3];
+  year.handlers.mouseenter();
+  assert.equal(result.paths[0].options.weight, 4);
+  assert.equal(result.paths[1].options.weight, 4);
+  assert.equal(result.paths[2].options.opacity, .2);
+  assert.equal(year.selected, true);
+  year.handlers.mouseleave();
+  assert.equal(result.paths[0].options.weight, 1.5);
+  assert.equal(result.paths[2].options.opacity, .85);
+  year.handlers.focus();
+  assert.equal(result.paths[1].options.weight, 4);
+  year.handlers.blur();
+  assert.equal(result.paths[1].options.weight, 1.5);
 });

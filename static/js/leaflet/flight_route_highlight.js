@@ -4,7 +4,7 @@
   if (!dataNode) return;
   var data = JSON.parse(dataNode.textContent);
   var layers = Object.create(null);
-  var links = document.querySelectorAll('[data-flight-id]');
+  var links = document.querySelectorAll('[data-flight-id], [data-route-group]');
   var hovered = null;
   var focused = null;
   var bounds = L.latLngBounds([]);
@@ -45,24 +45,26 @@
 
   function updateHighlight() {
     var active = hovered || focused;
-    if (!layers[active]) active = null;
+    var selectedIds = active && active.indexOf('group:') === 0
+      ? (data.groups || {})[active.slice(6)] || [] : (layers[active] ? [active] : []);
+    if (!selectedIds.length) active = null;
     Object.keys(layers).forEach(function (id) {
-      var selected = id === active;
+      var selected = selectedIds.indexOf(id) !== -1;
       layers[id].setStyle({
         color: selected ? '#007bff' : '#496b8a',
         weight: selected ? 4 : 1.5,
         opacity: active && !selected ? .2 : (selected ? 1 : .85)
       });
     });
-    if (active) layers[active].bringToFront();
+    selectedIds.forEach(function (id) { if (layers[id]) layers[id].bringToFront(); });
     airports.bringToFront();
     Array.prototype.forEach.call(links, function (link) {
-      link.classList.toggle('map-route-active', link.dataset.flightId === active);
+      link.classList.toggle('map-route-active', (link.dataset.routeGroup ? 'group:' + link.dataset.routeGroup : link.dataset.flightId) === active);
     });
   }
 
   Array.prototype.forEach.call(links, function (link) {
-    var id = link.dataset.flightId;
+    var id = link.dataset.routeGroup ? 'group:' + link.dataset.routeGroup : link.dataset.flightId;
     link.addEventListener('mouseenter', function () { hovered = id; updateHighlight(); });
     link.addEventListener('mouseleave', function () { hovered = null; updateHighlight(); });
     link.addEventListener('focus', function () { focused = id; updateHighlight(); });

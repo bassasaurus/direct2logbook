@@ -78,3 +78,11 @@ which collects the updated CSS. After deployment, run the optional recheck above
 and inspect a flagged logbook row and each detail-page notice. Automated tests
 cover ownership, pagination, output escaping, notice presence/absence, route-leg
 ordering, ambiguity, clearing after correction, and safe warning backfill.
+
+## Contextual navigation spacing
+
+The home page, logbook and detail pages share a left-justified link group with
+one-quarter-rem spacing, inherited font sizing and consistent pipe separators.
+Action order is unchanged: detail pages keep Update/Delete before navigation.
+The profile and new-flight form retain their existing toolbar visibility rules.
+Home's PDF button/status controls keep their IDs and behavior.

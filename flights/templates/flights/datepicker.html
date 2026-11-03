@@ -1,14 +1,17 @@
 <script type="text/javascript">
 
-  $("#id_date").datepicker({
+  $("#{{ datepicker_id|default:'id_date' }}").datepicker({
     dateFormat: "mm/dd/yy",
+    changeMonth: true,
+    changeYear: true,
+    yearRange: "1900:+1",
     showButtonPanel: true,
     closeText: "Close",
     beforeShow: function (input, inst) {
         setTimeout(function () {
             inst.dpDiv.css({
-                top: $("#id_date").offset().top + 35,
-                left: $("#id_date").offset().left
+                top: $(input).offset().top + 35,
+                left: $(input).offset().left
             });
         }, 0);
     },

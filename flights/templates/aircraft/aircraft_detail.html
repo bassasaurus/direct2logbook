@@ -19,26 +19,22 @@
 <div class="row">
   <div class="col-12">
     <h4>{{ aircraft.aircraft_type }}</h4>
-    <h6>{{ aircraft.aircraft_category }}{{ aircraft.aircraft_class }}</h6>
-    <h6>
-      {% if aircraft.turbine %}Turbine{% endif %}
-      {% if aircraft.Piston %}Piston{% endif %}
-    </h6>
-    <h6>
-      {% if aircraft.requires_type %}Type Rating Required |{% endif %}
-      {% if aircraft.tailwheel %}Tailwheel {% endif %}
-      {% if aircraft.simple %}Simple {% endif %}
-      {% if aircraft.compleks %}Complex {% if aircraft.high_performance %}|{% endif %}{% endif %}
-      {% if aircraft.high_performance %}High Performance {% endif %}
-    </h6>
-    <h6>
-      {% if aircraft.superr %}Super {% endif %}
-      {% if aircraft.heavy %}Heavy {% endif %}
-      {% if aircraft.large %}Large {% endif %}
-      {% if aircraft.medium %}Medium {% endif %}
-      {% if aircraft.small %}Small {% endif %}
-      {% if aircraft.light_sport %}LSA {% endif %}
-    </h6>
+    <ul class="aircraft-detail-summary" aria-label="Aircraft characteristics">
+      {% if aircraft.aircraft_category or aircraft.aircraft_class %}<li>{{ aircraft.aircraft_category }}{{ aircraft.aircraft_class }}</li>{% endif %}
+      {% if aircraft.turbine %}<li>Turbine</li>{% endif %}
+      {% if aircraft.piston %}<li>Piston</li>{% endif %}
+      {% if aircraft.requires_type %}<li>Type rating required</li>{% endif %}
+      {% if aircraft.tailwheel %}<li>Tailwheel</li>{% endif %}
+      {% if aircraft.simple %}<li>Simple</li>{% endif %}
+      {% if aircraft.compleks %}<li>Complex</li>{% endif %}
+      {% if aircraft.high_performance %}<li>High performance</li>{% endif %}
+      {% if aircraft.superr %}<li>Super</li>{% endif %}
+      {% if aircraft.heavy %}<li>Heavy</li>{% endif %}
+      {% if aircraft.large %}<li>Large</li>{% endif %}
+      {% if aircraft.medium %}<li>Medium</li>{% endif %}
+      {% if aircraft.small %}<li>Small</li>{% endif %}
+      {% if aircraft.light_sport %}<li>LSA</li>{% endif %}
+    </ul>
   </div>
 </div>
 <hr>

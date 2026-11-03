@@ -2,7 +2,6 @@
 {% load static %}
 {% block content %}
 
-<hr>
 <div class="row justify-content-center">
   <div class="col-12">
     <form action="" class="form-horizontal" method="post">
@@ -12,10 +11,8 @@
           <p>Required *</p>
           {{ form.non_field_errors }}
         </div>
-        <hr>
           {% include 'imported/imported_form.html' %}
-        <hr>
-      <button class="btn-shadow btn-shadow-dark btn-block" type="submit">Submit</button>
+      <button class="btn btn-primary mt-3" type="submit">Add historical totals</button>
     </form>
   </div>
 </div>

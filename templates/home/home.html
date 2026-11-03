@@ -6,20 +6,20 @@
   <div class="col-lg-5">
     <h5>Recent flights</h5>
     {% for flight in recent %}
-    <a class="text-nowrap" href="{% url 'flight_detail' flight.pk %}">{{flight.date|date:"m-d-Y"}} | {{flight.route}}</a><br>
+    <a class="text-nowrap" href="{% url 'flight_detail' flight.pk %}">{{flight.date|date:"m/d/Y"}} | {{flight.route}}</a><br>
     {% endfor %}
   <hr>
   </div>
 
   <div class="col-lg-7">
     {% if expired %}
-      <p class="text-danger">Your medical certificate expired {{ expiry_date|date:"M d, Y" }} - <a href="{% url 'profile_update' user.profile.pk %}">Update</a></p>
+      <p class="text-danger">Your medical certificate expired {{ expiry_date|date:"m/d/Y" }} - <a href="{% url 'profile_update' user.profile.pk %}">Update</a></p>
     {% elif expiring and not this_month %}
-      <p class="text-warning">Your medical certificate expires next month {{ expiry_date|date:"M d, Y" }} - <a href="{% url 'profile_update' user.profile.pk %}">Update</a></p>
+      <p class="text-warning">Your medical certificate expires next month {{ expiry_date|date:"m/d/Y" }} - <a href="{% url 'profile_update' user.profile.pk %}">Update</a></p>
     {% elif expiring and this_month %}
-      <p class="text-danger">Your medical certificate expires this month {{ expiry_date|date:"M d, Y" }} - <a href="{% url 'profile_update' user.profile.pk %}">Update</a></p>
+      <p class="text-danger">Your medical certificate expires this month {{ expiry_date|date:"m/d/Y" }} - <a href="{% url 'profile_update' user.profile.pk %}">Update</a></p>
     {% elif current %}
-      <p class="text-success">Your medical certificate expires {{ expiry_date|date:"M d, Y" }}</p>
+      <p class="text-success">Your medical certificate expires {{ expiry_date|date:"m/d/Y" }}</p>
     {% elif not expiry_date %}
       <h5>For a medical expiration reminder:</h5>
       <h5><a class="text-dark" style="text-decoration: underline;" href="{% url 'profile_update' user.profile.pk %}">Click here</a></h5>

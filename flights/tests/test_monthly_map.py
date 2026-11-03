@@ -64,3 +64,47 @@ class MonthlyMapOwnershipTests(TestCase):
         self.assertContains(response, 'flight_route_highlight.js')
         self.assertNotContains(response, f'/flights/geojson/routes/{self.user.pk}/')
         self.assertEqual(response.context['flight_map']['routes'][str(current.pk)], [[10, 20], [30, 40]])
+
+    def test_tailnumber_map_highlights_only_its_owned_flights(self):
+        current = self.flight(self.user, date(2025, 1, 15))
+        foreign = self.flight(self.other, date(2025, 1, 15))
+        other_aircraft = Aircraft.objects.create(user=self.user, aircraft_type='C182')
+        other_tail = TailNumber.objects.create(user=self.user, aircraft=other_aircraft, registration='N727T')
+        other_flight = self.flight(self.user, date(2025, 2, 15))
+        Flight.objects.filter(pk=other_flight.pk).update(registration=other_tail)
+        response = self.client.get(reverse('tailnumber_detail', args=[current.registration_id]))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(set(response.context['flight_map']['routes']), {str(current.pk)})
+        self.assertContains(response, f'data-flight-id="{current.pk}"')
+        self.assertNotContains(response, f'data-flight-id="{foreign.pk}"')
+        self.assertNotContains(response, f'data-flight-id="{other_flight.pk}"')
+        self.assertContains(response, 'flight_route_highlight.js')
+        self.assertContains(response, 'id="flight-map-data"')
+
+    def test_archive_year_groups_contain_only_owned_dated_flights(self):
+        current = self.flight(self.user, date(2025, 1, 15))
+        older = self.flight(self.user, date(2024, 2, 15))
+        self.flight(self.other, date(2025, 1, 15))
+        response = self.client.get(reverse('flight_by_date'))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['flight_map']['groups'], {
+            '2025': [str(current.pk)], '2024': [str(older.pk)],
+        })
+        self.assertEqual(set(response.context['flight_map']['routes']), {str(current.pk), str(older.pk)})
+        self.assertContains(response, 'data-route-group="2025"')
+        self.assertContains(response, 'flight_route_highlight.js')
+
+    def test_year_map_groups_routes_by_month(self):
+        january = self.flight(self.user, date(2025, 1, 15))
+        february = self.flight(self.user, date(2025, 2, 15))
+        self.flight(self.user, date(2024, 1, 15))
+        self.flight(self.other, date(2025, 1, 15))
+        response = self.client.get(reverse('flight_by_year', kwargs={'year': 2025}))
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['flight_map']['groups'], {
+            '01': [str(january.pk)], '02': [str(february.pk)],
+        })
+        self.assertEqual(set(response.context['flight_map']['routes']), {str(january.pk), str(february.pk)})
+        self.assertContains(response, 'data-route-group="01"')
+        self.assertContains(response, 'data-route-group="02"')
+        self.assertContains(response, 'flight_route_highlight.js')

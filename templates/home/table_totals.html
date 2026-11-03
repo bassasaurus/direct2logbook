@@ -44,7 +44,7 @@
     <td class="text-right">{{ total.landings_day }}</td>
     <td class="text-right">{{ total.landings_night }}</td>
     <td class="text-right">{{ total.landings_total }}</td>
-    <td class="text-right">{{ total.last_flown }}</td>
+    <td class="text-right">{{ total.last_flown|date:"m/d/Y"|default:"-" }}</td>
     <td class="text-right">{{ total.last_30 }}</td>
     <td class="text-right">{{ total.last_60 }}</td>
     <td class="text-right">{{ total.last_90 }}</td>

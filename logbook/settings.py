@@ -262,7 +262,7 @@ USE_L10N = False
 
 USE_TZ = True
 
-DATE_FORMAT = 'm/d/Y, m-d-Y'
+DATE_FORMAT = 'm/d/Y'
 
 DATE_INPUT_FORMATS = ['%m/%d/%Y']
 

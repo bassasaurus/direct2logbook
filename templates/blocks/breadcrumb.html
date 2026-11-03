@@ -7,8 +7,8 @@
     {% now "M j, Y | H:i" %} UTC
   {% endif %}
 </div>
-<div class="flex-row breadcrumb">
-  <div class="col-9">
+<div class="breadcrumb page-breadcrumb">
+  <div class="breadcrumb-path">
     {% if home_link %}
     <a href="{{ home_link }}">Home</a> /
     {% endif %}
@@ -18,45 +18,58 @@
     {{ page_title }}
     {% endif %}
   </div>
+  {% if request.resolver_match.url_name == 'flight_detail' and flight %}
+    {% url 'flight_update' flight.pk as update_url %}
+    {% url 'flight_delete' flight.pk as delete_url %}
+    {% include 'blocks/record_actions.html' %}
+  {% elif request.resolver_match.url_name == 'aircraft_detail' and aircraft %}
+    {% url 'aircraft_update' aircraft.pk as update_url %}
+    {% url 'aircraft_delete' aircraft.pk as delete_url %}
+    {% include 'blocks/record_actions.html' %}
+  {% elif request.resolver_match.url_name == 'tailnumber_detail' and tailnumber %}
+    {% url 'tailnumber_update' tailnumber.pk as update_url %}
+    {% url 'tailnumber_delete' tailnumber.pk as delete_url %}
+    {% include 'blocks/record_actions.html' %}
+  {% endif %}
 </div>
 
 <!-- contextual nav -->
 {% if "/logbook/create/" not in request.path and "/profile/" not in request.path and "/pdf_output/" not in request.path %}
 <hr>
 <div class="row">
-  <div class="col">
+  <div class="col context-action-links{% if page_flights %} d-flex flex-wrap justify-content-between align-items-center{% endif %}">
     {% if request.resolver_match.url_name == 'flight_detail' and flight %}
       {% url 'flight_update' flight.pk as update_url %}
       {% url 'flight_delete' flight.pk as delete_url %}
-      {% include 'blocks/detail_actions.html' with show_remarks=True %}
+      {% include 'blocks/detail_actions.html' %}
     {% elif request.resolver_match.url_name == 'aircraft_detail' and aircraft %}
       {% url 'aircraft_update' aircraft.pk as update_url %}
       {% url 'aircraft_delete' aircraft.pk as delete_url %}
-      {% include 'blocks/detail_actions.html' with show_remarks=False %}
+      {% include 'blocks/detail_actions.html' %}
     {% elif request.resolver_match.url_name == 'tailnumber_detail' and tailnumber %}
       {% url 'tailnumber_update' tailnumber.pk as update_url %}
       {% url 'tailnumber_delete' tailnumber.pk as delete_url %}
-      {% include 'blocks/detail_actions.html' with show_remarks=False %}
+      {% include 'blocks/detail_actions.html' %}
     {% else %}
-    <a class="" href="{% url 'flight_create' %}">New Flight</a>
-    {% if 'home' in request.path %}
-    |
-    <button id="pdf" type="button" class="btn btn-link p-0 align-baseline">Print Lobook</button>
-    <span id="pdf-request-status" role="status" aria-live="polite"{% if pdf_request %} data-status-url="{% url 'pdf_status' pdf_request.pk %}"{% endif %}></span>
-
-    {% endif %}
-    {% if 'logbook' in request.path and 'remarks' not in request.path %}
-    |
-    <a class="" href="{% url 'remarks' %}">Remarks</a>
-    {% endif %}
-    {% if request.path == '/aircraft/' %}
-    |
-    <a class="" href="{% url 'aircraft_create' %}">New Aircraft</a>
-    |
-    <a class="" href="{% url 'tailnumber_create' %}">New Tailnumber</a>
-    |
-    <a class="" href="{% url 'imported_create' %}">Import Previous Aircraft</a>
-    {% endif %}
+    <span class="context-navigation-links">
+      <a href="{% url 'flight_create' %}">New Flight</a>
+      {% if request.resolver_match.url_name == 'flight_list' %}
+      <span class="context-navigation-item"><span aria-hidden="true">|</span><a href="{% url 'remarks' %}">Show all remarks</a></span>
+      {% endif %}
+      {% if 'home' in request.path %}
+      <span class="context-navigation-item">
+        <span aria-hidden="true">|</span>
+        <button id="pdf" type="button" class="btn btn-link p-0 align-baseline">Print Lobook</button>
+        <span id="pdf-request-status" role="status" aria-live="polite"{% if pdf_request %} data-status-url="{% url 'pdf_status' pdf_request.pk %}"{% endif %}></span>
+      </span>
+      {% endif %}
+      {% if request.path == '/aircraft/' %}
+      <span class="context-navigation-item"><span aria-hidden="true">|</span><a href="{% url 'aircraft_create' %}">New Aircraft</a></span>
+      <span class="context-navigation-item"><span aria-hidden="true">|</span><a href="{% url 'tailnumber_create' %}">New Tailnumber</a></span>
+      <span class="context-navigation-item"><span aria-hidden="true">|</span><a href="{% url 'imported_create' %}">Import Previous Aircraft</a></span>
+      {% endif %}
+    </span>
+  {% if page_flights %}<span>{% with last_flight=page_flights|last %}{{ last_flight.date|date:"m/d/Y" }}{% endwith %} – {{ page_flights.0.date|date:"m/d/Y" }}</span>{% endif %}
     {% endif %}
   </div>
 </div>

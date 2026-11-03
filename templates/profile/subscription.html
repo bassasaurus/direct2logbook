@@ -29,23 +29,23 @@
         If setup does not finish, please <a href="mailto:support@direct2logbook.com">contact support</a>.</p>
     {% elif passed_end_date %}
       <p class="font-weight-bold mb-1">Subscription expired</p>
-      <p class="text-muted mb-3">Access ended {{ profile.end_date|date:"M d, Y" }}. Choose a plan to subscribe again.</p>
+      <p class="text-muted mb-3">Access ended {{ profile.end_date|date:"m/d/Y" }}. Choose a plan to subscribe again.</p>
       {% include 'profile/subscription_plans.html' %}
     {% elif profile.trial %}
-      <p class="font-weight-bold mb-1">Free trial ends {{ profile.end_date|date:"M d, Y" }}</p>
+      <p class="font-weight-bold mb-1">Free trial ends {{ profile.end_date|date:"m/d/Y" }}</p>
       <p class="text-muted mb-3">Choose a plan to continue after your trial.</p>
       {% include 'profile/subscription_plans.html' %}
     {% elif profile.trial_expiring %}
       <p class="font-weight-bold mb-1">Trial expiring soon</p>
-      <p class="text-muted mb-3">Trial end date: {{ profile.end_date|date:"M d, Y" }}</p>
+      <p class="text-muted mb-3">Trial end date: {{ profile.end_date|date:"m/d/Y" }}</p>
       {% include 'profile/subscription_plans.html' %}
     {% elif profile.canceled %}
       <p class="font-weight-bold mb-1">Your subscription is canceled</p>
-      <p class="text-muted mb-3">You can use your logbook until {{ profile.end_date|date:"M d, Y" }}.</p>
+      <p class="text-muted mb-3">You can use your logbook until {{ profile.end_date|date:"m/d/Y" }}.</p>
       {% include 'profile/subscription_plans.html' %}
     {% else %}
       <p class="font-weight-bold mb-1">Subscription active{% if profile.monthly %} · Monthly{% elif profile.yearly %} · Yearly{% endif %}</p>
-      <p class="text-muted mb-3">Next billing date: {{ profile.end_date|date:"M d, Y" }}</p>
+      <p class="text-muted mb-3">Next billing date: {{ profile.end_date|date:"m/d/Y" }}</p>
       <div class="d-flex flex-wrap align-items-center subscription-actions">
         {% if profile.monthly %}
           <button type="button" class="btn btn-outline-dark btn-sm" id="yearly">Switch to yearly</button>
