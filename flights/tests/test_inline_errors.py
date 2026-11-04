@@ -187,8 +187,10 @@ class InlineErrorTests(TestCase):
         self.flight(date=date(2024, 12, 1))
         self.flight(user=self.other, date=date(2020, 1, 1))
         response = self.client.get(reverse('flight_list'))
-        self.assertContains(response, 'title="Page 1: Feb 2025 – Feb 2025"')
-        self.assertContains(response, 'title="Page 2: Dec 2024 – Dec 2024"')
+        self.assertContains(response, 'title="Feb 2025 – Feb 2025"')
+        self.assertContains(response, 'title="Dec 2024 – Dec 2024"')
+        self.assertNotContains(response, 'title="Page ')
+        self.assertContains(response, 'aria-label="Page 2: Dec 2024 – Dec 2024"')
         self.assertNotContains(response, 'Jan 2020')
 
     def test_logbook_keeps_dedicated_remarks_page_link(self):
