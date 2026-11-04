@@ -136,8 +136,10 @@ class RouteAirportCheck(LoginRequiredMixin, ProfileNotActiveMixin, View):
         if len(route) > 50:
             return JsonResponse({'error': 'Route must be 50 characters or fewer.'}, status=400)
         def airport_data(airport):
+            from flights.airport_resolution import airport_choice_label
             return {'id': airport.pk, 'name': airport.name, 'city': airport.city,
-                    'country': airport.country, 'icao': airport.icao}
+                    'state': airport.state, 'country': airport.country, 'icao': airport.icao,
+                    'airport_type': airport.airport_type, 'label': airport_choice_label(airport)}
         entries = []
         for item in resolve_route(route):
             entries.append({'position': item['position'], 'code': item['code'],

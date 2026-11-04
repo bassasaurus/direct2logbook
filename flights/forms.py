@@ -227,7 +227,7 @@ class AirportConfirmationForm(forms.Form):
     review = forms.BooleanField(widget=forms.HiddenInput, required=False)
 
     def __init__(self, *args, flight, review=False, **kwargs):
-        from flights.airport_resolution import flight_resolution
+        from flights.airport_resolution import flight_resolution, airport_choice_label
         super().__init__(*args, **kwargs)
         self.flight = flight
         self.resolution = flight_resolution(flight)
@@ -240,11 +240,7 @@ class AirportConfirmationForm(forms.Form):
         for item in self.pending:
             choices = []
             for airport in item['candidates']:
-                location = ', '.join(value for value in (airport.city, airport.state, airport.country) if value)
-                label = f'{airport.name} — {location}'
-                if airport.icao:
-                    label += f' ({airport.icao})'
-                choices.append((str(airport.pk), label))
+                choices.append((str(airport.pk), airport_choice_label(airport)))
             self.fields[f'airport_{item["position"]}'] = forms.ChoiceField(
                 label=f'Which airport did you mean for {item["code"]} (route position {item["position"] + 1})?',
                 choices=choices, widget=forms.RadioSelect,

@@ -1,7 +1,7 @@
 {% if airport_confirmation_form.pending %}
 <section class="alert {% if airport_confirmation_form.has_unresolved %}alert-danger{% else %}alert-info{% endif %}" aria-label="Confirm airport locations">
   <h5>Which airports did you mean?</h5>
-  <p>Confirm the locations below so we can map your route correctly. Your route stays <strong>{{ airport_confirmation_form.flight.route }}</strong>.</p>
+  <p>These codes identify more than one location. Compare the state, country, facility type, and identifiers before choosing. Your route stays <strong>{{ airport_confirmation_form.flight.route }}</strong>.</p>
   {% if other_flight_errors %}<ul>{% for error in other_flight_errors %}<li>{{ error }}</li>{% endfor %}</ul>{% endif %}
   <form method="post" action="{% url 'confirm_flight_airports' flight.pk %}">
     {% csrf_token %}
