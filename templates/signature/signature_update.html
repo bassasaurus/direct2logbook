@@ -3,10 +3,9 @@
 {% load widget_tweaks %}
 {% block content %}
 
-<hr>
 <div class="row justify-content-center">
   <div class="col-12">
-    <form action="" class="" method="post" enctype="multipart/form-data">
+    <form data-unsaved-changes action="" class="" method="post" enctype="multipart/form-data">
       {% csrf_token %}
       <div class="form-group">
         <h4>Update Signature</h4>

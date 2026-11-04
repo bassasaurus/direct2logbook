@@ -1,10 +1,22 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 
+<div class="form-row align-items-center mt-3 mb-3">
+  <div class="col-12 col-md-6 col-lg-4">
+    <label class="sr-only" for="aircraft-filter">Filter by aircraft type or registration</label>
+    <div class="input-group">
+      <input type="search" id="aircraft-filter" class="form-control" placeholder="Aircraft type or registration" autocomplete="off" aria-controls="aircraft-filter-results">
+      <div class="input-group-append"><button type="button" id="aircraft-filter-clear" class="btn btn-outline-secondary">Clear</button></div>
+    </div>
+  </div>
+</div>
+<p id="aircraft-filter-empty" class="mb-3" role="status" hidden>No matching aircraft or tailnumbers.</p>
+<div id="aircraft-filter-results">
 <div class="mt-4">
   {% for aircraft in aircraft_needs_tailnumber %}
-  <p><u><a class="text-danger" href="{% url 'aircraft_detail' aircraft.pk %}">{{ aircraft.aircraft_type }}</a></u> Has not been assigned a tailnumber. It will not be included in any calculations.</p>
+  <p data-aircraft-unassigned><u><a class="text-danger" href="{% url 'aircraft_detail' aircraft.pk %}">{{ aircraft.aircraft_type }}</a></u> Has not been assigned a tailnumber. It will not be included in any calculations.</p>
   {% endfor %}
 </div>
 <hr>
@@ -22,7 +34,7 @@
 {% regroup tailnumbers by aircraft as aircraft_list %}
 <div class="row">
   {% for aircraft in aircraft_list %}
-      <div class="col-12"><u><a
+      <div class="col-12" data-aircraft-group><u><a
           {% if not aircraft.grouper.piston and not aircraft.grouper.turbine %}
             class="text-danger"
           {% elif not aircraft.grouper.simple and not aircraft.grouper.compleks %}
@@ -33,12 +45,12 @@
             class="text-dark"
           {% endif %}
           href="{% url 'aircraft_detail' aircraft.grouper.pk %}">
-            <h4>{{ aircraft.grouper }}</h4>
+            <h4 data-aircraft-type>{{ aircraft.grouper }}</h4>
           </a></u>
 
     <div style="display: inline;">
       {% for tailnumber in aircraft.list %}
-        <a
+        <a data-tailnumber
         {% if not tailnumber.is_91 and not tailnumber.is_135 and not tailnumber.is_121 %}
         class="text-danger"
         {% else %}
@@ -52,6 +64,9 @@
   {% endfor %}
 
 </div>
+
+</div>
+<script src="{% static 'js/aircraft_filter.js' %}" defer></script>
 
 {% if new_user_flight or new_user_aircraft or new_user_tailnumber is True %}
   {% include 'new_user_modal.html' %}

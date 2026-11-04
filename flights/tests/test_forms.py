@@ -61,6 +61,29 @@ class FlightFormTests(TestCase):
 
 
 class AircraftFormTests(TestCase):
+    def test_radio_choices_save_existing_boolean_fields(self):
+        form = AircraftForm(data={'aircraft_type': 'C172', 'aircraft_category': 'A',
+            'aircraft_class': 'SEL', 'engine': 'piston', 'weight_category': 'small',
+            'turbine': True, 'heavy': True})
+        self.assertTrue(form.is_valid(), form.errors)
+        aircraft = form.save(commit=False)
+        self.assertTrue(aircraft.piston)
+        self.assertTrue(aircraft.small)
+        self.assertFalse(aircraft.turbine)
+        self.assertFalse(aircraft.heavy)
+
+    def test_radio_initial_values_reflect_existing_aircraft(self):
+        from flights.models import Aircraft
+        form = AircraftForm(instance=Aircraft(piston=True, small=True))
+        self.assertEqual(form['engine'].value(), 'piston')
+        self.assertEqual(form['weight_category'].value(), 'small')
+
+    def test_conflicting_legacy_choices_are_rejected(self):
+        form = AircraftForm(data={'aircraft_type': 'C172', 'aircraft_category': 'A',
+            'aircraft_class': 'SEL', 'piston': True, 'turbine': True})
+        self.assertFalse(form.is_valid())
+        self.assertIn('engine', form.errors)
+
     def test_aircraft_form_valid(self):
         data = {
             'aircraft_type': 'C172',
@@ -94,6 +117,28 @@ class AircraftFormTests(TestCase):
 
 
 class TailNumberFormTests(TestCase):
+    def test_operating_rules_radio_maps_to_saved_booleans(self):
+        from flights.models import Aircraft
+        owner = User.objects.create_user(username='radio-owner')
+        aircraft = Aircraft.objects.create(user=owner, aircraft_type='C172')
+        form = TailNumberForm(user=owner, data={'registration': 'N123AB',
+            'aircraft': aircraft.pk, 'operating_rules': 'is_135', 'is_91': True})
+        self.assertTrue(form.is_valid(), form.errors)
+        tailnumber = form.save(commit=False)
+        self.assertTrue(tailnumber.is_135)
+        self.assertFalse(tailnumber.is_91)
+        self.assertFalse(tailnumber.is_121)
+
+    def test_operating_rules_initial_value(self):
+        from flights.models import TailNumber
+        form = TailNumberForm(instance=TailNumber(is_121=True))
+        self.assertEqual(form['operating_rules'].value(), 'is_121')
+
+    def test_conflicting_legacy_rules_are_rejected(self):
+        form = TailNumberForm(data={'is_91': True, 'is_135': True})
+        self.assertFalse(form.is_valid())
+        self.assertIn('operating_rules', form.errors)
+
     def test_tailnumber_form_valid(self):
         # First create a user and an aircraft for the foreign keys if needed
         user = User.objects.create_user(username='temp', password='pass')

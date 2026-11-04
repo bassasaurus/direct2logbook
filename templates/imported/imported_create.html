@@ -4,10 +4,11 @@
 
 <div class="row justify-content-center">
   <div class="col-12">
-    <form action="" class="form-horizontal" method="post">
+    <form data-unsaved-changes action="" class="form-horizontal" method="post">
       {% csrf_token %}
         <div class="form-group">
           <h4>New Aircraft Import</h4>
+          <hr>
           <p>Required *</p>
           {{ form.non_field_errors }}
         </div>

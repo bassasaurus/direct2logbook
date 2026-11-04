@@ -108,6 +108,39 @@ HoldingFormSet = inlineformset_factory(
 
 
 class AircraftForm(forms.ModelForm):
+    engine = forms.ChoiceField(required=False, widget=forms.RadioSelect,
+        choices=[('turbine', 'Turbine'), ('piston', 'Piston')])
+    weight_category = forms.ChoiceField(required=False, widget=forms.RadioSelect,
+        choices=[('superr', 'Super'), ('heavy', 'Heavy'),
+                 ('large', 'Large'), ('medium', 'Medium'), ('small', 'Small'), ('light_sport', 'LSA')])
+    selection_groups = {
+        'engine': ('turbine', 'piston'),
+        'weight_category': ('superr', 'heavy', 'large', 'medium', 'small', 'light_sport'),
+    }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.is_bound:
+            # Accept existing clients posting the original boolean fields.
+            self.data = self.data.copy()
+            for group, fields in self.selection_groups.items():
+                key = self.add_prefix(group)
+                if key not in self.data:
+                    selected = [name for name in fields
+                                if self.fields[name].widget.value_from_datadict(
+                                    self.data, self.files, self.add_prefix(name))]
+                    self.data[key] = selected[0] if len(selected) == 1 else ('invalid-multiple' if selected else '')
+        else:
+            for group, fields in self.selection_groups.items():
+                selected = [name for name in fields if self.initial.get(name)]
+                self.initial.setdefault(group, selected[0] if len(selected) == 1 else '')
+
+    def clean(self):
+        cleaned = super().clean()
+        for group, fields in self.selection_groups.items():
+            for name in fields:
+                cleaned[name] = cleaned.get(group) == name
+        return cleaned
 
     class Meta:
         model = Aircraft
@@ -131,6 +164,30 @@ class AircraftForm(forms.ModelForm):
 
 
 class TailNumberForm(UserOwnedRelationsFormMixin, forms.ModelForm):
+    operating_rules = forms.ChoiceField(required=False, widget=forms.RadioSelect,
+        choices=[('is_91', 'Part 91'), ('is_135', 'Part 135'), ('is_121', 'Part 121')])
+    rule_fields = ('is_91', 'is_135', 'is_121')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.is_bound:
+            self.data = self.data.copy()
+            key = self.add_prefix('operating_rules')
+            if key not in self.data:
+                selected = [name for name in self.rule_fields
+                            if self.fields[name].widget.value_from_datadict(
+                                self.data, self.files, self.add_prefix(name))]
+                self.data[key] = selected[0] if len(selected) == 1 else ('invalid-multiple' if selected else '')
+        else:
+            selected = [name for name in self.rule_fields if self.initial.get(name)]
+            self.initial.setdefault('operating_rules', selected[0] if len(selected) == 1 else '')
+
+    def clean(self):
+        cleaned = super().clean()
+        for name in self.rule_fields:
+            cleaned[name] = cleaned.get('operating_rules') == name
+        return cleaned
+
     owned_relation_fields = ('aircraft',)
 
     class Meta:

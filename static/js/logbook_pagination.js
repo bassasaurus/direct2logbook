@@ -5,6 +5,7 @@
   var pages = Array.from(list.querySelectorAll('[data-page-dates]')).map(function (link) { return link.closest('li'); });
   var current = pages.findIndex(function (page) { return page.classList.contains('active'); });
   var expanded = false;
+  var revealingPages = false;
 
   function layout() {
     if (expanded) return;
@@ -48,7 +49,10 @@
         expanded = true;
         group.forEach(function (page) { page.hidden = false; });
         button.setAttribute('aria-expanded', 'true');
+        // Preserve keyboard focus without opening a tooltip after a pointer click.
+        revealingPages = true;
         group[0].querySelector('a').focus();
+        revealingPages = false;
         item.remove();
       });
       item.appendChild(button);
@@ -65,6 +69,15 @@
   layout();
   window.addEventListener('resize', layout);
   if (window.jQuery && window.jQuery.fn.tooltip) {
-    window.jQuery('[data-page-dates]').tooltip({container: 'body', trigger: 'hover focus'});
+    var links = window.jQuery(list).find('[data-page-dates]');
+    // Handle focus separately: Bootstrap's combined hover/focus trigger keeps a
+    // tooltip open while a revealed page link retains programmatic focus.
+    links.tooltip({container: 'body', trigger: 'hover'});
+    links.on('focus', function () {
+      if (!revealingPages) window.jQuery(this).tooltip('show');
+    });
+    links.on('blur click', function () {
+      window.jQuery(this).tooltip('hide');
+    });
   }
 }());

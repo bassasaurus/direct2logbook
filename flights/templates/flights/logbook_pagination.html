@@ -20,9 +20,9 @@
       {% if item.gap_button %}
         <li class="page-item"><button type="button" class="page-link" data-expand-pages="{{ item.gap_button }}" aria-label="Show hidden page numbers" aria-expanded="false">…</button></li>
       {% elif page_obj.number == item.number %}
-        <li class="page-item active"><span class="page-link font-weight-bold" aria-current="page" tabindex="0" data-page-dates title="Page {{ item.number }}: {{ item.oldest|date:'M Y' }} – {{ item.newest|date:'M Y' }}">{{ item.number }}</span></li>
+        <li class="page-item active"><span class="page-link font-weight-bold" aria-current="page" tabindex="0" data-page-dates title="{{ item.oldest|date:'M Y' }} – {{ item.newest|date:'M Y' }}">{{ item.number }}</span></li>
       {% else %}
-        <li class="page-item"{% if item.gap %} data-page-gap="{{ item.gap }}" hidden{% endif %}><a class="page-link" data-page-dates title="Page {{ item.number }}: {{ item.oldest|date:'M Y' }} – {{ item.newest|date:'M Y' }}" aria-label="Page {{ item.number }}: {{ item.oldest|date:'M Y' }} – {{ item.newest|date:'M Y' }}" href="?{% if errors_only %}errors=1&amp;{% endif %}page={{ item.number }}">{{ item.number }}</a></li>
+        <li class="page-item"{% if item.gap %} data-page-gap="{{ item.gap }}" hidden{% endif %}><a class="page-link" data-page-dates title="{{ item.oldest|date:'M Y' }} – {{ item.newest|date:'M Y' }}" aria-label="Page {{ item.number }}: {{ item.oldest|date:'M Y' }} – {{ item.newest|date:'M Y' }}" href="?{% if errors_only %}errors=1&amp;{% endif %}page={{ item.number }}">{{ item.number }}</a></li>
       {% endif %}
     {% endfor %}
     <li class="page-item{% if not page_obj.has_next %} disabled{% endif %}">
@@ -33,7 +33,7 @@
 {% endif %}
 
 {% load static %}
-<script src="{% static 'js/logbook_pagination.js' %}?v=20261103-fit" defer></script>
+<script src="{% static 'js/logbook_pagination.js' %}?v=20261103-tooltip-focus" defer></script>
 
 
 

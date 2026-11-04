@@ -1,88 +1,73 @@
 {% load widget_tweaks %}
 <div class="form-group">
-  <div class="input-group-sm">
-  {{ form.aircraft_type |attr:"autocomplete:off" |attr:"placeholder:Aircraft Type *"|add_class:"form-control" }}
-  <p class="text-danger">{{ form.aircraft_type.errors }}</p>
-  </div>
+  <label class="sr-only" for="{{ form.aircraft_type.id_for_label }}">Aircraft Type *</label>
+  {{ form.aircraft_type|attr:"autocomplete:off"|attr:"placeholder:Aircraft Type *"|add_class:"form-control" }}
+  {% for error in form.aircraft_type.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
 </div>
-<div class="form-check-inline">
-  <div class="form-group row">
-    <div class="m-4">
-      {{ form.turbine |attr:"id:turbine" |add_class:"form-control"}} Turbine
-      <p class="text-danger">{{ form.turbine.errors }}</p>
+<fieldset class="mb-3">
+  <legend class="sr-only">Engine</legend>
+  <div class="d-flex flex-wrap">
+    {% for radio in form.engine %}
+    <div class="form-check form-check-inline mr-4 mb-2">
+      {{ radio.tag }}
+      <label class="form-check-label ml-1" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
     </div>
-    <div class="m-4">
-      {{ form.piston |attr:"id:piston" |add_class:"form-control"}} Piston
-      <p class="text-danger">{{ form.piston.errors }}</p>
-    </div>
+    {% endfor %}
   </div>
-</div>
-<hr>
-<div class="form-check-inline">
-  <div class="form-group row">
-    <div class="m-4">
-      {{ form.requires_type |attr:"id:type" |add_class:"form-control"}} Requires Type Rating
-      <p class="text-danger">{{ form.requires_type.errors }}</p>
+  {% for error in form.engine.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+</fieldset>
+<fieldset class="mb-3">
+  <legend class="sr-only">Equipment</legend>
+  <div class="d-flex flex-wrap">
+    <div class="form-check form-check-inline mr-4 mb-2">
+      {{ form.requires_type|attr:"id:type"|add_class:"form-check-input" }}
+      <label class="form-check-label" for="type">Requires Type Rating</label>
+      {% for error in form.requires_type.errors %}<span class="text-danger small ml-2">{{ error }}</span>{% endfor %}
     </div>
-    <div class="m-4">
-      {{ form.tailwheel |add_class:"form-control"}} Tailwheel
-      <p class="text-danger">{{ form.tailwheel.errors }}</p>
+    <div class="form-check form-check-inline mr-4 mb-2">
+      {{ form.tailwheel|attr:"id:id_tailwheel"|add_class:"form-check-input" }}
+      <label class="form-check-label" for="id_tailwheel">Tailwheel</label>
+      {% for error in form.tailwheel.errors %}<span class="text-danger small ml-2">{{ error }}</span>{% endfor %}
     </div>
-    <div class="m-4">
-      {{ form.simple |attr:"id:simple" |add_class:"form-control"}} Simple
-      <p class="text-danger">{{ form.simple.errors }}</p>
+    <div class="form-check form-check-inline mr-4 mb-2">
+      {{ form.simple|attr:"id:simple"|add_class:"form-check-input" }}
+      <label class="form-check-label" for="simple">Simple</label>
+      {% for error in form.simple.errors %}<span class="text-danger small ml-2">{{ error }}</span>{% endfor %}
     </div>
-    <div class="m-4">
-      {{ form.compleks |attr:"id:complex" |add_class:"form-control"}} Complex
-      <p class="text-danger">{{ form.compleks.errors }}</p>
+    <div class="form-check form-check-inline mr-4 mb-2">
+      {{ form.compleks|attr:"id:complex"|add_class:"form-check-input" }}
+      <label class="form-check-label" for="complex">Complex</label>
+      {% for error in form.compleks.errors %}<span class="text-danger small ml-2">{{ error }}</span>{% endfor %}
     </div>
-    <div class="m-4">
-      {{ form.high_performance |attr:"id:high_perf" |add_class:"form-control"}} High Perfomance
-      <p class="text-danger">{{ form.high_performance.errors }}</p>
-    </div>
-  </div>
-</div>
-<hr>
-<div class="form-check-inline">
-  <div class="form-group row">
-    <div class="m-4">
-      {{ form.superr |add_class:"form-control weight"}} Super
-      <p class="text-danger">{{ form.superr.errors }}</p>
-    </div>
-    <div class="m-4">
-      {{ form.heavy |add_class:"form-control weight"}} Heavy
-      <p class="text-danger">{{ form.heavy.errors }}</p>
-    </div>
-    <div class="m-4">
-      {{ form.large |add_class:"form-control weight"}} Large
-      <p class="text-danger">{{ form.lage.errors }}</p>
-    </div>
-    <div class="m-4">
-      {{ form.medium |add_class:"form-control weight"}} Medium
-      <p class="text-danger">{{ form.medium.errors }}</p>
-    </div>
-    <div class="m-4">
-      {{ form.small |add_class:"form-control weight"}} Small
-      <p class="text-danger">{{ form.small.errors }}</p>
-    </div>
-    <div class="m-4">
-      {{ form.light_sport |add_class:"form-control weight"}} LSA
-      <p class="text-danger">{{ form.light_sport.errors }}</p>
+    <div class="form-check form-check-inline mr-4 mb-2">
+      {{ form.high_performance|attr:"id:high_perf"|add_class:"form-check-input" }}
+      <label class="form-check-label" for="high_perf">High Performance</label>
+      {% for error in form.high_performance.errors %}<span class="text-danger small ml-2">{{ error }}</span>{% endfor %}
     </div>
   </div>
-</div>
-<div class="form-group">
-  <div class="input-group-sm">
-    {{ form.aircraft_category |add_class:"form-control"}} Category
-    <p class="text-danger">{{ form.aircraft_category.errors }}</p>
+</fieldset>
+<fieldset class="mb-3">
+  <legend class="sr-only">Weight</legend>
+  <div class="d-flex flex-wrap">
+    {% for radio in form.weight_category %}
+    <div class="form-check form-check-inline mr-4 mb-2">
+      {{ radio.tag }}
+      <label class="form-check-label ml-1" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+    </div>
+    {% endfor %}
+  </div>
+  {% for error in form.weight_category.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+</fieldset>
+<div class="form-row">
+  <div class="form-group col-md-6">
+    <label for="{{ form.aircraft_category.id_for_label }}">Category</label>
+    {{ form.aircraft_category|add_class:"form-control" }}
+    {% for error in form.aircraft_category.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+  </div>
+  <div class="form-group col-md-6">
+    <label for="{{ form.aircraft_class.id_for_label }}">Class</label>
+    {{ form.aircraft_class|add_class:"form-control" }}
+    {% for error in form.aircraft_class.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
   </div>
 </div>
-<div class="form-group">
-  <div class="input-group-sm">
-    {{ form.aircraft_class |add_class:"form-control"}} Class
-  <p class="text-danger">{{ form.aircraft_class.errors }}</p>
-  </div>
-</div>
-
-
 {% include 'aircraft/aircraft_form_checkbox_logic.html' %}
