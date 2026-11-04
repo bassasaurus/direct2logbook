@@ -358,7 +358,7 @@ if DEBUG is False:
             },
             'django.security.csrf': {
                 'handlers': ['file'],
-                'level': 'ERROR',
+                'level': 'WARNING',
                 'propagate': False,
             },
         },
