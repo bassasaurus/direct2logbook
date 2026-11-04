@@ -3,7 +3,6 @@
 {% load static %}
 {% block content %}
 
-<hr>
 {% if not airport_confirmation_form.has_unresolved %}{% include "flights/error_alert.html" %}{% endif %}
 {% include "flights/airport_confirmation.html" %}
 <div class="row">

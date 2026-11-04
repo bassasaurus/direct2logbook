@@ -8,6 +8,35 @@ from flights.models import MapData
 ROUTABLE_CODE_KINDS = ('icao', 'iata', 'faa', 'legacy')
 
 
+FACILITY_LABELS = {
+    'large_airport': 'Large airport',
+    'medium_airport': 'Medium airport',
+    'small_airport': 'Small airport',
+    'heliport': 'Heliport',
+    'seaplane_base': 'Seaplane base',
+    'balloonport': 'Balloonport',
+    'closed': 'Closed facility',
+}
+
+
+def airport_choice_label(airport):
+    """Describe a candidate consistently without treating legacy codes as IATA."""
+    location = ', '.join(dict.fromkeys(value.strip() for value in
+        (airport.city, airport.state, airport.country) if value.strip()))
+    identifiers = []
+    if airport.icao:
+        identifiers.append('ICAO ' + airport.icao)
+    aliases = list(airport.codes.all())
+    for kind, title in (('iata', 'IATA'), ('faa', 'FAA')):
+        codes = sorted({alias.code for alias in aliases if alias.kind == kind})
+        if codes:
+            identifiers.append(title + ' ' + ', '.join(codes))
+    if airport.iata and not any(alias.code == airport.iata and alias.kind in ('iata', 'faa') for alias in aliases):
+        identifiers.append('Code ' + airport.iata)
+    facility = FACILITY_LABELS.get(airport.airport_type, 'Unclassified facility')
+    return ' — '.join(value for value in (airport.name, location, facility, ' | '.join(identifiers)) if value)
+
+
 def route_segments(route):
     return [code for code in re.split(r'[^A-Za-z0-9]+', route.upper()) if code]
 

@@ -1,27 +1,25 @@
 {% load widget_tweaks %}
-
-<div class="form-group input-group-sm">
-  {{ form.registration |attr:"placeholder:Registration *" |add_class:"form-control"}}
-  <p class="text-danger">{{ form.registration.errors }}</p>
-</div>
-<div class="form-group input-group-sm">
-  {{ form.aircraft |add_class:"form-control"}}
-</div>
-<div class="form-check-inline">
-  <div class="form-group row">
-    <div id="121" class="m-4">
-      {{ form.is_121 |add_class:"form-control checkbox"}} 121
-      <p class="text-danger">{{ form.is_121.errors }}</p>
-    </div>
-    <div id="135" class="m-4">
-      {{ form.is_135 |add_class:"form-control checkbox"}} 135
-      <p class="text-danger">{{ form.is_135.errors }}</p>
-    </div>
-    <div id="91" class="m-4">
-      {{ form.is_91 |add_class:"form-control checkbox"}} 91
-      <p class="text-danger">{{ form.is_91.errors }}</p>
-    </div>
+<div class="form-row tailnumber-entry-fields">
+  <div class="form-group col-md-6">
+    <label class="sr-only" for="{{ form.registration.id_for_label }}">Registration *</label>
+    {{ form.registration|attr:"placeholder:Registration *"|attr:"autocomplete:off"|add_class:"form-control" }}
+    {% for error in form.registration.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+  </div>
+  <div class="form-group col-md-6">
+    <label class="sr-only" for="{{ form.aircraft.id_for_label }}">Aircraft *</label>
+    {{ form.aircraft|attr:"data-width:100%"|attr:"style:width:100%"|add_class:"form-control" }}
+    {% for error in form.aircraft.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
   </div>
 </div>
-
-{% include "tailnumbers/tailnumber_checkbox_logic.html" %}
+<fieldset class="mb-3">
+  <legend class="col-form-label pt-0">Operating rules</legend>
+  <div class="d-flex flex-wrap">
+    {% for radio in form.operating_rules %}
+    <div class="form-check form-check-inline mr-4 mb-2">
+      {{ radio.tag }}
+      <label class="form-check-label ml-1" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+    </div>
+    {% endfor %}
+  </div>
+  {% for error in form.operating_rules.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+</fieldset>

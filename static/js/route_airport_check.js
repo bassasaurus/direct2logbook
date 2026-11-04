@@ -9,7 +9,7 @@
   try { choices = JSON.parse(hidden.value || '{}'); } catch (error) { choices = {}; }
   function routeValue() { return input.value.trim().replace(/\s+/g, '-').toUpperCase(); }
   function airportLabel(airport) {
-    return [airport.name, airport.city, airport.country, airport.icao].filter(Boolean).join(' — ');
+    return airport.label || [airport.name, airport.city, airport.country, airport.icao].filter(Boolean).join(' — ');
   }
   function saveChoices(route) {
     choices.route = route;

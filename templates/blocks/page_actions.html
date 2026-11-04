@@ -1,0 +1,26 @@
+{% if show_page_actions %}
+<nav class="page-action-row" aria-label="Page actions">
+  <span class="context-navigation-links">
+    {% if aircraft_actions %}
+    <a href="{% url 'aircraft_create' %}">New Aircraft</a>
+    <span class="context-navigation-item"><span aria-hidden="true">|</span><a href="{% url 'tailnumber_create' %}">New Tailnumber</a></span>
+    {% else %}
+    <a href="{% url 'flight_create' %}">New Flight</a>
+    {% endif %}
+    {% if show_remarks_action %}
+    <span class="context-navigation-item"><span aria-hidden="true">|</span><a href="{% url 'remarks' %}">Show all remarks</a></span>
+    {% endif %}
+    {% if show_pdf_action %}
+    <span class="context-navigation-item">
+      <span aria-hidden="true">|</span>
+      <button id="pdf" type="button" class="btn btn-link p-0 align-baseline">Print Logbook</button>
+      <span id="pdf-request-status" role="status" aria-live="polite"{% if pdf_request %} data-status-url="{% url 'pdf_status' pdf_request.pk %}"{% endif %}></span>
+    </span>
+    {% endif %}
+  </span>
+  {% if show_displayed_range %}
+  <span class="page-displayed-range"><span class="d-block">Displayed Range</span>{% with last_flight=page_flights|last %}{{ last_flight.date|date:"m/d/Y" }}{% endwith %} – {{ page_flights.0.date|date:"m/d/Y" }}</span>
+  {% endif %}
+</nav>
+<hr class="page-action-divider">
+{% endif %}

@@ -23,7 +23,7 @@
   <!-- google icons -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <!-- custom css -->
-  <link rel="stylesheet" type="text/css" href="{% static 'css/custom.css' %}?v=20261103-flight-numeric-inputs" />
+  <link rel="stylesheet" type="text/css" href="{% static 'css/custom.css' %}?v=20261103-page-actions" />
   <!-- animate.css -->
   <link rel="stylesheet" type="text/css" href="{% static 'css/animate.css' %}" />
   <!-- sweetalert2 -->
@@ -52,6 +52,7 @@
           {% endif %}
         {% endfor %}
         {% include 'blocks/breadcrumb.html' %}
+        {% load page_navigation %}{% page_actions %}
         {% block content %}
         {% endblock %}
       </div>
@@ -76,6 +77,7 @@
   <script type="text/javascript" src="{% static 'js/tableHeadFixer.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/jquery.formset.js' %}"></script>
 
+  <script src="{% static 'js/unsaved_changes.js' %}" defer></script>
 </body>
 
 </html>

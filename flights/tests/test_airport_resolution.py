@@ -49,6 +49,43 @@ class AirportResolutionTests(TestCase):
             date=date(2025, 1, 1), aircraft_type=self.aircraft, registration=self.tail,
             duration=1, pilot_in_command=True, **kwargs)])[0]
 
+    def test_confirmation_labels_distinguish_facility_and_state(self):
+        first = self.airport('TKI', 'KTKI', 'McKinney National Airport', 'United States')
+        first.state = 'Texas'
+        first.airport_type = 'small_airport'
+        first.save()
+        second = self.airport('TKI', '', 'Tokeen Seaplane Base', 'United States')
+        second.state = 'Alaska'
+        second.airport_type = 'seaplane_base'
+        second.save()
+        AirportCode.objects.create(airport=first, code='TKI', kind='faa')
+        AirportCode.objects.create(airport=second, code='TKI', kind='iata')
+        flight = self.flight('TKI')
+        form = AirportConfirmationForm(flight=flight)
+        labels = dict(form.fields['airport_0'].choices)
+        self.assertIn('Texas, United States', labels[str(first.pk)])
+        self.assertIn('Small airport', labels[str(first.pk)])
+        self.assertIn('ICAO KTKI | FAA TKI', labels[str(first.pk)])
+        self.assertIn('Alaska, United States', labels[str(second.pk)])
+        self.assertIn('Seaplane base', labels[str(second.pk)])
+        self.assertIn('IATA TKI', labels[str(second.pk)])
+        response = self.client.get(reverse('route_airport_check'), {'route': 'TKI'})
+        data = response.json()['entries'][0]
+        self.assertEqual(data['status'], 'ambiguous')
+        self.assertEqual({row['id']: row['label'] for row in data['candidates']},
+                         {int(pk): label for pk, label in labels.items()})
+
+    def test_closed_facility_and_unverified_legacy_code_are_labeled(self):
+        from flights.airport_resolution import airport_choice_label
+        airport = self.airport('OLD', '', 'Old airstrip', 'Canada')
+        airport.airport_type = 'closed'
+        airport.save()
+        AirportCode.objects.create(airport=airport, code='OLD', kind='local')
+        label = airport_choice_label(airport)
+        self.assertIn('Closed facility', label)
+        self.assertIn('Code OLD', label)
+        self.assertNotIn('IATA OLD', label)
+
     def test_bqn_bbg_lbx_use_us_airports_without_warning_or_code_conversion(self):
         resolution = resolve_route('BQN-BBG-LBX')
         self.assertEqual([item['airport'].pk for item in resolution],

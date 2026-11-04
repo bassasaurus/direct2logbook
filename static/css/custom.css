@@ -279,15 +279,6 @@ body.app-layout {
   font: inherit;
 }
 
-.detail-action-toolbar {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: .5rem 1rem;
-}
-
 /* Use the home-page link rhythm in every contextual navigation group. */
 .context-navigation-links {
   display: inline-flex;
@@ -512,4 +503,36 @@ body.app-layout {
 .flight-entry-fields #id_simulated_instrument::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+/* Align the searchable aircraft picker with the adjacent Bootstrap input. */
+.tailnumber-entry-fields .select2-container { width: 100% !important; }
+.tailnumber-entry-fields .select2-container .select2-selection--single {
+  height: 38px;
+  padding: 6px 12px;
+}
+.tailnumber-entry-fields .select2-container .select2-selection--single .select2-selection__rendered {
+  line-height: 24px;
+  padding-left: 0;
+}
+.tailnumber-entry-fields .select2-container .select2-selection--single .select2-selection__arrow {
+  height: 36px;
+}
+
+/* Shared action row: separators stay with their links on narrow screens. */
+.page-action-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: .5rem 1rem;
+}
+.page-displayed-range { margin-left: auto; text-align: right; }
+.page-action-divider { margin-top: 1rem; margin-bottom: 1rem; }
+@media (max-width: 575.98px) {
+  .page-displayed-range {
+    flex-basis: 100%;
+    margin-left: 0;
+    text-align: left;
+  }
 }
