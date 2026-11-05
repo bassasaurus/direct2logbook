@@ -33,7 +33,7 @@ class MobileSessionView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        return Response({'account_id': request.user.pk, 'sync_protocol': 1})
+        return Response({'account_id': request.user.pk, 'sync_protocol': 1, 'aircraft_sync': True})
 
 
 class MobileFlightSyncView(APIView):

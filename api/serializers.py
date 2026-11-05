@@ -38,6 +38,12 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 
 
 class AircraftSerializer(serializers.ModelSerializer):
+    revision = SerializerMethodField()
+
+    def get_revision(self, obj):
+        from api.revisions import aircraft_revision
+        return aircraft_revision(obj)
+
     # The trusted request owner also feeds per-user uniqueness validation.
     user = serializers.PrimaryKeyRelatedField(
         read_only=True, default=serializers.CurrentUserDefault(),
