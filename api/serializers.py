@@ -229,6 +229,14 @@ class FlightSerializer(serializers.ModelSerializer):
 
 
 class TailNumberSerializer(serializers.ModelSerializer):
+    revision = SerializerMethodField()
+
+    def get_revision(self, obj):
+        import hashlib
+        import json
+        values = {field.attname: getattr(obj, field.attname) for field in obj._meta.concrete_fields}
+        return hashlib.sha256(json.dumps(values, sort_keys=True).encode()).hexdigest()
+
     # The trusted request owner also feeds per-user uniqueness validation.
     user = serializers.PrimaryKeyRelatedField(
         read_only=True, default=serializers.CurrentUserDefault(),
@@ -238,7 +246,7 @@ class TailNumberSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TailNumber
-        fields = ['id', 'user', 'registration', 'aircraft', 'is_121', 'is_135', 'is_91']
+        fields = ['id', 'user', 'registration', 'aircraft', 'is_121', 'is_135', 'is_91', 'revision']
         read_only_fields = ['user']
 
     def validate(self, attrs):
