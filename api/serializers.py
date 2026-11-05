@@ -78,12 +78,15 @@ class FlightApproachWriteSerializer(serializers.ModelSerializer):
 
 
 class FlightSerializer(serializers.ModelSerializer):
+    validate_airports = serializers.BooleanField(write_only=True, required=False, default=False)
+    route_airport_choices = serializers.JSONField(required=False)
+
 
     class Meta:
         model = Flight
         fields = ['id', 'user', 'date', 'aircraft_type', 'registration', 'route', 'duration', 'landings_day', 'landings_night', 
                     'night', 'instrument', 'cross_country', 'second_in_command', 'pilot_in_command', 'simulated_instrument', 
-                    'instructor', 'simulator', 'dual', 'remarks', 'solo', 'hold', 'app_markers', 'app_polylines','approaches', 'holding', 'revision']
+                    'instructor', 'simulator', 'dual', 'remarks', 'solo', 'hold', 'app_markers', 'app_polylines','approaches', 'holding', 'revision', 'route_airport_choices', 'validate_airports']
         read_only_fields = ['user']
 
     revision = SerializerMethodField()
@@ -181,6 +184,12 @@ class FlightSerializer(serializers.ModelSerializer):
                 )
             elif self.instance is None:
                 raise serializers.ValidationError({field: 'This field is required.'})
+        strict = attrs.pop('validate_airports', False)
+        if strict or 'route_airport_choices' in attrs:
+            from api.airport_checks import validate_route_choices
+            route = attrs.get('route', self.instance.route if self.instance else '')
+            choices = attrs.get('route_airport_choices', self.instance.route_airport_choices if self.instance else {})
+            attrs['route_airport_choices'] = validate_route_choices(route, choices, strict)
         return attrs
 
     @transaction.atomic
