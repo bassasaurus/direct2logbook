@@ -16,3 +16,10 @@ def flight_revision(flight):
     values['approaches'] = list(Approach.objects.filter(flight_object=flight).order_by('pk').values())
     values['holding'] = list(Holding.objects.filter(flight_object=flight).order_by('pk').values())
     return hashlib.sha256(json.dumps(values, sort_keys=True, default=str).encode()).hexdigest()
+
+
+def aircraft_revision(aircraft):
+    # File contents are managed separately; the path participates in conflicts.
+    values = {field.attname: str(getattr(aircraft, field.attname))
+              for field in aircraft._meta.concrete_fields}
+    return hashlib.sha256(json.dumps(values, sort_keys=True).encode()).hexdigest()
