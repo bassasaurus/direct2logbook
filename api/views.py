@@ -1,4 +1,6 @@
 from django.contrib.auth.models import User, Group
+from django.db.models.functions import Lower
+from api.ordering import natural_registration_order
 from rest_framework import serializers, status
 from rest_framework.response import Response
 from rest_framework import viewsets
@@ -70,7 +72,7 @@ class AircraftViewSet(OwnedRecordsViewSet):
     def get_queryset(self):
 
         user = self.request.user
-        return Aircraft.objects.filter(user=user)
+        return Aircraft.objects.filter(user=user).order_by(Lower('aircraft_type'), 'pk')
 
     serializer_class = AircraftSerializer
     permission_classes = [IsAuthenticated]
@@ -86,6 +88,4 @@ class TailNumberViewSet(OwnedRecordsViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        # aircraft = self.request.GET['aircraft']
-        # aircraft_object = Aircraft.objects.get(user=user, aircraft_type=aircraft)
-        return TailNumber.objects.filter(user=user)
+        return natural_registration_order(TailNumber.objects.filter(user=user))
