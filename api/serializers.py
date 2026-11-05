@@ -77,8 +77,14 @@ class FlightSerializer(serializers.ModelSerializer):
         model = Flight
         fields = ['id', 'user', 'date', 'aircraft_type', 'registration', 'route', 'duration', 'landings_day', 'landings_night', 
                     'night', 'instrument', 'cross_country', 'second_in_command', 'pilot_in_command', 'simulated_instrument', 
-                    'instructor', 'simulator', 'dual', 'remarks', 'solo', 'hold', 'app_markers', 'app_polylines','approaches', 'holding']
+                    'instructor', 'simulator', 'dual', 'remarks', 'solo', 'hold', 'app_markers', 'app_polylines','approaches', 'holding', 'revision']
         read_only_fields = ['user']
+
+    revision = SerializerMethodField()
+
+    def get_revision(self, obj):
+        from api.revisions import flight_revision
+        return flight_revision(obj)
 
     aircraft_type = serializers.StringRelatedField()
     registration = serializers.StringRelatedField()
