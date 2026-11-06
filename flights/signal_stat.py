@@ -1,65 +1,29 @@
 from flights.models import Flight, Aircraft, Stat, Imported
-from django.db.models.signals import pre_delete, post_save, post_delete
-from django.db.models import Sum
+from django.db.models.signals import pre_save, pre_delete, post_save, post_delete
 from django.dispatch import receiver
-from django.core.exceptions import ObjectDoesNotExist
 from flights.queryset_helpers import avoid_none, zero_if_none
 from flights.rolling_stats import assign_rolling_values
 
 
-@receiver(post_delete, sender=Flight)
-def no_flight_stat_delete(sender, instance, dispatch_uid="no_flight_stat_delete", **kwargs):
-
-    user = instance.user
-    aircraft_type = instance.aircraft_type
-
-    aircraft_total_time = Flight.objects.filter(aircraft_type=aircraft_type).aggregate(Sum('duration'))
-
-    try:
-        if not aircraft_total_time.get('duration__sum'):
-            kwargs = {'aircraft_type': instance.aircraft_type}
-            stat = Stat.objects.filter(user=user).get(**kwargs)
-            stat.delete()
-    except ObjectDoesNotExist:
-        pass
-
-
 @receiver(pre_delete, sender=Aircraft)
-def no_aircraft_stat_delete(sender, instance, dispatch_uid="no_aircraft_stat_delete", **kwargs):
-
-    user = instance.user
-    try:
-        kwargs = {'aircraft_type': instance.aircraft_type}
-        stat = Stat.objects.filter(user=user).get(**kwargs)
-        stat.delete()
-
-    except ObjectDoesNotExist:
-        pass
-
-
-@receiver(post_delete, sender=Imported)
-def imported_deleted(sender, instance, dispatch_uid="imported_deleted", **kwargs):
-
-    try:
-        stat = Stat.objects.filter(user=instance.user).get(aircraft_type=instance.aircraft_type)
-        flight = Flight.objects.filter(user=instance.user).filter(aircraft_type=instance.aircraft_type)
-        if avoid_none(flight, 'duration') == 0:
-            stat.delete()
-    except ObjectDoesNotExist:
-        pass
+def remove_aircraft_summary(sender, instance, **kwargs):
+    Stat.objects.filter(user_id=instance.user_id, aircraft_type=instance.aircraft_type).delete()
 
 
 @receiver(post_save, sender=Imported)
 @receiver(post_save, sender=Flight)
-@receiver(pre_delete, sender=Imported)
-@receiver(pre_delete, sender=Flight)
+@receiver(post_delete, sender=Imported)
+@receiver(post_delete, sender=Flight)
 def stat_update(sender, instance, dispatch_uid="stat_update", **kwargs):
-
-    stat = Stat.objects.get_or_create(user=instance.user, aircraft_type=str(instance.aircraft_type))
-    stat = stat[0]
 
     flight = Flight.objects.filter(user=instance.user).filter(aircraft_type=instance.aircraft_type)
     imported = Imported.objects.filter(user=instance.user).filter(aircraft_type=instance.aircraft_type)
+    # Recalculate only after deletion, while preserving historical summaries if
+    # dated flights disappear but Imported balances still exist.
+    if not flight.exists() and not imported.exists():
+        Stat.objects.filter(user=instance.user, aircraft_type=str(instance.aircraft_type)).delete()
+        return
+    stat, _ = Stat.objects.get_or_create(user=instance.user, aircraft_type=str(instance.aircraft_type))
 
     stat.total_time = avoid_none(flight, 'duration') + avoid_none(imported, 'total_time')
 
@@ -91,3 +55,23 @@ def stat_update(sender, instance, dispatch_uid="stat_update", **kwargs):
 
     assign_rolling_values(stat, flight, imported)
     stat.save()
+
+
+@receiver(pre_save, sender=Flight)
+@receiver(pre_save, sender=Imported)
+def remember_summary_aircraft(sender, instance, **kwargs):
+    instance._previous_summary_aircraft_id = None
+    if instance.pk:
+        instance._previous_summary_aircraft_id = sender.objects.filter(
+            pk=instance.pk, user_id=instance.user_id).values_list('aircraft_type_id', flat=True).first()
+
+
+@receiver(post_save, sender=Flight)
+@receiver(post_save, sender=Imported)
+def refresh_previous_aircraft_summary(sender, instance, **kwargs):
+    from types import SimpleNamespace
+    previous_id = getattr(instance, '_previous_summary_aircraft_id', None)
+    if previous_id and previous_id != instance.aircraft_type_id:
+        previous = Aircraft.objects.filter(pk=previous_id, user_id=instance.user_id).first()
+        if previous:
+            stat_update(sender, SimpleNamespace(user=instance.user, aircraft_type=previous))
