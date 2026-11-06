@@ -34,7 +34,7 @@ class MobileSessionView(APIView):
 
     def get(self, request):
         return Response({'account_id': request.user.pk, 'sync_protocol': 1, 'aircraft_sync': True,
-                         'tailnumber_sync': True, 'route_airport_validation': True})
+                         'tailnumber_sync': True, 'route_airport_validation': True, 'default_aircraft_sync': True})
 
 
 class MobileFlightSyncView(APIView):

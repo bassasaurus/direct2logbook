@@ -248,6 +248,7 @@ CLASS_CHOICES = (
 class Aircraft(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     aircraft_type = models.CharField(db_index=True, max_length=10)
+    is_default = models.BooleanField(default=False)
     turbine = models.BooleanField(default=False)
     piston = models.BooleanField(default=False)
     requires_type = models.BooleanField(default=False)
@@ -278,6 +279,8 @@ class Aircraft(models.Model):
         ordering = ['user', 'aircraft_type']
         verbose_name_plural = "Aircraft"
         unique_together = ('user', 'aircraft_type')
+        constraints = [models.UniqueConstraint(fields=['user'], condition=models.Q(is_default=True),
+                                               name='one_default_aircraft_per_user')]
 
     def __str__(self):
         aircraft_type = str(self.aircraft_type)
