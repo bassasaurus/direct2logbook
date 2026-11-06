@@ -52,7 +52,7 @@ class AircraftSerializer(serializers.ModelSerializer):
     class Meta:
         model = Aircraft
         fields = '__all__'
-        read_only_fields = ['user']
+        read_only_fields = ['user', 'is_default']
 
 
 class ApproachSerializer(serializers.ModelSerializer):
