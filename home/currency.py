@@ -337,3 +337,21 @@ def medical_duration(user):  # still need to start calculations from next month 
             expiring = False
 
     return (expiry_date, this_month, expiring, expired, current)
+
+
+def instrument_recency(user):
+    """Shared website/mobile instrument counts, preserving the website's window."""
+    today = datetime.date.today()
+    flights = Flight.objects.filter(user=user, date__lte=today,
+                                   date__gte=today - datetime.timedelta(days=180))
+    approaches = flights.filter(approach__number__gte=0)
+    quantity = approaches.aggregate(quantity=Sum('approach__number'))['quantity'] or 0
+    approach_date = approaches.first()
+    holds = flights.filter(hold=True)
+    hold_date = holds.last()
+    return {
+        'appr_quantity': quantity,
+        'appr_current_date': approach_date.date + datetime.timedelta(days=180) if approach_date else None,
+        'hold_quantity': 1 if hold_date else 0,
+        'hold_current_date': hold_date.date if hold_date else None,
+    }
