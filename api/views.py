@@ -18,6 +18,11 @@ from rest_framework.pagination import LimitOffsetPagination
 
 
 class Unpaginated(LimitOffsetPagination):
+    def get_next_link(self):
+        return None
+
+    def get_previous_link(self):
+        return None
 
     def paginate_queryset(self, queryset, request, view=None):
         self.count = self.get_count(queryset)
