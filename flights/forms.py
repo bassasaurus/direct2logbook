@@ -3,6 +3,38 @@ from django.forms import inlineformset_factory
 from flights.models import Flight, Aircraft, TailNumber, Imported, Holding, Approach
 from django.contrib.auth.models import User
 from dal import autocomplete
+from flights.record_validation import (
+    AIRCRAFT_SELECTIONS, OPERATING_RULES, validate_aircraft, validate_flight, validate_tailnumber,
+)
+
+
+def initialize_radio_groups(form, groups):
+    form.legacy_radio_groups = set()
+    if form.is_bound:
+        form.data = form.data.copy()
+    for group, fields in groups.items():
+        if not form.is_bound:
+            selected = [name for name in fields if form.initial.get(name)]
+            form.initial.setdefault(group, selected[0] if len(selected) == 1 else '')
+            continue
+        key = form.add_prefix(group)
+        if key not in form.data and any(form.add_prefix(name) in form.data for name in fields):
+            form.legacy_radio_groups.add(group)
+            selected = [name for name in fields if form.fields[name].widget.value_from_datadict(
+                form.data, form.files, form.add_prefix(name))]
+            form.data[key] = selected[0] if len(selected) == 1 else ''
+
+
+def clean_radio_group(form, cleaned, group, fields):
+    if group in form.legacy_radio_groups:
+        return  # Validate the submitted boolean fields directly.
+    selected = cleaned.get(group)
+    previous = [name for name in fields if getattr(form.instance, name)]
+    if not form.instance._state.adding and not selected and len(previous) != 1:
+        # Empty radios represent an untouched legacy group with no single selection.
+        cleaned.update({name: getattr(form.instance, name) for name in fields})
+    else:
+        cleaned.update({name: selected == name for name in fields})
 
 
 class UserForm(forms.ModelForm):
@@ -34,6 +66,13 @@ class FlightForm(UserOwnedRelationsFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.initial['airport_choices'] = self.instance.route_airport_choices or {}
+
+    def clean(self):
+        cleaned = super().clean()
+        for field, message in validate_flight(cleaned, self.instance).items():
+            if field not in self.errors:
+                self.add_error(field, message)
+        return cleaned
 
     def clean_route(self):
         from flights.airport_resolution import resolve_route
@@ -113,33 +152,23 @@ class AircraftForm(forms.ModelForm):
     weight_category = forms.ChoiceField(required=False, widget=forms.RadioSelect,
         choices=[('superr', 'Super'), ('heavy', 'Heavy'),
                  ('large', 'Large'), ('medium', 'Medium'), ('small', 'Small'), ('light_sport', 'LSA')])
-    selection_groups = {
-        'engine': ('turbine', 'piston'),
-        'weight_category': ('superr', 'heavy', 'large', 'medium', 'small', 'light_sport'),
-    }
+    selection_groups = AIRCRAFT_SELECTIONS
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.is_bound:
-            # Accept existing clients posting the original boolean fields.
-            self.data = self.data.copy()
-            for group, fields in self.selection_groups.items():
-                key = self.add_prefix(group)
-                if key not in self.data:
-                    selected = [name for name in fields
-                                if self.fields[name].widget.value_from_datadict(
-                                    self.data, self.files, self.add_prefix(name))]
-                    self.data[key] = selected[0] if len(selected) == 1 else ('invalid-multiple' if selected else '')
-        else:
-            for group, fields in self.selection_groups.items():
-                selected = [name for name in fields if self.initial.get(name)]
-                self.initial.setdefault(group, selected[0] if len(selected) == 1 else '')
+        if not self.instance._state.adding:
+            for name in ('aircraft_category', 'aircraft_class'):
+                if not getattr(self.instance, name):
+                    self.fields[name].required = False
+        initialize_radio_groups(self, self.selection_groups)
 
     def clean(self):
         cleaned = super().clean()
         for group, fields in self.selection_groups.items():
-            for name in fields:
-                cleaned[name] = cleaned.get(group) == name
+            clean_radio_group(self, cleaned, group, fields)
+        for field, message in validate_aircraft(cleaned, self.instance).items():
+            if field not in self.errors:
+                self.add_error(field, message)
         return cleaned
 
     class Meta:
@@ -166,26 +195,18 @@ class AircraftForm(forms.ModelForm):
 class TailNumberForm(UserOwnedRelationsFormMixin, forms.ModelForm):
     operating_rules = forms.ChoiceField(required=False, widget=forms.RadioSelect,
         choices=[('is_91', 'Part 91'), ('is_135', 'Part 135'), ('is_121', 'Part 121')])
-    rule_fields = ('is_91', 'is_135', 'is_121')
+    rule_fields = OPERATING_RULES
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.is_bound:
-            self.data = self.data.copy()
-            key = self.add_prefix('operating_rules')
-            if key not in self.data:
-                selected = [name for name in self.rule_fields
-                            if self.fields[name].widget.value_from_datadict(
-                                self.data, self.files, self.add_prefix(name))]
-                self.data[key] = selected[0] if len(selected) == 1 else ('invalid-multiple' if selected else '')
-        else:
-            selected = [name for name in self.rule_fields if self.initial.get(name)]
-            self.initial.setdefault('operating_rules', selected[0] if len(selected) == 1 else '')
+        initialize_radio_groups(self, {'operating_rules': self.rule_fields})
 
     def clean(self):
         cleaned = super().clean()
-        for name in self.rule_fields:
-            cleaned[name] = cleaned.get('operating_rules') == name
+        clean_radio_group(self, cleaned, 'operating_rules', self.rule_fields)
+        for field, message in validate_tailnumber(cleaned, self.instance).items():
+            if field not in self.errors:
+                self.add_error(field, message)
         return cleaned
 
     owned_relation_fields = ('aircraft',)

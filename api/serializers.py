@@ -6,6 +6,7 @@ from rest_framework.fields import SerializerMethodField
 from collections import OrderedDict
 
 from flights.models import Flight, Aircraft, TailNumber, Approach, Holding
+from flights.record_validation import validate_aircraft, validate_flight, validate_tailnumber
 
 def serializer_owner(serializer):
     request = serializer.context.get('request')
@@ -53,6 +54,16 @@ class AircraftSerializer(serializers.ModelSerializer):
         model = Aircraft
         fields = '__all__'
         read_only_fields = ['user', 'is_default']
+        extra_kwargs = {
+            'aircraft_category': {'allow_blank': True},
+            'aircraft_class': {'allow_blank': True},
+        }
+
+    def validate(self, attrs):
+        errors = validate_aircraft(attrs, self.instance)
+        if errors:
+            raise serializers.ValidationError(errors)
+        return attrs
 
 
 class ApproachSerializer(serializers.ModelSerializer):
@@ -110,10 +121,10 @@ class FlightSerializer(serializers.ModelSerializer):
         data = data.copy()
 
         if data.get('landings_day') == '':
-            del data['landings_day']
+            data['landings_day'] = None
 
         if data.get('landings_night') == '':
-            del data['landings_night']
+            data['landings_night'] = None
 
         if data.get('instrument') == '':
             del data['instrument']
@@ -184,6 +195,9 @@ class FlightSerializer(serializers.ModelSerializer):
                 )
             elif self.instance is None:
                 raise serializers.ValidationError({field: 'This field is required.'})
+        errors = validate_flight(attrs, self.instance)
+        if errors:
+            raise serializers.ValidationError(errors)
         strict = attrs.pop('validate_airports', False)
         if strict or 'route_airport_choices' in attrs:
             from api.airport_checks import validate_route_choices
@@ -261,4 +275,7 @@ class TailNumberSerializer(serializers.ModelSerializer):
             )
         elif self.instance is None:
             raise serializers.ValidationError({'aircraft': 'This field is required.'})
+        errors = validate_tailnumber(attrs, self.instance)
+        if errors:
+            raise serializers.ValidationError(errors)
         return attrs

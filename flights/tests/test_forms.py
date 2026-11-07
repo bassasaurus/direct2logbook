@@ -45,6 +45,7 @@ class FlightFormTests(TestCase):
             'duration': '2.5',
             'aircraft_type': self.aircraft.pk,
             'registration': self.tailnumber.pk,
+            'pilot_in_command': True,
         }
         form = FlightForm(data=data, user=self.user)
         self.assertTrue(form.is_valid(), msg=form.errors)

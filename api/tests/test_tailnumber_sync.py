@@ -71,7 +71,7 @@ class TailnumberSyncTests(APITestCase):
         response = self.client.post('/api/mobile/flight-sync/', {
             'operation_id': str(uuid.uuid4()), 'action': 'create', 'data': {
                 'date': '11/05/2026', 'route': 'KJFK', 'duration': '1.0',
-                'aircraft_type': 'C172', 'registration': 'N987ZX', 'approaches': [],
+                'aircraft_type': 'C172', 'registration': 'N987ZX', 'approaches': [], 'pilot_in_command': True,
             }}, format='json')
         self.assertEqual(response.status_code, 200, response.data)
         self.assertEqual(response.data['flight']['registration'], 'N987ZX')

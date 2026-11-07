@@ -78,4 +78,16 @@ $("#sic").change(function() {
         $(this).prop('checked',true);
     }
 });
+$('#id_simulator, #id_cross_country').on('change', function () {
+    if (this.checked) {
+        $(this.id === 'id_simulator' ? '#id_cross_country' : '#id_simulator').prop('checked', false);
+    }
+});
+function updateNightTimeWarning() {
+    const nightLandings = Number($('#id_landings_night').val());
+    const nightTime = Number($('#id_night').val());
+    $('#night-time-warning').prop('hidden', !(nightLandings > 0 && !(nightTime > 0)));
+}
+$('#id_landings_night, #id_night').on('input change', updateNightTimeWarning);
+updateNightTimeWarning();
 </script>
