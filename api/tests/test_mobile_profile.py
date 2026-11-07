@@ -15,6 +15,7 @@ class MobileProfileTests(APITestCase):
         self.client.force_authenticate(self.user)
         data = self.client.get(self.url + '?user_id=' + str(self.other.pk)).data
         self.assertEqual(data['account']['email'], 'owner@example.com')
+        self.assertIsNone(data['medical_due_date'])
         self.assertNotIn('customer_id', data['subscription'])
 
     def test_name_company_and_medical_update(self):
@@ -25,13 +26,16 @@ class MobileProfileTests(APITestCase):
         self.assertEqual(response.status_code, 200, response.data)
         self.assertEqual(response.data['account']['company'], 'Airline')
         self.assertTrue(response.data['medical']['first_class'])
+        self.assertEqual(response.data['medical_due_date'], '2026-07-31')
+        self.assertEqual(self.client.get(self.url).data['medical_due_date'], '2026-07-31')
         self.other.refresh_from_db()
         self.assertEqual(self.other.first_name, 'Other')
 
     def test_rejects_privilege_and_identity_changes(self):
         self.client.force_authenticate(self.user)
         for payload in ({'active': True}, {'account': {'email': 'new@example.com'}},
-                        {'medical': {'free_access': True}}, {'account': None}):
+                        {'medical': {'free_access': True}}, {'medical_due_date': '2027-01-31'},
+                        {'account': None}):
             response = self.client.patch(self.url, payload, format='json')
             self.assertEqual(response.status_code, 400)
 

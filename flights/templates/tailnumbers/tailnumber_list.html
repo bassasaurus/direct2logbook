@@ -14,11 +14,16 @@
 </div>
 <p id="aircraft-filter-empty" class="mb-3" role="status" hidden>No matching aircraft or tailnumbers.</p>
 <div id="aircraft-filter-results">
-<div class="mt-4">
+{% if aircraft_needs_tailnumber %}
+<section id="aircraft-unassigned-alert" class="alert alert-danger" aria-label="Aircraft missing tailnumbers">
+  <h5>Aircraft missing tailnumbers</h5>
+  <ul class="mb-0 pl-3">
   {% for aircraft in aircraft_needs_tailnumber %}
-  <p data-aircraft-unassigned><u><a class="text-danger" href="{% url 'aircraft_detail' aircraft.pk %}">{{ aircraft.aircraft_type }}</a></u> Has not been assigned a tailnumber. It will not be included in any calculations.</p>
+    <li data-aircraft-unassigned><a class="alert-link" href="{% url 'aircraft_detail' aircraft.pk %}">{{ aircraft.aircraft_type }}</a> has not been assigned a tailnumber and is excluded from calculations.</li>
   {% endfor %}
-</div>
+  </ul>
+</section>
+{% endif %}
 <hr>
 
 {% if imported %}
