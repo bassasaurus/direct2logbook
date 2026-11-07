@@ -1,3 +1,4 @@
+from api.mobile_signature import MobileSignatureView
 from api.mobile_profile import MobileProfileView
 from api.tailnumber_sync import MobileTailnumberSyncView
 from api.mobile_recency import MobileRecencyView
@@ -11,6 +12,7 @@ from api.aircraft_sync import MobileAircraftSyncView
 from api.mobile_sync import MobileSessionView, MobileFlightSyncView
 
 urlpatterns = [
+    path('mobile/signature/', MobileSignatureView.as_view(), name='mobile_signature'),
     path('mobile/profile/', MobileProfileView.as_view(), name='mobile_profile'),
     path('mobile/default-aircraft/', MobileDefaultAircraftView.as_view(), name='mobile_default_aircraft'),
     path('mobile/recency/', MobileRecencyView.as_view(), name='mobile_recency'),
