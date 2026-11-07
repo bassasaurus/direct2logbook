@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from profile.models import Profile
 from signature.models import Signature
+from api.mobile_signature import signature_revision
 
 
 class AccountSerializer(serializers.ModelSerializer):
@@ -57,6 +58,7 @@ def snapshot(user):
         'medical': MedicalSerializer(profile).data,
         'subscription': {'status': status, 'end_date': profile.end_date,
                          'plan': 'Monthly' if profile.monthly else 'Yearly' if profile.yearly else None},
+        'signature_revision': signature_revision(str(signature.signature) if signature and signature.signature else None),
         'signature': str(signature.signature) if signature and signature.signature else None,
     }
 
