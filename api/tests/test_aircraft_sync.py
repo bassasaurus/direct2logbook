@@ -13,7 +13,7 @@ class AircraftSyncTests(APITestCase):
         self.user = get_user_model().objects.create_user(username='aircraft-sync')
         self.other = get_user_model().objects.create_user(username='other-aircraft-sync')
         self.client.force_authenticate(self.user)
-        self.payload = {'aircraft_type': 'C172', 'aircraft_category': 'A', 'aircraft_class': 'SEL', 'piston': True}
+        self.payload = {'aircraft_type': 'C172', 'aircraft_category': 'A', 'aircraft_class': 'SEL', 'piston': True, 'small': True}
 
     def send(self, **values):
         return self.client.post('/api/mobile/aircraft-sync/', values, format='json')

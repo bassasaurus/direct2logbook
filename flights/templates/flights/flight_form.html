@@ -87,7 +87,8 @@
 <div class="form-group col-12 col-md-4">
   <label class="sr-only" for="id_night">Night (hours)</label>
   {{ form.night.errors }}
-  {{ form.night |attr:"placeholder:Night xx.x" |add_class:"form-control" }}
+  {{ form.night |attr:"placeholder:Night xx.x" |attr:"aria-describedby:night-time-warning" |add_class:"form-control" }}
+  <small id="night-time-warning" class="text-warning" role="status" hidden>Night Time Required</small>
 
 </div>
 <div class="form-group col-12 col-md-4">
