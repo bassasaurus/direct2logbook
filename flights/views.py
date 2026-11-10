@@ -454,6 +454,7 @@ class FlightDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, De
         queryset = Flight.objects.filter(user=user).filter(pk=self.object.pk)
 
         get_map_data(queryset, user)
+        context['flight_map'] = flight_map_data(queryset)
 
         flight = Flight.objects.filter(user=user).get(pk=self.object.pk)
         earliest = Flight.objects.filter(user=user).earliest('date')
@@ -572,6 +573,7 @@ class AircraftDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, 
             user=self.request.user, aircraft_type=self.object)
         user = self.request.user
         get_map_data(flights, user)
+        context['flight_map'] = flight_map_data(flights)
         context['flights'] = flights
 
         if TailNumber.objects.filter(user=user).filter(aircraft__aircraft_type=self.object).exists() or Imported.objects.filter(user=user).filter(aircraft_type=self.object).exists():

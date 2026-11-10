@@ -4,6 +4,11 @@
   if (!dataNode) return;
   var data = JSON.parse(dataNode.textContent);
   var layers = Object.create(null);
+  var routeLabels = Object.create(null);
+  var activeLabels = null;
+  var mapHover = null;
+  var routeIds = Object.keys(data.routes);
+  var singleRoute = routeIds.length === 1;
   var links = document.querySelectorAll('[data-flight-id], [data-route-group]');
   var hovered = null;
   var focused = null;
@@ -13,7 +18,7 @@
 
   // Circle bounds depend on Leaflet's projection. Establish a view before
   // adding paths, including months containing only a local A-to-A flight.
-  Object.keys(data.routes).forEach(function (id) {
+  routeIds.forEach(function (id) {
     data.routes[id].forEach(function (point) { bounds.extend(point); });
   });
   if (bounds.isValid()) {
@@ -22,14 +27,57 @@
     mymap.setView([20, 0], 2.1);
   }
 
-  Object.keys(data.routes).forEach(function (id) {
+  function legLabel(line, start, end) {
+    // Geodesics can split at the antimeridian. Use the longer visible piece.
+    var path = line.getLatLngs().reduce(function (longest, part) {
+      return part.length > longest.length ? part : longest;
+    }, []);
+    var middle = Math.floor(path.length / 2);
+    var before = mymap.project(path[middle - 1]);
+    var after = mymap.project(path[middle]);
+    var angle = Math.atan2(after.y - before.y, after.x - before.x) * 180 / Math.PI;
+    // Keep the text upright regardless of the flight direction.
+    angle = (angle + 270) % 180 - 90;
+    var center = mymap.unproject(before.add(after).divideBy(2));
+    var distance = (L.latLng(start).distanceTo(end) / 1852)
+      .toLocaleString(undefined, {maximumFractionDigits: 1});
+    var icon = L.divIcon({
+      className: '',
+      iconSize: [0, 0],
+      html: '<span class="position-absolute text-nowrap bg-white rounded px-1 fw-semibold" ' +
+        'style="transform: translate(-50%, -50%) rotate(' + angle + 'deg)">' +
+        distance + ' NM</span>'
+    });
+    return L.marker(center, {icon: icon, interactive: false, keyboard: false});
+  }
+
+  function showLabels(id) {
+    var labels = routeLabels[id] || null;
+    if (labels === activeLabels) return;
+    if (activeLabels) mymap.removeLayer(activeLabels);
+    if (labels) labels.addTo(mymap);
+    activeLabels = labels;
+  }
+
+  routeIds.forEach(function (id) {
     var points = data.routes[id];
     if (!points.length) return;
     var options = {color: '#496b8a', weight: 1.5, opacity: .85, interactive: false};
     var layer;
     if (points.length >= 2) {
       options.steps = 200;
-      layer = L.geodesic([points], options);
+      options.interactive = !singleRoute;
+      var legs = [];
+      var labels = [];
+      for (var i = 1; i < points.length; i += 1) {
+        var line = L.geodesic([[points[i - 1], points[i]]], options);
+        legs.push(line);
+        labels.push(legLabel(line, points[i - 1], points[i]));
+      }
+      layer = L.featureGroup(legs);
+      routeLabels[id] = L.layerGroup(labels);
+      layer.on('mouseover', function () { mapHover = id; updateHighlight(); });
+      layer.on('mouseout', function () { mapHover = null; updateHighlight(); });
     } else {
       options.radius = 3000;
       layer = L.circle(points[0], options);
@@ -37,6 +85,7 @@
     layers[id] = layer.addTo(mymap);
     bounds.extend(layer.getBounds());
   });
+  if (singleRoute) showLabels(routeIds[0]);
   if (bounds.isValid()) {
     mymap.fitBounds(bounds, {padding: [40, 40]});
   } else {
@@ -57,6 +106,7 @@
       });
     });
     selectedIds.forEach(function (id) { if (layers[id]) layers[id].bringToFront(); });
+    if (!singleRoute) showLabels(active ? (selectedIds.length === 1 ? selectedIds[0] : null) : mapHover);
     airports.bringToFront();
     Array.prototype.forEach.call(links, function (link) {
       link.classList.toggle('map-route-active', (link.dataset.routeGroup ? 'group:' + link.dataset.routeGroup : link.dataset.flightId) === active);

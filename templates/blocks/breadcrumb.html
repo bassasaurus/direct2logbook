@@ -1,12 +1,6 @@
 {% load tz %}
 <!-- breadcrumb -->
-<div class="d-flex justify-content-end">
-  {% timezone "UTC" %}
-  <time id="utc-clock" datetime="{% now 'c' %}" role="timer" aria-live="off"
-        style="font-variant-numeric: tabular-nums;">{% now "M j, Y | H:i:s" %} UTC</time>
-  {% endtimezone %}
-</div>
-<div class="breadcrumb page-breadcrumb">
+<div class="breadcrumb page-breadcrumb align-items-center column-gap-3 row-gap-1">
   <div class="breadcrumb-path">
     {% if home_link %}
     <a href="{{ home_link }}">Home</a> /
@@ -17,6 +11,10 @@
     {{ page_title }}
     {% endif %}
   </div>
+  {% timezone "UTC" %}
+  <time id="utc-clock" class="ms-auto text-nowrap" datetime="{% now 'c' %}" role="timer" aria-live="off"
+        style="font-variant-numeric: tabular-nums;">{% now "M j, Y | H:i:s" %} UTC</time>
+  {% endtimezone %}
 </div>
 
 <script>
