@@ -76,6 +76,32 @@ class AircraftSyncTests(APITestCase):
         self.assertEqual(response.status_code, 409)
         self.assertTrue(Aircraft.objects.filter(pk=record['id']).exists())
 
+    def test_deletion_eligibility_checks_all_server_relationships(self):
+        _, record = self.create()
+        aircraft = Aircraft.objects.get(pk=record['id'])
+        url = f'/api/aircraft/{aircraft.pk}/deletion-eligibility/'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200, response.data)
+        self.assertEqual(response.data, {'can_delete': True})
+        self.assertIn('no-store', response.headers['Cache-Control'])
+
+        summary = Imported.objects.create(user=self.user, aircraft_type=aircraft)
+        self.assertEqual(self.client.get(url).data, {'can_delete': False})
+        summary.delete()
+
+        tail = TailNumber.objects.create(user=self.user, aircraft=aircraft, registration='N1234')
+        self.assertEqual(self.client.get(url).data, {'can_delete': False})
+
+        # A legacy flight can reference a tailnumber assigned to another aircraft.
+        other_aircraft = Aircraft.objects.create(user=self.user, aircraft_type='C182')
+        TailNumber.objects.filter(pk=tail.pk).update(aircraft=other_aircraft)
+        Flight.objects.create(user=self.user, aircraft_type=aircraft, registration=tail,
+                              date='2025-11-04', route='KIAH-KLAS', duration='1.0')
+        self.assertEqual(self.client.get(url).data, {'can_delete': False})
+
+        self.client.force_authenticate(self.other)
+        self.assertEqual(self.client.get(url).status_code, 404)
+
     def test_rename_and_reused_operation_payload_are_rejected(self):
         values, record = self.create()
         values['data'] = {**self.payload, 'aircraft_type': 'C182'}

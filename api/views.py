@@ -1,5 +1,8 @@
 from django.contrib.auth.models import User, Group
+from django.db import transaction
 from django.db.models.functions import Lower
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import never_cache
 from api.ordering import natural_registration_order
 from rest_framework import serializers, status
 from rest_framework.response import Response
@@ -9,7 +12,7 @@ from rest_framework.response import Response
 from api.serializers import UserSerializer, GroupSerializer, FlightSerializer, AircraftSerializer, TailNumberSerializer
 from flights.models import Flight, Aircraft, TailNumber
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import permission_classes, api_view, authentication_classes
+from rest_framework.decorators import action, permission_classes, api_view, authentication_classes
 from rest_framework.authentication import BasicAuthentication, TokenAuthentication
 from django.http import HttpResponse, JsonResponse
 from rest_framework.mixins import CreateModelMixin
@@ -72,7 +75,22 @@ class FlightViewSet(OwnedRecordsViewSet):
         return Flight.objects.filter(user=user)
 
 
-class AircraftViewSet(OwnedRecordsViewSet):
+class ProtectedReferenceViewSet(OwnedRecordsViewSet):
+    def filter_queryset(self, queryset):
+        queryset = super().filter_queryset(queryset)
+        return queryset.select_for_update() if self.action == 'destroy' else queryset
+
+    @transaction.atomic
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if not instance.can_delete():
+            return Response({'detail': 'This record is in use and cannot be deleted.'},
+                            status=status.HTTP_409_CONFLICT)
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class AircraftViewSet(ProtectedReferenceViewSet):
 
     def get_queryset(self):
 
@@ -84,8 +102,13 @@ class AircraftViewSet(OwnedRecordsViewSet):
 
     pagination_class = Unpaginated
 
+    @action(detail=True, url_path='deletion-eligibility')
+    @method_decorator(never_cache)
+    def deletion_eligibility(self, request, pk=None):
+        return Response({'can_delete': self.get_object().can_delete()})
 
-class TailNumberViewSet(OwnedRecordsViewSet):
+
+class TailNumberViewSet(ProtectedReferenceViewSet):
 
     permission_classes = [IsAuthenticated]
     serializer_class = TailNumberSerializer

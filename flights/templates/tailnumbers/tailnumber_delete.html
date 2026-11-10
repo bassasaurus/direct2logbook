@@ -1,13 +1,16 @@
 {% extends 'base.html' %}
 
 {% block content %}
+{% if can_delete %}
 <form action="" class="form" id="delete-form" method="post">{% csrf_token %}
   <p>Are you sure you want to delete "{{ object }}"?</p>
-  <p>This cannot be undone and may affect entries in other data models. If you need to change it, please <a href="{% url 'tailnumber_update' object.pk %}">update</a> the entry instead.</p>
+  <p>This cannot be undone. If you need to change it, please <a href="{% url 'tailnumber_update' object.pk %}">update</a> the entry instead.</p>
    <hr>
    <input id="confirm" type="submit" class = "btn btn-danger" value="Delete Tailnumber" />
 </form>
 
-<!-- {% include "confirm_delete.html" %} -->
+{% else %}
+<p class="alert alert-danger">This tailnumber has linked flights and cannot be deleted. <a class="alert-link" href="{% url 'tailnumber_update' object.pk %}">Update the tailnumber</a> to correct its details.</p>
+{% endif %}
 
 {% endblock %}
