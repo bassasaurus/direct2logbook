@@ -17,13 +17,14 @@
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/themes/base/jquery-ui.min.css" integrity="sha512-okE4owXD0kfXzgVXBzCDIiSSlpXn3tJbNodngsTnIYPJWjuYhtJ+qMoc0+WUwLHeOwns0wm57Ka903FqQKM1sA==" crossorigin="anonymous" />
   <!-- Bootstrap CSS file -->
-  <link rel="stylesheet" type="text/css" href="{% static 'theme/dist/bootstrap/bootstrap.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'vendor/bootstrap-5.3.8/bootstrap.min.css' %}" />
+  <script src="{% static 'vendor/bootstrap-5.3.8/bootstrap.bundle.min.js' %}" defer></script>
   <!-- Theme CSS file -->
-  <link rel="stylesheet" type="text/css" href="{% static 'theme/dist/theme.css' %}" />
+  <link rel="stylesheet" type="text/css" href="{% static 'theme/dist/theme.css' %}?v=bootstrap-5" />
   <!-- google icons -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <!-- custom css -->
-  <link rel="stylesheet" type="text/css" href="{% static 'css/custom.css' %}?v=20261103-page-actions" />
+  <link rel="stylesheet" type="text/css" href="{% static 'css/custom.css' %}?v=bootstrap-5-breadcrumb" />
   <!-- animate.css -->
   <link rel="stylesheet" type="text/css" href="{% static 'css/animate.css' %}" />
   <!-- sweetalert2 -->
@@ -62,7 +63,7 @@
   {% else %}
   {% include 'blocks/navbar.html' %}
   <div class="app-main" style="margin-top:130px;">
-    <div class="row justify-content-center align-items-center">
+    <div class="row mx-0 justify-content-center align-items-center">
       <div class="col-6">
         {% block account_content %}
         {% endblock %}
@@ -72,8 +73,7 @@
   {% include 'blocks/footer.html' %}
   {% endif %}
 
-  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js" integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4" crossorigin="anonymous"></script>
-  <script type="text/javascript" src="{% static 'theme/dist/theme.min.js' %}"></script>
+  <script src="{% static 'js/theme_app.js' %}" defer></script>
   <script type="text/javascript" src="{% static 'js/tableHeadFixer.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/jquery.formset.js' %}"></script>
 

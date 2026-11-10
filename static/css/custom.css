@@ -345,10 +345,8 @@ body.app-layout {
 #logbook tbody .logbook-stripe > td:first-child {
   background-color: #f2f2f2 !important;
 }
-#logbook.table-striped tbody .logbook-flight-row:hover > td:first-child,
-#logbook.table-striped tbody .logbook-flight-row:focus-within > td:first-child,
-#logbook .logbook-flight-row:hover > td,
-#logbook .logbook-flight-row:focus-within > td {
+#logbook tbody .logbook-flight-row:is(:hover, :focus-within) > td,
+:is(#total, #stat) > tbody > tr:hover > td {
   background-color: #ebf5ff !important;
 }
 
@@ -409,18 +407,19 @@ body.app-layout {
 }
 
 .page-breadcrumb {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: .5rem 1rem;
+  --breadcrumb-outset: 1rem;
+  margin-inline: calc(-1 * var(--breadcrumb-outset));
+  padding-block: .75rem;
+  padding-inline: var(--breadcrumb-outset);
+  background: #e9ecef;
+  border-radius: .25rem;
 }
-.breadcrumb-path { flex: 1 1 16rem; min-width: 0; overflow-wrap: anywhere; }
-.page-breadcrumb .detail-record-actions { margin-left: auto; }
+.breadcrumb-path { min-width: 0; overflow-wrap: anywhere; }
+.page-action-row .detail-record-actions { margin-inline-start: auto; }
 @media (max-width: 575.98px) {
-  .page-breadcrumb .breadcrumb-path { flex-basis: 100%; }
-  .page-breadcrumb .detail-record-actions { margin-left: 0; min-height: 44px; }
-  .page-breadcrumb .detail-record-actions a { padding-top: .5rem; padding-bottom: .5rem; }
+  .page-breadcrumb { --breadcrumb-outset: .5rem; }
+  .page-action-row .detail-record-actions { min-height: 44px; }
+  .page-action-row .detail-record-actions a { padding-block: .5rem; }
 }
 
 .profile-section { margin: 1.5rem 0; }
@@ -536,3 +535,9 @@ body.app-layout {
     text-align: left;
   }
 }
+
+/* Keep the existing page gutters when using Bootstrap 5. */
+.app-layout .container,
+.app-layout .container-fluid,
+.index-app-hero .container { --bs-gutter-x: 30px; }
+.app-layout .row:not(.gx-2) { --bs-gutter-x: 30px; }

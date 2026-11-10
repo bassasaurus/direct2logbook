@@ -51,7 +51,7 @@
       </div>
       <div class="bottom">
         <ul>
-          <li><a href="#privacy_policy" data-toggle="modal" data-target="#privacy_policy">Privacy</a></li>
+          <li><a href="#privacy_policy" data-bs-toggle="modal" data-bs-target="#privacy_policy">Privacy</a></li>
         </ul>
       </div>
     </div>
@@ -63,15 +63,13 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="exampleModalLongTitle">Privacy Policy</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         {% include 'blocks/privacy_policy.html' %}
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
       </div>
     </div>
   </div>

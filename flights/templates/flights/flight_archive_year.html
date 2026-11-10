@@ -5,7 +5,7 @@
 <div class="row">
   <div class="col">
     {% for navigation_year in years reversed %}
-      <a href="{% url 'flight_by_year' year=navigation_year|date:'Y' %}"{% if navigation_year.year == year.year %} class="font-weight-bold text-dark" aria-current="page"{% endif %}>{{ navigation_year|date:"Y" }}</a>
+      <a href="{% url 'flight_by_year' year=navigation_year|date:'Y' %}"{% if navigation_year.year == year.year %} class="fw-bold text-dark" aria-current="page"{% endif %}>{{ navigation_year|date:"Y" }}</a>
     {% endfor %}
   </div>
 </div>

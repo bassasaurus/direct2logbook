@@ -46,7 +46,7 @@
                 {% endif %}
               </span>
               {% if reminder.key %}
-              <form class="ml-2" method="post" action="{% url 'dismiss_dashboard_reminder' reminder.id %}">
+              <form class="ms-2" method="post" action="{% url 'dismiss_dashboard_reminder' reminder.id %}">
                 {% csrf_token %}
                 <input type="hidden" name="key" value="{{ reminder.key }}">
                 <button class="btn btn-sm btn-link" type="submit" aria-label="Dismiss {% if reminder.kind == 'expiration' %}{{ reminder.title }}{% else %}{{ reminder.progress_label }}{% endif %}">Dismiss</button>
@@ -67,30 +67,30 @@
   <div class="col-12">
     <ul id="clothing-nav" class="nav nav-tabs" role="tablist">
       <li class="nav-item">
-        <a class="nav-link active" href="#totals" id="totals-tab" role="tab" data-toggle="tab" aria-controls="totals" aria-expanded="true">Totals</a>
+        <a class="nav-link active" href="#totals" id="totals-tab" role="tab" data-bs-toggle="tab" aria-controls="totals" aria-selected="true">Totals</a>
       </li>
 
       <li class="nav-item">
-        <a class="nav-link" href="#stats" role="tab" id="stats-tab" data-toggle="tab" aria-controls="stats">Stats</a>
+        <a class="nav-link" href="#stats" role="tab" id="stats-tab" data-bs-toggle="tab" aria-controls="stats" aria-selected="false">Stats</a>
       </li>
 
       <li class="nav-item">
-        <a class="nav-link" href="#currency" role="tab" id="currency-tab" data-toggle="tab" aria-controls="stats">Currency</a>
+        <a class="nav-link" href="#currency" role="tab" id="currency-tab" data-bs-toggle="tab" aria-controls="currency" aria-selected="false">Currency</a>
       </li>
 
       <li class="nav-item">
-        <a class="nav-link" href="#misc" role="tab" id="misc-tab" data-toggle="tab" aria-controls="misc">Misc</a>
+        <a class="nav-link" href="#misc" role="tab" id="misc-tab" data-bs-toggle="tab" aria-controls="misc" aria-selected="false">Misc</a>
       </li>
 
       <li class="nav-item">
-        <a class="nav-link" href="#iacra" role="tab" id="iacra-tab" data-toggle="tab" aria-controls="iacra">IACRA</a>
+        <a class="nav-link" href="#iacra" role="tab" id="iacra-tab" data-bs-toggle="tab" aria-controls="iacra" aria-selected="false">IACRA</a>
       </li>
     </ul>
   </div>
 </div>
 
 <!-- Content Panel -->
-<div id="" class="tab-content">
+<div class="tab-content">
   <div role="tabpanel" class="tab-pane fade show active" id="totals" aria-labelledby="totals-tab">
     <br>
     {% include 'home/table_totals.html' %}
@@ -304,32 +304,6 @@
           });
         }
       });
-    });
-  })();
-</script>
-
-<script>
-  (function () {
-    var clock = document.getElementById('utc-clock');
-    if (!clock) return;
-
-    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-                  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    function pad(value) {
-      return String(value).padStart(2, '0');
-    }
-    function updateClock() {
-      var now = new Date();
-      clock.dateTime = now.toISOString();
-      clock.textContent = months[now.getUTCMonth()] + ' ' + now.getUTCDate() +
-        ', ' + now.getUTCFullYear() + ' | ' + pad(now.getUTCHours()) + ':' +
-        pad(now.getUTCMinutes()) + ':' + pad(now.getUTCSeconds()) + ' UTC';
-    }
-
-    updateClock();
-    window.setInterval(updateClock, 1000);
-    document.addEventListener('visibilitychange', function () {
-      if (!document.hidden) updateClock();
     });
   })();
 </script>

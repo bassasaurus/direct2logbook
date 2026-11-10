@@ -3,12 +3,12 @@
 
 {% block content %}
 
-<div class="form-row align-items-center mt-3 mb-3">
+<div class="row gx-2 align-items-center mt-3 mb-3">
   <div class="col-12 col-md-6 col-lg-4">
-    <label class="sr-only" for="aircraft-filter">Filter by aircraft type or registration</label>
+    <label class="visually-hidden" for="aircraft-filter">Filter by aircraft type or registration</label>
     <div class="input-group">
       <input type="search" id="aircraft-filter" class="form-control" placeholder="Aircraft type or registration" autocomplete="off" aria-controls="aircraft-filter-results">
-      <div class="input-group-append"><button type="button" id="aircraft-filter-clear" class="btn btn-outline-secondary">Clear</button></div>
+      <button type="button" id="aircraft-filter-clear" class="btn btn-outline-secondary">Clear</button>
     </div>
   </div>
 </div>
@@ -17,7 +17,7 @@
 {% if aircraft_needs_tailnumber %}
 <section id="aircraft-unassigned-alert" class="alert alert-danger" aria-label="Aircraft missing tailnumbers">
   <h5>Aircraft missing tailnumbers</h5>
-  <ul class="mb-0 pl-3">
+  <ul class="mb-0 ps-3">
   {% for aircraft in aircraft_needs_tailnumber %}
     <li data-aircraft-unassigned><a class="alert-link" href="{% url 'aircraft_detail' aircraft.pk %}">{{ aircraft.aircraft_type }}</a> has not been assigned a tailnumber and is excluded from calculations.</li>
   {% endfor %}

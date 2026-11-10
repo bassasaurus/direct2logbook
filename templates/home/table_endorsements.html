@@ -1,13 +1,13 @@
 
 <table class="table custom-table">
-  <thead class="thead-light">
+  <thead class="table-light">
     <tr>
-      <th scope="row">Endorsement</th><th class="text-right">Total</th>
+      <th scope="row">Endorsement</th><th class="text-end">Total</th>
     </tr>
   </thead>
   {% for endorsement in endorsements %}
   <tr>
-    <td>{{ endorsement.endorsement }}</td><td class="text-right">{{ endorsement.total }}</td>
+    <td>{{ endorsement.endorsement }}</td><td class="text-end">{{ endorsement.total }}</td>
   </tr>
   {% endfor %}
 </table>
