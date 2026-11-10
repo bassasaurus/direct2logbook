@@ -124,7 +124,7 @@ class MonthlyMapOwnershipTests(TestCase):
 
         response = self.client.get(day_url)
         self.assertContains(response, f'href="{reverse("flight_by_year", args=[2025])}"')
-        self.assertContains(response, f'<a href="{month_url}">January, 2025</a>')
+        self.assertContains(response, f'<a href="{month_url}" class="text-dark">January, 2025</a>')
         self.assertEqual(list(response.context['object_list']), [current])
         self.assertEqual(set(response.context['flight_map']['routes']), {str(current.pk)})
         self.assertContains(response, f'href="{reverse("flight_by_day", args=[2025, "jan", 17])}"')
