@@ -63,11 +63,11 @@
                 <td class="text-end">{{flight.dual|iconbool}}</td>
                 <td class="text-end">{{flight.solo|iconbool}}</td>
                 <td class="text-end">{{flight.simulator|iconbool}}</td>
-                <td class="ps-3 text-center" data-flight-remarks>{{flight.remarks|default:"-"}}</td>
+                <td class="ps-3 text-center" data-flight-remarks>{{ flight.remarks|default:"-"|remarks_links }}</td>
             </tr>
           {% endfor %}
         </tbody>
       </table>
 </div>
 
-<script src="{% static 'js/logbook_rows.js' %}?v=20261103-remarks-toggle" defer></script>
+<script src="{% static 'js/logbook_rows.js' %}?v=remarks-links" defer></script>

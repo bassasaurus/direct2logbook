@@ -7,11 +7,14 @@
 {% include "flights/airport_confirmation.html" %}
 <div class="row">
   <div class="col-12 flight-detail-action-row">
-    <span class="context-navigation-links">
-      <a href="{% url 'flight_detail' previous_flight.pk %}" class="text-primary"><span aria-hidden="true">← </span>Previous</a>
+    <div class="d-flex flex-wrap align-items-center gap-2">
+      <a href="{% url 'flight_detail' previous_flight.pk %}" class="text-primary d-inline-flex align-items-center gap-1">
+        <span class="material-icons fs-6" aria-hidden="true">chevron_left</span>Previous</a>
       <span aria-hidden="true">|</span>
-      <a href="{% url 'flight_detail' next_flight.pk %}" class="text-primary">Next<span aria-hidden="true"> →</span></a>
-    </span>
+      <a href="{% url 'flight_detail' next_flight.pk %}" class="text-primary d-inline-flex align-items-center gap-1">
+        Next<span class="material-icons fs-6" aria-hidden="true">chevron_right</span>
+      </a>
+    </div>
   </div>
 </div>
 <hr>
@@ -37,7 +40,7 @@
       {% if flight.dual %}| Dual{% endif %}
       {% if flight.solo %}| Solo{% endif %}
     </h6>
-    <p class="mb-0">Remarks: {% if flight.remarks %}<span style="white-space: pre-wrap;">{{ flight.remarks }}</span>{% else %}None{% endif %}</p>
+    <p class="mb-0">Remarks: {% if flight.remarks %}<span style="white-space: pre-wrap; overflow-wrap: anywhere;">{{ flight.remarks|remarks_links }}</span>{% else %}None{% endif %}</p>
 
   </div>
 </div>
