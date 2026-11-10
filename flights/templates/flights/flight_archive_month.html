@@ -17,7 +17,6 @@
   }
 </style>
 
-<hr>
 <div class="row">
   <div class="col">
     {% for navigation_year in years reversed %}
@@ -32,7 +31,7 @@
         {% if previous_month %}
             <a href="{% url 'flight_by_month' year=previous_month|date:'Y' month=previous_month|date:'b' %}" class=""><span aria-hidden="true">← </span>{{ previous_month|date:"F" }}, {{ previous_month|date:"Y" }}</a>
         {% endif %}
-        <span class="fw-bold">| {% if day %}<a href="{{ parent_link }}">{{ month|date:"F, Y" }}</a>{% else %}{{ month|date:"F, Y" }}{% endif %} |</span>
+        <span class="fw-bold">| {% if day %}<a href="{{ parent_link }}" class="text-dark">{{ month|date:"F, Y" }}</a>{% else %}{{ month|date:"F, Y" }}{% endif %} |</span>
         {% if next_month %}
             <a href="{% url 'flight_by_month' year=next_month|date:'Y' month=next_month|date:'b' %}" class="">{{ next_month|date:"F" }}, {{ next_month|date:"Y" }}<span aria-hidden="true"> →</span></a>
         {% endif %}
