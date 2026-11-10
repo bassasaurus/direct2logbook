@@ -345,7 +345,8 @@ body.app-layout {
 #logbook tbody .logbook-stripe > td:first-child {
   background-color: #f2f2f2 !important;
 }
-#logbook tbody .logbook-flight-row:is(:hover, :focus-within) > td {
+#logbook tbody .logbook-flight-row:is(:hover, :focus-within) > td,
+:is(#total, #stat) > tbody > tr:hover > td {
   background-color: #ebf5ff !important;
 }
 
@@ -406,13 +407,17 @@ body.app-layout {
 }
 
 .page-breadcrumb {
-  padding: .75rem 1rem;
+  --breadcrumb-outset: 1rem;
+  margin-inline: calc(-1 * var(--breadcrumb-outset));
+  padding-block: .75rem;
+  padding-inline: var(--breadcrumb-outset);
   background: #e9ecef;
   border-radius: .25rem;
 }
 .breadcrumb-path { min-width: 0; overflow-wrap: anywhere; }
 .page-action-row .detail-record-actions { margin-inline-start: auto; }
 @media (max-width: 575.98px) {
+  .page-breadcrumb { --breadcrumb-outset: .5rem; }
   .page-action-row .detail-record-actions { min-height: 44px; }
   .page-action-row .detail-record-actions a { padding-block: .5rem; }
 }
