@@ -1,38 +1,20 @@
-{% extends 'base.html' %}
-{% load static %}
-{% block content %}
+{% extends 'flights/flight_archive_month.html' %}
 
-<div class="row">
-  <div class="col-4">
-      <a class="btn btn-outline-secondary btn-sm" href="{% url 'flight_by_date' %}" >All Years</a>
-    <hr>
-      <div class="btn-group">
-        {% if previous_month %}
-            <a href="{% url 'flight_by_month' year=previous_month|date:'Y' month=previous_month|date:'b' %}" class="btn btn-outline-secondary btn-sm">- Month</a>
-        {% endif %}
-        {% if next_month %}
-            <a href="{% url 'flight_by_month' year=next_month|date:'Y' month=next_month|date:'b' %}" class="btn btn-outline-secondary btn-sm">Month +</a>
-        {% endif %}
-      </div>
-    <div><hr></div>
-    <div style="overflow:auto;" >
-      {% for flight in object_list %}
-          <li class=list-unstyled><a href ="{% url 'flight_detail' flight.pk %}" class="btn btn-outline-secondary btn-sm">
-                      {{ flight.date|date:"m/d/Y" }} |
-      				{{ flight.registration }}
-      				{{ flight.route }}</a></li>
-      {% endfor %}
-    </div>
-  </div>
-
-  <div id="mapid" class="col-8 image-shadow custom-popup">
-    {% include 'leaflet.html' %}
-  </div>
-</div>
-
-
-
-
-
-
+{% block archive_navigation %}
+<nav class="d-flex flex-wrap align-items-center gap-2 mb-3" aria-label="Browse flight days">
+  {% if previous_day %}
+    <a class="d-inline-flex align-items-center gap-1" href="{% url 'flight_by_day' year=previous_day.year month=previous_day|date:'b' day=previous_day.day %}">
+      <span class="material-icons fs-6" aria-hidden="true">chevron_left</span>{{ previous_day|date:"M j, Y" }}
+    </a>
+  {% endif %}
+  <span class="fw-bold" aria-current="date">{{ day|date:"M j, Y" }}</span>
+  {% if next_day %}
+    <a class="d-inline-flex align-items-center gap-1" href="{% url 'flight_by_day' year=next_day.year month=next_day|date:'b' day=next_day.day %}">
+      {{ next_day|date:"M j, Y" }}<span class="material-icons fs-6" aria-hidden="true">chevron_right</span>
+    </a>
+  {% endif %}
+</nav>
+<hr>
 {% endblock %}
+
+{% block flight_list_label %}Flights this day{% endblock %}

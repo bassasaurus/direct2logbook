@@ -109,7 +109,10 @@
     if (!singleRoute) showLabels(active ? (selectedIds.length === 1 ? selectedIds[0] : null) : mapHover);
     airports.bringToFront();
     Array.prototype.forEach.call(links, function (link) {
-      link.classList.toggle('map-route-active', (link.dataset.routeGroup ? 'group:' + link.dataset.routeGroup : link.dataset.flightId) === active);
+      var selected = link.dataset.routeGroup
+        ? 'group:' + link.dataset.routeGroup === active
+        : selectedIds.includes(link.dataset.flightId);
+      link.classList.toggle('map-route-active', selected);
     });
   }
 

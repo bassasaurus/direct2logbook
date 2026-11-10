@@ -121,7 +121,9 @@ test('year hover highlights all matching routes and restores them on leave', fun
   assert.equal(result.paths[1].options.weight, 4);
   assert.equal(result.paths[2].options.opacity, .2);
   assert.equal(year.selected, true);
+  assert.deepEqual(result.links.slice(0, 3).map(link => link.selected), [true, true, false]);
   year.handlers.mouseleave();
+  assert.ok(result.links.every(link => !link.selected));
   assert.equal(result.paths[0].options.weight, 1.5);
   assert.equal(result.paths[2].options.opacity, .85);
   year.handlers.focus();

@@ -108,3 +108,25 @@ class MonthlyMapOwnershipTests(TestCase):
         self.assertContains(response, 'data-route-group="01"')
         self.assertContains(response, 'data-route-group="02"')
         self.assertContains(response, 'flight_route_highlight.js')
+
+    def test_day_view_lists_only_owned_flights_on_the_selected_date(self):
+        current = self.flight(self.user, date(2025, 1, 15))
+        later = self.flight(self.user, date(2025, 1, 17))
+        self.flight(self.other, date(2025, 1, 15))
+        month_url = reverse('flight_by_month', args=[2025, 'jan'])
+        day_url = reverse('flight_by_day', args=[2025, 'jan', 15])
+        month_response = self.client.get(month_url)
+        self.assertContains(month_response, f'data-route-group="2025-01-15" href="{day_url}"', count=1)
+        self.assertEqual(month_response.context['flight_map']['groups'], {
+            '2025-01-15': [str(current.pk)],
+            '2025-01-17': [str(later.pk)],
+        })
+
+        response = self.client.get(day_url)
+        self.assertContains(response, f'href="{reverse("flight_by_year", args=[2025])}"')
+        self.assertContains(response, f'<a href="{month_url}">January, 2025</a>')
+        self.assertEqual(list(response.context['object_list']), [current])
+        self.assertEqual(set(response.context['flight_map']['routes']), {str(current.pk)})
+        self.assertContains(response, f'href="{reverse("flight_by_day", args=[2025, "jan", 17])}"')
+        self.assertContains(response, f'data-flight-id="{current.pk}"')
+        self.assertNotContains(response, f'data-flight-id="{later.pk}"')
