@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row">
+  <div class="col-lg-6">
+    <h2 class="h5">{% if editing %}Edit reminder{% else %}New reminder{% endif %}</h2>
+    <p class="text-muted">Expiration reminders appear 30 days before the due date. If dismissed, they return in the last 7 days and again after expiration.</p>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button class="btn btn-primary" type="submit">Save</button>
+      {% if editing %}<a class="btn btn-link" href="{% url 'manage_reminders' %}">Cancel</a>{% endif %}
+    </form>
+  </div>
+  <div class="col-lg-6 mt-4 mt-lg-0">
+    <h2 class="h5">Saved reminders</h2>
+    <ul class="list-group">
+      {% for reminder in reminders %}
+        <li class="list-group-item">
+          <strong>{{ reminder.title }}</strong>
+          <div>
+            {% if reminder.due_date %}Due {{ reminder.due_date|date:"M j, Y" }}
+            {% else %}{{ reminder.target_hours }} total flight hours{% endif %}
+          </div>
+          <div class="d-flex">
+            <a class="btn btn-link px-0 mr-3" href="{% url 'edit_reminder' reminder.pk %}">Edit</a>
+            <form method="post" action="{% url 'remove_reminder' reminder.pk %}">
+              {% csrf_token %}
+              <button class="btn btn-link text-danger px-0" type="submit">Remove</button>
+            </form>
+          </div>
+        </li>
+      {% empty %}
+        <li class="list-group-item">No reminders yet.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

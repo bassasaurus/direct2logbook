@@ -12,18 +12,36 @@
 
   <div class="col-lg-7">
     {% if expired %}
-      <p class="text-danger">Your medical certificate expired {{ expiry_date|date:"m/d/Y" }} - <a href="{% url 'profile_update' user.profile.pk %}">Update</a></p>
+      <p class="text-danger mb-3">Your medical certificate expired {{ expiry_date|date:"m/d/Y" }} - <a href="{% url 'profile_update' user.profile.pk %}">Update</a></p>
     {% elif expiring and not this_month %}
-      <p class="text-warning">Your medical certificate expires next month {{ expiry_date|date:"m/d/Y" }} - <a href="{% url 'profile_update' user.profile.pk %}">Update</a></p>
+      <p class="text-warning mb-3">Your medical certificate expires next month {{ expiry_date|date:"m/d/Y" }} - <a href="{% url 'profile_update' user.profile.pk %}">Update</a></p>
     {% elif expiring and this_month %}
-      <p class="text-danger">Your medical certificate expires this month {{ expiry_date|date:"m/d/Y" }} - <a href="{% url 'profile_update' user.profile.pk %}">Update</a></p>
+      <p class="text-danger mb-3">Your medical certificate expires this month {{ expiry_date|date:"m/d/Y" }} - <a href="{% url 'profile_update' user.profile.pk %}">Update</a></p>
     {% elif current %}
-      <p class="text-success">Your medical certificate expires {{ expiry_date|date:"m/d/Y" }}</p>
+      <p class="text-success mb-3">Your medical certificate expires {{ expiry_date|date:"m/d/Y" }}</p>
     {% elif not expiry_date %}
       <h5>For a medical expiration reminder:</h5>
-      <h5><a class="text-dark" style="text-decoration: underline;" href="{% url 'profile_update' user.profile.pk %}">Click here</a></h5>
+      <h5 class="mb-3"><a class="text-dark" style="text-decoration: underline;" href="{% url 'profile_update' user.profile.pk %}">Click here</a></h5>
     {% else %}
     {% endif %}
+
+    <section aria-label="Reminders">
+      {% if reminders %}
+        <ul class="list-unstyled mb-0">
+          {% for reminder in reminders %}
+            <li class="d-flex align-items-center justify-content-between mb-3">
+              <span class="text-{{ reminder.severity }}"><strong>{{ reminder.title }}</strong><br>{{ reminder.message }}</span>
+              <form class="ml-2" method="post" action="{% url 'dismiss_dashboard_reminder' reminder.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="key" value="{{ reminder.key }}">
+                <button class="btn btn-sm btn-link" type="submit" aria-label="Dismiss {{ reminder.title }}">Dismiss</button>
+              </form>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+      <a href="{% url 'manage_reminders' %}">Manage reminders</a>
+    </section>
 
     <hr>
   </div>

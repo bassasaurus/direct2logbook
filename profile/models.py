@@ -36,3 +36,16 @@ class Profile(models.Model):
     def __str__(self):
         title = "{} {}".format(self.user, self.pk)
         return title
+
+
+class Reminder(models.Model):
+    class Kind(models.TextChoices):
+        EXPIRATION = 'expiration', 'Expiration date'
+        FLIGHT_TIME = 'flight_time', 'Total flight time'
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    title = models.CharField(max_length=80)
+    kind = models.CharField(max_length=12, choices=Kind.choices)
+    due_date = models.DateField(blank=True, null=True)
+    target_hours = models.DecimalField(max_digits=6, decimal_places=1, blank=True, null=True)
+    dismissed_key = models.CharField(max_length=48, blank=True)
