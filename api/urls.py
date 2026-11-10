@@ -1,3 +1,6 @@
+from api.mobile_reminders import (
+    MobileReminderDismissView, MobileRemindersView, MobileSavedRemindersView, MobileSavedReminderView,
+)
 from api.mobile_signature import MobileSignatureView
 from api.mobile_profile import MobileProfileView
 from api.tailnumber_sync import MobileTailnumberSyncView
@@ -12,6 +15,10 @@ from api.aircraft_sync import MobileAircraftSyncView
 from api.mobile_sync import MobileSessionView, MobileFlightSyncView
 
 urlpatterns = [
+    path('mobile/reminders/', MobileRemindersView.as_view(), name='mobile_reminders'),
+    path('mobile/reminders/manage/', MobileSavedRemindersView.as_view(), name='mobile_manage_reminders'),
+    path('mobile/reminders/manage/<int:pk>/', MobileSavedReminderView.as_view(), name='mobile_manage_reminder'),
+    path('mobile/reminders/<int:pk>/dismiss/', MobileReminderDismissView.as_view(), name='mobile_reminder_dismiss'),
     path('mobile/signature/', MobileSignatureView.as_view(), name='mobile_signature'),
     path('mobile/profile/', MobileProfileView.as_view(), name='mobile_profile'),
     path('mobile/default-aircraft/', MobileDefaultAircraftView.as_view(), name='mobile_default_aircraft'),

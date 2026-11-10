@@ -6,6 +6,7 @@ from flights.views import LoginRequiredMixin
 from profile.views import ProfileNotActiveMixin
 from django.views.generic import TemplateView
 import datetime
+from .reminders import active_reminders
 from .currency import instrument_recency
 from .currency import (
     amel_vfr_day, amel_vfr_night, asel_vfr_day, asel_vfr_night,
@@ -33,6 +34,8 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
     def get_context_data(self, **kwargs):
         user = self.request.user
         context = super(HomeView, self).get_context_data(**kwargs)
+
+        context['reminders'] = active_reminders(user)
 
         context['pdf_request'] = PDFRequest.objects.filter(user=user).first()
 
