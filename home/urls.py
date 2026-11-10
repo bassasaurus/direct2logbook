@@ -2,7 +2,9 @@ from django.urls import path
 from django.views.generic import TemplateView
 from home.views import HomeView, index_view
 
-from home.reminder_views import manage_reminders, remove_reminder, dismiss_dashboard_reminder
+from home.reminder_views import (
+    dismiss_dashboard_medical_warning, dismiss_dashboard_reminder, manage_reminders, remove_reminder,
+)
 
 urlpatterns = [
     path('', index_view, name='index'),
@@ -11,5 +13,6 @@ urlpatterns = [
     path('home/reminders/<int:pk>/', manage_reminders, name='edit_reminder'),
     path('home/reminders/<int:pk>/remove/', remove_reminder, name='remove_reminder'),
     path('home/reminders/<int:pk>/dismiss/', dismiss_dashboard_reminder, name='dismiss_dashboard_reminder'),
+    path('home/reminders/medical/dismiss/', dismiss_dashboard_medical_warning, name='dismiss_dashboard_medical_warning'),
     path('home/', HomeView.as_view(), name='home'),
 ]

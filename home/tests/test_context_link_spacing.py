@@ -13,7 +13,7 @@ class ContextLinkSpacingTests(SimpleTestCase):
         return Template("{% load page_navigation %}{% include 'blocks/breadcrumb.html' %}{% page_actions %}").render(Context({
             'request': request, 'user': SimpleNamespace(is_authenticated=True),
             'flight': SimpleNamespace(pk=1), 'aircraft': SimpleNamespace(pk=1),
-            'tailnumber': SimpleNamespace(pk=1),
+            'tailnumber': SimpleNamespace(pk=1), 'can_delete': True,
             'previous_flight': SimpleNamespace(pk=2), 'next_flight': SimpleNamespace(pk=3),
         }))
 
@@ -91,7 +91,7 @@ class ContextLinkSpacingTests(SimpleTestCase):
         request = RequestFactory().get(reverse('aircraft_detail', args=[1]))
         request.resolver_match = resolve(request.path)
         html = Template("{% include 'blocks/breadcrumb.html' %}").render(Context({
-            'request': request, 'aircraft': SimpleNamespace(pk=1), 'detail_has_errors': True,
+            'request': request, 'aircraft': SimpleNamespace(pk=1), 'detail_has_errors': True, 'can_delete': True,
         }))
         self.assertIn('btn btn-outline-danger', html)
         self.assertIn('text-danger detail-delete', html)

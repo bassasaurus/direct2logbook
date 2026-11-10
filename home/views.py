@@ -6,13 +6,13 @@ from flights.views import LoginRequiredMixin
 from profile.views import ProfileNotActiveMixin
 from django.views.generic import TemplateView
 import datetime
-from .reminders import active_reminders
+from .reminders import medical_expiration_alert, reminder_rows
 from .currency import instrument_recency
 from .currency import (
     amel_vfr_day, amel_vfr_night, asel_vfr_day, asel_vfr_night,
     ases_vfr_day, ases_vfr_night, ames_vfr_day, ames_vfr_night,
     helo_vfr_day, helo_vfr_night, gyro_vfr_day, gyro_vfr_night,
-    medical_duration, type_currency)
+    medical_expiry_date, type_currency)
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q, Sum, F, Exists, OuterRef
 from django.shortcuts import render, redirect
@@ -35,7 +35,7 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
         user = self.request.user
         context = super(HomeView, self).get_context_data(**kwargs)
 
-        context['reminders'] = active_reminders(user)
+        context['reminders'] = reminder_rows(user, include_saved=True)
 
         context['pdf_request'] = PDFRequest.objects.filter(user=user).first()
 
@@ -381,8 +381,10 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
         context['gyro_vfr_day'], context['gyro_vfr_day_current'] = gyro_vfr_day(user)
         context['gyro_vfr_night'], context['gyro_vfr_night_current'] = gyro_vfr_night(user)
 
-        (context['expiry_date'], context['this_month'], context['expiring'],
-         context['expired'], context['current']) = medical_duration(user)
+        context['expiry_date'] = medical_expiry_date(user.profile)
+        context['medical_alert'] = medical_expiration_alert(
+            context['expiry_date'], user.profile.medical_warning_dismissed_for,
+        )
 
         context['new_user_aircraft'] = not Aircraft.objects.filter(user=user).exists()
         context['new_user_tailnumber'] = not TailNumber.objects.filter(user=user).exists()

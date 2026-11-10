@@ -286,6 +286,13 @@ class Aircraft(models.Model):
         aircraft_type = str(self.aircraft_type)
         return aircraft_type
 
+    def can_delete(self):
+        return not (
+            TailNumber.objects.filter(aircraft=self).exists()
+            or Flight.objects.filter(aircraft_type=self).exists()
+            or Imported.objects.filter(aircraft_type=self).exists()
+        )
+
 
 class Flight(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -389,6 +396,9 @@ class TailNumber(models.Model):
 
     def get_absolute_url(self):
         return reverse('tailnumber_detail', kwargs={'pk': self.pk})
+
+    def can_delete(self):
+        return not Flight.objects.filter(registration=self).exists()
 
 
 class Approach(models.Model):

@@ -16,11 +16,14 @@
     <ul class="list-group">
       {% for reminder in reminders %}
         <li class="list-group-item">
-          <strong>{{ reminder.title }}</strong>
+          {% if reminder.kind == 'expiration' %}<strong>{{ reminder.title }}</strong>{% endif %}
           <div>
             {% if reminder.due_date %}Due {{ reminder.due_date|date:"M j, Y" }}
-            {% else %}{{ reminder.target_hours }} total flight hours{% endif %}
+            {% elif reminder.progress_label %}{{ reminder.progress_label }}{% endif %}
           </div>
+          {% if reminder.company_start_date %}
+            <div class="text-muted">{{ reminder.company_start_date|date:"M j, Y" }} – {% if reminder.company_end_date %}{{ reminder.company_end_date|date:"M j, Y" }}{% else %}Present{% endif %}</div>
+          {% endif %}
           <div class="d-flex">
             <a class="btn btn-link px-0 mr-3" href="{% url 'edit_reminder' reminder.pk %}">Edit</a>
             <form method="post" action="{% url 'remove_reminder' reminder.pk %}">
@@ -35,4 +38,27 @@
     </ul>
   </div>
 </div>
+<script>
+  const reminderKind = document.getElementById('id_kind');
+  const reminderFields = {
+    title: ['expiration'],
+    due_date: ['expiration'],
+    target_hours: ['flight_time', 'time_in_type', 'crew_in_type', 'company_time'],
+    aircraft: ['time_in_type', 'crew_in_type'],
+    crew_position: ['crew_in_type'],
+    company: ['company_time'],
+    company_start_date: ['company_time'],
+    company_end_date: ['company_time'],
+  };
+  function updateReminderFields() {
+    for (const [name, kinds] of Object.entries(reminderFields)) {
+      const field = document.getElementById('id_' + name);
+      const visible = kinds.includes(reminderKind.value);
+      field.closest('p').hidden = !visible;
+      field.disabled = !visible;
+    }
+  }
+  reminderKind.addEventListener('change', updateReminderFields);
+  updateReminderFields();
+</script>
 {% endblock %}

@@ -11,31 +11,47 @@
   </div>
 
   <div class="col-lg-7">
-    {% if expired %}
-      <p class="text-danger mb-3">Your medical certificate expired {{ expiry_date|date:"m/d/Y" }} - <a href="{% url 'profile_update' user.profile.pk %}">Update</a></p>
-    {% elif expiring and not this_month %}
-      <p class="text-warning mb-3">Your medical certificate expires next month {{ expiry_date|date:"m/d/Y" }} - <a href="{% url 'profile_update' user.profile.pk %}">Update</a></p>
-    {% elif expiring and this_month %}
-      <p class="text-danger mb-3">Your medical certificate expires this month {{ expiry_date|date:"m/d/Y" }} - <a href="{% url 'profile_update' user.profile.pk %}">Update</a></p>
-    {% elif current %}
+    {% if medical_alert %}
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <p class="text-{{ medical_alert.severity }} mb-0"><strong>{{ medical_alert.title }}</strong><br>{{ medical_alert.message }} <a href="{% url 'profile_update' user.profile.pk %}">Update</a></p>
+        {% if medical_alert.key %}
+          <form method="post" action="{% url 'dismiss_dashboard_medical_warning' %}">
+            {% csrf_token %}
+            <input type="hidden" name="key" value="{{ medical_alert.key }}">
+            <button class="btn btn-sm btn-link" type="submit" aria-label="Dismiss medical certificate warning">Dismiss</button>
+          </form>
+        {% endif %}
+      </div>
+    {% elif expiry_date and expiry_date != user.profile.medical_warning_dismissed_for %}
       <p class="text-success mb-3">Your medical certificate expires {{ expiry_date|date:"m/d/Y" }}</p>
     {% elif not expiry_date %}
       <h5>For a medical expiration reminder:</h5>
       <h5 class="mb-3"><a class="text-dark" style="text-decoration: underline;" href="{% url 'profile_update' user.profile.pk %}">Click here</a></h5>
-    {% else %}
     {% endif %}
 
     <section aria-label="Reminders">
+      <h5>Reminders</h5>
       {% if reminders %}
         <ul class="list-unstyled mb-0">
           {% for reminder in reminders %}
             <li class="d-flex align-items-center justify-content-between mb-3">
-              <span class="text-{{ reminder.severity }}"><strong>{{ reminder.title }}</strong><br>{{ reminder.message }}</span>
+              <span{% if reminder.severity %} class="text-{{ reminder.severity }}"{% endif %}>
+                {% if reminder.kind == 'expiration' %}
+                  <strong>{{ reminder.title }}</strong><br>
+                  {% if reminder.message %}{{ reminder.message }}
+                  {% elif reminder.due_date %}Due {{ reminder.due_date|date:"M j, Y" }}{% endif %}
+                {% else %}
+                  {% if reminder.severity != 'warning' %}{{ reminder.progress_label }}{% endif %}
+                  {% if reminder.message %}{% if reminder.severity != 'warning' %}<br>{% endif %}{{ reminder.message }}{% endif %}
+                {% endif %}
+              </span>
+              {% if reminder.key %}
               <form class="ml-2" method="post" action="{% url 'dismiss_dashboard_reminder' reminder.id %}">
                 {% csrf_token %}
                 <input type="hidden" name="key" value="{{ reminder.key }}">
-                <button class="btn btn-sm btn-link" type="submit" aria-label="Dismiss {{ reminder.title }}">Dismiss</button>
+                <button class="btn btn-sm btn-link" type="submit" aria-label="Dismiss {% if reminder.kind == 'expiration' %}{{ reminder.title }}{% else %}{{ reminder.progress_label }}{% endif %}">Dismiss</button>
               </form>
+              {% endif %}
             </li>
           {% endfor %}
         </ul>
