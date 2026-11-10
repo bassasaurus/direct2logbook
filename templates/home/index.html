@@ -23,11 +23,11 @@
   <link rel="shortcut icon" type="image/png" href="{% static 'theme/images/favicon.ico' %}"/>
 
   <!-- stylesheets -->
-  <link rel="stylesheet" type="text/css" href="{% static 'theme/dist/theme.css' %}" />
+  <link rel="stylesheet" href="{% static 'vendor/bootstrap-5.3.8/bootstrap.min.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'theme/dist/theme.css' %}?v=bootstrap-5" />
 
-  <!-- javascript -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-  <script src="{% static 'theme/dist/theme.min.js' %}"></script>
+  <script src="{% static 'vendor/bootstrap-5.3.8/bootstrap.bundle.min.js' %}" defer></script>
+  <script src="{% static 'js/theme_app.js' %}" defer></script>
 </head>
 <body>
   <!--[if lt IE 9]>
@@ -39,21 +39,6 @@
   <![endif]-->
 
 {% include 'blocks/navbar.html' %}
-
-  <script type="text/javascript">
-    $(function () {
-      if (!window.utils.isMobile()) {
-        // parallax header
-        $(window).scroll(function() {
-          var scroll = $(window).scrollTop(),
-          slowScroll = scroll/4,
-          slowBg = slowScroll;
-
-          $('.index-app-hero').css("background-position", "center " + -slowBg + "px");
-        });
-      }
-    });
-  </script>
 
   <div class="index-app-hero">
       <div class="container">
@@ -175,7 +160,7 @@
       </h4>
     </header>
     <section class="clearfix">
-      <img src="{% static 'theme/images/devices/ipad-1.png' %}" class="devices float-right" />
+      <img src="{% static 'theme/images/devices/ipad-1.png' %}" class="devices float-end" />
 
       <h4>Responsive design looks great and works great on several device categories.</h4>
       <p>

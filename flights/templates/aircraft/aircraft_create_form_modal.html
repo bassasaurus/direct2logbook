@@ -4,11 +4,11 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">New Aircraft</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">×</span>
         </button>
       </div>
-      <div class="modal-body form-group">
+      <div class="modal-body mb-3">
         <p>Required *</p>
         <form action="{% url 'aircraft_create' %}" class="" method="post">
             {% csrf_token %}

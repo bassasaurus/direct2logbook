@@ -5,7 +5,7 @@
   <div class="col-12">
     <form data-unsaved-changes action="" class="mt-3" method="post">
       {% csrf_token %}
-        <div class="form-group">
+        <div class="mb-3">
           <h4>Update {{ object.aircraft_type }}</h4>
           <p>Required *</p>
           {{ form.non_field_errors }}

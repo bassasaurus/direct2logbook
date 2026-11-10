@@ -1,110 +1,110 @@
 {% load static widget_tweaks %}
 <div class="flight-entry-fields">
-<fieldset class="mb-4"><legend class="sr-only">Flight basics</legend>
-<div class="form-row">
-<div class="form-group col-12 col-md-6">
-  <label class="sr-only" for="id_date">Date *</label>
+<fieldset class="mb-4"><legend class="visually-hidden">Flight basics</legend>
+<div class="row gx-2">
+<div class="mb-3 col-12 col-md-6">
+  <label class="visually-hidden" for="id_date">Date *</label>
   {{ form.date.errors }}
   {{ form.date |attr:"autocomplete:off" |attr:"placeholder:Date (MM/DD/YYYY)" |add_class:"form-control" }}
 
 </div>
-<div class="form-group col-12 col-md-6">
-  <label class="sr-only" for="id_duration">Duration (hours) *</label>
+<div class="mb-3 col-12 col-md-6">
+  <label class="visually-hidden" for="id_duration">Duration (hours) *</label>
   {{ form.duration.errors }}
   {{ form.duration |attr:"placeholder:Duration * xx.x" |attr:"aria-describedby:duration-help" |add_class:"form-control" }}
   <small id="duration-help" class="form-text text-muted">Hours to one decimal place, for example 1.5.</small>
 </div>
-<div class="form-group col-12 col-md-6">
-  <label class="sr-only" for="id_aircraft_type">Aircraft *</label>
+<div class="mb-3 col-12 col-md-6">
+  <label class="visually-hidden" for="id_aircraft_type">Aircraft *</label>
   {{ form.aircraft_type.errors }}
   <div class="flight-picker-row">
     <div class="flight-picker-control">{{ form.aircraft_type }}</div>
     <a target="new" href="{% url 'aircraft_create' %}">New Aircraft</a>
   </div>
 </div>
-<div class="form-group col-12 col-md-6">
-  <label class="sr-only" for="id_registration">Tailnumber *</label>
+<div class="mb-3 col-12 col-md-6">
+  <label class="visually-hidden" for="id_registration">Tailnumber *</label>
   {{ form.registration.errors }}
   <div class="flight-picker-row">
     <div class="flight-picker-control">{{ form.registration }}</div>
     <a target="new" href="{% url 'tailnumber_create' %}">New Tailnumber</a>
   </div>
 </div>
-<div class="form-group col-12 col-lg-4">
-  <label class="sr-only" for="route">Route *</label>
+<div class="mb-3 col-12 col-lg-4">
+  <label class="visually-hidden" for="route">Route *</label>
   {{ form.route.errors }}
   {{ form.route |attr:"id:route" |attr:"autocomplete:off" |attr:"placeholder:Route * (e.g. IAH-LAX)" |attr:"aria-describedby:route-help" |add_class:"form-control" }}
   {{ form.airport_choices }}{{ form.airport_choices.errors }}
   <div id="route-airport-feedback" class="mt-2" role="status" aria-live="polite" data-check-url="{% url 'route_airport_check' %}"></div>
   <small id="route-help" class="form-text text-muted">Use FAA, IATA or ICAO airport codes, for example 1G3-IAH or KIAH-KLAX. Spaces are formatted automatically.</small>
 </div>
-<div class="form-group col-12 col-lg-8 pt-lg-2"><div class="d-flex flex-wrap" role="group" aria-label="Role and flight type">
-<div class="form-check form-check-inline mr-3 mb-2">
+<div class="mb-3 col-12 col-lg-8 pt-lg-2"><div class="d-flex flex-wrap" role="group" aria-label="Role and flight type">
+<div class="form-check form-check-inline me-3 mb-2">
  {{ form.pilot_in_command|attr:"id:pic"|add_class:"form-check-input" }}
  <label class="form-check-label" for="pic">PIC</label>{{ form.pilot_in_command.errors }}
 </div>
-<div class="form-check form-check-inline mr-3 mb-2">
+<div class="form-check form-check-inline me-3 mb-2">
  {{ form.second_in_command|attr:"id:sic"|add_class:"form-check-input" }}
  <label class="form-check-label" for="sic">SIC</label>{{ form.second_in_command.errors }}
 </div>
-<div class="form-check form-check-inline mr-3 mb-2">
+<div class="form-check form-check-inline me-3 mb-2">
  {{ form.solo|attr:"id:solo"|add_class:"form-check-input" }}
  <label class="form-check-label" for="solo">Solo</label>{{ form.solo.errors }}
 </div>
-<div class="form-check form-check-inline mr-3 mb-2">
+<div class="form-check form-check-inline me-3 mb-2">
  {{ form.dual|attr:"id:dual"|add_class:"form-check-input" }}
  <label class="form-check-label" for="dual">Dual</label>{{ form.dual.errors }}
 </div>
-<div class="form-check form-check-inline mr-3 mb-2">
+<div class="form-check form-check-inline me-3 mb-2">
  {{ form.instructor|attr:"id:cfi"|add_class:"form-check-input" }}
  <label class="form-check-label" for="cfi">CFI</label>{{ form.instructor.errors }}
 </div>
-<div class="form-check form-check-inline mr-3 mb-2">
+<div class="form-check form-check-inline me-3 mb-2">
  {{ form.simulator|attr:"id:id_simulator"|add_class:"form-check-input" }}
  <label class="form-check-label" for="id_simulator">Sim</label>{{ form.simulator.errors }}
 </div>
-<div class="form-check form-check-inline mr-3 mb-2">
+<div class="form-check form-check-inline me-3 mb-2">
  {{ form.cross_country|attr:"id:id_cross_country"|add_class:"form-check-input" }}
  <label class="form-check-label" for="id_cross_country">Cross-country</label>{{ form.cross_country.errors }}
 </div>
 </div></div>
 </div></fieldset>
-<fieldset class="mb-4"><legend class="sr-only">Landings</legend><div class="form-row">
-<div class="form-group col-12 col-md-6">
-  <label class="sr-only" for="id_landings_day">Day landings</label>
+<fieldset class="mb-4"><legend class="visually-hidden">Landings</legend><div class="row gx-2">
+<div class="mb-3 col-12 col-md-6">
+  <label class="visually-hidden" for="id_landings_day">Day landings</label>
   {{ form.landings_day.errors }}
   {{ form.landings_day |attr:"placeholder:Day landings" |add_class:"form-control" }}
 
 </div>
-<div class="form-group col-12 col-md-6">
-  <label class="sr-only" for="id_landings_night">Night landings</label>
+<div class="mb-3 col-12 col-md-6">
+  <label class="visually-hidden" for="id_landings_night">Night landings</label>
   {{ form.landings_night.errors }}
   {{ form.landings_night |attr:"placeholder:Night landings" |add_class:"form-control" }}
 
 </div>
 </div></fieldset>
-<fieldset class="mb-4"><legend class="sr-only">Conditions</legend><div class="form-row">
-<div class="form-group col-12 col-md-4">
-  <label class="sr-only" for="id_night">Night (hours)</label>
+<fieldset class="mb-4"><legend class="visually-hidden">Conditions</legend><div class="row gx-2">
+<div class="mb-3 col-12 col-md-4">
+  <label class="visually-hidden" for="id_night">Night (hours)</label>
   {{ form.night.errors }}
   {{ form.night |attr:"placeholder:Night xx.x" |attr:"aria-describedby:night-time-warning" |add_class:"form-control" }}
   <small id="night-time-warning" class="text-warning" role="status" hidden>Night Time Required</small>
 
 </div>
-<div class="form-group col-12 col-md-4">
-  <label class="sr-only" for="id_instrument">IFR (hours)</label>
+<div class="mb-3 col-12 col-md-4">
+  <label class="visually-hidden" for="id_instrument">IFR (hours)</label>
   {{ form.instrument.errors }}
   {{ form.instrument |attr:"placeholder:IFR xx.x" |add_class:"form-control" }}
 
 </div>
-<div class="form-group col-12 col-md-4">
-  <label class="sr-only" for="id_simulated_instrument">Simulated IFR (hours)</label>
+<div class="mb-3 col-12 col-md-4">
+  <label class="visually-hidden" for="id_simulated_instrument">Simulated IFR (hours)</label>
   {{ form.simulated_instrument.errors }}
   {{ form.simulated_instrument |attr:"placeholder:Simulated IFR xx.x" |add_class:"form-control" }}
 
 </div>
 </div></fieldset>
-<fieldset class="mb-4"><legend class="sr-only">Approaches and holding</legend>
+<fieldset class="mb-4"><legend class="visually-hidden">Approaches and holding</legend>
 {{ approaches.management_form }}
 {{ approaches.non_form_errors }}
 <div class="approach-holding-layout">
@@ -135,8 +135,8 @@
 </div>
 </div>
 </fieldset>
-<div class="form-group">
-  <label class="sr-only" for="id_remarks">Remarks</label>
+<div class="mb-3">
+  <label class="visually-hidden" for="id_remarks">Remarks</label>
   {{ form.remarks.errors }}
   {{ form.remarks|attr:"placeholder:Remarks"|add_class:"form-control"|attr:"aria-describedby:remarks-help" }}
   <small id="remarks-help" class="form-text text-muted">500-character limit.</small>

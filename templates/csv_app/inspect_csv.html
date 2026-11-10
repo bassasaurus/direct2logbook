@@ -75,9 +75,9 @@
         <a class="btn btn-outline-primary d-none" id="csv-view-logbook" href="{% url 'flight_list' %}">View logbook</a>
       </div>
     {% else %}
-      <div class="custom-file csv-file-picker">
-        {{ inspect_form.file|add_class:"custom-file-input"|attr:"accept:.csv,text/csv" }}
-        <label class="custom-file-label text-truncate" for="{{ inspect_form.file.id_for_label }}">Choose CSV file</label>
+      <div class="csv-file-picker">
+        {{ inspect_form.file|add_class:"form-control"|attr:"accept:.csv,text/csv" }}
+        <label class="visually-hidden" for="{{ inspect_form.file.id_for_label }}">Choose CSV file</label>
       </div>
       <div class="csv-actions d-flex flex-wrap align-items-center">
         <button class="btn btn-primary csv-primary-action" id="csv-inspect-submit" type="submit" disabled>Inspect file</button>
@@ -92,24 +92,24 @@
     <table class="table table-sm csv-preview-table table-striped table-bordered">
       <thead>
         <tr>
-          <th class="text-left">Date</th>
-          <th class="text-left">Type</th>
-          <th class="text-left">Reg</th>
-          <th class="text-left">Route</th>
-          <th class="text-right">Duration</th>
-          <th class="text-right">PIC</th>
-          <th class="text-right">SIC</th>
-          <th class="text-right">X Country</th>
-          <th class="text-right">Night</th>
-          <th class="text-right">IFR</th>
-          <th class="text-right">Approaches</th>
-          <th class="text-right">Day Ldg</th>
-          <th class="text-right">Night Ldg</th>
-          <th class="text-right">Sim Inst</th>
-          <th class="text-right">CFI</th>
-          <th class="text-right">Dual</th>
-          <th class="text-right">Solo</th>
-          <th class="text-right">Sim</th>
+          <th class="text-start">Date</th>
+          <th class="text-start">Type</th>
+          <th class="text-start">Reg</th>
+          <th class="text-start">Route</th>
+          <th class="text-end">Duration</th>
+          <th class="text-end">PIC</th>
+          <th class="text-end">SIC</th>
+          <th class="text-end">X Country</th>
+          <th class="text-end">Night</th>
+          <th class="text-end">IFR</th>
+          <th class="text-end">Approaches</th>
+          <th class="text-end">Day Ldg</th>
+          <th class="text-end">Night Ldg</th>
+          <th class="text-end">Sim Inst</th>
+          <th class="text-end">CFI</th>
+          <th class="text-end">Dual</th>
+          <th class="text-end">Solo</th>
+          <th class="text-end">Sim</th>
           <th class="text-center">Remarks</th>
         </tr>
       </thead>
@@ -124,7 +124,7 @@
         {% endfor %}
         {% else %}
         <tr>
-          <td class="text-left">Formats:<br> <!-- date -->
+          <td class="text-start">Formats:<br> <!-- date -->
             YYYY-MM-DD<br>
             MM/DD/YYYY<br>
             MM-DD-YYYY
@@ -133,22 +133,22 @@
           <td>N726T</td> <!-- reg -->
           <td>ICAO or IATA<br> <!-- route -->
             MMUN-IAH-DFW-CYOW</td>
-          <td class="text-right">##.#</td> <!-- duration -->
-          <td class="text-right">##.#</td> <!-- pic -->
-          <td class="text-right">##.#</td> <!-- sic -->
-          <td class="text-right">##.#</td> <!-- xc -->
-          <td class="text-right">##.#</td> <!-- night -->
-          <td class="text-right">##.#</td> <!-- ifr -->
-          <td class="text-right">#<br> <!-- appr -->
+          <td class="text-end">##.#</td> <!-- duration -->
+          <td class="text-end">##.#</td> <!-- pic -->
+          <td class="text-end">##.#</td> <!-- sic -->
+          <td class="text-end">##.#</td> <!-- xc -->
+          <td class="text-end">##.#</td> <!-- night -->
+          <td class="text-end">##.#</td> <!-- ifr -->
+          <td class="text-end">#<br> <!-- appr -->
             - will default to ILS</td>
-          <td class="text-right">#</td> <!-- day ldg -->
-          <td class="text-right">#</td> <!-- night ldg -->
-          <td class="text-right">##.#</td> <!-- sim inst -->
-          <td class="text-right">##.#</td> <!-- cfi -->
-          <td class="text-right">##.#</td> <!-- dual -->
-          <td class="text-right">##.#</td> <!-- solo -->
-          <td class="text-right">##.#</td> <!-- sim -->
-          <td class="text-right">Text</td> <!-- remarks -->
+          <td class="text-end">#</td> <!-- day ldg -->
+          <td class="text-end">#</td> <!-- night ldg -->
+          <td class="text-end">##.#</td> <!-- sim inst -->
+          <td class="text-end">##.#</td> <!-- cfi -->
+          <td class="text-end">##.#</td> <!-- dual -->
+          <td class="text-end">##.#</td> <!-- solo -->
+          <td class="text-end">##.#</td> <!-- sim -->
+          <td class="text-end">Text</td> <!-- remarks -->
         </tr>
         {% endif %}
       </tbody>
@@ -158,7 +158,6 @@
 <script>
   $('#id_file').on('change', function () {
     var selected = this.files && this.files.length;
-    $(this).siblings('.custom-file-label').text(selected ? this.files[0].name : 'Choose CSV file');
     $('#csv-inspect-submit').prop('disabled', !selected);
   });
   $('#csv-preview-form').on('submit', function () {

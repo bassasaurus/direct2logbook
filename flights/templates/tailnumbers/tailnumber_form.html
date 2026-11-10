@@ -1,12 +1,12 @@
 {% load widget_tweaks %}
-<div class="form-row tailnumber-entry-fields">
-  <div class="form-group col-md-6">
-    <label class="sr-only" for="{{ form.registration.id_for_label }}">Registration *</label>
+<div class="row gx-2 tailnumber-entry-fields">
+  <div class="mb-3 col-md-6">
+    <label class="visually-hidden" for="{{ form.registration.id_for_label }}">Registration *</label>
     {{ form.registration|attr:"placeholder:Registration *"|attr:"autocomplete:off"|add_class:"form-control" }}
     {% for error in form.registration.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
   </div>
-  <div class="form-group col-md-6">
-    <label class="sr-only" for="{{ form.aircraft.id_for_label }}">Aircraft *</label>
+  <div class="mb-3 col-md-6">
+    <label class="visually-hidden" for="{{ form.aircraft.id_for_label }}">Aircraft *</label>
     {{ form.aircraft|attr:"data-width:100%"|attr:"style:width:100%"|add_class:"form-control" }}
     {% for error in form.aircraft.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
   </div>
@@ -15,9 +15,9 @@
   <legend class="col-form-label pt-0">Operating rules</legend>
   <div class="d-flex flex-wrap">
     {% for radio in form.operating_rules %}
-    <div class="form-check form-check-inline mr-4 mb-2">
+    <div class="form-check form-check-inline me-4 mb-2">
       {{ radio.tag }}
-      <label class="form-check-label ml-1" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+      <label class="form-check-label ms-1" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
     </div>
     {% endfor %}
   </div>

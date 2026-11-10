@@ -2,25 +2,25 @@
 <div class="table-responsive" role="region" aria-label="Logbook flights" tabindex="0">
       <table id="logbook" class="custom-table">
         <thead class="custom-table">
-            <th class="pl-2 text-left">Date</th>
-            <th class="text-left">Type</th>
-            <th class="text-left">Reg</th>
-            <th class="text-left">Route</th>
-            <th class="text-right">Duration</th>
-            <th class="pl-3 text-right">PIC</th>
-            <th class="pl-3 text-right">SIC</th>
-            <th class="pl-3 text-left">X Country</th>
-            <th class="pl-3 text-right">Night</th>
-            <th class="pl-3 pr-3 text-right">IFR</th>
-            <th class="ml-3 text-left">Appr | Hold</th>
-            <th class="pl-3 text-right">Day Ldg</th>
-            <th class="pl-3 text-right">Night Ldg</th>
-            <th class="pl-3 text-right">Sim Inst</th>
-            <th class="pl-3 text-right">CFI</th>
-            <th class="pl-3 text-right">Dual</th>
-            <th class="pl-3 text-right">Solo</th>
-            <th class="pl-3 text-right">Sim</th>
-            <th class="pl-3 text-center">Remarks</th>
+            <th class="ps-2 text-start">Date</th>
+            <th class="text-start">Type</th>
+            <th class="text-start">Reg</th>
+            <th class="text-start">Route</th>
+            <th class="text-end">Duration</th>
+            <th class="ps-3 text-end">PIC</th>
+            <th class="ps-3 text-end">SIC</th>
+            <th class="ps-3 text-start">X Country</th>
+            <th class="ps-3 text-end">Night</th>
+            <th class="ps-3 pe-3 text-end">IFR</th>
+            <th class="ms-3 text-start">Appr | Hold</th>
+            <th class="ps-3 text-end">Day Ldg</th>
+            <th class="ps-3 text-end">Night Ldg</th>
+            <th class="ps-3 text-end">Sim Inst</th>
+            <th class="ps-3 text-end">CFI</th>
+            <th class="ps-3 text-end">Dual</th>
+            <th class="ps-3 text-end">Solo</th>
+            <th class="ps-3 text-end">Sim</th>
+            <th class="ps-3 text-center">Remarks</th>
         </thead>
         <tbody>
 
@@ -28,26 +28,26 @@
             <tr data-flight-detail="{% url 'flight_detail' flight.pk %}" class="custom-table logbook-flight-row {% cycle 'logbook-stripe' '' %}
                 {% if flight.has_errors %}
                 text-danger logbook-row-error{% endif %}">
-                <td class="pl-2 pr-4 text-left">
+                <td class="ps-2 pe-4 text-start">
                   <a class="logbook-detail-link" href="{% url 'flight_detail' flight.pk %}">{{flight.date|date:"m/d/Y"}}</a>
                   {% if flight.has_errors %}
                     <a href="{% url 'flight_update' flight.pk %}" class="btn btn-sm btn-outline-danger">Update</a>
                   {% endif %}
                 </td>
-                <td class="pr-4 text-left">{{flight.aircraft_type}}</td>
-                <td class="pr-4 text-left">{{flight.registration}}</td>
-                <td class="pr-4 text-left logbook-route-cell">{{flight.route}}
+                <td class="pe-4 text-start">{{flight.aircraft_type}}</td>
+                <td class="pe-4 text-start">{{flight.registration}}</td>
+                <td class="pe-4 text-start logbook-route-cell">{{flight.route}}
                   {% if flight.remarks %}
                     <button type="button" class="logbook-remarks-toggle" data-remarks-toggle aria-expanded="false" aria-controls="flight-remarks-{{ flight.pk }}" aria-label="Toggle remarks for {{ flight.date|date:'m/d/Y' }}"><span aria-hidden="true">▼</span></button>
                   {% endif %}
                 </td>
-                <td class="text-right">{{flight.duration}}</td>
-                <td class="text-right">{{flight.pilot_in_command|iconbool}}</td>
-                <td class="text-right">{{flight.second_in_command|iconbool}}</td>
-                <td class="text-right">{{flight.cross_country|iconbool}}</td>
-                <td class="text-right">{{flight.night|default:"-"}}</td>
-                <td class="pr-4 text-right">{{flight.instrument|default:"-"}}</td>
-                <td class="text-left">
+                <td class="text-end">{{flight.duration}}</td>
+                <td class="text-end">{{flight.pilot_in_command|iconbool}}</td>
+                <td class="text-end">{{flight.second_in_command|iconbool}}</td>
+                <td class="text-end">{{flight.cross_country|iconbool}}</td>
+                <td class="text-end">{{flight.night|default:"-"}}</td>
+                <td class="pe-4 text-end">{{flight.instrument|default:"-"}}</td>
+                <td class="text-start">
                   {% for approach in flight.approach_set.all %}
                     <small>{{ approach.approach_type }}-{{ approach.number }}</small>
                   {% endfor %}
@@ -56,14 +56,14 @@
                     <small>{% if holding.hold %}| Hold {% endif %}</small>
                   {% endfor %}
                 </td>
-                <td class="text-right">{{flight.landings_day|default:"-"}}</td>
-                <td class="text-right">{{flight.landings_night|default:"-"}}</td>
-                <td class="text-right">{{flight.simulated_instrument|default:"-"}}</td>
-                <td class="text-right">{{flight.instructor|iconbool}}</td>
-                <td class="text-right">{{flight.dual|iconbool}}</td>
-                <td class="text-right">{{flight.solo|iconbool}}</td>
-                <td class="text-right">{{flight.simulator|iconbool}}</td>
-                <td class="pl-3 text-center" data-flight-remarks>{{flight.remarks|default:"-"}}</td>
+                <td class="text-end">{{flight.landings_day|default:"-"}}</td>
+                <td class="text-end">{{flight.landings_night|default:"-"}}</td>
+                <td class="text-end">{{flight.simulated_instrument|default:"-"}}</td>
+                <td class="text-end">{{flight.instructor|iconbool}}</td>
+                <td class="text-end">{{flight.dual|iconbool}}</td>
+                <td class="text-end">{{flight.solo|iconbool}}</td>
+                <td class="text-end">{{flight.simulator|iconbool}}</td>
+                <td class="ps-3 text-center" data-flight-remarks>{{flight.remarks|default:"-"}}</td>
             </tr>
           {% endfor %}
         </tbody>

@@ -25,7 +25,7 @@
             <div class="text-muted">{{ reminder.company_start_date|date:"M j, Y" }} – {% if reminder.company_end_date %}{{ reminder.company_end_date|date:"M j, Y" }}{% else %}Present{% endif %}</div>
           {% endif %}
           <div class="d-flex">
-            <a class="btn btn-link px-0 mr-3" href="{% url 'edit_reminder' reminder.pk %}">Edit</a>
+            <a class="btn btn-link px-0 me-3" href="{% url 'edit_reminder' reminder.pk %}">Edit</a>
             <form method="post" action="{% url 'remove_reminder' reminder.pk %}">
               {% csrf_token %}
               <button class="btn btn-link text-danger px-0" type="submit">Remove</button>
