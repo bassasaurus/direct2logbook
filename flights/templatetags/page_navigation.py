@@ -5,7 +5,7 @@ register = template.Library()
 
 FLIGHT_ACTION_PAGES = frozenset({
     'home', 'flight_list', 'flight_detail', 'remarks',
-    'flight_by_date', 'flight_by_year', 'flight_by_month',
+    'flight_by_date', 'flight_by_year', 'flight_by_month', 'flight_by_day',
     'aircraft_detail', 'tailnumber_detail', 'tailnumber_list',
     'imported_list', 'imported_detail',
 })

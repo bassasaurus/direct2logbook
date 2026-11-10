@@ -3,7 +3,7 @@ from django.urls import path
 from flights.views import (
     AircraftAutocomplete, TailNumberAutocomplete, RouteAirportCheck,
     geoJSON_routes_view, geoJSON_airports_view,
-    FlightArchive, FlightArchiveYear, FlightArchiveMonth,
+    FlightArchive, FlightArchiveYear, FlightArchiveMonth, FlightArchiveDay,
     FlightList, FlightCreate, FlightUpdate, FlightDetail, FlightDelete, RemarksList, ConfirmFlightAirports,
     TailNumberList, TailNumberCreate, TailNumberUpdate, TailNumberDetail, TailNumberDelete,
     AircraftCreate, AircraftUpdate, AircraftDetail, AircraftDelete,
@@ -32,6 +32,9 @@ urlpatterns = [
          FlightArchiveYear.as_view(), name='flight_by_year'),
     path('by_date/<int:year>/<str:month>/',
          FlightArchiveMonth.as_view(), name='flight_by_month'),
+    path('by_date/<int:year>/<str:month>/<int:day>/',
+         FlightArchiveDay.as_view(), name='flight_by_day'),
+
 
     path('logbook/confirm-airports/<int:pk>/', ConfirmFlightAirports.as_view(), name='confirm_flight_airports'),
 

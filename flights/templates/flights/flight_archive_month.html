@@ -32,7 +32,7 @@
         {% if previous_month %}
             <a href="{% url 'flight_by_month' year=previous_month|date:'Y' month=previous_month|date:'b' %}" class=""><span aria-hidden="true">← </span>{{ previous_month|date:"F" }}, {{ previous_month|date:"Y" }}</a>
         {% endif %}
-        <span class="fw-bold">| {{ month|date:"F" }}, {{ month|date:"Y" }} |</span>
+        <span class="fw-bold">| {% if day %}<a href="{{ parent_link }}">{{ month|date:"F, Y" }}</a>{% else %}{{ month|date:"F, Y" }}{% endif %} |</span>
         {% if next_month %}
             <a href="{% url 'flight_by_month' year=next_month|date:'Y' month=next_month|date:'b' %}" class="">{{ next_month|date:"F" }}, {{ next_month|date:"Y" }}<span aria-hidden="true"> →</span></a>
         {% endif %}
@@ -40,9 +40,18 @@
   </div>
 </div>
 <hr>
+{% block archive_navigation %}
+{% regroup object_list by date as flight_days %}
+<nav class="d-flex flex-wrap gap-3 mb-3" aria-label="Flight days">
+  {% for group in flight_days reversed %}
+    <a data-route-group="{{ group.grouper|date:'Y-m-d' }}" href="{% url 'flight_by_day' year=group.grouper.year month=group.grouper|date:'b' day=group.grouper.day %}">{{ group.grouper|date:"M j" }}</a>
+  {% endfor %}
+</nav>
+<hr>
+{% endblock %}
 <div class="row">
   <div class="col-12 col-lg-4 mb-3 mb-lg-0">
-    <div class="monthly-flight-list pe-lg-2" role="region" aria-label="Flights this month" tabindex="0">
+    <div class="monthly-flight-list pe-lg-2" role="region" aria-label="{% block flight_list_label %}Flights this month{% endblock %}" tabindex="0">
       {% for flight in object_list reversed %}
         <a class="d-block py-2" data-flight-id="{{ flight.pk }}" href="{% url 'flight_detail' flight.pk %}">
           {{ flight.date|date:"m/d/Y" }} {{ flight.registration }} | {{ flight.route }}

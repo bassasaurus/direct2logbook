@@ -12,7 +12,7 @@ from django.db import transaction
 from django.forms import inlineformset_factory
 
 from django.views.generic import View, ListView, CreateView, UpdateView, DetailView, DeleteView
-from django.views.generic.dates import YearArchiveView, MonthArchiveView, ArchiveIndexView
+from django.views.generic.dates import YearArchiveView, MonthArchiveView, DayArchiveView, ArchiveIndexView
 from profile.views import ProfileNotActiveMixin
 
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
@@ -209,6 +209,10 @@ class FlightArchiveMonth(LoginRequiredMixin, ProfileNotActiveMixin, MonthArchive
         user = self.request.user
         # Reuse the owner-scoped date-filtered queryset that the template renders.
         context['flight_map'] = flight_map_data(self.object_list)
+        groups = {}
+        for flight in self.object_list:
+            groups.setdefault(flight.date.isoformat(), []).append(str(flight.pk))
+        context['flight_map']['groups'] = groups
 
         context['title'] = "D-> | Flights by Month"
         context['home_link'] = reverse('home')
@@ -219,6 +223,32 @@ class FlightArchiveMonth(LoginRequiredMixin, ProfileNotActiveMixin, MonthArchive
             user=user).dates('date', 'year')
         context['months'] = Flight.objects.filter(
             user=user).dates('date', 'month')
+        return context
+
+
+class FlightArchiveDay(LoginRequiredMixin, ProfileNotActiveMixin, DayArchiveView):
+    model = Flight
+    date_field = 'date'
+
+    def get_queryset(self):
+        return Flight.objects.filter(user=self.request.user).select_related('registration')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        day = context['day']
+        month = day.replace(day=1)
+        context.update(
+            flight_map=flight_map_data(self.object_list),
+            month=month,
+            years=self.get_queryset().dates('date', 'year'),
+            title='D-> | Flights by Day',
+            page_title=day.strftime('%B %d, %Y'),
+            home_link=reverse('home'),
+            parent_name=month.strftime('%B %Y'),
+            parent_link=reverse('flight_by_month', kwargs={
+                'year': month.year, 'month': month.strftime('%b').lower(),
+            }),
+        )
         return context
 
 
