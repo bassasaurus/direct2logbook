@@ -471,7 +471,8 @@ class FlightUpdate(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, Us
                                {'holding': holding})
                 return self.render_to_response(context)
 
-        return super(FlightUpdate, self).form_valid(form)
+        # The flight was already saved above, including all summary signals.
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class FlightDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, DetailView):
