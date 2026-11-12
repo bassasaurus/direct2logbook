@@ -19,7 +19,7 @@ def copy_fields(instance, excluded=()):
 
 
 class Command(BaseCommand):
-    help = "Clone all flights into an empty reviewer account, anonymizing identifiers."
+    help = "Clone the latest 100 flights into an empty reviewer account, anonymizing identifiers."
 
     def add_arguments(self, parser):
         parser.add_argument("--source-user", required=True)
@@ -39,14 +39,23 @@ class Command(BaseCommand):
         except User.DoesNotExist as exc:
             raise CommandError("Both users must already exist.") from exc
 
-        source_flights = Flight.objects.filter(user=source)
+        source_flights = list(
+            Flight.objects.filter(user=source).order_by("-date", "-pk")[:100]
+        )
+        flight_ids = [flight.pk for flight in source_flights]
+        tail_ids = {flight.registration_id for flight in source_flights}
+        source_tails = list(
+            TailNumber.objects.filter(user=source, pk__in=tail_ids).order_by("pk")
+        )
+        aircraft_ids = {flight.aircraft_type_id for flight in source_flights}
+        aircraft_ids.update(tail.aircraft_id for tail in source_tails)
+        source_aircraft = Aircraft.objects.filter(user=source, pk__in=aircraft_ids).order_by("pk")
         counts = {
-            "aircraft": Aircraft.objects.filter(user=source).count(),
-            "tail_numbers": TailNumber.objects.filter(user=source).count(),
-            "flights": source_flights.count(),
-            "approaches": Approach.objects.filter(flight_object__user=source).count(),
-            "holdings": Holding.objects.filter(flight_object__user=source).count(),
-            "imported": Imported.objects.filter(user=source).count(),
+            "aircraft": source_aircraft.count(),
+            "tail_numbers": len(source_tails),
+            "flights": len(source_flights),
+            "approaches": Approach.objects.filter(flight_object_id__in=flight_ids).count(),
+            "holdings": Holding.objects.filter(flight_object_id__in=flight_ids).count(),
         }
         self.stdout.write(str(counts))
         if options["dry_run"]:
@@ -65,14 +74,14 @@ class Command(BaseCommand):
                 raise CommandError("Reviewer already has logbook data; refusing to overwrite.")
 
             aircraft_map = {}
-            for original in Aircraft.objects.filter(user=source).order_by("pk"):
+            for original in source_aircraft:
                 data = copy_fields(original, {"user", "image"})
                 data.update(user_id=reviewer.pk, image=None)
                 clone = Aircraft.objects.create(**data)
                 aircraft_map[original.pk] = clone.pk
 
             tail_map = {}
-            for index, original in enumerate(TailNumber.objects.filter(user=source).order_by("pk"), 1):
+            for index, original in enumerate(source_tails, 1):
                 # Fixed-width, fictional identifiers; do not retain actual registrations.
                 data = copy_fields(original, {"user", "aircraft", "registration"})
                 data.update(
@@ -92,7 +101,7 @@ class Command(BaseCommand):
                 "duplicate_error", "aircraft_type_error", "registration_error",
                 "crew_error", "app_markers", "app_polylines",
             }
-            for original in source_flights.order_by("pk").iterator():
+            for index, original in enumerate(reversed(source_flights), 1):
                 data = copy_fields(original, sensitive)
                 data.update(
                     user_id=reviewer.pk,
@@ -111,6 +120,9 @@ class Command(BaseCommand):
                 )
                 clone = Flight.objects.create(**data)
                 flight_map[original.pk] = clone.pk
+                if index % 10 == 0 or index == len(source_flights):
+                    self.stdout.write(f"Copied {index}/{len(source_flights)} flights.")
+                    self.stdout.flush()
 
             for original in Approach.objects.filter(flight_object_id__in=flight_map).iterator():
                 data = copy_fields(original, {"flight_object"})
@@ -122,11 +134,7 @@ class Command(BaseCommand):
                 data["flight_object_id"] = flight_map[original.flight_object_id]
                 Holding.objects.create(**data)
 
-            for original in Imported.objects.filter(user=source).iterator():
-                data = copy_fields(original, {"user", "aircraft_type"})
-                data.update(user_id=reviewer.pk, aircraft_type_id=aircraft_map[original.aircraft_type_id])
-                Imported.objects.create(**data)
 
         self.stdout.write(self.style.SUCCESS(
-            "Review logbook populated. Rebuild derived totals/statistics with the app's normal calculation workflow."
+            f"Review logbook populated with {len(source_flights)} flights."
         ))
