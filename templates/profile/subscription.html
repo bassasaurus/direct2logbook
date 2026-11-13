@@ -10,6 +10,8 @@
         <span class="badge text-bg-info mb-2">Setting up</span>
       {% elif passed_end_date %}
         <span class="badge text-bg-danger mb-2">Expired</span>
+      {% elif cancellation_scheduled %}
+        <span class="badge text-bg-warning mb-2">Cancellation scheduled</span>
       {% elif profile.canceled %}
         <span class="badge text-bg-warning mb-2">Canceled</span>
       {% elif profile.trial %}
@@ -39,9 +41,11 @@
       <p class="fw-bold mb-1">Trial expiring soon</p>
       <p class="text-muted mb-3">Trial end date: {{ profile.end_date|date:"m/d/Y" }}</p>
       {% include 'profile/subscription_plans.html' %}
+    {% elif cancellation_scheduled %}
+      <p class="fw-bold mb-1">Cancels on {{ profile.end_date|date:"m/d/Y" }}</p>
+      <p class="text-muted mb-0">Automatic renewal is off. You can use your logbook until your current billing period ends.</p>
     {% elif profile.canceled %}
       <p class="fw-bold mb-1">Your subscription is canceled</p>
-      <p class="text-muted mb-3">You can use your logbook until {{ profile.end_date|date:"m/d/Y" }}.</p>
       {% include 'profile/subscription_plans.html' %}
     {% else %}
       <p class="fw-bold mb-1">Subscription active{% if profile.monthly %} · Monthly{% elif profile.yearly %} · Yearly{% endif %}</p>

@@ -10,6 +10,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from home.currency import medical_expiry_date
 from profile.models import Profile
+from profile.billing import cancellation_scheduled, billing_period_expired
 from signature.models import Signature
 from api.mobile_signature import signature_revision
 
@@ -40,7 +41,9 @@ def snapshot(user):
         status = 'Free access'
     elif not ready:
         status = 'Setting up'
-    elif profile.end_date <= timezone.now().date():
+    elif cancellation_scheduled(profile):
+        status = 'Cancellation scheduled'
+    elif billing_period_expired(profile):
         status = 'Expired'
     elif profile.canceled:
         status = 'Canceled'

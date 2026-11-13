@@ -158,6 +158,17 @@ def process_stripe_webhook(event):
         if incoming_created == current_created:
             raise WebhookReconciliationError('Subscription chronology needs manual review')
 
+    apply_subscription_state(profile, subscription)
+    # The receipt and profile update commit together. Any exception rolls both
+    # back, leaving the exact same event eligible for a later Stripe retry.
+    return 'processed'
+
+
+def apply_subscription_state(profile, subscription):
+    """Use the same canonical Stripe state for webhooks and account actions."""
+    subscription_id = stripe_id(subscription.get('id'))
+    if not subscription_id:
+        raise WebhookReconciliationError('Subscription has no identity')
     status, period_end, intervals = subscription_state(subscription)
     trial = status == 'trialing'
     profile.subscription_id = subscription_id
@@ -180,6 +191,3 @@ def process_stripe_webhook(event):
         'subscription_id', 'active', 'expired', 'trial', 'canceled',
         'monthly', 'yearly', 'trial_expiring', 'end_date',
     ])
-    # The receipt and profile update commit together. Any exception rolls both
-    # back, leaving the exact same event eligible for a later Stripe retry.
-    return 'processed'
