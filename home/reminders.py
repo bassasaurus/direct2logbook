@@ -80,23 +80,24 @@ def reminder_notice(reminder, today, hours):
             return None
         key = f'hours:{reminder.target_hours:.1f}'
         remaining = reminder.target_hours - hours
+        green_progress = reminder.kind in (Reminder.Kind.FLIGHT_TIME, Reminder.Kind.COMPANY_TIME)
         if remaining <= 0:
             message = f'You reached {reminder.milestone_label()}.'
             severity = 'success'
-        elif (remaining <= 10 and reminder.dismissed_key != key
+        elif (remaining <= (50 if green_progress else 10) and reminder.dismissed_key != key
               and (reminder.kind in (Reminder.Kind.FLIGHT_TIME, Reminder.Kind.COMPANY_TIME) or reminder.aircraft_id)):
             key = f'{key}:approaching'
             message = f'{remaining:.1f} hours to go. {reminder.milestone_label(hours)}.'
-            severity = 'warning'
+            severity = 'success' if green_progress else 'warning'
         else:
             return None
     else:
         if reminder.due_date is None:
             return None
         days = (reminder.due_date - today).days
-        if days > 30:
+        if days >= 30:
             return None
-        stage = 'expired' if days < 0 else 'urgent' if days <= 7 else 'upcoming'
+        stage = 'expired' if days < 0 else 'urgent' if days <= 14 else 'upcoming'
         key = f'date:{reminder.due_date.isoformat()}:{stage}'
         date_label = reminder.due_date.strftime('%b %d, %Y')
         message = f'Expired {date_label}.' if days < 0 else f'Due {date_label}.'

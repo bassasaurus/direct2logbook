@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_http_methods, require_POST
 
 from profile.models import Reminder
@@ -25,6 +26,7 @@ def manage_reminders(request, pk=None):
     return render(request, 'home/reminders.html', {
         'form': form, 'reminders': saved_reminders, 'editing': reminder,
         'title': 'D-> | Reminders', 'page_title': 'Reminders',
+        'parent_link': reverse('home'), 'parent_name': 'Home',
     })
 
 
