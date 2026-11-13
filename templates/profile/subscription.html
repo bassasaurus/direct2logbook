@@ -51,11 +51,6 @@
       <p class="fw-bold mb-1">Subscription active{% if profile.monthly %} · Monthly{% elif profile.yearly %} · Yearly{% endif %}</p>
       <p class="text-muted mb-3">Next billing date: {{ profile.end_date|date:"m/d/Y" }}</p>
       <div class="d-flex flex-wrap align-items-center subscription-actions">
-        {% if profile.monthly %}
-          <button type="button" class="btn btn-outline-dark btn-sm" id="yearly">Switch to yearly</button>
-        {% elif profile.yearly %}
-          <button type="button" class="btn btn-outline-dark btn-sm" id="monthly">Switch to monthly</button>
-        {% endif %}
         <form method="post" action="{% url 'subscription_canceled' %}" class="mb-0">
           {% csrf_token %}
           <button type="submit" class="btn btn-link text-danger btn-sm">Cancel subscription</button>

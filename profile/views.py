@@ -6,7 +6,9 @@ from django.views.generic import TemplateView, UpdateView
 from .models import Profile
 from .billing import cancellation_scheduled, billing_period_expired
 from .forms import ProfileForm
-import stripe
+import uuid
+from django.core import signing
+from payments.checkout import SALT
 from accounts.views import LoginRequiredMixin
 from logbook import settings
 from django.views import View
@@ -68,46 +70,6 @@ class ProfileView(LoginRequiredMixin, TemplateView):
     model = Profile
     template_name = 'profile/profile.html'
 
-    def session_monthly(self, customer_id):
-
-        plan_monthly = settings.PLAN_MONTHLY
-
-        user = self.request.user
-
-        session_monthly = stripe.checkout.Session.create(
-            customer=customer_id,
-            payment_method_types=['card'],
-            subscription_data={
-                'items': [{
-                    'plan': plan_monthly,
-                }],
-            },
-            success_url=self.request.build_absolute_uri(reverse('payment_success', args=[user.pk])),
-            cancel_url=self.request.build_absolute_uri(reverse('payment_canceled', args=[user.pk])),
-        )
-
-        return session_monthly.id
-
-    def session_yearly(self, customer_id):
-
-        plan_yearly = settings.PLAN_YEARLY
-
-        user = self.request.user
-
-        session_yearly = stripe.checkout.Session.create(
-            customer=customer_id,
-            payment_method_types=['card'],
-            subscription_data={
-                'items': [{
-                    'plan': plan_yearly,
-                }],
-            },
-            success_url=self.request.build_absolute_uri(reverse('payment_success', args=[user.pk])),
-            cancel_url=self.request.build_absolute_uri(reverse('payment_canceled', args=[user.pk])),
-        )
-
-        return session_yearly.id
-
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
         user = self.request.user
@@ -117,16 +79,11 @@ class ProfileView(LoginRequiredMixin, TemplateView):
             profile.customer_id and profile.subscription_id and profile.end_date
         )
         context['billing_pending'] = not billing_ready
-        context['STRIPE_PUBLISHABLE_KEY'] = settings.STRIPE_PUBLISHABLE_KEY
         context['passed_end_date'] = billing_period_expired(profile)
         context['cancellation_scheduled'] = cancellation_scheduled(profile)
 
-        if billing_ready and not profile.free_access:
-            stripe.api_key = settings.STRIPE_SECRET_KEY
-            context['CHECKOUT_SESSION_ID_MONTHLY'] = self.session_monthly(
-                profile.customer_id)
-            context['CHECKOUT_SESSION_ID_YEARLY'] = self.session_yearly(
-                profile.customer_id)
+        context['checkout_request'] = signing.dumps(
+            {'user': user.pk, 'nonce': uuid.uuid4().hex}, salt=SALT)
 
         try:
             signature = Signature.objects.get(user=user)

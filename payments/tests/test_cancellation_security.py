@@ -44,7 +44,7 @@ class SubscriptionCancellationSecurityTests(TestCase):
 
     def csrf_token(self):
         # Read the actual rendered form; this also supports CSRF_USE_SESSIONS.
-        with patch('profile.views.stripe.checkout.Session.create',
+        with patch('payments.checkout.stripe.checkout.Session.create',
                    return_value=SimpleNamespace(id='cs_test')):
             response = self.client.get(reverse('profile'))
         self.assertEqual(response.status_code, 200)
@@ -169,7 +169,7 @@ class SubscriptionCancellationSecurityTests(TestCase):
         today = datetime.now(timezone.utc).replace(hour=23, minute=59, second=59)
         self.modify.return_value = {**self.subscription, 'cancel_at_period_end': True, 'current_period_end': int(today.timestamp())}
         self.client.post(self.url, {'csrfmiddlewaretoken': token})
-        with patch('profile.views.stripe.checkout.Session.create', return_value=SimpleNamespace(id='cs_test')):
+        with patch('payments.checkout.stripe.checkout.Session.create', return_value=SimpleNamespace(id='cs_test')):
             response = self.client.get(reverse('profile'))
         self.assertFalse(response.context['passed_end_date'])
         self.assertContains(response, 'Cancellation scheduled')
