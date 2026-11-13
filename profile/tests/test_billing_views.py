@@ -20,7 +20,7 @@ class ProfileBillingStateTests(TestCase):
         self.client.force_login(self.user)
         self.profile = self.user.profile
 
-    @patch("profile.views.stripe.checkout.Session.create")
+    @patch("payments.checkout.stripe.checkout.Session.create")
     def test_new_user_sees_pending_without_stripe_requests(self, checkout):
         response = self.client.get(reverse("profile"))
 
@@ -32,7 +32,7 @@ class ProfileBillingStateTests(TestCase):
         self.assertNotContains(response, "Subscription active")
         checkout.assert_not_called()
 
-    @patch("profile.views.stripe.checkout.Session.create")
+    @patch("payments.checkout.stripe.checkout.Session.create")
     def test_partially_provisioned_user_does_not_contact_stripe(self, checkout):
         self.profile.customer_id = "cus_partial"
         self.profile.save(update_fields=["customer_id"])
@@ -45,7 +45,7 @@ class ProfileBillingStateTests(TestCase):
         self.assertContains(response, "Your trial is being set up.")
         checkout.assert_not_called()
 
-    @patch("profile.views.stripe.checkout.Session.create")
+    @patch("payments.checkout.stripe.checkout.Session.create")
     def test_failed_provisioning_remains_accessible_without_checkout(self, checkout):
         BillingProvisioning.objects.create(
             user=self.user,
@@ -59,8 +59,8 @@ class ProfileBillingStateTests(TestCase):
         self.assertContains(response, "contact support")
         checkout.assert_not_called()
 
-    @patch("profile.views.stripe.checkout.Session.create")
-    def test_ready_profile_uses_own_customer_in_both_modes(self, checkout):
+    @patch("payments.checkout.stripe.checkout.Session.create")
+    def test_ready_profile_never_creates_checkout_on_load(self, checkout):
         self.profile.customer_id = "cus_current_user"
         self.profile.subscription_id = "sub_current_user"
         self.profile.end_date = date.today() + timedelta(days=14)
@@ -75,11 +75,12 @@ class ProfileBillingStateTests(TestCase):
 
                 self.assertContains(response, "Free trial ends")
                 self.assertFalse(response.context["billing_pending"])
-                self.assertEqual(checkout.call_count, 2)
-                for call in checkout.call_args_list:
-                    self.assertEqual(call.kwargs["customer"], "cus_current_user")
+                checkout.assert_not_called()
+                self.assertContains(response, 'name="plan" value="monthly"')
+                self.assertContains(response, 'name="plan" value="yearly"')
+                self.assertNotContains(response, 'js.stripe.com')
 
-    @patch("profile.views.stripe.checkout.Session.create")
+    @patch("payments.checkout.stripe.checkout.Session.create")
     def test_free_access_does_not_require_billing(self, checkout):
         self.profile.free_access = True
         self.profile.save(update_fields=["free_access"])
@@ -91,7 +92,7 @@ class ProfileBillingStateTests(TestCase):
         self.assertNotContains(response, "redirectToCheckout")
         checkout.assert_not_called()
 
-    @patch('profile.views.stripe.checkout.Session.create')
+    @patch('payments.checkout.stripe.checkout.Session.create')
     def test_status_changes_when_own_trial_is_ready_without_stripe_calls(self, checkout):
         url = reverse('billing_status')
         response = self.client.get(url)

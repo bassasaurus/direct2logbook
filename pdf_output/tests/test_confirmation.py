@@ -35,7 +35,7 @@ class PDFConfirmationTests(TestCase):
         self.publish.return_value = SimpleNamespace(id='confirmed-pdf-task')
 
     def csrf_token(self):
-        with patch('profile.views.stripe.checkout.Session.create',
+        with patch('payments.checkout.stripe.checkout.Session.create',
                    return_value=SimpleNamespace(id='cs_test')):
             response = self.client.get(reverse('profile'))
         self.assertEqual(response.status_code, 200)
