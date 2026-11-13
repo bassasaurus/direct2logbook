@@ -17,6 +17,9 @@ from profile.models import Profile
 @override_settings(SECURE_SSL_REDIRECT=False, ENDPOINT_SECRET_KEY='whsec_webhook_tests')
 class StripeWebhookReliabilityTests(TestCase):
     def setUp(self):
+        customer_patch = patch('payments.webhooks.stripe.Customer.retrieve', return_value={'deleted': False})
+        self.customer_retrieve = customer_patch.start()
+        self.addCleanup(customer_patch.stop)
         self.user = get_user_model().objects.create_user(username='webhook_owner')
         self.profile = self.user.profile
         self.profile.customer_id = 'cus_owner'
@@ -181,6 +184,26 @@ class StripeWebhookReliabilityTests(TestCase):
         self.profile.refresh_from_db()
         self.assertTrue(self.profile.active)
         self.assertFalse(self.profile.expired)
+
+    def test_deleted_customer_webhook_is_acknowledged_without_recreating_account(self):
+        self.user.delete()
+        self.customer_retrieve.return_value = {'id': 'cus_owner', 'deleted': True}
+        # Simulate the successful removal of the temporary cleanup record.
+        from accounts.models import AccountDeletionCleanup
+        AccountDeletionCleanup.objects.all().delete()
+        response = self.send(self.event())
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(StripeWebhookEvent.objects.get().outcome, 'ignored_deleted_customer')
+        self.assertFalse(Profile.objects.filter(customer_id='cus_owner').exists())
+        self.retrieve.assert_not_called()
+
+    def test_deletion_pending_webhook_does_not_require_stripe_or_recreate_profile(self):
+        self.user.delete()
+        response = self.send(self.event())
+        self.assertEqual(response.status_code, 200)
+        self.customer_retrieve.assert_not_called()
+        self.retrieve.assert_not_called()
+        self.assertFalse(Profile.objects.filter(customer_id='cus_owner').exists())
 
     def test_unknown_customer_is_retryable_and_not_marked_processed(self):
         with self.assertLogs('django.payments.webhooks', level='ERROR'):

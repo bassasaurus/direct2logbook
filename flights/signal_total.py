@@ -1,3 +1,4 @@
+from flights.queryset_helpers import is_user_deletion
 from flights.models import Total, Flight, Imported
 
 from django.db.models.signals import post_save, post_delete
@@ -14,6 +15,8 @@ from django.dispatch import receiver
 @receiver(post_save, sender=Imported)
 @receiver(post_delete, sender=Imported)
 def total_all_update(sender, instance, dispatch_uid="total_all_update", **kwargs):
+    if is_user_deletion(kwargs.get('origin')):
+        return
 
     flight = Flight.objects.filter(user=instance.user)
     imported = Imported.objects.filter(user=instance.user)

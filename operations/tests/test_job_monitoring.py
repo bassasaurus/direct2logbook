@@ -157,3 +157,12 @@ class BackgroundJobMonitoringTests(TestCase):
         self.assertIn('PDF: 35', mail.outbox[0].body)
         self.assertIn('Showing oldest 30 of 35.', mail.outbox[0].body)
         self.assertEqual(mail.outbox[0].body.count('id='), 30)
+
+    def test_failed_account_cleanup_is_alerted_without_personal_data(self):
+        from accounts.models import AccountDeletionCleanup
+        AccountDeletionCleanup.objects.create(customer_ids=['cus_private'], attempts=1)
+        self.check()
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn('Account deletion cleanup: 1', mail.outbox[0].body)
+        self.assertNotIn('cus_private', mail.outbox[0].body)
+        self.assertNotIn(self.user.email, mail.outbox[0].body)

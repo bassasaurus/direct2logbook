@@ -3,6 +3,7 @@ from datetime import timedelta
 
 from django.db.models import Q
 
+from accounts.models import AccountDeletionCleanup
 from csv_app.models import CSVImportBatch, CSV_IMPORT_STALE_AFTER
 from payments.models import BillingProvisioning
 from pdf_output.models import PDFRequest
@@ -43,5 +44,13 @@ def problem_jobs(now):
             lines.append(f'  id={pk} status={status} updated_at={updated.isoformat()}')
         if count > DETAIL_LIMIT:
             lines.append(f'  Showing oldest {DETAIL_LIMIT} of {count}.')
+        result.append((count, '\n'.join(lines)))
+    cleanup = AccountDeletionCleanup.objects.filter(
+        Q(attempts__gte=1) | Q(created_at__lte=now - timedelta(minutes=15)))
+    count = cleanup.count()
+    if count:
+        lines = [f'Account deletion cleanup: {count} unresolved job(s)']
+        for job in cleanup.order_by('created_at', 'pk')[:DETAIL_LIMIT]:
+            lines.append(f'  id={job.pk} attempts={job.attempts} created_at={job.created_at.isoformat()}')
         result.append((count, '\n'.join(lines)))
     return result
