@@ -1,0 +1,20 @@
+{% load flights_filters %}
+<div id="route-mileage" class="route-mileage-overlay" hidden
+     title="Sum of great-circle route distances, not actual flown tracks.">
+  <strong id="route-mileage-value">{{ flight_map.mileage.total_nm|distance_display:user.profile.distance_unit }}</strong>
+  {% include 'blocks/distance_units.html' %}
+  <div id="route-mileage-excluded"{% if not flight_map.mileage.unavailable %} hidden{% endif %}>{{ flight_map.mileage.unavailable }} flight{{ flight_map.mileage.unavailable|pluralize }} excluded: unresolved route</div>
+</div>
+<script>
+  (function () {
+    var mileageControl = L.control({position: 'topright'});
+    mileageControl.onAdd = function () {
+      var label = document.getElementById('route-mileage');
+      label.hidden = false;
+      L.DomEvent.disableClickPropagation(label);
+      L.DomEvent.disableScrollPropagation(label);
+      return label;
+    };
+    mileageControl.addTo(mymap);
+  })();
+</script>

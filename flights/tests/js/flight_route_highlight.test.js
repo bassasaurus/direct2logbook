@@ -5,7 +5,9 @@ const test = require('node:test');
 const vm = require('node:vm');
 const script = fs.readFileSync(path.join(__dirname, '../../../static/js/leaflet/flight_route_highlight.js'), 'utf8');
 
-function render(routes, groups) {
+function render(routes, groups, mileage, unit = 'nm') {
+  const mileageValue = {textContent: ''};
+  const mileageExcluded = {textContent: '', hidden: true};
   let ready = false;
   const paths = [];
   const visibleLabels = new Set();
@@ -60,7 +62,8 @@ function render(routes, groups) {
   };
   vm.runInNewContext(script, {
     document: {
-      getElementById: () => ({textContent: JSON.stringify({routes: routes, groups: groups, airports: {features: []}})}),
+      getElementById: id => id === 'route-mileage-value' ? mileageValue : id === 'route-mileage-excluded' ? mileageExcluded
+        : id === 'distance-unit' ? {value: unit} : ({textContent: JSON.stringify({routes: routes, groups: groups, airports: {features: []}, mileage})}),
       querySelectorAll: () => links
     },
     mymap: map, createAirportMarker: function () {},
@@ -77,8 +80,41 @@ function render(routes, groups) {
       marker: (center, options) => ({center, options})
     }
   });
-  return {paths, links, ready, visibleLabels};
+  return {paths, links, ready, visibleLabels, mileageValue, mileageExcluded};
 }
+
+test('mileage overlay follows flight/group hover and focus, restores totals, and formats thousands', function () {
+  const result = render({'10': [[10, 20]], '11': [[30, 40]], '12': []}, {'2025': ['10', '11'], '2024': ['12']}, {
+    total_nm: 12345.6, unavailable: 1, distances: {'10': 12000, '11': 345.6, '12': null}
+  });
+  assert.equal(result.mileageValue.textContent, '12,345.6 NM');
+  result.links[0].handlers.mouseenter();
+  assert.equal(result.mileageValue.textContent, '12,000.0 NM');
+  assert.equal(result.mileageExcluded.hidden, true);
+  result.links[0].handlers.mouseleave();
+  assert.equal(result.mileageValue.textContent, '12,345.6 NM');
+  const group = result.links.find(link => link.dataset.routeGroup === '2025');
+  group.handlers.focus();
+  assert.equal(result.mileageValue.textContent, '12,345.6 NM');
+  assert.equal(result.mileageExcluded.hidden, true);
+  group.handlers.blur();
+  assert.equal(result.mileageExcluded.hidden, false);
+  result.links[2].handlers.mouseenter();
+  assert.equal(result.mileageValue.textContent, 'Unavailable');
+  result.links[2].handlers.mouseleave();
+  assert.equal(result.mileageValue.textContent, '12,345.6 NM');
+});
+
+test('selected distance unit applies to page totals and rollover totals', function () {
+  const result = render({'10': [[0, 0]], '11': [[1, 1]]}, {}, {
+    total_nm: 1000, unavailable: 0, distances: {'10': 500, '11': 500}
+  }, 'km');
+  assert.equal(result.mileageValue.textContent, '1,852.0 km');
+  result.links[0].handlers.mouseenter();
+  assert.equal(result.mileageValue.textContent, '926.0 km');
+  result.links[0].handlers.mouseleave();
+  assert.equal(result.mileageValue.textContent, '1,852.0 km');
+});
 
 test('local single-airport flight initializes map before measuring circle bounds', function () {
   const result = render({'13553': [[30.06, -95.55]]});

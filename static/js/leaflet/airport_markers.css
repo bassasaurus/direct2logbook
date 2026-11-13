@@ -1,3 +1,42 @@
+.route-mileage-overlay {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .25rem .65rem;
+  background: rgba(255, 255, 255, .95);
+  color: #212529;
+  padding: .3rem .45rem .3rem .65rem;
+  border-radius: .5rem;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, .18);
+  max-width: min(65vw, 22rem);
+  font-size: .85rem;
+  line-height: 1.4;
+}
+.route-mileage-overlay[hidden] { display: none; }
+#route-mileage-value { font-variant-numeric: tabular-nums; white-space: nowrap; }
+#route-mileage-excluded { flex-basis: 100%; font-size: .75rem; }
+.mileage-units {
+  display: inline-flex;
+  gap: 1px;
+  padding: 2px;
+  margin: 0;
+  border-radius: .4rem;
+  background: #f1f3f5;
+}
+.mileage-units button {
+  border: 0;
+  border-radius: .3rem;
+  background: transparent;
+  padding: .25rem .45rem;
+  color: #59636e;
+  font: inherit;
+  font-size: .75rem;
+  cursor: pointer;
+}
+.mileage-units button[aria-pressed="true"] { background: #fff; color: #0d6efd; font-weight: 600; box-shadow: 0 1px 3px #0001; }
+.mileage-units button:hover { color: #0d6efd; }
+.mileage-units button:focus-visible { outline: 2px solid #0d6efd; outline-offset: 1px; }
+
 .leaflet-marker-icon.airport-marker {
   background: transparent;
   border: 0;

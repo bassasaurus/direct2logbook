@@ -40,6 +40,9 @@
       {% if flight.dual %}| Dual{% endif %}
       {% if flight.solo %}| Solo{% endif %}
     </h6>
+    {% with distance=flight.distance_nm %}
+    <p class="mb-1" title="Sum of great-circle distances between route airports, not the actual flown track.">{% if distance != None %}{{ distance|distance_display:user.profile.distance_unit }}{% else %}Mileage unavailable{% endif %}</p>
+    {% endwith %}
     <p class="mb-0">Remarks: {% if flight.remarks %}<span style="white-space: pre-wrap; overflow-wrap: anywhere;">{{ flight.remarks|remarks_links }}</span>{% else %}None{% endif %}</p>
 
   </div>
