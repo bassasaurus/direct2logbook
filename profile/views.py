@@ -4,9 +4,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.views.generic import TemplateView, UpdateView
 from .models import Profile
+from .billing import cancellation_scheduled, billing_period_expired
 from .forms import ProfileForm
 import stripe
-import datetime
 from accounts.views import LoginRequiredMixin
 from logbook import settings
 from django.views import View
@@ -118,9 +118,8 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         )
         context['billing_pending'] = not billing_ready
         context['STRIPE_PUBLISHABLE_KEY'] = settings.STRIPE_PUBLISHABLE_KEY
-        context['passed_end_date'] = bool(
-            profile.end_date and datetime.date.today() >= profile.end_date
-        )
+        context['passed_end_date'] = billing_period_expired(profile)
+        context['cancellation_scheduled'] = cancellation_scheduled(profile)
 
         if billing_ready and not profile.free_access:
             stripe.api_key = settings.STRIPE_SECRET_KEY

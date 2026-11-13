@@ -1,7 +1,19 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<h5>Your subscription has been canceled</h5>
-<p>You will lose access on {{ end_date|date:"m/d/Y"}}</p>
-
+{% if cancellation_error %}
+<div class="alert alert-danger" role="alert">We couldn’t confirm your cancellation. Please try again. Your billing status will update when Stripe confirms it.</div>
+<form method="post" action="{% url 'subscription_canceled' %}" class="mb-3">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-primary">Try again</button>
+</form>
+{% elif cancellation_scheduled %}
+<h5>Cancellation scheduled</h5>
+<p>Automatic renewal is off.</p>
+{% if access_continues %}<p>Your access continues until your current billing period ends on {{ end_date|date:"m/d/Y" }}.</p>
+{% else %}<p>Check your profile for your current access and billing status.</p>{% endif %}
+{% else %}
+<h5>Your subscription has ended</h5>
+{% endif %}
+<a href="{% url 'profile' %}">Return to profile</a>
 {% endblock %}

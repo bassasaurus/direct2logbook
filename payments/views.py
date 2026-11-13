@@ -10,7 +10,9 @@ from profile.models import Profile
 from datetime import datetime
 from django.contrib.auth.models import User
 from django.conf import settings
-from payments.webhooks import InvalidWebhook, process_stripe_webhook
+from django.db import transaction
+from payments.webhooks import (InvalidWebhook, WebhookReconciliationError,
+                               process_stripe_webhook, apply_subscription_state, stripe_id)
 from payments.webhook_monitoring import record_webhook_failure
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -87,29 +89,42 @@ def canceled_view(request, user):
 @require_POST
 @csrf_protect
 def subscription_cancel_view(request):
-    profile = get_object_or_404(Profile, user=request.user)
-    if not profile.subscription_id:
-        return HttpResponse("No subscription is available to cancel.", status=400)
+    try:
+        with transaction.atomic():
+            # Serialize account actions and webhook updates for this profile.
+            profile = get_object_or_404(Profile.objects.select_for_update(), user=request.user)
+            if not profile.subscription_id or not profile.customer_id:
+                return HttpResponse("No subscription is available to cancel.", status=400)
+            subscription = stripe.Subscription.retrieve(
+                profile.subscription_id, api_key=settings.STRIPE_SECRET_KEY)
+            if (subscription.get('id') != profile.subscription_id
+                    or stripe_id(subscription.get('customer')) != profile.customer_id):
+                raise WebhookReconciliationError('Subscription does not match this billing account')
+            if subscription.get('status') == 'canceled':
+                updated = subscription  # Already ended; Stripe rejects further cancellation updates.
+            else:
+                updated = stripe.Subscription.modify(
+                    profile.subscription_id, cancel_at_period_end=True,
+                    api_key=settings.STRIPE_SECRET_KEY)
+            if (updated.get('id') != profile.subscription_id
+                    or stripe_id(updated.get('customer')) != profile.customer_id):
+                raise WebhookReconciliationError('Updated subscription does not match this billing account')
+            if (updated.get('status') != 'canceled'
+                    and updated.get('cancel_at_period_end') is not True):
+                raise WebhookReconciliationError('Stripe did not confirm the cancellation')
+            apply_subscription_state(profile, updated)
+    except (stripe.error.StripeError, WebhookReconciliationError, ValueError, OverflowError):
+        logger.exception('Could not confirm subscription cancellation for user_id=%s', request.user.pk)
+        return render(request, 'payments/subscription_canceled.html', {
+            'title': 'Cancellation unavailable', 'home_link': reverse('home'),
+            'parent_link': reverse('profile'), 'parent_name': 'Profile',
+            'cancellation_error': True,
+        }, status=503)
 
-    canceled_subscription_response = stripe.Subscription.modify(
-        profile.subscription_id,
-        cancel_at_period_end=True
-    )
-
-    profile.canceled = True
-    profile.active = False
-    profile.save()
-
-    timestamp = canceled_subscription_response.current_period_end
-    end_date = datetime.fromtimestamp(timestamp)
-
-    context = {
-        'title': 'Subscription canceled',
-        'home_link': reverse('home'),
-        'parent_link': reverse('profile'),
-        'parent_name': 'Profile',
-
-        'end_date': end_date,
-    }
-
-    return render(request, 'payments/subscription_canceled.html', context)
+    return render(request, 'payments/subscription_canceled.html', {
+        'title': 'Subscription cancellation', 'home_link': reverse('home'),
+        'parent_link': reverse('profile'), 'parent_name': 'Profile',
+        'cancellation_scheduled': updated.get('status') != 'canceled',
+        'access_continues': (profile.active and not profile.expired) or profile.trial,
+        'end_date': profile.end_date,
+    })
