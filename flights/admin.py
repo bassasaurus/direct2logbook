@@ -1,3 +1,4 @@
+from django import forms
 from django.contrib import messages
 from django.db.models.deletion import ProtectedError
 from django.http import HttpResponseRedirect
@@ -108,8 +109,25 @@ class AircraftAdmin(admin.ModelAdmin):
 
     list_filter = ('user',)
 
+class TailnumberAdminForm(forms.ModelForm):
+    is_121 = forms.BooleanField(required=False, label='Is 121')
+    is_135 = forms.BooleanField(required=False, label='Is 135')
+    is_91 = forms.BooleanField(required=False, label='Is 91')
+
+    class Meta:
+        model = TailNumber
+        fields = '__all__'
+
+
 class TailnumberAdmin(admin.ModelAdmin):
+    form = TailnumberAdminForm
+
+    def get_changelist_form(self, request, **kwargs):
+        return super().get_changelist_form(request, **{'form': self.form, **kwargs})
+
     list_display = ('registration', 'user', 'pk', 'aircraft', 'is_121', 'is_135', 'is_91')
+    list_display_links = ('pk',)
+    list_editable = ('registration', 'is_121', 'is_135', 'is_91')
     search_fields = ('registration',)
     empty_value_display = ''
 

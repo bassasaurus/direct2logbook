@@ -42,7 +42,9 @@
       <div class="col-12" data-aircraft-group><a
           {% if not aircraft.grouper.piston and not aircraft.grouper.turbine %}
             class="text-danger"
-          {% elif not aircraft.grouper.simple and not aircraft.grouper.compleks %}
+          {% elif not aircraft.grouper.requires_type and not aircraft.grouper.tailwheel and not aircraft.grouper.simple and not aircraft.grouper.compleks and not aircraft.grouper.high_performance %}
+            class="text-danger"
+          {% elif not aircraft.grouper.aircraft_category or not aircraft.grouper.aircraft_class %}
             class="text-danger"
           {% elif not aircraft.grouper.superr and not aircraft.grouper.heavy and not aircraft.grouper.large and not aircraft.grouper.medium and not aircraft.grouper.small and not aircraft.grouper.light_sport %}
             class="text-danger"

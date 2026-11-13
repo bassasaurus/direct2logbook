@@ -13,7 +13,7 @@
     {% if show_pdf_action %}
     <span class="context-navigation-item">
       <span aria-hidden="true">|</span>
-      <button id="pdf" type="button" class="btn btn-link p-0 align-baseline">Print Logbook</button>
+      <button id="pdf" type="button" class="btn btn-link p-0 align-baseline text-decoration-none">Print Logbook</button>
       <span id="pdf-request-status" role="status" aria-live="polite"{% if pdf_request %} data-status-url="{% url 'pdf_status' pdf_request.pk %}"{% endif %}></span>
     </span>
     {% endif %}

@@ -53,7 +53,7 @@
       <div class="d-flex flex-wrap align-items-center subscription-actions">
         <form method="post" action="{% url 'subscription_canceled' %}" class="mb-0">
           {% csrf_token %}
-          <button type="submit" class="btn btn-link text-danger btn-sm">Cancel subscription</button>
+          <button type="submit" class="btn btn-link text-danger btn-sm text-decoration-none">Cancel subscription</button>
         </form>
       </div>
     {% endif %}

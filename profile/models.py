@@ -72,10 +72,17 @@ class Reminder(models.Model):
         if current_hours is not None:
             hours = f'{current_hours:.1f} / {hours}'
         if self.kind == self.Kind.FLIGHT_TIME:
+            if current_hours is not None:
+                return f'Total {hours}'
             return f'{hours} total flight hours'
         if self.kind == self.Kind.COMPANY_TIME:
+            if current_hours is not None:
+                return f'{self.company} {hours}'
             return f'{hours} hours at {self.company}'
         if not self.aircraft_id:
             return 'Select an aircraft type'
+        if self.kind == self.Kind.CREW_IN_TYPE and current_hours is not None:
+            target = f'{self.target_hours:.1f}'.rstrip('0').rstrip('.')
+            return f'{self.aircraft.aircraft_type} {self.get_crew_position_display()} {current_hours:.1f}/{target}'
         position = f' {self.get_crew_position_display()}' if self.kind == self.Kind.CREW_IN_TYPE else ''
         return f'{hours}{position} hours in {self.aircraft.aircraft_type}'
