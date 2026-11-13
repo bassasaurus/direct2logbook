@@ -33,7 +33,7 @@ Deletion refuses to proceed while billing provisioning is running or has an unce
 
 ## Deployment
 
-Apply migrations and restart Django and Celery using the normal deployment workflow. Add this recovery entry to the existing production crontab:
+Apply migrations and restart Django and Celery using the normal deployment workflow. The compatibility migration `accounts.0002_ensure_deletion_cleanup_table` handles databases that recorded a different `accounts.0001_initial` years ago. Deployment now verifies managed tables exist after migrations; migration history alone is not sufficient. Add this recovery entry to the existing production crontab:
 
 ```cron
 */5 * * * * cd /home/blakepowell/app && /usr/bin/flock -n /home/blakepowell/logs/account-deletion-cleanup.lock /home/blakepowell/venv312/bin/python manage.py process_account_deletions >> /home/blakepowell/logs/account-deletion-cleanup.log 2>&1
