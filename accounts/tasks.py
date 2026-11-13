@@ -39,3 +39,12 @@ def send_google_connected(user_id, account_id, connections_url):
                     settings.DEFAULT_FROM_EMAIL, [user.email], fail_silently=False)
     if sent != 1:
         raise RuntimeError('Mail backend did not submit Google connection email')
+
+
+@shared_task(bind=True, ignore_result=True, max_retries=6)
+def cleanup_deleted_account(self, cleanup_id, using='default'):
+    from .deletion import clean_external_resources
+    try:
+        clean_external_resources(cleanup_id, using)
+    except Exception as error:
+        raise self.retry(exc=RuntimeError(type(error).__name__), countdown=300)

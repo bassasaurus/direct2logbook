@@ -439,7 +439,7 @@ class Approach(models.Model):
 class Holding(models.Model):
 
     flight_object = models.ForeignKey(
-        'Flight', default=None, null=True, blank=True, verbose_name="Flight", on_delete=models.SET_NULL)
+        'Flight', default=None, null=True, blank=True, verbose_name="Flight", on_delete=models.CASCADE)
     hold = models.BooleanField(blank=True, default=False)
 
 

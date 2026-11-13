@@ -1,3 +1,4 @@
+from flights.queryset_helpers import is_user_deletion
 from flights.models import Flight, Aircraft, Stat, Imported
 from django.db.models.signals import pre_save, pre_delete, post_save, post_delete
 from django.dispatch import receiver
@@ -7,6 +8,8 @@ from flights.rolling_stats import assign_rolling_values
 
 @receiver(pre_delete, sender=Aircraft)
 def remove_aircraft_summary(sender, instance, **kwargs):
+    if is_user_deletion(kwargs.get('origin')):
+        return
     Stat.objects.filter(user_id=instance.user_id, aircraft_type=instance.aircraft_type).delete()
 
 
@@ -15,6 +18,8 @@ def remove_aircraft_summary(sender, instance, **kwargs):
 @receiver(post_delete, sender=Imported)
 @receiver(post_delete, sender=Flight)
 def stat_update(sender, instance, dispatch_uid="stat_update", **kwargs):
+    if is_user_deletion(kwargs.get('origin')):
+        return
 
     flight = Flight.objects.filter(user=instance.user).filter(aircraft_type=instance.aircraft_type)
     imported = Imported.objects.filter(user=instance.user).filter(aircraft_type=instance.aircraft_type)

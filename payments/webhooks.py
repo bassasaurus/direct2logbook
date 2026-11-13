@@ -114,7 +114,18 @@ def process_stripe_webhook(event):
     # overwrite each other with stale event data.
     try:
         profile = Profile.objects.select_for_update().get(customer_id=customer_id)
-    except (Profile.DoesNotExist, Profile.MultipleObjectsReturned) as exc:
+    except Profile.DoesNotExist as exc:
+        from accounts.models import AccountDeletionCleanup
+        pending = AccountDeletionCleanup.objects.filter(customer_ids__contains=[customer_id]).exists()
+        if not pending:
+            customer = stripe.Customer.retrieve(customer_id)
+            pending = customer.get('deleted') is True
+        if pending:
+            receipt.outcome = 'ignored_deleted_customer'
+            receipt.save(update_fields=['outcome'])
+            return receipt.outcome
+        raise WebhookReconciliationError('Customer mapping not ready or ambiguous') from exc
+    except Profile.MultipleObjectsReturned as exc:
         raise WebhookReconciliationError('Customer mapping not ready or ambiguous') from exc
 
     if not checkout and profile.subscription_id != subscription_id:

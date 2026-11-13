@@ -11,7 +11,7 @@ from operations.models import BackgroundJobMonitor
 
 
 class Command(BaseCommand):
-    help = 'Email a digest of failed or stalled PDF, CSV and trial jobs; never retry jobs.'
+    help = 'Email a digest of failed or stalled PDF, CSV, trial and account cleanup jobs; never retry jobs.'
 
     def add_arguments(self, parser):
         group = parser.add_mutually_exclusive_group()
@@ -58,7 +58,8 @@ class Command(BaseCommand):
                 *[detail for count, detail in problems],
                 'Review server logs and the stored request before taking action. For PDF delivery '
                 'uncertainty, check delivery before resending. For trials, inspect billing provisioning '
-                'and reconcile Stripe state before recovery. Do not blindly replay jobs.',
+                'and reconcile Stripe state before recovery. For account deletion cleanup, inspect the admin queue '
+                'and run process_account_deletions. Do not blindly replay other jobs.',
                 'PDF/CSV failures are included for 24 hours; delivery uncertainty and unresolved '
                 'billing failures remain eligible. Unchanged problems repeat at most hourly.',
             ])
