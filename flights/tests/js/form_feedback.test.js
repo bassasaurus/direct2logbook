@@ -5,8 +5,9 @@ const test = require('node:test');
 const vm = require('node:vm');
 const script = fs.readFileSync(path.join(__dirname, '../../../static/js/form_feedback.js'), 'utf8');
 
-function setup() {
+function setup(kind = '') {
   const form = new EventTarget();
+  form.dataset = {submitFeedback: kind};
   const window = new EventTarget();
   const page = {tagName: 'MAIN', inert: false};
   const alreadyLocked = {tagName: 'DIV', inert: true};
@@ -75,4 +76,26 @@ test('browser back restores controls and allows submission again', async () => {
   assert.equal(button['aria-disabled'], undefined);
   assert.equal(page.inert, false);
   assert.equal(submit().defaultPrevented, false);
+});
+
+test('create and delete show the appropriate message and lock only accepted submissions', async () => {
+  for (const [kind, message] of [['create', 'Saving…'], ['delete', 'Deleting…']]) {
+    const {form, button, submit, page} = setup(kind);
+    submit();
+    await Promise.resolve();
+    assert.equal(button.textContent, message);
+    assert.equal(form.status.textContent, message);
+    assert.equal(page.inert, true);
+    assert.equal(submit().defaultPrevented, true);
+  }
+});
+
+test('cancelling delete confirmation leaves the page interactive', async () => {
+  const {form, submit, page, classes} = setup('delete');
+  form.addEventListener('submit', event => event.preventDefault());
+  submit();
+  await Promise.resolve();
+  assert.equal(form.status.hidden, true);
+  assert.equal(page.inert, false);
+  assert.equal(classes.has('is-saving'), false);
 });

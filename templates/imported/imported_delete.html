@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
-<form action="" method="post">{% csrf_token %}
+<form data-submit-feedback="delete" action="" method="post">{% csrf_token %}
   <p>Are you sure you want to delete "{{ object }}"?</p>
   <p>If you need to change it, please consider<a href="{% url 'imported_update' object.pk %}"> updating </a> the entry instead.</p>
    <hr>
-  <input id="delete-confirm" class="btn btn-danger" type="submit" value="Delete historical totals" />
+  <button id="delete-confirm" class="btn btn-danger" type="submit">Delete historical totals</button>
 
 </form>
 
