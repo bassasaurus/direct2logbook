@@ -6,6 +6,12 @@ register = template.Library()
 
 
 @register.filter
+def distance_display(value, unit='nm'):
+    from flights.mileage import format_distance
+    return format_distance(value, unit)
+
+
+@register.filter
 def remarks_links(value):
     # Treat remarks as plain text before Django generates escaped links.
     text = str.__str__(str(value))

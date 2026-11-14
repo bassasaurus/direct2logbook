@@ -12,6 +12,40 @@
   var links = document.querySelectorAll('[data-flight-id], [data-route-group]');
   var hovered = null;
   var focused = null;
+  function distanceUnit() {
+    var selector = document.getElementById('distance-unit');
+    var units = {nm: [1, 'NM'], mi: [1852 / 1609.344, 'mi'], km: [1.852, 'km']};
+    return units[selector && selector.value] || units.nm;
+  }
+  function updateMileage(ids) {
+    if (!data.mileage) return;
+    var value = document.getElementById('route-mileage-value');
+    var excluded = document.getElementById('route-mileage-excluded');
+    if (!value || !excluded) return;
+    var total = data.mileage.total_nm;
+    var missing = data.mileage.unavailable;
+    if (ids && ids.length) {
+      var known = 0;
+      total = 0;
+      missing = 0;
+      ids.forEach(function (id) {
+        var distance = data.mileage.distances[id];
+        if (typeof distance === 'number' && Number.isFinite(distance)) {
+          total += distance;
+          known += 1;
+        } else {
+          missing += 1;
+        }
+      });
+      if (!known) total = null;
+    }
+    var conversion = distanceUnit();
+    value.textContent = total === null ? 'Unavailable' : (total * conversion[0]).toLocaleString('en-US', {
+      minimumFractionDigits: 1, maximumFractionDigits: 1
+    }) + ' ' + conversion[1];
+    excluded.hidden = !missing;
+    excluded.textContent = missing + ' flight' + (missing === 1 ? '' : 's') + ' excluded: unresolved route';
+  }
   var bounds = L.latLngBounds([]);
   var airports = L.geoJSON(data.airports, {pointToLayer: createAirportMarker}).addTo(mymap);
   if (airports.getBounds().isValid()) bounds.extend(airports.getBounds());
@@ -39,14 +73,15 @@
     // Keep the text upright regardless of the flight direction.
     angle = (angle + 270) % 180 - 90;
     var center = mymap.unproject(before.add(after).divideBy(2));
-    var distance = (L.latLng(start).distanceTo(end) / 1852)
-      .toLocaleString(undefined, {maximumFractionDigits: 1});
+    var conversion = distanceUnit();
+    var distance = (L.latLng(start).distanceTo(end) / 1852 * conversion[0])
+      .toLocaleString('en-US', {maximumFractionDigits: 1});
     var icon = L.divIcon({
       className: '',
       iconSize: [0, 0],
       html: '<span class="position-absolute text-nowrap bg-white rounded px-1 fw-semibold" ' +
         'style="transform: translate(-50%, -50%) rotate(' + angle + 'deg)">' +
-        distance + ' NM</span>'
+        distance + ' ' + conversion[1] + '</span>'
     });
     return L.marker(center, {icon: icon, interactive: false, keyboard: false});
   }
@@ -95,8 +130,9 @@
   function updateHighlight() {
     var active = hovered || focused;
     var selectedIds = active && active.indexOf('group:') === 0
-      ? (data.groups || {})[active.slice(6)] || [] : (layers[active] ? [active] : []);
-    if (!selectedIds.length) active = null;
+      ? (data.groups || {})[active.slice(6)] || [] : (Object.prototype.hasOwnProperty.call(data.routes, active) ? [active] : []);
+    updateMileage(selectedIds.length ? selectedIds : mapHover ? [mapHover] : null);
+    if (!selectedIds.some(function (id) { return !!layers[id]; })) active = null;
     Object.keys(layers).forEach(function (id) {
       var selected = selectedIds.indexOf(id) !== -1;
       layers[id].setStyle({
@@ -109,9 +145,9 @@
     if (!singleRoute) showLabels(active ? (selectedIds.length === 1 ? selectedIds[0] : null) : mapHover);
     airports.bringToFront();
     Array.prototype.forEach.call(links, function (link) {
-      var selected = link.dataset.routeGroup
+      var selected = !!active && (link.dataset.routeGroup
         ? 'group:' + link.dataset.routeGroup === active
-        : selectedIds.includes(link.dataset.flightId);
+        : selectedIds.includes(link.dataset.flightId));
       link.classList.toggle('map-route-active', selected);
     });
   }
@@ -123,4 +159,5 @@
     link.addEventListener('focus', function () { focused = id; updateHighlight(); });
     link.addEventListener('blur', function () { focused = null; updateHighlight(); });
   });
+  updateMileage(null);
 }());

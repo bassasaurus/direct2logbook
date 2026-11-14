@@ -95,6 +95,7 @@
 </script>
 
 {% if flight_map %}
+  {% include 'blocks/map_mileage.html' %}
   {{ flight_map|json_script:"flight-map-data" }}
-  <script src="{% static 'js/leaflet/flight_route_highlight.js' %}?v=group-flight-highlight"></script>
+  <script src="{% static 'js/leaflet/flight_route_highlight.js' %}?v=route-mileage"></script>
 {% endif %}

@@ -357,6 +357,11 @@ class Flight(models.Model):
         return super().save(*args, **kwargs)
 
     @property
+    def distance_nm(self):
+        from flights.mileage import route_distance_nm
+        return route_distance_nm(self)
+
+    @property
     def validation_errors(self):
         from flights.error_checks import flight_error_messages
         return flight_error_messages(self)

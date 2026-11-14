@@ -10,7 +10,13 @@ def user_directory_path(instance, filename):
 
 
 class Profile(models.Model):
+    class DistanceUnit(models.TextChoices):
+        NM = 'nm', 'NM'
+        MI = 'mi', 'mi'
+        KM = 'km', 'km'
+
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    distance_unit = models.CharField(max_length=2, choices=DistanceUnit.choices, default=DistanceUnit.NM)
     company = models.CharField(max_length=50, default='', blank=True)
 
     medical_issue_date = models.DateField(default=date.today)

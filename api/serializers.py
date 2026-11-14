@@ -89,6 +89,7 @@ class FlightApproachWriteSerializer(serializers.ModelSerializer):
 
 
 class FlightSerializer(serializers.ModelSerializer):
+    distance_nm = serializers.FloatField(read_only=True, allow_null=True)
     validate_airports = serializers.BooleanField(write_only=True, required=False, default=False)
     route_airport_choices = serializers.JSONField(required=False)
 
@@ -97,7 +98,7 @@ class FlightSerializer(serializers.ModelSerializer):
         model = Flight
         fields = ['id', 'user', 'date', 'aircraft_type', 'registration', 'route', 'duration', 'landings_day', 'landings_night', 
                     'night', 'instrument', 'cross_country', 'second_in_command', 'pilot_in_command', 'simulated_instrument', 
-                    'instructor', 'simulator', 'dual', 'remarks', 'solo', 'hold', 'app_markers', 'app_polylines','approaches', 'holding', 'revision', 'route_airport_choices', 'validate_airports']
+                    'instructor', 'simulator', 'dual', 'remarks', 'solo', 'hold', 'app_markers', 'app_polylines','approaches', 'holding', 'revision', 'route_airport_choices', 'validate_airports', 'distance_nm']
         read_only_fields = ['user']
 
     revision = SerializerMethodField()

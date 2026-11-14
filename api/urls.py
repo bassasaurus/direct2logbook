@@ -4,6 +4,7 @@ from api.mobile_reminders import (
 )
 from api.mobile_signature import MobileSignatureView
 from api.mobile_profile import MobileProfileView
+from api.distance_preference import DistancePreferenceView
 from api.tailnumber_sync import MobileTailnumberSyncView
 from api.mobile_recency import MobileRecencyView
 from api.mobile_stats import MobileStatsView
@@ -16,6 +17,7 @@ from api.aircraft_sync import MobileAircraftSyncView
 from api.mobile_sync import MobileSessionView, MobileFlightSyncView
 
 urlpatterns = [
+    path('mobile/distance-preference/', DistancePreferenceView.as_view(), name='distance_preference'),
     path('mobile/reminders/', MobileRemindersView.as_view(), name='mobile_reminders'),
     path('mobile/reminders/manage/', MobileSavedRemindersView.as_view(), name='mobile_manage_reminders'),
     path('mobile/reminders/manage/<int:pk>/', MobileSavedReminderView.as_view(), name='mobile_manage_reminder'),

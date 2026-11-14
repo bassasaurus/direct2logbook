@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<form data-unsaved-changes action="" class="mt-3" method="post">
+<form data-unsaved-changes data-submit-feedback action="" class="mt-3" method="post">
   {% csrf_token %}
   <div class="mb-3">
     <h4>Update {{ object }}</h4>

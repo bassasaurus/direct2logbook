@@ -50,6 +50,26 @@ class MonthlyMapOwnershipTests(TestCase):
         return Flight.objects.create(user=user, date=day, aircraft_type=aircraft,
                                       registration=registration, route='KAAA-KBBB', duration=1)
 
+    def test_mileage_overlay_totals_follow_owner_and_date_filters(self):
+        first = self.flight(self.user, date(2025, 1, 15))
+        self.flight(self.user, date(2025, 1, 16))
+        self.flight(self.user, date(2025, 2, 15))
+        self.flight(self.user, date(2024, 1, 15))
+        self.flight(self.other, date(2025, 1, 15))
+        unresolved = self.flight(self.user, date(2025, 1, 15))
+        unresolved.route = 'UNKNOWN-KBBB'
+        unresolved.save()
+        for url, count in [(reverse('flight_by_date'), 4),
+                           (reverse('flight_by_year', args=[2025]), 3),
+                           (reverse('flight_by_month', args=[2025, 'jan']), 2),
+                           (reverse('flight_by_day', args=[2025, 'jan', 15]), 1)]:
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                mileage = response.context['flight_map']['mileage']
+                self.assertEqual(mileage['total_nm'], round(first.distance_nm * count, 1))
+                self.assertEqual(mileage['unavailable'], 1)
+                self.assertContains(response, 'id="route-mileage-value"')
+
     def test_monthly_map_contains_only_visible_owned_flights(self):
         current = self.flight(self.user, date(2025, 1, 15))
         foreign = self.flight(self.other, date(2025, 1, 15))

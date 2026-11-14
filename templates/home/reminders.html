@@ -4,7 +4,7 @@
   <div class="col-lg-6">
     <h2 class="h5">{% if editing %}Edit reminder{% else %}New reminder{% endif %}</h2>
     <p class="text-muted">Expiration reminders appear in orange with fewer than 30 days remaining and turn red 14 days before the due date. If dismissed, they return at the next alert stage and again after expiration.</p>
-    <form method="post">
+    <form method="post"{% if editing %} data-submit-feedback{% endif %}>
       {% csrf_token %}
       {{ form.as_p }}
       <button class="btn btn-primary" type="submit">Save</button>

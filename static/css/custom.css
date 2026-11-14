@@ -3,6 +3,18 @@ a[href] {
   text-decoration: none;
 }
 
+.form-save-feedback {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1080;
+  max-width: calc(100vw - 2rem);
+  margin: 0;
+  pointer-events: none;
+}
+form[data-submit-feedback] [aria-disabled="true"] { pointer-events: none; opacity: .7; }
+
 a:link:active, a:visited:active {
     color: black;
 }

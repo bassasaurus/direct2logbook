@@ -61,6 +61,7 @@ def snapshot(user):
                     'email': user.email, 'joined': user.date_joined.date().isoformat(),
                     'company': profile.company},
         'medical': MedicalSerializer(profile).data,
+        'distance_unit': profile.distance_unit,
         'medical_due_date': due_date.isoformat() if due_date else None,
         'subscription': {'status': status, 'end_date': profile.end_date,
                          'plan': 'Monthly' if profile.monthly else 'Yearly' if profile.yearly else None},
