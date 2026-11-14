@@ -3,16 +3,17 @@ a[href] {
   text-decoration: none;
 }
 
-.form-save-feedback {
+body.is-saving::after {
+  content: '';
   position: fixed;
-  top: 1rem;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1080;
-  max-width: calc(100vw - 2rem);
-  margin: 0;
-  pointer-events: none;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(255, 255, 255, .55);
+  cursor: progress;
+  animation: saving-page-fade .15s ease-out;
 }
+@keyframes saving-page-fade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { body.is-saving::after { animation: none; } }
 form[data-submit-feedback] [aria-disabled="true"] { pointer-events: none; opacity: .7; }
 
 a:link:active, a:visited:active {

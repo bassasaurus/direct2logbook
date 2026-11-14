@@ -7,15 +7,33 @@
       return {button: button, html: button.innerHTML, value: button.value};
     });
     var status = document.createElement('div');
-    status.className = 'form-save-feedback alert alert-primary shadow-sm';
+    status.className = 'visually-hidden';
     status.setAttribute('role', 'status');
     status.setAttribute('aria-live', 'polite');
     status.hidden = true;
-    form.appendChild(status);
+    document.body.appendChild(status);
+    var lockedNodes = [];
+
+    function lockPage() {
+      if (!lockedNodes.length) {
+        lockedNodes = Array.from(document.body.children).filter(function (node) {
+          return node !== status && !['SCRIPT', 'STYLE', 'LINK'].includes(node.tagName);
+        }).map(function (node) {
+          var previous = {node: node, inert: node.inert};
+          node.inert = true;
+          return previous;
+        });
+      }
+      document.body.classList.add('is-saving');
+    }
 
     function reset() {
       submitted = false;
       status.hidden = true;
+      status.textContent = '';
+      document.body.classList.remove('is-saving');
+      lockedNodes.forEach(function (item) { item.node.inert = item.inert; });
+      lockedNodes = [];
       form.removeAttribute('aria-busy');
       originals.forEach(function (item) {
         item.button.removeAttribute('aria-disabled');
@@ -27,6 +45,7 @@
       status.textContent = message;
       status.hidden = false;
       form.setAttribute('aria-busy', 'true');
+      lockPage();
       controls.forEach(function (button) {
         // Keep successful submitter names/values in the native POST payload.
         button.setAttribute('aria-disabled', 'true');
