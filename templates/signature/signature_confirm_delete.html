@@ -11,10 +11,10 @@
         <em>No signature saved.</em>
     {% endif %}
 <hr>
-<form  action="" method="post">{% csrf_token %}
+<form data-submit-feedback="delete"  action="" method="post">{% csrf_token %}
     <p>This cannot be undone! But it won't affect related data.</p>
     <hr>
-    <input id="delete-confirm" type="submit" class = "btn btn-danger" value="Delete Signature"/>
+    <button id="delete-confirm" type="submit" class = "btn btn-danger">Delete Signature</button>
 </form>
 
 {% include "confirm_delete.html" %}

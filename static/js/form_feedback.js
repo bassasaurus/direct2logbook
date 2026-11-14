@@ -2,6 +2,8 @@
   'use strict';
   document.querySelectorAll('form[data-submit-feedback]').forEach(function (form) {
     var submitted = false;
+    var savingMessage = form.dataset.submitFeedback === 'delete' ? 'Deleting…'
+      : form.dataset.submitFeedback === 'create' ? 'Saving…' : 'Saving changes…';
     var controls = Array.from(form.querySelectorAll('button[type="submit"], input[type="submit"]'));
     var originals = controls.map(function (button) {
       return {button: button, html: button.innerHTML, value: button.value};
@@ -57,7 +59,7 @@
       queueMicrotask(function () {
         if (event.defaultPrevented) return;
         submitted = true;
-        show('Saving changes…');
+        show(savingMessage);
       });
     }, true);
     form.addEventListener('form-feedback', function (event) {

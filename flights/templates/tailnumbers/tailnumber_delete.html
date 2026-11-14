@@ -2,11 +2,11 @@
 
 {% block content %}
 {% if can_delete %}
-<form action="" class="form" id="delete-form" method="post">{% csrf_token %}
+<form data-submit-feedback="delete" action="" class="form" id="delete-form" method="post">{% csrf_token %}
   <p>Are you sure you want to delete "{{ object }}"?</p>
   <p>This cannot be undone. If you need to change it, please <a href="{% url 'tailnumber_update' object.pk %}">update</a> the entry instead.</p>
    <hr>
-   <input id="confirm" type="submit" class = "btn btn-danger" value="Delete Tailnumber" />
+   <button id="confirm" type="submit" class = "btn btn-danger">Delete Tailnumber</button>
 </form>
 
 {% else %}

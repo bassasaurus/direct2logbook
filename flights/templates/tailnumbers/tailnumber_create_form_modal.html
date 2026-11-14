@@ -11,7 +11,7 @@
       </div>
       <div class="modal-body">
         <p>* Required </p>
-        <form action="{% url 'tailnumber_create' %}" class="" method="post">
+        <form data-submit-feedback="create" action="{% url 'tailnumber_create' %}" class="" method="post">
             {% csrf_token %}
             {% include 'tailnumbers/tailnumber_form.html' %}
             <button class="btn btn-primary btn-sm mt-3" type="submit">Create Tailnumber</button>
