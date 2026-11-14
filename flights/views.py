@@ -151,10 +151,10 @@ class FlightArchive(LoginRequiredMixin, ProfileNotActiveMixin, ArchiveIndexView)
             groups.setdefault(str(flight.date.year), []).append(str(flight.pk))
         context['flight_map']['groups'] = groups
 
-        context['title'] = "D-> | Map"
+        context['title'] = "D-> | Routes"
         context['parent_name'] = 'Home'
         context['parent_link'] = reverse('home')
-        context['page_title'] = 'Map'
+        context['page_title'] = 'Routes'
         context['years'] = Flight.objects.filter(
             user=user).dates('date', 'year')
         context['months'] = Flight.objects.filter(
@@ -185,7 +185,7 @@ class FlightArchiveYear(LoginRequiredMixin, ProfileNotActiveMixin, YearArchiveVi
 
         context['title'] = "D-> | Flights by Year"
         context['home_link'] = reverse('home')
-        context['parent_name'] = 'Map'
+        context['parent_name'] = 'Routes'
         context['parent_link'] = reverse('flight_by_date')
         context['page_title'] = "Flights by Year"
         context['years'] = Flight.objects.filter(
@@ -216,7 +216,7 @@ class FlightArchiveMonth(LoginRequiredMixin, ProfileNotActiveMixin, MonthArchive
 
         context['title'] = "D-> | Flights by Month"
         context['home_link'] = reverse('home')
-        context['parent_name'] = 'Map'
+        context['parent_name'] = 'Routes'
         context['parent_link'] = reverse('flight_by_date')
         context['page_title'] = "Flights by Month"
         context['years'] = Flight.objects.filter(
