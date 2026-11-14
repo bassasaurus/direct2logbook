@@ -46,7 +46,7 @@ class DashboardPerformanceTests(TestCase):
     def test_currency_helpers_run_once_and_preserve_results(self):
         with ExitStack() as stack:
             helpers = {name: stack.enter_context(patch('home.views.' + name, wraps=getattr(views, name)))
-                       for name in CURRENCY_NAMES + ['medical_duration']}
+                       for name in CURRENCY_NAMES + ['medical_expiry_date']}
             with CaptureQueriesContext(connection) as queries:
                 response = self.client.get(reverse('home'))
         self.assertEqual(response.status_code, 200)
@@ -57,7 +57,8 @@ class DashboardPerformanceTests(TestCase):
         for name in CURRENCY_NAMES:
             self.assertEqual(response.context[name], 3 if name.startswith('asel_') else 0)
             self.assertEqual(response.context[name + '_current'], name.startswith('asel_'))
-        self.assertTrue(response.context['current'])
+        self.assertIsNotNone(response.context['expiry_date'])
+        self.assertIsNone(response.context['medical_alert'])
         self.assertNotContains(response, 'PRIVATE-ROUTE')
         self.assertFalse(response.context['new_user_flight'])
         self.assertFalse(response.context['new_user_aircraft'])

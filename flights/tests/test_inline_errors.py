@@ -169,7 +169,7 @@ class InlineErrorTests(TestCase):
         ]
         for detail, update, pk in pages:
             response = self.client.get(reverse(detail, args=[pk]))
-            self.assertContains(response, 'class="text-danger detail-delete">Delete</a>', count=1)
+            self.assertContains(response, 'class="text-danger detail-delete">Delete</a>', count=int(detail == 'flight_detail'))
             self.assertContains(response, f'href="{reverse(update, args=[pk])}" class="detail-update text-primary">Update</a>', count=1)
             self.assertEqual(response.content.count(f'href="{reverse(update, args=[pk])}"'.encode()), 1)
         Flight.objects.filter(pk=flight.pk).update(crew_error='Please select a crew position.')
@@ -177,7 +177,7 @@ class InlineErrorTests(TestCase):
         TailNumber.objects.filter(pk=self.tail.pk).update(is_91=False)
         for detail, update, pk in pages:
             response = self.client.get(reverse(detail, args=[pk]))
-            self.assertContains(response, 'class="text-danger detail-delete">Delete</a>', count=1)
+            self.assertContains(response, 'class="text-danger detail-delete">Delete</a>', count=int(detail == 'flight_detail'))
             self.assertContains(response, f'href="{reverse(update, args=[pk])}" class="detail-update btn btn-outline-danger">Update</a>', count=1)
             self.assertEqual(response.content.count(f'href="{reverse(update, args=[pk])}"'.encode()), 1)
 

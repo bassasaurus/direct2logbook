@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="alert alert-danger" role="alert">{{ checkout_message }}</div>
+{% if retry_checkout %}
+<form method="post" action="{% url 'start_checkout' %}" class="mb-3">
+  {% csrf_token %}
+  <input type="hidden" name="plan" value="{{ plan }}">
+  <input type="hidden" name="checkout_request" value="{{ checkout_request }}">
+  <button type="submit" class="btn btn-primary">Try again</button>
+</form>
+{% endif %}
+<a href="{% url 'profile' %}">Return to profile</a>
+{% endblock %}

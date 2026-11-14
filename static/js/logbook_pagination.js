@@ -6,6 +6,8 @@
   var current = pages.findIndex(function (page) { return page.classList.contains('active'); });
   var expanded = false;
   var revealingPages = false;
+  var suppressHover = false;
+  var tooltips = new Map();
 
   function layout() {
     if (expanded) return;
@@ -47,6 +49,9 @@
       button.setAttribute('aria-expanded', 'false');
       button.addEventListener('click', function () {
         expanded = true;
+        // Moving the links under a stationary pointer can fire mouseenter.
+        suppressHover = true;
+        tooltips.forEach(function (tooltip) { tooltip.hide(); });
         group.forEach(function (page) { page.hidden = false; });
         button.setAttribute('aria-expanded', 'true');
         // Preserve keyboard focus without opening a tooltip after a pointer click.
@@ -68,16 +73,27 @@
   }
   layout();
   window.addEventListener('resize', layout);
-  if (window.jQuery && window.jQuery.fn.tooltip) {
-    var links = window.jQuery(list).find('[data-page-dates]');
-    // Handle focus separately: Bootstrap's combined hover/focus trigger keeps a
-    // tooltip open while a revealed page link retains programmatic focus.
-    links.tooltip({container: 'body', trigger: 'hover'});
-    links.on('focus', function () {
-      if (!revealingPages) window.jQuery(this).tooltip('show');
+  if (window.bootstrap) {
+    list.querySelectorAll('[data-page-dates]').forEach(function (link) {
+      // Keep programmatic focus after expanding pages from showing a tooltip.
+      var tooltip = new bootstrap.Tooltip(link, {container: 'body', trigger: 'manual'});
+      tooltips.set(link, tooltip);
+      link.addEventListener('mouseenter', function () {
+        if (!suppressHover) tooltip.show();
+      });
+      link.addEventListener('mouseleave', function () { tooltip.hide(); });
+      link.addEventListener('focus', function () {
+        if (!revealingPages) tooltip.show();
+      });
+      ['blur', 'click'].forEach(function (event) {
+        link.addEventListener(event, function () { tooltip.hide(); });
+      });
     });
-    links.on('blur click', function () {
-      window.jQuery(this).tooltip('hide');
+    list.addEventListener('pointermove', function (event) {
+      if (!suppressHover || event.pointerType === 'touch') return;
+      suppressHover = false;
+      var tooltip = tooltips.get(event.target.closest('[data-page-dates]'));
+      if (tooltip) tooltip.show();
     });
   }
 }());

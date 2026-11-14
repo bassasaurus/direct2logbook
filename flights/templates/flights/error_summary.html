@@ -1,11 +1,11 @@
 {% if flight_error_count %}
 <details class="alert alert-danger" open>
-  <summary class="font-weight-bold">{{ flight_error_count }} flight{{ flight_error_count|pluralize }} need{{ flight_error_count|pluralize:"s," }} attention</summary>
-  <ul class="mt-3 mb-2 pl-3">
+  <summary class="fw-bold">{{ flight_error_count }} flight{{ flight_error_count|pluralize }} need{{ flight_error_count|pluralize:"s," }} attention</summary>
+  <ul class="mt-3 mb-2 ps-3">
     {% for flight in flight_error_summary %}
     <li class="mb-2">
       <a class="alert-link" href="{% url 'flight_update' flight.pk %}">{{ flight.date|date:"m/d/Y" }} · {{ flight.aircraft_type }} · {{ flight.registration }} · {{ flight.route }}</a>
-      <ul class="pl-3">
+      <ul class="ps-3">
         {% for error in flight.validation_errors %}<li>{{ error }}</li>{% endfor %}
       </ul>
     </li>

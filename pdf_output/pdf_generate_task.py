@@ -833,7 +833,7 @@ def pdf_generate(self, user_pk, request_id=None):
     return None
 
 
-@app.task
+@app.task(ignore_result=True)
 def celery_debug_probe(user_pk):
     # Light-weight probe to ensure the worker has the same env and can open the signature via storage
     info = _celery_env_report()

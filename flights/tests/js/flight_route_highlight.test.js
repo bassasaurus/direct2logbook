@@ -5,9 +5,12 @@ const test = require('node:test');
 const vm = require('node:vm');
 const script = fs.readFileSync(path.join(__dirname, '../../../static/js/leaflet/flight_route_highlight.js'), 'utf8');
 
-function render(routes, groups) {
+function render(routes, groups, mileage, unit = 'nm') {
+  const mileageValue = {textContent: ''};
+  const mileageExcluded = {textContent: '', hidden: true};
   let ready = false;
   const paths = [];
+  const visibleLabels = new Set();
   const links = Object.keys(routes).map(function (id) {
     return {
       dataset: {flightId: id}, handlers: {}, selected: false,
@@ -39,29 +42,79 @@ function render(routes, groups) {
         if (kind === 'circle' && !ready) throw new Error('Circle projection used before map initialization');
         return {valid: true};
       },
+      on: function () { return this; },
+      getLatLngs: () => points,
       setStyle: function (style) { Object.assign(this.options, style); },
       bringToFront: function () {}
     };
     return item;
   }
+  function point(x, y) {
+    return {x, y, add: other => point(x + other.x, y + other.y),
+      divideBy: divisor => point(x / divisor, y / divisor)};
+  }
   const map = {
+    project: ([lat, lng]) => point(lng, -lat),
+    unproject: ({x, y}) => [-y, x],
+    removeLayer: group => visibleLabels.delete(group),
     fitBounds: function () { ready = true; },
     setView: function () { ready = true; }
   };
   vm.runInNewContext(script, {
     document: {
-      getElementById: () => ({textContent: JSON.stringify({routes: routes, groups: groups, airports: {features: []}})}),
+      getElementById: id => id === 'route-mileage-value' ? mileageValue : id === 'route-mileage-excluded' ? mileageExcluded
+        : id === 'distance-unit' ? {value: unit} : ({textContent: JSON.stringify({routes: routes, groups: groups, airports: {features: []}, mileage})}),
       querySelectorAll: () => links
     },
     mymap: map, createAirportMarker: function () {},
     L: {
       latLngBounds: bounds, geoJSON: () => airports,
       circle: (points, options) => layer('circle', points, options),
-      geodesic: (points, options) => layer('geodesic', points, options)
+      geodesic: (points, options) => layer('geodesic', points, {...options}),
+      featureGroup: legs => layer('route', legs, legs[0].options),
+      layerGroup: markers => ({markers, addTo: function () { visibleLabels.add(this); }}),
+      latLng: ([lat, lng]) => ({
+        distanceTo: ([endLat, endLng]) => Math.hypot(endLat - lat, endLng - lng) * 1852
+      }),
+      divIcon: options => options,
+      marker: (center, options) => ({center, options})
     }
   });
-  return {paths, links, ready};
+  return {paths, links, ready, visibleLabels, mileageValue, mileageExcluded};
 }
+
+test('mileage overlay follows flight/group hover and focus, restores totals, and formats thousands', function () {
+  const result = render({'10': [[10, 20]], '11': [[30, 40]], '12': []}, {'2025': ['10', '11'], '2024': ['12']}, {
+    total_nm: 12345.6, unavailable: 1, distances: {'10': 12000, '11': 345.6, '12': null}
+  });
+  assert.equal(result.mileageValue.textContent, '12,345.6 NM');
+  result.links[0].handlers.mouseenter();
+  assert.equal(result.mileageValue.textContent, '12,000.0 NM');
+  assert.equal(result.mileageExcluded.hidden, true);
+  result.links[0].handlers.mouseleave();
+  assert.equal(result.mileageValue.textContent, '12,345.6 NM');
+  const group = result.links.find(link => link.dataset.routeGroup === '2025');
+  group.handlers.focus();
+  assert.equal(result.mileageValue.textContent, '12,345.6 NM');
+  assert.equal(result.mileageExcluded.hidden, true);
+  group.handlers.blur();
+  assert.equal(result.mileageExcluded.hidden, false);
+  result.links[2].handlers.mouseenter();
+  assert.equal(result.mileageValue.textContent, 'Unavailable');
+  result.links[2].handlers.mouseleave();
+  assert.equal(result.mileageValue.textContent, '12,345.6 NM');
+});
+
+test('selected distance unit applies to page totals and rollover totals', function () {
+  const result = render({'10': [[0, 0]], '11': [[1, 1]]}, {}, {
+    total_nm: 1000, unavailable: 0, distances: {'10': 500, '11': 500}
+  }, 'km');
+  assert.equal(result.mileageValue.textContent, '1,852.0 km');
+  result.links[0].handlers.mouseenter();
+  assert.equal(result.mileageValue.textContent, '926.0 km');
+  result.links[0].handlers.mouseleave();
+  assert.equal(result.mileageValue.textContent, '1,852.0 km');
+});
 
 test('local single-airport flight initializes map before measuring circle bounds', function () {
   const result = render({'13553': [[30.06, -95.55]]});
@@ -104,11 +157,25 @@ test('year hover highlights all matching routes and restores them on leave', fun
   assert.equal(result.paths[1].options.weight, 4);
   assert.equal(result.paths[2].options.opacity, .2);
   assert.equal(year.selected, true);
+  assert.deepEqual(result.links.slice(0, 3).map(link => link.selected), [true, true, false]);
   year.handlers.mouseleave();
+  assert.ok(result.links.every(link => !link.selected));
   assert.equal(result.paths[0].options.weight, 1.5);
   assert.equal(result.paths[2].options.opacity, .85);
   year.handlers.focus();
   assert.equal(result.paths[1].options.weight, 4);
   year.handlers.blur();
   assert.equal(result.paths[1].options.weight, 1.5);
+});
+
+test('highlighted multi-leg flights show one aligned label per leg', function () {
+  const result = render({'10': [[0, 0], [0, 20], [30, 20]], '11': [[0, 0], [10, 10]]});
+  assert.equal(result.visibleLabels.size, 0);
+  result.links[0].handlers.focus();
+  const [group] = result.visibleLabels;
+  assert.deepEqual(Array.from(group.markers, marker => marker.center), [[0, 10], [15, 20]]);
+  assert.match(group.markers[0].options.icon.html, /rotate\(0deg\).*20 NM/);
+  assert.match(group.markers[1].options.icon.html, /rotate\(-90deg\).*30 NM/);
+  result.links[0].handlers.blur();
+  assert.equal(result.visibleLabels.size, 0);
 });

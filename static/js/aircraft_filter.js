@@ -3,6 +3,7 @@
   var input = document.getElementById('aircraft-filter');
   if (!input) return;
   var groups = Array.from(document.querySelectorAll('[data-aircraft-group]'));
+  var unassignedAlert = document.getElementById('aircraft-unassigned-alert');
   var unassigned = Array.from(document.querySelectorAll('[data-aircraft-unassigned]'));
   function normalize(value) {
     return value.toUpperCase().replace(/[\s-]/g, '');
@@ -21,11 +22,16 @@
       group.hidden = !visible;
       if (visible) matches += 1;
     });
+    var hasUnassignedMatch = false;
     unassigned.forEach(function (row) {
       var show = normalize(row.querySelector('a').textContent).includes(query);
       row.hidden = !show;
-      if (show) matches += 1;
+      if (show) {
+        hasUnassignedMatch = true;
+        matches += 1;
+      }
     });
+    if (unassignedAlert) unassignedAlert.hidden = !hasUnassignedMatch;
     document.getElementById('aircraft-filter-empty').hidden = !query || matches > 0;
   }
   input.addEventListener('input', filter);

@@ -39,7 +39,7 @@ class FormRelationshipOwnershipTests(TestCase):
     def flight_data(self):
         data = {
             'date': '01/02/2026', 'route': 'KJFK-KLAX', 'duration': '1.5',
-            'aircraft_type': self.aircraft.pk, 'registration': self.tail.pk,
+            'aircraft_type': self.aircraft.pk, 'registration': self.tail.pk, 'pilot_in_command': True,
         }
         for prefix in ('approach_set', 'holding_set'):
             data.update({
@@ -55,7 +55,7 @@ class FormRelationshipOwnershipTests(TestCase):
             (FlightForm, 'flight_create', 'flight_update', self.flight,
              self.flight_data(), 'registration', self.other_tail.pk),
             (TailNumberForm, 'tailnumber_create', 'tailnumber_update', self.tail,
-             {'registration': 'NNEW', 'aircraft': self.aircraft.pk},
+             {'registration': 'NNEW', 'aircraft': self.aircraft.pk, 'is_91': True},
              'aircraft', self.other_aircraft.pk),
             (ImportedForm, 'imported_create', 'imported_update', self.imported,
              {'aircraft_type': self.aircraft.pk, 'total_time': '2.0'},

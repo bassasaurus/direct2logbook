@@ -336,6 +336,9 @@ def provision_trial(user):
 
     # Claim provisioning using a short database transaction.
     with transaction.atomic():
+        # Match deletion/import/sync lock ordering before claiming external work.
+        from django.contrib.auth import get_user_model
+        get_user_model().objects.select_for_update().get(pk=user.pk)
         record, _ = BillingProvisioning.objects.get_or_create(
             user=user
         )

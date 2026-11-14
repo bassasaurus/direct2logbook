@@ -10,6 +10,9 @@ from django.utils import timezone
 from flights.models import Flight, Imported, Stat, Total
 
 
+# Fixed rolling-day cutoffs, including the cutoff date and as-of date.
+# The month/year column labels are aliases for 180/365/730 days, not calendar months.
+# YTD alone resets to January 1; future dates are excluded from every window.
 WINDOW_DAYS = {'last_30': 30, 'last_60': 60, 'last_90': 90,
                'last_180': 180, 'last_yr': 365, 'last_2yr': 730}
 ROLLING_FIELDS = tuple(WINDOW_DAYS) + ('ytd', 'last_flown')

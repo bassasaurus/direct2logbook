@@ -1,3 +1,4 @@
+from flights.queryset_helpers import is_user_deletion
 from flights.models import Flight, TailNumber, Aircraft, Imported, Endorsement, Regs, Power, Weight
 from django.db.models.signals import post_save, post_delete
 from django.db.models import Q
@@ -13,6 +14,8 @@ from flights.queryset_helpers import avoid_none
 @receiver(post_save, sender=Imported)
 @receiver(post_delete, sender=Imported)
 def weight_update(sender, instance, dispatch_uid="weight_update", **kwargs):
+    if is_user_deletion(kwargs.get('origin')):
+        return
 
     user = instance.user
 
@@ -114,6 +117,8 @@ def weight_update(sender, instance, dispatch_uid="weight_update", **kwargs):
 @receiver(post_save, sender=Aircraft)
 @receiver(post_delete, sender=Aircraft)
 def regs_update(sender, instance, dispatch_uid="regs_update", **kwargs):
+    if is_user_deletion(kwargs.get('origin')):
+        return
 
     user = instance.user
 
@@ -188,6 +193,8 @@ def regs_update(sender, instance, dispatch_uid="regs_update", **kwargs):
 @receiver(post_save, sender=Imported)
 @receiver(post_delete, sender=Imported)
 def power_update(sender, instance, dispatch_uid="power_update", **kwargs):
+    if is_user_deletion(kwargs.get('origin')):
+        return
 
     user = instance.user
 
@@ -245,6 +252,8 @@ def power_update(sender, instance, dispatch_uid="power_update", **kwargs):
 @receiver(post_save, sender=Imported)
 @receiver(post_delete, sender=Imported)
 def endorsement_update(sender, instance, dispatch_uid="endorsement_update", **kwargs):
+    if is_user_deletion(kwargs.get('origin')):
+        return
 
     user = instance.user
 

@@ -6,11 +6,13 @@ from flights.views import LoginRequiredMixin
 from profile.views import ProfileNotActiveMixin
 from django.views.generic import TemplateView
 import datetime
+from .reminders import medical_expiration_alert, reminder_rows
+from .currency import instrument_recency
 from .currency import (
     amel_vfr_day, amel_vfr_night, asel_vfr_day, asel_vfr_night,
     ases_vfr_day, ases_vfr_night, ames_vfr_day, ames_vfr_night,
     helo_vfr_day, helo_vfr_night, gyro_vfr_day, gyro_vfr_night,
-    medical_duration, type_currency)
+    medical_expiry_date, type_currency)
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Q, Sum, F, Exists, OuterRef
 from django.shortcuts import render, redirect
@@ -32,6 +34,8 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
     def get_context_data(self, **kwargs):
         user = self.request.user
         context = super(HomeView, self).get_context_data(**kwargs)
+
+        context['reminders'] = reminder_rows(user, include_saved=True)
 
         context['pdf_request'] = PDFRequest.objects.filter(user=user).first()
 
@@ -89,40 +93,8 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
         except ObjectDoesNotExist:
             context['gyro_total'] = 0
 
-        # IFR currency
-        today = datetime.date.today()
-        last_180 = today - datetime.timedelta(days=180)
-
-        appr_qs = Flight.objects.filter(user=user).filter(date__lte=today, date__gte=last_180).filter(
-            approach__number__gte=0).aggregate(Sum(F('approach__number')))
-        if not appr_qs:
-            context['appr_quantity'] = 0
-        else:
-            context['appr_quantity'] = appr_qs.get(
-                'approach__number__sum')  # Model__field__SumFunctionValue
-            # context['still_needed'] = 6 - int(appr_qs.get('approach__number__sum'))
-
-        oldest_approach_date = Flight.objects.filter(user=user).filter(
-            date__lte=today, date__gte=last_180).filter(approach__number__gte=0).first()
-        if not oldest_approach_date:
-            context['appr_current_date'] = None
-        else:
-            context['appr_current_date'] = oldest_approach_date.date + \
-                datetime.timedelta(180)
-
-        hold_qs = Flight.objects.filter(user=user).filter(
-            date__lte=today, date__gte=last_180).filter(hold=True)
-        if not hold_qs:
-            context['hold_quantity'] = 0
-        else:
-            context['hold_quantity'] = 1
-
-        hold_date_qs = Flight.objects.filter(user=user).filter(
-            date__lte=today, date__gte=last_180).filter(hold=True).last()
-        if not hold_date_qs:
-            context['hold_current_date'] = None
-        else:
-            context['hold_current_date'] = hold_date_qs.date
+        # Share the same instrument counts with the mobile API.
+        context.update(instrument_recency(user))
 
         # iacra
         # use .exists() then assign value when queryset is None and build more specific contexts
@@ -409,8 +381,10 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
         context['gyro_vfr_day'], context['gyro_vfr_day_current'] = gyro_vfr_day(user)
         context['gyro_vfr_night'], context['gyro_vfr_night_current'] = gyro_vfr_night(user)
 
-        (context['expiry_date'], context['this_month'], context['expiring'],
-         context['expired'], context['current']) = medical_duration(user)
+        context['expiry_date'] = medical_expiry_date(user.profile)
+        context['medical_alert'] = medical_expiration_alert(
+            context['expiry_date'], user.profile.medical_warning_dismissed_for,
+        )
 
         context['new_user_aircraft'] = not Aircraft.objects.filter(user=user).exists()
         context['new_user_tailnumber'] = not TailNumber.objects.filter(user=user).exists()

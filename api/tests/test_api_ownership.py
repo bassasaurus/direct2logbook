@@ -37,7 +37,7 @@ class APIRecordOwnershipTests(APITestCase):
             'user': self.other.pk,
             'date': '01/02/2026', 'route': 'KJFK-KLAX', 'duration': '1.5',
             'aircraft_type': self.aircraft.aircraft_type,
-            'registration': self.tail.registration, 'approaches': [],
+            'registration': self.tail.registration, 'approaches': [], 'pilot_in_command': True,
         }
         data.update(overrides)
         return data
@@ -45,6 +45,7 @@ class APIRecordOwnershipTests(APITestCase):
     def test_aircraft_creation_ignores_spoofed_owner(self):
         response = self.client.post('/api/aircraft/', {
             'user': self.other.pk, 'aircraft_type': 'DA40',
+            'aircraft_category': 'A', 'aircraft_class': 'SEL', 'piston': True, 'small': True,
         }, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)
@@ -62,7 +63,7 @@ class APIRecordOwnershipTests(APITestCase):
     def test_tail_creation_ignores_spoofed_owner_and_accepts_type_string(self):
         response = self.client.post('/api/tailnumbers/', {
             'user': self.other.pk, 'registration': 'NNEW',
-            'aircraft': self.aircraft.aircraft_type,
+            'aircraft': self.aircraft.aircraft_type, 'is_91': True,
         }, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED, response.data)

@@ -4,7 +4,9 @@ from functools import partial
 from allauth.account.models import EmailAddress
 from allauth.account.signals import user_signed_up
 from allauth.socialaccount.signals import social_account_added
+from django.conf import settings
 from django.db import transaction
+from django.db.models.signals import pre_delete
 from django.dispatch import receiver
 from django.urls import reverse
 from kombu.exceptions import OperationalError
@@ -50,3 +52,10 @@ def google_connected_email(sender, request, sociallogin, **kwargs):
                 request.build_absolute_uri(reverse('socialaccount_connections'))),
         using=account._state.db,
     )
+
+
+@receiver(pre_delete, sender=settings.AUTH_USER_MODEL,
+          dispatch_uid='accounts.prepare_account_deletion')
+def prepare_deleted_user(sender, instance, using, **kwargs):
+    from .deletion import prepare_account_deletion
+    prepare_account_deletion(instance, using)

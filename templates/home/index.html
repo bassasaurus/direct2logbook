@@ -23,11 +23,14 @@
   <link rel="shortcut icon" type="image/png" href="{% static 'theme/images/favicon.ico' %}"/>
 
   <!-- stylesheets -->
-  <link rel="stylesheet" type="text/css" href="{% static 'theme/dist/theme.css' %}" />
+  <link rel="stylesheet" href="{% static 'theme/dist/bootstrap/bootstrap.min.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'theme/dist/theme.css' %}?v=bootstrap-5" />
+  <style>
+    a[href] { text-decoration: none; }
+  </style>
 
-  <!-- javascript -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-  <script src="{% static 'theme/dist/theme.min.js' %}"></script>
+  <script src="{% static 'theme/dist/bootstrap/bootstrap.bundle.min.js' %}" defer></script>
+  <script src="{% static 'js/theme_app.js' %}" defer></script>
 </head>
 <body>
   <!--[if lt IE 9]>
@@ -39,21 +42,6 @@
   <![endif]-->
 
 {% include 'blocks/navbar.html' %}
-
-  <script type="text/javascript">
-    $(function () {
-      if (!window.utils.isMobile()) {
-        // parallax header
-        $(window).scroll(function() {
-          var scroll = $(window).scrollTop(),
-          slowScroll = scroll/4,
-          slowBg = slowScroll;
-
-          $('.index-app-hero').css("background-position", "center " + -slowBg + "px");
-        });
-      }
-    });
-  </script>
 
   <div class="index-app-hero">
       <div class="container">
@@ -155,10 +143,10 @@
           <div class="info">
             <h3>Secure</h3>
             <h3>
-              Written with <a class= "text-dark" target="new" href="https://www.python.org/"><u>Python.</u></a><br>
-              Powered by <a class= "text-dark" target="new" href="https://www.djangoproject.com/"><u>Django.</u></a><br>
-              Runs on <a class= "text-dark" target="new" href="https://www.heroku.com/"><u>Heroku.</u></a><br>
-              Payments with <a class= "text-dark" target="new" href="https://www.stripe.com/"><u>Stripe.</u></a><br>
+              Written with <a class= "text-dark" target="new" href="https://www.python.org/">Python.</a><br>
+              Powered by <a class= "text-dark" target="new" href="https://www.djangoproject.com/">Django.</a><br>
+              Runs on <a class= "text-dark" target="new" href="https://www.heroku.com/">Heroku.</a><br>
+              Payments with <a class= "text-dark" target="new" href="https://www.stripe.com/">Stripe.</a><br>
             </h3>
             <p>Multiple backups across the US.</p>
           </div>
@@ -175,7 +163,7 @@
       </h4>
     </header>
     <section class="clearfix">
-      <img src="{% static 'theme/images/devices/ipad-1.png' %}" class="devices float-right" />
+      <img src="{% static 'theme/images/devices/ipad-1.png' %}" class="devices float-end" />
 
       <h4>Responsive design looks great and works great on several device categories.</h4>
       <p>

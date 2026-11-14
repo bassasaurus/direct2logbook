@@ -1,14 +1,28 @@
 # flights/tests/test_aircraft_crud.py
 
-from flights.models import Aircraft
+from flights.models import Aircraft, TailNumber
 from django.test import TestCase
 from django.contrib.auth.models import User
+from django.urls import reverse
 
 
 class AircraftCRUDTests(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             username='testuser', password='testpass')
+
+    def test_type_rated_aircraft_is_not_flagged_for_tailnumber_errors(self):
+        self.user.profile.active = True
+        self.user.profile.save(update_fields=['active'])
+        aircraft = Aircraft.objects.create(
+            user=self.user, aircraft_type='737', turbine=True,
+            requires_type=True, aircraft_category='A', aircraft_class='MEL', large=True,
+        )
+        tailnumber = TailNumber.objects.create(user=self.user, aircraft=aircraft, registration='N737')
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('aircraft_list'))
+        self.assertRegex(response.content.decode(), rf'<a\s+class="text-dark"\s+href="{reverse("aircraft_detail", args=[aircraft.pk])}">\s*<h4 data-aircraft-type>737</h4>')
+        self.assertRegex(response.content.decode(), rf'<a data-tailnumber\s+class="text-danger"\s+href="{reverse("tailnumber_detail", args=[tailnumber.pk])}">N737</a>')
 
     def test_create_aircraft(self):
         aircraft = Aircraft.objects.create(

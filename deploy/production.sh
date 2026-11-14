@@ -56,6 +56,7 @@ git merge --ff-only "$revision"
 "$app_python" manage.py check
 "$app_python" manage.py migrate --plan
 "$app_python" manage.py migrate --noinput
+"$app_python" manage.py check_database_schema
 "$app_python" manage.py collectstatic --noinput
 sudo -n /usr/bin/supervisorctl start logbook celery
 status="$(sudo -n /usr/bin/supervisorctl status logbook celery)"

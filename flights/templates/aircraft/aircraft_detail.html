@@ -5,7 +5,7 @@
 {% if detail_has_errors %}
 <section class="alert alert-danger" aria-label="Aircraft errors">
   <h5>Please correct the following errors</h5>
-  <ul class="pl-3">
+  <ul class="ps-3">
     {% if power_error %}<li>Please select Piston or Turbine.</li>{% endif %}
     {% if config_error %}<li>Please select the aircraft configuration.</li>{% endif %}
     {% if weight_error %}<li>Please choose a weight category.</li>{% endif %}

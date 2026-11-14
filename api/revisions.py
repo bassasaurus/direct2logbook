@@ -21,5 +21,5 @@ def flight_revision(flight):
 def aircraft_revision(aircraft):
     # File contents are managed separately; the path participates in conflicts.
     values = {field.attname: str(getattr(aircraft, field.attname))
-              for field in aircraft._meta.concrete_fields}
+              for field in aircraft._meta.concrete_fields if field.attname != 'is_default'}
     return hashlib.sha256(json.dumps(values, sort_keys=True).encode()).hexdigest()

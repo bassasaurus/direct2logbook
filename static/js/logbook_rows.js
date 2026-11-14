@@ -36,7 +36,9 @@
     var label = document.createElement('strong');
     label.textContent = 'Remarks: ';
     content.appendChild(label);
-    content.appendChild(document.createTextNode(remarks));
+    cell.childNodes.forEach(function (node) {
+      content.appendChild(node.cloneNode(true));
+    });
     contentCell.appendChild(content);
     preview.appendChild(contentCell);
     row.after(preview);

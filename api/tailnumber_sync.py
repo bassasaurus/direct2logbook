@@ -39,10 +39,6 @@ class MobileTailnumberSyncView(APIView):
         if not isinstance(registration, str):
             raise serializers.ValidationError({'registration': 'Registration is required.'})
         data['registration'] = registration.strip().upper().replace(' ', '')
-        if not 3 <= len(data['registration']) <= 8:
-            raise serializers.ValidationError({'registration': 'Use 3–8 characters.'})
-        if sum(data.get(key) is True for key in ('is_91', 'is_135', 'is_121')) != 1:
-            raise serializers.ValidationError({'operating_rules': 'Select one operating rule.'})
         serializer = TailNumberSerializer(data=data, context={'request': request})
         serializer.is_valid(raise_exception=True)
         tail = serializer.save(user=request.user)

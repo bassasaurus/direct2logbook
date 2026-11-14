@@ -268,50 +268,23 @@ def gyro_vfr_night(user):
     return gyro_vfr_night, current
 
 
-def medical_duration(user):  # still need to start calculations from next month after issue
-    issue_date = user.profile.medical_issue_date
-    current_date = datetime.date.today()
-
-    if user.profile.first_class and not user.profile.over_40:
-        one_year = relativedelta(months=+12)
-        expiry_date = issue_date + one_year
-        expiry_date = expiry_date.replace(
-            day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
-
-    elif user.profile.first_class and user.profile.over_40:
-        six_months = relativedelta(months=+6)
-        expiry_date = issue_date + six_months
-        expiry_date = expiry_date.replace(
-            day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
-
-    elif user.profile.second_class and not user.profile.over_40:
-        two_years = relativedelta(months=+24)
-        expiry_date = issue_date + two_years
-        expiry_date = expiry_date.replace(
-            day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
-
-    elif user.profile.second_class and user.profile.over_40:
-        one_year = relativedelta(months=+12)
-        expiry_date = issue_date + one_year
-        expiry_date = expiry_date.replace(
-            day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
-
-    elif user.profile.third_class and not user.profile.over_40:
-        five_years = relativedelta(months=+60)
-        expiry_date = issue_date + five_years
-        expiry_date = expiry_date.replace(
-            day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
-
-    elif user.profile.third_class and user.profile.over_40:
-        three_years = relativedelta(months=+36)
-        expiry_date = issue_date + three_years
-        expiry_date = expiry_date.replace(
-            day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
-
+def medical_expiry_date(profile):
+    if profile.first_class:
+        months = 6 if profile.over_40 else 12
+    elif profile.second_class:
+        months = 12 if profile.over_40 else 24
+    elif profile.third_class:
+        months = 36 if profile.over_40 else 60
     else:
-        expiry_date = current_date - datetime.timedelta(days=1)
+        return None
 
-# ------------------------------------
+    expiry_date = profile.medical_issue_date + relativedelta(months=months)
+    return expiry_date.replace(day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
+
+
+def medical_duration(user):
+    current_date = datetime.date.today()
+    expiry_date = medical_expiry_date(user.profile) or current_date - datetime.timedelta(days=1)
 
     if current_date < expiry_date:
         current = True
@@ -337,3 +310,21 @@ def medical_duration(user):  # still need to start calculations from next month 
             expiring = False
 
     return (expiry_date, this_month, expiring, expired, current)
+
+
+def instrument_recency(user):
+    """Shared website/mobile instrument counts, preserving the website's window."""
+    today = datetime.date.today()
+    flights = Flight.objects.filter(user=user, date__lte=today,
+                                   date__gte=today - datetime.timedelta(days=180))
+    approaches = flights.filter(approach__number__gte=0)
+    quantity = approaches.aggregate(quantity=Sum('approach__number'))['quantity'] or 0
+    approach_date = approaches.first()
+    holds = flights.filter(hold=True)
+    hold_date = holds.last()
+    return {
+        'appr_quantity': quantity,
+        'appr_current_date': approach_date.date + datetime.timedelta(days=180) if approach_date else None,
+        'hold_quantity': 1 if hold_date else 0,
+        'hold_current_date': hold_date.date if hold_date else None,
+    }

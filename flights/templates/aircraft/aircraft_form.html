@@ -1,70 +1,70 @@
 {% load widget_tweaks %}
-<div class="form-group">
-  <label class="sr-only" for="{{ form.aircraft_type.id_for_label }}">Aircraft Type *</label>
+<div class="mb-3">
+  <label class="visually-hidden" for="{{ form.aircraft_type.id_for_label }}">Aircraft Type *</label>
   {{ form.aircraft_type|attr:"autocomplete:off"|attr:"placeholder:Aircraft Type *"|add_class:"form-control" }}
   {% for error in form.aircraft_type.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
 </div>
 <fieldset class="mb-3">
-  <legend class="sr-only">Engine</legend>
+  <legend class="visually-hidden">Engine</legend>
   <div class="d-flex flex-wrap">
     {% for radio in form.engine %}
-    <div class="form-check form-check-inline mr-4 mb-2">
+    <div class="form-check form-check-inline me-4 mb-2">
       {{ radio.tag }}
-      <label class="form-check-label ml-1" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+      <label class="form-check-label ms-1" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
     </div>
     {% endfor %}
   </div>
   {% for error in form.engine.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
 </fieldset>
 <fieldset class="mb-3">
-  <legend class="sr-only">Equipment</legend>
+  <legend class="visually-hidden">Equipment</legend>
   <div class="d-flex flex-wrap">
-    <div class="form-check form-check-inline mr-4 mb-2">
+    <div class="form-check form-check-inline me-4 mb-2">
       {{ form.requires_type|attr:"id:type"|add_class:"form-check-input" }}
       <label class="form-check-label" for="type">Requires Type Rating</label>
-      {% for error in form.requires_type.errors %}<span class="text-danger small ml-2">{{ error }}</span>{% endfor %}
+      {% for error in form.requires_type.errors %}<span class="text-danger small ms-2">{{ error }}</span>{% endfor %}
     </div>
-    <div class="form-check form-check-inline mr-4 mb-2">
+    <div class="form-check form-check-inline me-4 mb-2">
       {{ form.tailwheel|attr:"id:id_tailwheel"|add_class:"form-check-input" }}
       <label class="form-check-label" for="id_tailwheel">Tailwheel</label>
-      {% for error in form.tailwheel.errors %}<span class="text-danger small ml-2">{{ error }}</span>{% endfor %}
+      {% for error in form.tailwheel.errors %}<span class="text-danger small ms-2">{{ error }}</span>{% endfor %}
     </div>
-    <div class="form-check form-check-inline mr-4 mb-2">
+    <div class="form-check form-check-inline me-4 mb-2">
       {{ form.simple|attr:"id:simple"|add_class:"form-check-input" }}
       <label class="form-check-label" for="simple">Simple</label>
-      {% for error in form.simple.errors %}<span class="text-danger small ml-2">{{ error }}</span>{% endfor %}
+      {% for error in form.simple.errors %}<span class="text-danger small ms-2">{{ error }}</span>{% endfor %}
     </div>
-    <div class="form-check form-check-inline mr-4 mb-2">
+    <div class="form-check form-check-inline me-4 mb-2">
       {{ form.compleks|attr:"id:complex"|add_class:"form-check-input" }}
       <label class="form-check-label" for="complex">Complex</label>
-      {% for error in form.compleks.errors %}<span class="text-danger small ml-2">{{ error }}</span>{% endfor %}
+      {% for error in form.compleks.errors %}<span class="text-danger small ms-2">{{ error }}</span>{% endfor %}
     </div>
-    <div class="form-check form-check-inline mr-4 mb-2">
+    <div class="form-check form-check-inline me-4 mb-2">
       {{ form.high_performance|attr:"id:high_perf"|add_class:"form-check-input" }}
       <label class="form-check-label" for="high_perf">High Performance</label>
-      {% for error in form.high_performance.errors %}<span class="text-danger small ml-2">{{ error }}</span>{% endfor %}
+      {% for error in form.high_performance.errors %}<span class="text-danger small ms-2">{{ error }}</span>{% endfor %}
     </div>
   </div>
 </fieldset>
 <fieldset class="mb-3">
-  <legend class="sr-only">Weight</legend>
+  <legend class="visually-hidden">Weight</legend>
   <div class="d-flex flex-wrap">
     {% for radio in form.weight_category %}
-    <div class="form-check form-check-inline mr-4 mb-2">
+    <div class="form-check form-check-inline me-4 mb-2">
       {{ radio.tag }}
-      <label class="form-check-label ml-1" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+      <label class="form-check-label ms-1" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
     </div>
     {% endfor %}
   </div>
   {% for error in form.weight_category.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
 </fieldset>
-<div class="form-row">
-  <div class="form-group col-md-6">
+<div class="row gx-2">
+  <div class="mb-3 col-md-6">
     <label for="{{ form.aircraft_category.id_for_label }}">Category</label>
     {{ form.aircraft_category|add_class:"form-control" }}
     {% for error in form.aircraft_category.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
   </div>
-  <div class="form-group col-md-6">
+  <div class="mb-3 col-md-6">
     <label for="{{ form.aircraft_class.id_for_label }}">Class</label>
     {{ form.aircraft_class|add_class:"form-control" }}
     {% for error in form.aircraft_class.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}

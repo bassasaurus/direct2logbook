@@ -10,7 +10,7 @@ from rest_framework.views import APIView
 from api.models import MobileSyncReceipt
 from api.revisions import aircraft_revision
 from api.serializers import AircraftSerializer
-from flights.models import Aircraft, Flight, Imported, TailNumber
+from flights.models import Aircraft
 
 
 class AircraftOperationSerializer(serializers.Serializer):
@@ -53,9 +53,7 @@ class MobileAircraftSyncView(APIView):
         if values['action'] == 'delete':
             # These relationships cascade in the data model. Mobile deletion must
             # never silently remove tailnumbers, flights or imported summaries.
-            if (TailNumber.objects.filter(aircraft=aircraft).exists()
-                    or Flight.objects.filter(aircraft_type=aircraft).exists()
-                    or Imported.objects.filter(aircraft_type=aircraft).exists()):
+            if not aircraft.can_delete():
                 return Response({'detail': 'Aircraft is in use by tailnumbers, flights or imported totals and cannot be deleted.'}, status=409)
             record_id = aircraft.pk
             aircraft.delete()

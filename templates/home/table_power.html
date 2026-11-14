@@ -1,14 +1,14 @@
 
 
 <table class="table custom-table">
-  <thead class="thead-light">
+  <thead class="table-light">
     <tr>
-      <th scope="row">Role</th><th class="text-right">Turbine</th><th class="text-right">Piston</th>
+      <th scope="row">Role</th><th class="text-end">Turbine</th><th class="text-end">Piston</th>
     </tr>
   </thead>
   {% for power in powers %}
   <tr>
-    <td>{{ power.role }}</td><td class="text-right">{{ power.turbine }}</td><td class="text-right">{{ power.piston }}</td>
+    <td>{{ power.role }}</td><td class="text-end">{{ power.turbine }}</td><td class="text-end">{{ power.piston }}</td>
   </tr>
   {% endfor %}
 </table>

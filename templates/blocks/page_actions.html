@@ -13,13 +13,26 @@
     {% if show_pdf_action %}
     <span class="context-navigation-item">
       <span aria-hidden="true">|</span>
-      <button id="pdf" type="button" class="btn btn-link p-0 align-baseline">Print Logbook</button>
+      <button id="pdf" type="button" class="btn btn-link p-0 align-baseline text-decoration-none">Print Logbook</button>
       <span id="pdf-request-status" role="status" aria-live="polite"{% if pdf_request %} data-status-url="{% url 'pdf_status' pdf_request.pk %}"{% endif %}></span>
     </span>
     {% endif %}
   </span>
   {% if show_displayed_range %}
   <span class="page-displayed-range"><span class="d-block">Displayed Range</span>{% with last_flight=page_flights|last %}{{ last_flight.date|date:"m/d/Y" }}{% endwith %} – {{ page_flights.0.date|date:"m/d/Y" }}</span>
+  {% endif %}
+  {% if request.resolver_match.url_name == 'flight_detail' and flight %}
+    {% url 'flight_update' flight.pk as update_url %}
+    {% url 'flight_delete' flight.pk as delete_url %}
+    {% include 'blocks/record_actions.html' %}
+  {% elif request.resolver_match.url_name == 'aircraft_detail' and aircraft %}
+    {% url 'aircraft_update' aircraft.pk as update_url %}
+    {% if can_delete %}{% url 'aircraft_delete' aircraft.pk as delete_url %}{% endif %}
+    {% include 'blocks/record_actions.html' %}
+  {% elif request.resolver_match.url_name == 'tailnumber_detail' and tailnumber %}
+    {% url 'tailnumber_update' tailnumber.pk as update_url %}
+    {% if can_delete %}{% url 'tailnumber_delete' tailnumber.pk as delete_url %}{% endif %}
+    {% include 'blocks/record_actions.html' %}
   {% endif %}
 </nav>
 <hr class="page-action-divider">

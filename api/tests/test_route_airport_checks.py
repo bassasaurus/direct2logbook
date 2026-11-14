@@ -22,7 +22,7 @@ class MobileAirportChecksTests(APITestCase):
 
     def payload(self, route, **extra):
         return {'date': '11/05/2026', 'route': route, 'duration': '1.0', 'aircraft_type': 'C172',
-                'registration': 'N123', 'approaches': [], 'validate_airports': True, **extra}
+                'registration': 'N123', 'approaches': [], 'pilot_in_command': True, 'validate_airports': True, **extra}
 
     def test_checks_reuse_us_preference_international_and_faa_rules(self):
         response = self.check('lbx-BOG-2TX1-RPLU-ZZZZ')

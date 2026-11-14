@@ -1,5 +1,7 @@
   <span class="detail-record-actions">
     <a href="{{ update_url }}" class="detail-update {% if detail_has_errors %}btn btn-outline-danger{% else %}text-primary{% endif %}">Update</a>
-    <span aria-hidden="true">|</span>
-    <a href="{{ delete_url }}" class="text-danger detail-delete">Delete</a>
+    {% if delete_url %}
+      <span aria-hidden="true">|</span>
+      <a href="{{ delete_url }}" class="text-danger detail-delete">Delete</a>
+    {% endif %}
   </span>

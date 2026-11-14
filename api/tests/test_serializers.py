@@ -106,6 +106,8 @@ class AircraftSerializerTests(TestCase):
         data = {
             "user": self.user.id,
             "aircraft_type": "PA-28",
+            "aircraft_category": "A", "aircraft_class": "SEL",
+            "piston": True, "small": True,
         }
         ser = AircraftSerializer(data=data, context={"request": SimpleNamespace(user=self.user)})
         self.assertTrue(ser.is_valid(), ser.errors)

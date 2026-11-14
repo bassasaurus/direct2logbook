@@ -1,3 +1,9 @@
+from django import forms
+from django.contrib import messages
+from django.db.models.deletion import ProtectedError
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from accounts.deletion import account_deletion_resources
 from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.admin import AdminSite
@@ -33,6 +39,44 @@ class EmailRequiredUserAdmin(UserAdmin):
         'classes': ('wide',)
     }),)
 
+    def get_deleted_objects(self, objs, request):
+        deleted, counts, permissions, protected = super().get_deleted_objects(objs, request)
+        for user in objs:
+            try:
+                resources = account_deletion_resources(user, user._state.db or 'default')
+                user._external_cleanup_required = any(resources)
+            except ProtectedError as error:
+                protected.append(str(error.args[0]))
+        return deleted, counts, permissions, protected
+
+    def delete_model(self, request, obj):
+        pending = getattr(obj, '_external_cleanup_required', False)
+        super().delete_model(request, obj)
+        if pending:
+            self.message_user(request, 'Stripe/file cleanup is queued after commit. Check Account deletion cleanups until it completes.', messages.WARNING)
+
+    def delete_queryset(self, request, queryset):
+        pending = any(getattr(user, '_external_cleanup_required', False) for user in queryset)
+        super().delete_queryset(request, queryset)
+        if pending:
+            self.message_user(request, 'Stripe/file cleanup is queued after commit. Check Account deletion cleanups until it completes.', messages.WARNING)
+
+    def delete_view(self, request, object_id, extra_context=None):
+        try:
+            return super().delete_view(request, object_id, extra_context)
+        except ProtectedError as error:
+            # A billing task may claim the account after the confirmation page loads.
+            self.message_user(request, str(error.args[0]), messages.ERROR)
+            return HttpResponseRedirect(reverse('admin:auth_user_change', args=[object_id]))
+
+    def changelist_view(self, request, extra_context=None):
+        try:
+            return super().changelist_view(request, extra_context)
+        except ProtectedError as error:
+            self.message_user(request, str(error.args[0]), messages.ERROR)
+            return HttpResponseRedirect(reverse('admin:auth_user_changelist'))
+
+
 admin.site.unregister(User)
 admin.site.register(User, EmailRequiredUserAdmin)
 
@@ -65,8 +109,25 @@ class AircraftAdmin(admin.ModelAdmin):
 
     list_filter = ('user',)
 
+class TailnumberAdminForm(forms.ModelForm):
+    is_121 = forms.BooleanField(required=False, label='Is 121')
+    is_135 = forms.BooleanField(required=False, label='Is 135')
+    is_91 = forms.BooleanField(required=False, label='Is 91')
+
+    class Meta:
+        model = TailNumber
+        fields = '__all__'
+
+
 class TailnumberAdmin(admin.ModelAdmin):
+    form = TailnumberAdminForm
+
+    def get_changelist_form(self, request, **kwargs):
+        return super().get_changelist_form(request, **{'form': self.form, **kwargs})
+
     list_display = ('registration', 'user', 'pk', 'aircraft', 'is_121', 'is_135', 'is_91')
+    list_display_links = ('pk',)
+    list_editable = ('registration', 'is_121', 'is_135', 'is_91')
     search_fields = ('registration',)
     empty_value_display = ''
 

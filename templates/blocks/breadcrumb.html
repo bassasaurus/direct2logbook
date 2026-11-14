@@ -1,13 +1,6 @@
+{% load tz %}
 <!-- breadcrumb -->
-<div class="d-flex justify-content-end">
-  {% if request.resolver_match.url_name == 'home' %}
-    <time id="utc-clock" datetime="{% now 'c' %}" role="timer" aria-live="off"
-          style="font-variant-numeric: tabular-nums;">{% now "M j, Y | H:i:s" %} UTC</time>
-  {% else %}
-    {% now "M j, Y | H:i" %} UTC
-  {% endif %}
-</div>
-<div class="breadcrumb page-breadcrumb">
+<div class="breadcrumb page-breadcrumb align-items-center column-gap-3 row-gap-1">
   <div class="breadcrumb-path">
     {% if home_link %}
     <a href="{{ home_link }}">Home</a> /
@@ -18,17 +11,34 @@
     {{ page_title }}
     {% endif %}
   </div>
-  {% if request.resolver_match.url_name == 'flight_detail' and flight %}
-    {% url 'flight_update' flight.pk as update_url %}
-    {% url 'flight_delete' flight.pk as delete_url %}
-    {% include 'blocks/record_actions.html' %}
-  {% elif request.resolver_match.url_name == 'aircraft_detail' and aircraft %}
-    {% url 'aircraft_update' aircraft.pk as update_url %}
-    {% url 'aircraft_delete' aircraft.pk as delete_url %}
-    {% include 'blocks/record_actions.html' %}
-  {% elif request.resolver_match.url_name == 'tailnumber_detail' and tailnumber %}
-    {% url 'tailnumber_update' tailnumber.pk as update_url %}
-    {% url 'tailnumber_delete' tailnumber.pk as delete_url %}
-    {% include 'blocks/record_actions.html' %}
-  {% endif %}
+  {% timezone "UTC" %}
+  <time id="utc-clock" class="ms-auto text-nowrap" datetime="{% now 'c' %}" role="timer" aria-live="off"
+        style="font-variant-numeric: tabular-nums;">{% now "M j, Y | H:i:s" %} UTC</time>
+  {% endtimezone %}
 </div>
+
+<script>
+  (function () {
+    var clock = document.getElementById('utc-clock');
+    if (!clock) return;
+
+    var months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+                  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    function pad(value) {
+      return String(value).padStart(2, '0');
+    }
+    function updateClock() {
+      var now = new Date();
+      clock.dateTime = now.toISOString();
+      clock.textContent = months[now.getUTCMonth()] + ' ' + now.getUTCDate() +
+        ', ' + now.getUTCFullYear() + ' | ' + pad(now.getUTCHours()) + ':' +
+        pad(now.getUTCMinutes()) + ':' + pad(now.getUTCSeconds()) + ' UTC';
+    }
+
+    updateClock();
+    window.setInterval(updateClock, 1000);
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) updateClock();
+    });
+  })();
+</script>

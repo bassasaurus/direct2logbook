@@ -8,13 +8,11 @@ from django.db.models.functions import Length
 from django.db.models import CharField
 
 from django.db import transaction
-from django.contrib.admin.utils import NestedObjects
-from django.utils.text import capfirst
 
 from django.forms import inlineformset_factory
 
 from django.views.generic import View, ListView, CreateView, UpdateView, DetailView, DeleteView
-from django.views.generic.dates import YearArchiveView, MonthArchiveView, ArchiveIndexView
+from django.views.generic.dates import YearArchiveView, MonthArchiveView, DayArchiveView, ArchiveIndexView
 from profile.views import ProfileNotActiveMixin
 
 from django.http import HttpResponse, JsonResponse, HttpResponseRedirect
@@ -35,29 +33,10 @@ from flights.forms import AirportConfirmationForm
 from flights.airport_resolution import flight_resolution, warning_values, map_values, resolve_route
 
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.utils.encoding import force_str
 
 from django.contrib import messages
 
 CharField.register_lookup(Length, 'length')
-
-
-def get_deleted_objects(objs):
-    collector = NestedObjects(using='default')
-    collector.collect(objs)
-
-    def format_callback(obj):
-        opts = obj._meta
-        no_edit_link = '%s: %s' % (
-            capfirst(opts.verbose_name), force_str(obj))
-        return no_edit_link
-
-    to_delete = collector.nested(format_callback)[1:]
-    protected = [format_callback(obj) for obj in collector.protected]
-    model_count = {model._meta.verbose_name_plural: len(
-        objs) for model, objs in collector.model_objs.items()}
-
-    return to_delete, model_count, protected
 
 
 class OwnObjectMixin(UserPassesTestMixin):
@@ -230,6 +209,10 @@ class FlightArchiveMonth(LoginRequiredMixin, ProfileNotActiveMixin, MonthArchive
         user = self.request.user
         # Reuse the owner-scoped date-filtered queryset that the template renders.
         context['flight_map'] = flight_map_data(self.object_list)
+        groups = {}
+        for flight in self.object_list:
+            groups.setdefault(flight.date.isoformat(), []).append(str(flight.pk))
+        context['flight_map']['groups'] = groups
 
         context['title'] = "D-> | Flights by Month"
         context['home_link'] = reverse('home')
@@ -240,6 +223,32 @@ class FlightArchiveMonth(LoginRequiredMixin, ProfileNotActiveMixin, MonthArchive
             user=user).dates('date', 'year')
         context['months'] = Flight.objects.filter(
             user=user).dates('date', 'month')
+        return context
+
+
+class FlightArchiveDay(LoginRequiredMixin, ProfileNotActiveMixin, DayArchiveView):
+    model = Flight
+    date_field = 'date'
+
+    def get_queryset(self):
+        return Flight.objects.filter(user=self.request.user).select_related('registration')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        day = context['day']
+        month = day.replace(day=1)
+        context.update(
+            flight_map=flight_map_data(self.object_list),
+            month=month,
+            years=self.get_queryset().dates('date', 'year'),
+            title='D-> | Flights by Day',
+            page_title=day.strftime('%B %d, %Y'),
+            home_link=reverse('home'),
+            parent_name=month.strftime('%B %Y'),
+            parent_link=reverse('flight_by_month', kwargs={
+                'year': month.year, 'month': month.strftime('%b').lower(),
+            }),
+        )
         return context
 
 
@@ -462,7 +471,8 @@ class FlightUpdate(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, Us
                                {'holding': holding})
                 return self.render_to_response(context)
 
-        return super(FlightUpdate, self).form_valid(form)
+        # The flight was already saved above, including all summary signals.
+        return HttpResponseRedirect(self.get_success_url())
 
 
 class FlightDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, DetailView):
@@ -475,6 +485,7 @@ class FlightDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, De
         queryset = Flight.objects.filter(user=user).filter(pk=self.object.pk)
 
         get_map_data(queryset, user)
+        context['flight_map'] = flight_map_data(queryset)
 
         flight = Flight.objects.filter(user=user).get(pk=self.object.pk)
         earliest = Flight.objects.filter(user=user).earliest('date')
@@ -585,6 +596,7 @@ class AircraftDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, 
 
     def get_context_data(self, **kwargs):
         context = super(AircraftDetail, self).get_context_data(**kwargs)
+        context['can_delete'] = self.object.can_delete()
         context['tailnumbers'] = TailNumber.objects.filter(
             user=self.request.user, aircraft=self.object)
 
@@ -592,6 +604,7 @@ class AircraftDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, 
             user=self.request.user, aircraft_type=self.object)
         user = self.request.user
         get_map_data(flights, user)
+        context['flight_map'] = flight_map_data(flights)
         context['flights'] = flights
 
         if TailNumber.objects.filter(user=user).filter(aircraft__aircraft_type=self.object).exists() or Imported.objects.filter(user=user).filter(aircraft_type=self.object).exists():
@@ -642,20 +655,35 @@ class AircraftDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, 
         return context
 
 
-class AircraftDelete(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, DeleteView):
+class ProtectedReferenceDeleteView(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, DeleteView):
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        can_delete = self.object.can_delete()
+        return self.render_to_response(
+            self.get_context_data(can_delete=can_delete),
+            status=200 if can_delete else 409,
+        )
+
+    def form_valid(self, form):
+        return self.delete(self.request)
+
+    @transaction.atomic
+    def delete(self, request, *args, **kwargs):
+        self.object = self.get_object(self.get_queryset().select_for_update())
+        if not self.object.can_delete():
+            return self.render_to_response(self.get_context_data(can_delete=False), status=409)
+        success_url = self.get_success_url()
+        self.object.delete()
+        return HttpResponseRedirect(success_url)
+
+
+class AircraftDelete(ProtectedReferenceDeleteView):
     model = Aircraft
     template_name = 'aircraft/aircraft_delete.html'
     success_url = reverse_lazy('aircraft_list')
 
     def get_context_data(self, **kwargs):
         context = super(AircraftDelete, self).get_context_data(**kwargs)
-
-        deletable_objects, model_count, protected = get_deleted_objects([
-                                                                        self.object])
-
-        context['deletable_objects'] = deletable_objects
-        context['model_count'] = dict(model_count).items()
-        context['protected'] = protected
 
         context['title'] = "D-> | " + str(self.object)
         context['page_title'] = "Delete " + str(self.object)
@@ -767,6 +795,7 @@ class TailNumberDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin
             user=user).filter(registration=self.object)
 
         context = super(TailNumberDetail, self).get_context_data(**kwargs)
+        context['can_delete'] = tailnumber.can_delete()
 
         if len(Aircraft.objects.filter(user=user).all()) == 0:
             context['new_user_aircraft'] = True
@@ -797,7 +826,7 @@ class TailNumberDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin
         return context
 
 
-class TailNumberDelete(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, DeleteView):
+class TailNumberDelete(ProtectedReferenceDeleteView):
     model = TailNumber
     template_name = 'tailnumbers/tailnumber_delete.html'
     success_url = reverse_lazy('aircraft_list')

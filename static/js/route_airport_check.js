@@ -4,7 +4,7 @@
   var feedback = document.getElementById('route-airport-feedback');
   var hidden = document.getElementById('id_airport_choices');
   if (!input || !feedback || !hidden) return;
-  var timer, controller, revision = 0;
+  var timer, controller, revision = 0, checkedRoute = null;
   var choices;
   try { choices = JSON.parse(hidden.value || '{}'); } catch (error) { choices = {}; }
   function routeValue() { return input.value.trim().replace(/\s+/g, '-').toUpperCase(); }
@@ -18,6 +18,8 @@
   }
   async function check(final) {
     var route = routeValue();
+    if (final && checkedRoute === route) { input.value = route; return true; }
+    checkedRoute = null;
     input.setCustomValidity('');
     input.classList.remove('is-invalid');
     input.removeAttribute('aria-invalid');
@@ -77,6 +79,7 @@
       if (invalidCodes.length) input.setAttribute('aria-invalid', 'true');
       else input.removeAttribute('aria-invalid');
       input.setCustomValidity(invalidCodes.length ? 'Unknown airport codes: ' + invalidCodes.join(', ') + '. Correct the route before saving.' : '');
+      if (final && invalidCodes.length === 0) checkedRoute = route;
       return invalidCodes.length === 0;
     } catch (error) {
       if (error.name === 'AbortError' || current !== revision || route !== routeValue()) return;
@@ -86,6 +89,7 @@
     }
   }
   input.addEventListener('input', function () {
+    checkedRoute = null;
     input.setCustomValidity('');
     input.classList.remove('is-invalid');
     input.removeAttribute('aria-invalid');
@@ -100,13 +104,18 @@
   var approvedRoute = null;
   var submitting = false;
   input.form.addEventListener('submit', async function (event) {
-    if (approvedRoute === routeValue()) { approvedRoute = null; return; }
+    if (event.defaultPrevented) return;
+    if (approvedRoute === routeValue() || checkedRoute === routeValue()) {
+      input.value = routeValue(); approvedRoute = null; return;
+    }
     event.preventDefault();
     if (submitting) return;
     submitting = true;
     clearTimeout(timer);
     var route = routeValue();
     var submitter = event.submitter;
+    var handedOff = false;
+    input.form.dispatchEvent(new CustomEvent('form-feedback', {detail: 'Checking route…'}));
     try {
       var valid = await check(true);
       if (route !== routeValue() || valid === undefined) return;
@@ -116,8 +125,12 @@
       } else {
         approvedRoute = route;
         input.form.requestSubmit(submitter || undefined);
+        handedOff = true;
       }
-    } finally { submitting = false; }
+    } finally {
+      submitting = false;
+      if (!handedOff) input.form.dispatchEvent(new CustomEvent('form-feedback', {detail: null}));
+    }
   });
   if (input.value.trim()) check(true);
 }());

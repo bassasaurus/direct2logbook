@@ -13,7 +13,7 @@ class ContextLinkSpacingTests(SimpleTestCase):
         return Template("{% load page_navigation %}{% include 'blocks/breadcrumb.html' %}{% page_actions %}").render(Context({
             'request': request, 'user': SimpleNamespace(is_authenticated=True),
             'flight': SimpleNamespace(pk=1), 'aircraft': SimpleNamespace(pk=1),
-            'tailnumber': SimpleNamespace(pk=1),
+            'tailnumber': SimpleNamespace(pk=1), 'can_delete': True,
             'previous_flight': SimpleNamespace(pk=2), 'next_flight': SimpleNamespace(pk=3),
         }))
 
@@ -22,7 +22,9 @@ class ContextLinkSpacingTests(SimpleTestCase):
             with self.subTest(name=name):
                 html = self.render(name)
                 self.assertLess(html.index('>Update</a>'), html.index('>Delete</a>'))
-                self.assertLess(html.index('>Delete</a>'), html.index('>New Flight</a>'))
+                breadcrumb, action_row = html.split('<nav class="page-action-row"')
+                self.assertNotIn('detail-record-actions', breadcrumb)
+                self.assertLess(action_row.index('>New Flight</a>'), action_row.index('>Update</a>'))
                 self.assertEqual(html.count('>New Flight</a>'), 1)
                 self.assertIn('context-navigation-links', html)
 
@@ -90,8 +92,8 @@ class ContextLinkSpacingTests(SimpleTestCase):
     def test_error_record_actions_keep_their_colors(self):
         request = RequestFactory().get(reverse('aircraft_detail', args=[1]))
         request.resolver_match = resolve(request.path)
-        html = Template("{% include 'blocks/breadcrumb.html' %}").render(Context({
-            'request': request, 'aircraft': SimpleNamespace(pk=1), 'detail_has_errors': True,
+        html = Template("{% load page_navigation %}{% page_actions %}").render(Context({
+            'request': request, 'aircraft': SimpleNamespace(pk=1), 'detail_has_errors': True, 'can_delete': True,
         }))
         self.assertIn('btn btn-outline-danger', html)
         self.assertIn('text-danger detail-delete', html)

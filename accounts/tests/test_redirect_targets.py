@@ -13,6 +13,7 @@ from allauth.account.utils import user_pk_to_url_str
 
 from accounts import views as account_views
 from profile import views as profile_views
+from payments.checkout import create_session
 from flights import views as flight_views
 from signature import views as signature_views
 
@@ -37,24 +38,20 @@ class RedirectTargetTests(SimpleTestCase):
                 resolve(getattr(settings, name))
 
     @override_settings(ALLOWED_HOSTS=['localhost', 'www.direct2logbook.com'])
-    @patch('profile.views.stripe.checkout.Session.create', return_value=SimpleNamespace(id='cs_test'))
+    @patch('payments.checkout.stripe.checkout.Session.create', return_value=SimpleNamespace(id='cs_test'))
     def test_checkout_returns_use_current_origin_and_actual_routes(self, checkout):
         for origin in ('http://localhost:8000', 'https://www.direct2logbook.com'):
-            for method in ('session_monthly', 'session_yearly'):
-                with self.subTest(origin=origin, method=method):
-                    view = profile_views.ProfileView()
-                    view.request = RequestFactory().get(
-                        reverse('profile'), secure=origin.startswith('https:'),
-                        HTTP_HOST=urlsplit(origin).netloc,
-                    )
-                    view.request.user = SimpleNamespace(pk=12)
-                    getattr(view, method)('cus_test')
-                    kwargs = checkout.call_args.kwargs
-                    for key, expected in [('success_url', 'payment_success'), ('cancel_url', 'payment_canceled')]:
-                        parts = urlsplit(kwargs[key])
-                        self.assertEqual(parts.scheme + '://' + parts.netloc, origin)
-                        self.assertEqual(resolve(parts.path).url_name, expected)
-                        self.assertEqual(resolve(parts.path).kwargs, {'user': 12})
+            with self.subTest(origin=origin):
+                request = RequestFactory().post(reverse('start_checkout'), secure=origin.startswith('https:'), HTTP_HOST=urlsplit(origin).netloc)
+                request.user = SimpleNamespace(pk=12)
+                create_session(request, 'cus_test', 'price_test', 'test-key')
+                kwargs = checkout.call_args.kwargs
+                for key, expected in [('success_url', 'payment_success'), ('cancel_url', 'payment_canceled')]:
+                    parts = urlsplit(kwargs[key])
+                    self.assertEqual(parts.scheme + '://' + parts.netloc, origin)
+                    self.assertEqual(resolve(parts.path).url_name, expected)
+                    self.assertEqual(resolve(parts.path).kwargs, {'user': 12})
+
 
 
 @override_settings(SECURE_SSL_REDIRECT=False, EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')

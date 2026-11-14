@@ -17,7 +17,7 @@ class MobileSyncTests(APITestCase):
         TailNumber.objects.create(user=self.owner, aircraft=aircraft, registration='N1234')
         self.client.force_authenticate(self.owner)
         self.data = {'date': '11/04/2026', 'route': 'KIAH-KLAS', 'duration': '1.5',
-                     'aircraft_type': 'C172', 'registration': 'N1234', 'approaches': []}
+                     'aircraft_type': 'C172', 'registration': 'N1234', 'approaches': [], 'pilot_in_command': True}
 
     def send(self, **values):
         return self.client.post('/api/mobile/flight-sync/', values, format='json')

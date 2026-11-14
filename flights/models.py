@@ -248,6 +248,7 @@ CLASS_CHOICES = (
 class Aircraft(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     aircraft_type = models.CharField(db_index=True, max_length=10)
+    is_default = models.BooleanField(default=False)
     turbine = models.BooleanField(default=False)
     piston = models.BooleanField(default=False)
     requires_type = models.BooleanField(default=False)
@@ -278,10 +279,19 @@ class Aircraft(models.Model):
         ordering = ['user', 'aircraft_type']
         verbose_name_plural = "Aircraft"
         unique_together = ('user', 'aircraft_type')
+        constraints = [models.UniqueConstraint(fields=['user'], condition=models.Q(is_default=True),
+                                               name='one_default_aircraft_per_user')]
 
     def __str__(self):
         aircraft_type = str(self.aircraft_type)
         return aircraft_type
+
+    def can_delete(self):
+        return not (
+            TailNumber.objects.filter(aircraft=self).exists()
+            or Flight.objects.filter(aircraft_type=self).exists()
+            or Imported.objects.filter(aircraft_type=self).exists()
+        )
 
 
 class Flight(models.Model):
@@ -347,6 +357,11 @@ class Flight(models.Model):
         return super().save(*args, **kwargs)
 
     @property
+    def distance_nm(self):
+        from flights.mileage import route_distance_nm
+        return route_distance_nm(self)
+
+    @property
     def validation_errors(self):
         from flights.error_checks import flight_error_messages
         return flight_error_messages(self)
@@ -387,6 +402,9 @@ class TailNumber(models.Model):
     def get_absolute_url(self):
         return reverse('tailnumber_detail', kwargs={'pk': self.pk})
 
+    def can_delete(self):
+        return not Flight.objects.filter(registration=self).exists()
+
 
 class Approach(models.Model):
 
@@ -426,7 +444,7 @@ class Approach(models.Model):
 class Holding(models.Model):
 
     flight_object = models.ForeignKey(
-        'Flight', default=None, null=True, blank=True, verbose_name="Flight", on_delete=models.SET_NULL)
+        'Flight', default=None, null=True, blank=True, verbose_name="Flight", on_delete=models.CASCADE)
     hold = models.BooleanField(blank=True, default=False)
 
 

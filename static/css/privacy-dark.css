@@ -1,0 +1,14 @@
+html {
+  color-scheme: dark;
+  background-color: #0f131a;
+}
+
+body {
+  background-color: #0f131a;
+  color: #edf1f7;
+}
+
+a,
+a:hover {
+  color: #a8c7ff;
+}

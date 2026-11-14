@@ -6,6 +6,7 @@ from rest_framework.fields import SerializerMethodField
 from collections import OrderedDict
 
 from flights.models import Flight, Aircraft, TailNumber, Approach, Holding
+from flights.record_validation import validate_aircraft, validate_flight, validate_tailnumber
 
 def serializer_owner(serializer):
     request = serializer.context.get('request')
@@ -52,7 +53,17 @@ class AircraftSerializer(serializers.ModelSerializer):
     class Meta:
         model = Aircraft
         fields = '__all__'
-        read_only_fields = ['user']
+        read_only_fields = ['user', 'is_default']
+        extra_kwargs = {
+            'aircraft_category': {'allow_blank': True},
+            'aircraft_class': {'allow_blank': True},
+        }
+
+    def validate(self, attrs):
+        errors = validate_aircraft(attrs, self.instance)
+        if errors:
+            raise serializers.ValidationError(errors)
+        return attrs
 
 
 class ApproachSerializer(serializers.ModelSerializer):
@@ -78,6 +89,7 @@ class FlightApproachWriteSerializer(serializers.ModelSerializer):
 
 
 class FlightSerializer(serializers.ModelSerializer):
+    distance_nm = serializers.FloatField(read_only=True, allow_null=True)
     validate_airports = serializers.BooleanField(write_only=True, required=False, default=False)
     route_airport_choices = serializers.JSONField(required=False)
 
@@ -86,7 +98,7 @@ class FlightSerializer(serializers.ModelSerializer):
         model = Flight
         fields = ['id', 'user', 'date', 'aircraft_type', 'registration', 'route', 'duration', 'landings_day', 'landings_night', 
                     'night', 'instrument', 'cross_country', 'second_in_command', 'pilot_in_command', 'simulated_instrument', 
-                    'instructor', 'simulator', 'dual', 'remarks', 'solo', 'hold', 'app_markers', 'app_polylines','approaches', 'holding', 'revision', 'route_airport_choices', 'validate_airports']
+                    'instructor', 'simulator', 'dual', 'remarks', 'solo', 'hold', 'app_markers', 'app_polylines','approaches', 'holding', 'revision', 'route_airport_choices', 'validate_airports', 'distance_nm']
         read_only_fields = ['user']
 
     revision = SerializerMethodField()
@@ -110,10 +122,10 @@ class FlightSerializer(serializers.ModelSerializer):
         data = data.copy()
 
         if data.get('landings_day') == '':
-            del data['landings_day']
+            data['landings_day'] = None
 
         if data.get('landings_night') == '':
-            del data['landings_night']
+            data['landings_night'] = None
 
         if data.get('instrument') == '':
             del data['instrument']
@@ -184,6 +196,9 @@ class FlightSerializer(serializers.ModelSerializer):
                 )
             elif self.instance is None:
                 raise serializers.ValidationError({field: 'This field is required.'})
+        errors = validate_flight(attrs, self.instance)
+        if errors:
+            raise serializers.ValidationError(errors)
         strict = attrs.pop('validate_airports', False)
         if strict or 'route_airport_choices' in attrs:
             from api.airport_checks import validate_route_choices
@@ -261,4 +276,7 @@ class TailNumberSerializer(serializers.ModelSerializer):
             )
         elif self.instance is None:
             raise serializers.ValidationError({'aircraft': 'This field is required.'})
+        errors = validate_tailnumber(attrs, self.instance)
+        if errors:
+            raise serializers.ValidationError(errors)
         return attrs

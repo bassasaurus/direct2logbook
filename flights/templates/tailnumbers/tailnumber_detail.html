@@ -23,7 +23,7 @@
 <div class="row">
   <div class="col-12 col-lg-4 mb-3 mb-lg-0">
     <h4>Routes</h4>
-    <div class="tailnumber-flight-list pr-lg-2" role="region" aria-label="Flights for this tailnumber" tabindex="0">
+    <div class="tailnumber-flight-list pe-lg-2" role="region" aria-label="Flights for this tailnumber" tabindex="0">
       {% for flight in flights %}
         <a class="d-block py-2" data-flight-id="{{ flight.pk }}" href="{% url 'flight_detail' flight.pk %}">
           {{ flight.date|date:"m/d/Y" }} | {{ flight.route }}
