@@ -120,6 +120,7 @@
       var valid = await check(true);
       if (route !== routeValue() || valid === undefined) return;
       if (valid === false) {
+        input.form.dispatchEvent(new CustomEvent('form-feedback', {detail: null}));
         input.focus();
         input.reportValidity();
       } else {
