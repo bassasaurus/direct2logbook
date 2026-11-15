@@ -163,11 +163,15 @@ class UserDeletionTests(TestCase):
         self.assertTrue(TaskResult.objects.filter(pk=other_probe.pk).exists())
 
     def test_cross_owner_link_prevents_deleting_another_users_records(self):
-        foreign = Flight.objects.create(user=self.other, aircraft_type=self.aircraft,
-                                        registration=self.tail, date=date(2026, 1, 2), route='KAAA-KBBB', duration=1)
-        with self.assertRaises(ProtectedError), transaction.atomic():
-            self.user.delete()
-        self.assertTrue(Flight.objects.filter(pk=foreign.pk).exists())
+        # Exercise the legacy deletion safeguard inside a rollback-only transaction.
+        # New composite foreign keys prevent this corrupt link from being committed.
+        with transaction.atomic():
+            foreign = Flight.objects.create(user=self.other, aircraft_type=self.aircraft,
+                                            registration=self.tail, date=date(2026, 1, 2), route='KAAA-KBBB', duration=1)
+            with self.assertRaises(ProtectedError), transaction.atomic():
+                self.user.delete()
+            self.assertTrue(Flight.objects.filter(pk=foreign.pk).exists())
+            transaction.set_rollback(True)
 
     @patch('accounts.tasks.cleanup_deleted_account.apply_async')
     def test_aircraft_file_is_captured_before_its_row_disappears(self, publish):

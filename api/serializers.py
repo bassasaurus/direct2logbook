@@ -22,8 +22,24 @@ def owned_relation(model, owner, value, lookup, field):
         return model.objects.get(user=owner, **{lookup: value})
     except (model.DoesNotExist, model.MultipleObjectsReturned, TypeError, ValueError):
         raise serializers.ValidationError({
-            field: 'Select a valid record belonging to your account.'
+            field: f"This {'tailnumber' if model.__name__ == 'TailNumber' else 'aircraft'} is no longer available. Choose one from your list."
         })
+
+
+class FriendlyValidationSerializer(serializers.ModelSerializer):
+    def get_fields(self):
+        fields = super().get_fields()
+        for field in fields.values():
+            field.error_messages['required'] = 'Required'
+            field.error_messages['blank'] = 'Required'
+            if isinstance(field, (serializers.FloatField, serializers.DecimalField)):
+                from django.core.validators import MinValueValidator
+                field.error_messages['min_value'] = 'Hours cannot be negative.'
+                for validator in field.validators:
+                    if isinstance(validator, MinValueValidator) and validator.limit_value == 0:
+                        validator.message = 'Hours cannot be negative.'
+                field.validators.insert(0, MinValueValidator(0, 'Hours cannot be negative.'))
+        return fields
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
@@ -38,7 +54,7 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
         fields = ['url', 'name']
 
 
-class AircraftSerializer(serializers.ModelSerializer):
+class AircraftSerializer(FriendlyValidationSerializer):
     revision = SerializerMethodField()
 
     def get_revision(self, obj):
@@ -60,7 +76,7 @@ class AircraftSerializer(serializers.ModelSerializer):
         }
 
     def validate(self, attrs):
-        errors = validate_aircraft(attrs, self.instance)
+        errors = validate_aircraft(attrs, self.instance, user=serializer_owner(self))
         if errors:
             raise serializers.ValidationError(errors)
         return attrs
@@ -88,7 +104,7 @@ class FlightApproachWriteSerializer(serializers.ModelSerializer):
         fields = ['id', 'flight_object', 'approach_type', 'number']
 
 
-class FlightSerializer(serializers.ModelSerializer):
+class FlightSerializer(FriendlyValidationSerializer):
     distance_nm = serializers.FloatField(read_only=True, allow_null=True)
     validate_airports = serializers.BooleanField(write_only=True, required=False, default=False)
     route_airport_choices = serializers.JSONField(required=False)
@@ -243,7 +259,7 @@ class FlightSerializer(serializers.ModelSerializer):
         return instance
 
 
-class TailNumberSerializer(serializers.ModelSerializer):
+class TailNumberSerializer(FriendlyValidationSerializer):
     revision = SerializerMethodField()
 
     def get_revision(self, obj):
@@ -276,7 +292,7 @@ class TailNumberSerializer(serializers.ModelSerializer):
             )
         elif self.instance is None:
             raise serializers.ValidationError({'aircraft': 'This field is required.'})
-        errors = validate_tailnumber(attrs, self.instance)
+        errors = validate_tailnumber(attrs, self.instance, user=serializer_owner(self))
         if errors:
             raise serializers.ValidationError(errors)
         return attrs

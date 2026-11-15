@@ -1,5 +1,6 @@
 import uuid
 from django.contrib.auth import get_user_model
+from django.db import transaction
 from django.test import override_settings
 from rest_framework.test import APITestCase
 from api.revisions import aircraft_revision
@@ -92,12 +93,15 @@ class AircraftSyncTests(APITestCase):
         tail = TailNumber.objects.create(user=self.user, aircraft=aircraft, registration='N1234')
         self.assertEqual(self.client.get(url).data, {'can_delete': False})
 
-        # A legacy flight can reference a tailnumber assigned to another aircraft.
-        other_aircraft = Aircraft.objects.create(user=self.user, aircraft_type='C182')
-        TailNumber.objects.filter(pk=tail.pk).update(aircraft=other_aircraft)
-        Flight.objects.create(user=self.user, aircraft_type=aircraft, registration=tail,
-                              date='2025-11-04', route='KIAH-KLAS', duration='1.0')
-        self.assertEqual(self.client.get(url).data, {'can_delete': False})
+        # Exercise the legacy safeguard in a rollback-only transaction; the new
+        # matching constraint prevents this inconsistent link from being committed.
+        with transaction.atomic():
+            other_aircraft = Aircraft.objects.create(user=self.user, aircraft_type='C182')
+            TailNumber.objects.filter(pk=tail.pk).update(aircraft=other_aircraft)
+            Flight.objects.create(user=self.user, aircraft_type=aircraft, registration=tail,
+                                  date='2025-11-04', route='KIAH-KLAS', duration='1.0')
+            self.assertEqual(self.client.get(url).data, {'can_delete': False})
+            transaction.set_rollback(True)
 
         self.client.force_authenticate(self.other)
         self.assertEqual(self.client.get(url).status_code, 404)
@@ -116,3 +120,25 @@ class AircraftSyncTests(APITestCase):
         response = self.send(operation_id=str(uuid.uuid4()), action='create', data={**self.payload, 'user': self.other.pk})
         self.assertEqual(response.status_code, 200, response.data)
         self.assertEqual(response.data['record']['user'], self.user.pk)
+
+    def test_aircraft_deletion_removes_linked_reminders_on_rest_and_mobile_sync(self):
+        from profile.models import Reminder
+        unrelated = Reminder.objects.create(user=self.user, kind='flight_time', target_hours=1000)
+        for transport in ('rest', 'sync'):
+            with self.subTest(transport=transport):
+                _, record = self.create()
+                linked = Reminder.objects.create(user=self.user, kind='time_in_type',
+                    target_hours=500, aircraft_id=record['id'])
+                eligibility = self.client.get(f"/api/aircraft/{record['id']}/deletion-eligibility/")
+                self.assertEqual(eligibility.data, {'can_delete': True})
+                if transport == 'rest':
+                    response = self.client.delete(f"/api/aircraft/{record['id']}/")
+                    self.assertEqual(response.status_code, 204)
+                else:
+                    values = {'operation_id': str(uuid.uuid4()), 'action': 'delete',
+                              'record_id': record['id'], 'base_revision': record['revision']}
+                    response = self.send(**values)
+                    self.assertEqual(response.status_code, 200, response.data)
+                    self.assertEqual(self.send(**values).data, response.data)
+                self.assertFalse(Reminder.objects.filter(pk=linked.pk).exists())
+                self.assertTrue(Reminder.objects.filter(pk=unrelated.pk).exists())

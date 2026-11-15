@@ -23,6 +23,10 @@ def fields_changed(values, instance, normalize=lambda value: value):
 
 def validate_flight(data, instance):
     errors = {}
+    links = effective_values(data, instance, ('aircraft_type', 'registration'))
+    aircraft, tail = links['aircraft_type'], links['registration']
+    if aircraft is not None and tail is not None and tail.aircraft_id != aircraft.pk:
+        errors['registration'] = f'{tail.registration} is assigned to {tail.aircraft.aircraft_type}. Choose a tailnumber for {aircraft.aircraft_type}.'
     roles = effective_values(data, instance, FLIGHT_ROLES)
     if fields_changed(roles, instance, bool) and not any(roles.values()):
         errors['pilot_in_command'] = 'Select PIC, SIC, Solo, or Dual.'
@@ -39,7 +43,7 @@ def validate_flight(data, instance):
     return errors
 
 
-def validate_aircraft(data, instance):
+def validate_aircraft(data, instance, user=None):
     errors = {}
     designator = effective_values(data, instance, ('aircraft_type',))
     if fields_changed(designator, instance) and not re.fullmatch(r'[A-Za-z0-9-]{1,10}', designator['aircraft_type'] or ''):
@@ -60,15 +64,35 @@ def validate_aircraft(data, instance):
         choices = effective_values(data, instance, fields)
         if fields_changed(choices, instance, bool) and sum(map(bool, choices.values())) != 1:
             errors[group] = f"Choose one {group.replace('_', ' ')}."
+    if case_duplicate('Aircraft', 'aircraft_type', designator['aircraft_type'], instance, user):
+        errors['aircraft_type'] = 'This aircraft type already exists in your logbook.'
     return errors
 
 
-def validate_tailnumber(data, instance):
+def validate_tailnumber(data, instance, user=None):
     errors = {}
     registration = effective_values(data, instance, ('registration',))
     if fields_changed(registration, instance) and not 3 <= len(registration['registration'] or '') <= 8:
         errors['registration'] = 'Use 3–8 characters.'
+    if case_duplicate('TailNumber', 'registration', registration['registration'], instance, user):
+        errors['registration'] = 'This tailnumber already exists in your logbook.'
+    aircraft = effective_values(data, instance, ('aircraft',))['aircraft']
+    if instance is not None and instance.pk and aircraft is not None and aircraft.pk != instance.aircraft_id:
+        from flights.models import Flight
+        if Flight.objects.filter(registration_id=instance.pk).exclude(aircraft_type_id=aircraft.pk).exists():
+            errors['aircraft'] = f'{instance.registration} has flights logged as {instance.aircraft.aircraft_type}. Keep {instance.aircraft.aircraft_type}, or correct those flights first.'
     rules = effective_values(data, instance, OPERATING_RULES)
     if fields_changed(rules, instance, bool) and sum(map(bool, rules.values())) != 1:
         errors['operating_rules'] = 'Select one operating rule.'
     return errors
+
+
+def case_duplicate(model_name, field, value, instance, user):
+    from django.apps import apps
+    owner_id = getattr(user, 'pk', None) or getattr(instance, 'user_id', None)
+    if not owner_id or not value:
+        return False
+    rows = apps.get_model('flights', model_name).objects.filter(user_id=owner_id, **{field + '__iexact': value})
+    if instance and instance.pk:
+        rows = rows.exclude(pk=instance.pk)
+    return rows.exists()

@@ -200,11 +200,11 @@ class ReminderTests(TestCase):
         for day, role, hours in [(1, 'solo', '9.0'), (2, 'pilot_in_command', '1.0'),
                                  (5, 'second_in_command', '2.0'), (6, 'dual', '3.0')]:
             Flight.objects.create(user=self.user, aircraft_type=aircraft, registration=tailnumber,
-                                  date=date(2026, 11, day), duration=hours, **{role: True})
+                                  date=date(2026, 11, day), duration=hours, route='KIAH-KLAX', **{role: True})
         other_aircraft = Aircraft.objects.create(user=self.other, aircraft_type='B737')
         other_tailnumber = TailNumber.objects.create(user=self.other, aircraft=other_aircraft, registration='N737')
         Flight.objects.create(user=self.other, aircraft_type=other_aircraft, registration=other_tailnumber,
-                              date=date(2026, 11, 3), duration='9.0')
+                              date=date(2026, 11, 3), duration='9.0', route='KIAH-KLAX')
         url = reverse('mobile_manage_reminders')
         payload = {'kind': 'company_time', 'title': 'Company milestone', 'company': 'Example Air',
                    'company_start_date': '2026-11-02', 'company_end_date': '2026-11-05'}

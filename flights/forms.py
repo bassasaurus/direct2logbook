@@ -47,8 +47,51 @@ class UserForm(forms.ModelForm):
 class UserOwnedRelationsFormMixin:
     owned_relation_fields = ()
 
+    def full_clean(self):
+        super().full_clean()
+        for name in self.errors:
+            if name in self.fields:
+                widget = self.fields[name].widget
+                widget.attrs['class'] = (widget.attrs.get('class', '') + ' is-invalid').strip()
+                widget.attrs['aria-invalid'] = 'true'
+
+    def _update_errors(self, errors):
+        from logbook.db_errors import MESSAGES
+        from django.core.exceptions import ValidationError
+        if hasattr(errors, 'error_dict'):
+            safe = {}
+            for field, values in errors.error_dict.items():
+                for error in values:
+                    constraint = (error.params or {}).get('name')
+                    if not constraint:
+                        constraint = next((item.name for item in self.instance._meta.constraints
+                                           if str(error.message) == str(item.get_violation_error_message())), None)
+                    if constraint in MESSAGES:
+                        target, message = MESSAGES[constraint]
+                        safe.setdefault(target or '__all__', []).append(message)
+                    elif error.code == 'violation_of_constraint':
+                        safe.setdefault('__all__', []).append('Couldn’t save this record. Please check your entries.')
+                    else:
+                        safe.setdefault(field, []).append(error)
+            errors = ValidationError(safe)
+        return super()._update_errors(errors)
+
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
+        self.user = user
+        for name, field in self.fields.items():
+            field.error_messages['required'] = 'Required'
+            if name in self.owned_relation_fields:
+                label = 'tailnumber' if name == 'registration' else 'aircraft'
+                field.error_messages['invalid_choice'] = f'This {label} is no longer available. Choose one from your list.'
+            if isinstance(field, (forms.DecimalField, forms.FloatField)):
+                from django.core.validators import MinValueValidator
+                for validator in field.validators:
+                    if isinstance(validator, MinValueValidator) and validator.limit_value == 0:
+                        validator.message = 'Hours cannot be negative.'
+                field.validators.insert(0, MinValueValidator(0, 'Hours cannot be negative.'))
+        if user is not None and user.is_authenticated and self.instance._state.adding:
+            self.instance.user = user
         for name in self.owned_relation_fields:
             field = self.fields[name]
             if user is not None and user.is_authenticated:
@@ -146,7 +189,7 @@ HoldingFormSet = inlineformset_factory(
     Flight, Holding, fields=('hold',), max_num=1, extra=1)
 
 
-class AircraftForm(forms.ModelForm):
+class AircraftForm(UserOwnedRelationsFormMixin, forms.ModelForm):
     engine = forms.ChoiceField(required=False, widget=forms.RadioSelect,
         choices=[('turbine', 'Turbine'), ('piston', 'Piston')])
     weight_category = forms.ChoiceField(required=False, widget=forms.RadioSelect,
@@ -166,7 +209,7 @@ class AircraftForm(forms.ModelForm):
         cleaned = super().clean()
         for group, fields in self.selection_groups.items():
             clean_radio_group(self, cleaned, group, fields)
-        for field, message in validate_aircraft(cleaned, self.instance).items():
+        for field, message in validate_aircraft(cleaned, self.instance, user=self.user).items():
             if field not in self.errors:
                 self.add_error(field, message)
         return cleaned
@@ -204,7 +247,7 @@ class TailNumberForm(UserOwnedRelationsFormMixin, forms.ModelForm):
     def clean(self):
         cleaned = super().clean()
         clean_radio_group(self, cleaned, 'operating_rules', self.rule_fields)
-        for field, message in validate_tailnumber(cleaned, self.instance).items():
+        for field, message in validate_tailnumber(cleaned, self.instance, user=self.user).items():
             if field not in self.errors:
                 self.add_error(field, message)
         return cleaned

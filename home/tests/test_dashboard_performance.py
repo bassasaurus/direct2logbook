@@ -1,3 +1,4 @@
+from flights.tests.owned_fixtures import owned_aircraft_and_tail
 from contextlib import ExitStack
 from datetime import date, timedelta
 from unittest.mock import patch
@@ -37,8 +38,9 @@ class DashboardPerformanceTests(TestCase):
                    landings_day=1, landings_night=1)
             for index in range(3)
         ])
+        other_aircraft, other_tail = owned_aircraft_and_tail(self.other, self.aircraft, self.tail)
         Flight.objects.bulk_create([
-            Flight(user=self.other, aircraft_type=self.aircraft, registration=self.tail,
+            Flight(user=self.other, aircraft_type=other_aircraft, registration=other_tail,
                    date=date.today(), route='PRIVATE-ROUTE', duration=1, landings_day=10, landings_night=10)
         ])
         self.client.force_login(self.user)
@@ -83,11 +85,12 @@ class DashboardPerformanceTests(TestCase):
     def test_missing_aircraft_details_respect_registration_imports_and_owner(self):
         imported = Aircraft.objects.create(user=self.user, aircraft_type='IMP1')
         missing = Aircraft.objects.create(user=self.user, aircraft_type='MISS')
+        other_missing = Aircraft.objects.create(user=self.other, aircraft_type='MISS')
         Imported.objects.bulk_create([
             Imported(user=self.user, aircraft_type=imported, total_time=1),
-            Imported(user=self.other, aircraft_type=missing, total_time=1),
+            Imported(user=self.other, aircraft_type=other_missing, total_time=1),
         ])
-        TailNumber.objects.create(user=self.other, aircraft=missing, registration='N999A')
+        TailNumber.objects.create(user=self.other, aircraft=other_missing, registration='N999A')
         response = self.client.get(reverse('home'))
         self.assertEqual(response.status_code, 200)
         self.assertEqual([aircraft.pk for aircraft in response.context['aircraft_needs_tailnumber']],

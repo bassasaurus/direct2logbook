@@ -1,5 +1,6 @@
 
 from django.db import models
+from django.db.models.functions import Lower
 from django.urls import reverse
 
 from django.contrib.auth.models import User
@@ -104,6 +105,7 @@ class Stat(models.Model):
         decimal_places=1, max_digits=6, null=True, blank=True, verbose_name='YDT')
 
     class Meta:
+        constraints = [models.UniqueConstraint(fields=['user', 'aircraft_type'], name='stat_user_aircraft_unique')]
         ordering = ['user', '-last_flown']
 
     def __str__(self):
@@ -159,6 +161,7 @@ class Total(models.Model):
         decimal_places=1, max_digits=6, null=True, blank=True, verbose_name='YDT')
 
     class Meta:
+        constraints = [models.UniqueConstraint(fields=['user', 'total'], name='total_user_category_unique')]
         ordering = ['user', '-total_time']
 
     def __str__(self):
@@ -175,6 +178,7 @@ class Power(models.Model):
         decimal_places=1, max_digits=6, null=True, blank=True, default=0)
 
     class Meta:
+        constraints = [models.UniqueConstraint(fields=['user', 'role'], name='power_user_role_unique')]
         verbose_name_plural = "Power"
         ordering = ['user', '-role']
 
@@ -192,6 +196,7 @@ class Regs(models.Model):
         decimal_places=1, max_digits=6, null=True, blank=True, default=0, verbose_name="SIC")
 
     class Meta:
+        constraints = [models.UniqueConstraint(fields=['user', 'reg_type'], name='regs_user_type_unique')]
         verbose_name_plural = "Regs"
         ordering = ['user']
 
@@ -207,6 +212,7 @@ class Endorsement(models.Model):
         decimal_places=1, max_digits=6, db_index=True, null=True, blank=True, default=0)
 
     class Meta:
+        constraints = [models.UniqueConstraint(fields=['user', 'endorsement'], name='endorsement_user_kind_unique')]
         ordering = ['user', '-total']
 
     def __str__(self):
@@ -221,6 +227,7 @@ class Weight(models.Model):
         decimal_places=1, max_digits=6, null=True, blank=True, default=0)
 
     class Meta:
+        constraints = [models.UniqueConstraint(fields=['user', 'weight'], name='weight_user_category_unique')]
         verbose_name_plural = "Weight"
         ordering = ['user']
 
@@ -278,9 +285,14 @@ class Aircraft(models.Model):
     class Meta:
         ordering = ['user', 'aircraft_type']
         verbose_name_plural = "Aircraft"
-        unique_together = ('user', 'aircraft_type')
-        constraints = [models.UniqueConstraint(fields=['user'], condition=models.Q(is_default=True),
-                                               name='one_default_aircraft_per_user')]
+        constraints = [
+            models.UniqueConstraint(fields=['user'], condition=models.Q(is_default=True),
+                                    name='one_default_aircraft_per_user'),
+            models.UniqueConstraint(Lower('aircraft_type'), 'user', name='aircraft_user_type_ci_unique'),
+            models.UniqueConstraint(fields=['user', 'id'], name='aircraft_owner_id_unique'),
+            models.CheckConstraint(condition=~models.Q(aircraft_type__regex=r'^\s*$'),
+                                   name='aircraft_type_nonempty'),
+        ]
 
     def __str__(self):
         aircraft_type = str(self.aircraft_type)
@@ -346,6 +358,15 @@ class Flight(models.Model):
         indexes = [
             models.Index(fields=['route', 'date', 'duration']),
         ]
+        constraints = [
+            models.CheckConstraint(condition=~models.Q(route__regex=r'^\s*$'), name='flight_route_nonempty'),
+            models.CheckConstraint(condition=(
+                (models.Q(duration__gte=0) | models.Q(duration__isnull=True))
+                & (models.Q(night__gte=0) | models.Q(night__isnull=True))
+                & (models.Q(instrument__gte=0) | models.Q(instrument__isnull=True))
+                & (models.Q(simulated_instrument__gte=0) | models.Q(simulated_instrument__isnull=True))
+            ), name='flight_hours_nonnegative'),
+        ]
 
     def save(self, *args, **kwargs):
         if not isinstance(self.route_airport_choices, dict):
@@ -390,9 +411,11 @@ class TailNumber(models.Model):
         verbose_name_plural = "Tailnumbers"
         ordering = ['user', 'aircraft', 'registration']
         constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'registration'],
-                name='unique tailnumber')
+            models.UniqueConstraint(Lower('registration'), 'user', name='tailnumber_user_reg_ci_unique'),
+            models.UniqueConstraint(fields=['user', 'id'], name='tailnumber_owner_id_unique'),
+            models.UniqueConstraint(fields=['id', 'aircraft'], name='tailnumber_id_aircraft_unique'),
+            models.CheckConstraint(condition=~models.Q(registration__regex=r'^\s*$'),
+                                   name='tailnumber_reg_nonempty'),
         ]
 
     def __str__(self):
@@ -520,6 +543,19 @@ class Imported(models.Model):
 
     class Meta:
         verbose_name_plural = "Imported"
+        constraints = [models.CheckConstraint(condition=(
+                (models.Q(total_time__gte=0) | models.Q(total_time__isnull=True))
+                & (models.Q(pilot_in_command__gte=0) | models.Q(pilot_in_command__isnull=True))
+                & (models.Q(second_in_command__gte=0) | models.Q(second_in_command__isnull=True))
+                & (models.Q(cross_country__gte=0) | models.Q(cross_country__isnull=True))
+                & (models.Q(instructor__gte=0) | models.Q(instructor__isnull=True))
+                & (models.Q(dual__gte=0) | models.Q(dual__isnull=True))
+                & (models.Q(solo__gte=0) | models.Q(solo__isnull=True))
+                & (models.Q(instrument__gte=0) | models.Q(instrument__isnull=True))
+                & (models.Q(night__gte=0) | models.Q(night__isnull=True))
+                & (models.Q(simulated_instrument__gte=0) | models.Q(simulated_instrument__isnull=True))
+                & (models.Q(simulator__gte=0) | models.Q(simulator__isnull=True))
+        ), name='imported_hours_nonnegative')]
 
     def __str__(self):
         title = str(self.aircraft_type)

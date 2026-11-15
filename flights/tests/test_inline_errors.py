@@ -1,3 +1,4 @@
+from flights.tests.owned_fixtures import owned_aircraft_and_tail
 from datetime import date
 from decimal import Decimal
 from io import StringIO
@@ -28,8 +29,9 @@ class InlineErrorTests(TestCase):
         MapData.objects.create(icao='KBBB', iata='BBB', country='United States')
 
     def flight(self, user=None, **kwargs):
-        values = dict(user=user or self.user, date=date(2025, 1, 1), aircraft_type=self.aircraft,
-                      registration=self.tail, route='KAAA-KBBB', duration=1, pilot_in_command=True)
+        aircraft, tail = owned_aircraft_and_tail(user or self.user, self.aircraft, self.tail)
+        values = dict(user=user or self.user, date=date(2025, 1, 1), aircraft_type=aircraft,
+                      registration=tail, route='KAAA-KBBB', duration=1, pilot_in_command=True)
         values.update(kwargs)
         return Flight.objects.bulk_create([Flight(**values)])[0]
 

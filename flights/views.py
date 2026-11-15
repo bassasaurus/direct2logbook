@@ -22,7 +22,6 @@ from django.urls import reverse_lazy
 from django.core.cache import cache
 from django.core.exceptions import ObjectDoesNotExist
 
-from django.db import IntegrityError
 
 from dal import autocomplete
 from accounts.views import LoginRequiredMixin
@@ -344,6 +343,36 @@ class FlightList(LoginRequiredMixin, ProfileNotActiveMixin, ListView):
 
 
 class UserOwnedFormViewMixin:
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        self._submitted_form = form
+        self._original_pk = form.instance.pk
+        return form
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.method not in ('POST', 'PUT', 'PATCH'):
+            return super().dispatch(request, *args, **kwargs)
+        from django.db import DatabaseError
+        from logbook.db_errors import database_feedback, logger
+        try:
+            with transaction.atomic():
+                return super().dispatch(request, *args, **kwargs)
+        except DatabaseError as error:
+            logger.exception('Database failure saving logbook form')
+            form = getattr(self, '_submitted_form', None)
+            if form is None:
+                raise
+            feedback, status = database_feedback(error, {'imported': 'imported totals'}.get(self.model._meta.model_name, self.model._meta.model_name))
+            form.instance.pk = self._original_pk
+            self.object = form.instance if self._original_pk else None
+            for field, messages in feedback.items():
+                for message in messages:
+                    form.add_error(field if field in form.fields else None, message)
+            context = {'form': form}
+            if isinstance(self, FlightCreate):
+                context.update(approaches=ApproachFormSet(request.POST), holding=HoldingFormSet(request.POST))
+            return self.render_to_response(self.get_context_data(**context), status=status)
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
@@ -548,7 +577,7 @@ class FlightDelete(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, De
         return context
 
 
-class AircraftCreate(LoginRequiredMixin, ProfileNotActiveMixin, CreateView):
+class AircraftCreate(LoginRequiredMixin, ProfileNotActiveMixin, UserOwnedFormViewMixin, CreateView):
     model = Aircraft
     form_class = AircraftForm
     template_name = "aircraft/aircraft_create_form.html"
@@ -572,7 +601,7 @@ class AircraftCreate(LoginRequiredMixin, ProfileNotActiveMixin, CreateView):
         return context
 
 
-class AircraftUpdate(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, UpdateView):
+class AircraftUpdate(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, UserOwnedFormViewMixin, UpdateView):
     model = Aircraft
     form_class = AircraftForm
     template_name = 'aircraft/aircraft_update_form.html'
@@ -756,14 +785,7 @@ class TailNumberCreate(LoginRequiredMixin, ProfileNotActiveMixin, UserOwnedFormV
         return context
 
     def form_valid(self, form):
-        try:
-            object = form.save(commit=False)
-            object.user = self.request.user
-            object.save()
-        except IntegrityError:
-            messages.add_message(self.request, messages.ERROR,
-                                 "Duplicate tailnumber found.")
-            return render(self.request, 'tailnumbers/tailnumber_create_form.html', context=self.get_context_data())
+        form.instance.user = self.request.user
 
         return super(TailNumberCreate, self).form_valid(form)
 

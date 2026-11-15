@@ -24,4 +24,7 @@ class PDFRequest(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        constraints = [models.CheckConstraint(
+            condition=models.Q(status__in=('queued', 'unconfirmed', 'processing', 'retrying', 'sending', 'sent', 'failed', 'delivery_uncertain')),
+            name='pdf_request_status_valid')]
         ordering = ['-created_at']

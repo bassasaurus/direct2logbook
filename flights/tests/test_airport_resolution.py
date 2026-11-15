@@ -1,3 +1,4 @@
+from flights.tests.owned_fixtures import owned_aircraft_and_tail
 import csv
 from types import SimpleNamespace
 import json
@@ -45,8 +46,10 @@ class AirportResolutionTests(TestCase):
                                        country=country, latitude=lat, longitude=lon)
 
     def flight(self, route, user=None, **kwargs):
+        owner = user or self.user
+        aircraft, tail = owned_aircraft_and_tail(owner, self.aircraft, self.tail)
         return Flight.objects.bulk_create([Flight(user=user or self.user, route=route,
-            date=date(2025, 1, 1), aircraft_type=self.aircraft, registration=self.tail,
+            date=date(2025, 1, 1), aircraft_type=aircraft, registration=tail,
             duration=1, pilot_in_command=True, **kwargs)])[0]
 
     def test_confirmation_labels_distinguish_facility_and_state(self):

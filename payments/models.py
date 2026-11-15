@@ -40,6 +40,11 @@ class BillingProvisioning(models.Model):
     processing_started_at = models.DateTimeField(null=True, blank=True,)
     processing_token = models.UUIDField(null=True, blank=True, editable=False,)
 
+    class Meta:
+        constraints = [models.CheckConstraint(
+            condition=models.Q(status__in=('pending', 'processing', 'completed', 'failed')),
+            name='billing_provision_status_valid')]
+
     def __str__(self):
         return f"{self.user_id}: {self.status}"
 

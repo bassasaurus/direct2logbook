@@ -107,6 +107,8 @@ class RecordValidationParityTests(APITestCase):
         response = self.client.post('/api/tailnumbers/', {'aircraft': 'C172', 'registration': 'N1'}, format='json')
         self.assertEqual(response.status_code, 400, response.data)
         self.assertEqual(set(response.data), {'registration', 'operating_rules'})
+        # A legacy tail may be reassigned only once no flights depend on it.
+        self.flight.delete()
         replacement = Aircraft.objects.create(user=self.user, aircraft_type='C182')
         form = TailNumberForm(
             data={'registration': 'LEGACY123', 'aircraft': replacement.pk},

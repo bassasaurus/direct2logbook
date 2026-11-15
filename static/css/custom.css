@@ -560,3 +560,6 @@ body.app-layout {
 .app-layout .container-fluid,
 .index-app-hero .container { --bs-gutter-x: 30px; }
 .app-layout .row:not(.gx-2) { --bs-gutter-x: 30px; }
+
+/* Existing form errors use the same Bootstrap danger color as field feedback. */
+.errorlist { color: var(--bs-danger, #dc3545); list-style: none; padding-left: 0; font-size: .875em; margin: .35rem 0; }
