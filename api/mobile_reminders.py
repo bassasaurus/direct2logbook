@@ -57,13 +57,17 @@ class SavedReminderSerializer(serializers.ModelSerializer):
     company_start_date = serializers.DateField(format='%Y-%m-%d')
     company_end_date = serializers.DateField(format='%Y-%m-%d')
     target_hours = serializers.DecimalField(max_digits=6, decimal_places=1, coerce_to_string=True)
+    dismissed = serializers.SerializerMethodField()
     goal_label = serializers.SerializerMethodField()
     progress_label = serializers.SerializerMethodField()
 
     class Meta:
         model = Reminder
         fields = ('id', 'title', 'kind', 'due_date', 'target_hours', 'aircraft', 'crew_position',
-                  'company', 'company_start_date', 'company_end_date', 'goal_label', 'progress_label')
+                  'company', 'company_start_date', 'company_end_date', 'goal_label', 'progress_label', 'dismissed')
+
+    def get_dismissed(self, obj):
+        return bool(obj.dismissed_key)
 
     def get_goal_label(self, obj):
         return obj.milestone_label() if obj.kind != Reminder.Kind.EXPIRATION else None
@@ -112,3 +116,14 @@ class MobileSavedReminderView(APIView):
     def delete(self, request, pk):
         get_object_or_404(Reminder, user=request.user, pk=pk).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@method_decorator(never_cache, name='dispatch')
+class MobileReminderRestoreView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, pk):
+        reminder = get_object_or_404(Reminder, user=request.user, pk=pk)
+        Reminder.objects.filter(user=request.user, pk=reminder.pk).update(dismissed_key='')
+        reminder.dismissed_key = ''
+        return Response(SavedReminderSerializer(reminder).data)

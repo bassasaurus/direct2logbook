@@ -25,6 +25,12 @@
             <div class="text-muted">{{ reminder.company_start_date|date:"M j, Y" }} – {% if reminder.company_end_date %}{{ reminder.company_end_date|date:"M j, Y" }}{% else %}Present{% endif %}</div>
           {% endif %}
           <div class="d-flex">
+            {% if reminder.dismissed_key %}
+              <form method="post" action="{% url 'restore_dashboard_reminder' reminder.pk %}">
+                {% csrf_token %}
+                <button class="btn btn-link px-0 me-3" type="submit">Restore</button>
+              </form>
+            {% endif %}
             <a class="btn btn-link px-0 me-3" href="{% url 'edit_reminder' reminder.pk %}">Edit</a>
             <form method="post" action="{% url 'remove_reminder' reminder.pk %}" data-submit-feedback="delete" onsubmit="return confirm('Remove this reminder?');">
               {% csrf_token %}

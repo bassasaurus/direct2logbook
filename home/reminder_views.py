@@ -49,3 +49,11 @@ def dismiss_dashboard_reminder(request, pk):
 def dismiss_dashboard_medical_warning(request):
     dismiss_medical_warning(request.user, request.POST.get('key'))
     return redirect('home')
+
+
+@login_required
+@require_POST
+def restore_dashboard_reminder(request, pk):
+    reminder = get_object_or_404(Reminder, user=request.user, pk=pk)
+    Reminder.objects.filter(user=request.user, pk=reminder.pk).update(dismissed_key='')
+    return redirect('manage_reminders')
