@@ -175,6 +175,7 @@ ACCOUNT_EMAIL_CONFIRMATION_AUTHENTICATED_REDIRECT_URL = LOGIN_REDIRECT_URL
 
 
 MIDDLEWARE = [
+    'logbook.db_errors.FriendlyDatabaseErrorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -389,6 +390,7 @@ CSP_IMG_SRC = ("'self'", "data:", "https:", "blob:")
 SILENCED_SYSTEM_CHECKS = ['django_recaptcha.recaptcha_test_key_error']
 
 REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'logbook.db_errors.exception_handler',
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.TokenAuthentication',

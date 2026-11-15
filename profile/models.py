@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User, Group
 from django.utils import timezone
 from datetime import date
+from .reminder_integrity import reminder_conditions
 
 
 def user_directory_path(instance, filename):
@@ -64,12 +65,16 @@ class Reminder(models.Model):
     kind = models.CharField(max_length=12, choices=Kind.choices)
     due_date = models.DateField(blank=True, null=True)
     target_hours = models.DecimalField(max_digits=6, decimal_places=1, blank=True, null=True)
-    aircraft = models.ForeignKey('flights.Aircraft', on_delete=models.SET_NULL, blank=True, null=True)
+    aircraft = models.ForeignKey('flights.Aircraft', on_delete=models.CASCADE, blank=True, null=True)
     crew_position = models.CharField(max_length=17, choices=CrewPosition.choices, blank=True)
     company = models.CharField(max_length=50, blank=True)
     company_start_date = models.DateField(blank=True, null=True)
     company_end_date = models.DateField(blank=True, null=True)
     dismissed_key = models.CharField(max_length=48, blank=True)
+
+    class Meta:
+        constraints = [models.CheckConstraint(condition=condition, name=name)
+                       for name, condition in reminder_conditions()]
 
     def milestone_label(self, current_hours=None):
         if self.target_hours is None:

@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from django.db import transaction
+from django.db import DatabaseError, transaction
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods, require_POST
@@ -18,8 +18,18 @@ def manage_reminders(request, pk=None):
     reminder = get_object_or_404(editable, pk=pk) if pk is not None else None
     form = ReminderForm(request.POST if request.method == 'POST' else None, instance=reminder, user=request.user)
     if request.method == 'POST' and form.is_valid():
-        form.save_for_user(request.user)
-        return redirect('manage_reminders')
+        try:
+            with transaction.atomic():
+                form.save_for_user(request.user)
+        except DatabaseError as error:
+            from logbook.db_errors import database_feedback, logger
+            logger.exception('Database failure saving reminder')
+            feedback, _ = database_feedback(error, 'reminder')
+            for field, messages in feedback.items():
+                for message in messages:
+                    form.add_error(field if field in form.fields else None, message)
+        else:
+            return redirect('manage_reminders')
     saved_reminders = reminders.select_related('aircraft').order_by('pk')
     for saved_reminder in saved_reminders:
         saved_reminder.progress_label = milestone_progress_label(saved_reminder)

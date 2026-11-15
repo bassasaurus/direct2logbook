@@ -1,3 +1,4 @@
+from flights.tests.owned_fixtures import owned_aircraft_and_tail
 from datetime import date, timedelta
 from decimal import Decimal
 from io import StringIO
@@ -27,8 +28,9 @@ class RollingStatisticsTests(TestCase):
         Total.objects.filter(pk=self.total.pk).update(total_time=100, pilot_in_command=75, last_30=99, ytd=99)
 
     def flight(self, day, duration='2.5', user=None, aircraft=None, **kwargs):
+        aircraft, tail = owned_aircraft_and_tail(user or self.user, aircraft or self.aircraft, self.tail)
         return Flight.objects.bulk_create([Flight(
-            user=user or self.user, aircraft_type=aircraft or self.aircraft, registration=self.tail,
+            user=user or self.user, aircraft_type=aircraft, registration=tail,
             date=day, duration=Decimal(duration), route='KAAA-KBBB', **kwargs,
         )])[0]
 

@@ -25,7 +25,7 @@ class PopulateReviewAccountTests(TestCase):
         # Bulk insertion keeps fixture creation from repeatedly calculating summaries.
         Flight.objects.bulk_create([
             Flight(user=source, aircraft_type=aircraft, registration=tail,
-                   date=today - timedelta(days=index), route="",
+                   date=today - timedelta(days=index), route="KIAH-KLAX",
                    duration=1, pilot_in_command=True, remarks="Private source notes")
             for index in range(101)
         ])

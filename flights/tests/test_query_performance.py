@@ -1,3 +1,4 @@
+from flights.tests.owned_fixtures import owned_aircraft_and_tail
 """Measure the real list querysets with their rendered templates, using test data."""
 from datetime import date
 from django.contrib.auth import get_user_model
@@ -26,9 +27,10 @@ class FlightListQueryTests(TestCase):
             Approach(flight_object=flight, approach_type='ILS', number=1) for flight in cls.flights
         ])
         Holding.objects.bulk_create([Holding(flight_object=flight, hold=True) for flight in cls.flights])
+        other_aircraft, other_tail = owned_aircraft_and_tail(cls.other, aircraft, tail)
         cls.foreign = Flight.objects.bulk_create([
-            Flight(user=cls.other, date=date(2025, 1, 1), aircraft_type=aircraft,
-                   registration=tail, route='FOREIGN', duration=1)
+            Flight(user=cls.other, date=date(2025, 1, 1), aircraft_type=other_aircraft,
+                   registration=other_tail, route='FOREIGN', duration=1)
         ])[0]
 
     def view(self, view_class):

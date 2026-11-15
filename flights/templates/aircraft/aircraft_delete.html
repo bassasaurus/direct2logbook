@@ -4,6 +4,7 @@
 <form data-submit-feedback="delete" action="" method="post">{% csrf_token %}
   <p>Are you sure you want to delete "{{ object }}"?</p>
   <p>If you need to change it, please <a href="{% url 'aircraft_update' object.pk %}">update</a> the entry instead.</p>
+  <p>Any reminders linked to this aircraft will also be removed.</p>
   <p>This cannot be undone.</p>
    <hr>
    <button id="delete-confirm" class="btn btn-danger" type="submit">Delete Aircraft</button>

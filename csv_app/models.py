@@ -32,6 +32,11 @@ class CSVImportBatch(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
 
+    class Meta:
+        constraints = [models.CheckConstraint(
+            condition=models.Q(status__in=('preview', 'queued', 'unconfirmed', 'processing', 'completed', 'failed')),
+            name='csv_import_status_valid')]
+
     @property
     def expires_at(self):
         return self.created_at + CSV_PREVIEW_MAX_AGE

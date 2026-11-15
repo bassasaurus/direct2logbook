@@ -58,7 +58,7 @@ class ReminderForm(forms.ModelForm):
             cleaned['target_hours'] = None
         elif kind:
             if (cleaned.get('target_hours') or Decimal('0')) <= 0 and 'target_hours' not in self.errors:
-                self.add_error('target_hours', 'Enter a target greater than zero.')
+                self.add_error('target_hours', 'Target hours must be greater than 0.')
             cleaned['due_date'] = None
         if kind in (Reminder.Kind.TIME_IN_TYPE, Reminder.Kind.CREW_IN_TYPE):
             if not cleaned.get('aircraft') and 'aircraft' not in self.errors:

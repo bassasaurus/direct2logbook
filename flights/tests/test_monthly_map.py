@@ -91,7 +91,7 @@ class MonthlyMapOwnershipTests(TestCase):
         other_aircraft = Aircraft.objects.create(user=self.user, aircraft_type='C182')
         other_tail = TailNumber.objects.create(user=self.user, aircraft=other_aircraft, registration='N727T')
         other_flight = self.flight(self.user, date(2025, 2, 15))
-        Flight.objects.filter(pk=other_flight.pk).update(registration=other_tail)
+        Flight.objects.filter(pk=other_flight.pk).update(registration=other_tail, aircraft_type=other_aircraft)
         response = self.client.get(reverse('tailnumber_detail', args=[current.registration_id]))
         self.assertEqual(response.status_code, 200)
         self.assertEqual(set(response.context['flight_map']['routes']), {str(current.pk)})

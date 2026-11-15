@@ -1,3 +1,4 @@
+from flights.tests.owned_fixtures import owned_aircraft_and_tail
 from datetime import date
 from decimal import Decimal
 from html.parser import HTMLParser
@@ -30,9 +31,10 @@ class CrossCountryCrewTotalsTests(TestCase):
     def flight(self, category, duration, cross_country=False, pic=False, sic=False, user=None):
         # Bulk insert skips totals/map signals: this test isolates the dashboard's
         # direct Flight aggregation, without unrelated cached-statistics updates.
+        aircraft, tail = owned_aircraft_and_tail(user or self.user, self.aircraft[category], self.tails[category])
         return Flight.objects.bulk_create([Flight(
-            user=user or self.user, aircraft_type=self.aircraft[category],
-            registration=self.tails[category], date=date(2025, 1, 1), route='KAAA-KBBB',
+            user=user or self.user, aircraft_type=aircraft,
+            registration=tail, date=date(2025, 1, 1), route='KAAA-KBBB',
             duration=Decimal(duration), cross_country=cross_country,
             pilot_in_command=pic, second_in_command=sic,
         )])[0]
