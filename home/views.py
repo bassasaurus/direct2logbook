@@ -35,7 +35,7 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
         user = self.request.user
         context = super(HomeView, self).get_context_data(**kwargs)
 
-        context['reminders'] = reminder_rows(user, include_saved=True)
+        context['reminders'] = reminder_rows(user, include_saved=True, respect_dismissal=False)
 
         context['pdf_request'] = PDFRequest.objects.filter(user=user).first()
 
@@ -383,7 +383,7 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
 
         context['expiry_date'] = medical_expiry_date(user.profile)
         context['medical_alert'] = medical_expiration_alert(
-            context['expiry_date'], user.profile.medical_warning_dismissed_for,
+            context['expiry_date'],
         )
 
         context['new_user_aircraft'] = not Aircraft.objects.filter(user=user).exists()

@@ -3,7 +3,7 @@
 <div class="row">
   <div class="col-lg-6">
     <h2 class="h5">{% if editing %}Edit reminder{% else %}New reminder{% endif %}</h2>
-    <p class="text-muted">Expiration reminders appear in orange with fewer than 30 days remaining and turn red 14 days before the due date. If dismissed, they return at the next alert stage and again after expiration.</p>
+    <p class="text-muted">Expiration reminders appear in orange with fewer than 30 days remaining and turn red 14 days before the due date. In the mobile app, dismissed reminders return at the next alert stage and again after expiration.</p>
     <form method="post" data-submit-feedback="{% if editing %}update{% else %}create{% endif %}">
       {% csrf_token %}
       {{ form.as_p }}
@@ -25,12 +25,7 @@
             <div class="text-muted">{{ reminder.company_start_date|date:"M j, Y" }} – {% if reminder.company_end_date %}{{ reminder.company_end_date|date:"M j, Y" }}{% else %}Present{% endif %}</div>
           {% endif %}
           <div class="d-flex">
-            {% if reminder.dismissed_key %}
-              <form method="post" action="{% url 'restore_dashboard_reminder' reminder.pk %}">
-                {% csrf_token %}
-                <button class="btn btn-link px-0 me-3" type="submit">Restore</button>
-              </form>
-            {% endif %}
+
             <a class="btn btn-link px-0 me-3" href="{% url 'edit_reminder' reminder.pk %}">Edit</a>
             <form method="post" action="{% url 'remove_reminder' reminder.pk %}" data-submit-feedback="delete" onsubmit="return confirm('Remove this reminder?');">
               {% csrf_token %}
