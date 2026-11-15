@@ -274,10 +274,11 @@ class ReminderTests(TestCase):
         localdate.return_value = date(2026, 12, 20)
         notice, = self.notices()
         self.mobile.post(reverse('mobile_reminder_dismiss', args=[record['id']]), {'key': notice['key']})
+        record['dismissed'] = True
         self.assertEqual(self.mobile.get(collection).json(), {'reminders': [record]})
         update = {'title': 'BFR updated', 'kind': 'expiration', 'due_date': record['due_date']}
         self.assertEqual(self.mobile.put(detail, update, format='json').status_code, 200)
-        self.assertEqual(self.notices(), [])
+        self.assertEqual(self.notices()[0]['title'], 'BFR updated')
 
         Total.objects.filter(user=self.user, total='All').update(total_time=500)
         update = {'title': 'First 500 hours', 'kind': 'flight_time', 'target_hours': '500.0', 'due_date': None}
@@ -315,3 +316,61 @@ class ReminderTests(TestCase):
         self.assertEqual(self.mobile.delete(detail).status_code, 404)
         self.assertTrue(Reminder.objects.filter(pk=private.pk, title='Private').exists())
         self.assertIn(APIClient().get(collection).status_code, (401, 403))
+
+    @patch('home.reminders.timezone.localdate')
+    def test_restore_dismissed_reminder_on_web_and_mobile(self, localdate):
+        localdate.return_value = self.today
+        reminder = Reminder.objects.create(user=self.user, title='BFR', kind='expiration',
+                                           due_date=self.today + timedelta(days=20))
+        manage_url = reverse('manage_reminders')
+        restore_url = reverse('restore_dashboard_reminder', args=[reminder.pk])
+        mobile_restore = reverse('mobile_reminder_restore', args=[reminder.pk])
+        self.assertNotContains(self.client.get(manage_url), restore_url)
+        key = self.notices()[0]['key']
+        self.client.post(reverse('dismiss_dashboard_reminder', args=[reminder.pk]), {'key': key})
+        self.assertEqual(self.notices(), [])
+        self.assertContains(self.client.get(manage_url), restore_url)
+        saved = self.mobile.get(reverse('mobile_manage_reminders')).json()['reminders'][0]
+        self.assertTrue(saved['dismissed'])
+        self.assertEqual(self.client.get(restore_url).status_code, 405)
+        self.assertEqual(self.mobile.get(mobile_restore).status_code, 405)
+        self.assertRedirects(self.client.post(restore_url), manage_url)
+        self.assertEqual(self.notices()[0]['key'], key)
+        self.assertNotContains(self.client.get(manage_url), restore_url)
+        self.mobile.post(reverse('mobile_reminder_dismiss', args=[reminder.pk]), {'key': key}, format='json')
+        response = self.mobile.post(mobile_restore)
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.json()['dismissed'])
+        self.assertEqual(self.notices()[0]['key'], key)
+        # Repeating restore is harmless and leaves ordinary stage escalation intact.
+        self.assertEqual(self.mobile.post(mobile_restore).status_code, 200)
+        self.mobile.post(reverse('mobile_reminder_dismiss', args=[reminder.pk]), {'key': key}, format='json')
+        localdate.return_value = self.today + timedelta(days=10)
+        self.assertEqual(self.notices()[0]['severity'], 'danger')
+
+    def test_restore_cannot_modify_another_users_reminder(self):
+        reminder = Reminder.objects.create(user=self.other, title='Private', kind='expiration',
+                                           due_date=self.today, dismissed_key='private-key')
+        self.assertEqual(self.client.post(reverse('restore_dashboard_reminder', args=[reminder.pk])).status_code, 404)
+        self.assertEqual(self.mobile.post(reverse('mobile_reminder_restore', args=[reminder.pk])).status_code, 404)
+        reminder.refresh_from_db()
+        self.assertEqual(reminder.dismissed_key, 'private-key')
+
+
+    @patch('home.reminders.timezone.localdate')
+    def test_saving_unchanged_reminder_restores_it_but_invalid_edit_does_not(self, localdate):
+        localdate.return_value = self.today
+        reminder = Reminder.objects.create(user=self.user, title='IPC', kind='expiration',
+                                           due_date=self.today + timedelta(days=10))
+        key = self.notices()[0]['key']
+        dismiss = reverse('mobile_reminder_dismiss', args=[reminder.pk])
+        edit = reverse('edit_reminder', args=[reminder.pk])
+        self.mobile.post(dismiss, {'key': key}, format='json')
+        self.client.post(edit, {'title': 'IPC', 'kind': 'expiration', 'due_date': 'invalid'})
+        self.assertEqual(self.notices(), [])
+        self.assertRedirects(self.client.post(edit, {
+            'title': 'IPC', 'kind': 'expiration', 'due_date': reminder.due_date.isoformat(),
+        }), reverse('manage_reminders'))
+        self.assertEqual(self.notices()[0]['key'], key)
+        reminder.refresh_from_db()
+        self.assertEqual(reminder.dismissed_key, '')

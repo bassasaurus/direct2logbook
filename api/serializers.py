@@ -268,9 +268,9 @@ class TailNumberSerializer(serializers.ModelSerializer):
         attrs = super().validate(attrs)
         if 'aircraft' in self.initial_data:
             value = self.initial_data['aircraft']
-            # Keep support for the serializer's PK input and the mobile API's
-            # aircraft-type string, without ever using a client-supplied owner.
-            lookup = 'pk' if isinstance(value, int) or str(value).isdigit() else 'aircraft_type'
+            # JSON integers identify database rows; strings identify aircraft
+            # types, including numeric designators such as "737".
+            lookup = 'pk' if isinstance(value, int) and not isinstance(value, bool) else 'aircraft_type'
             attrs['aircraft'] = owned_relation(
                 Aircraft, serializer_owner(self), value, lookup, 'aircraft',
             )

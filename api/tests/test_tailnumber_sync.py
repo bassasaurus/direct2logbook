@@ -33,6 +33,32 @@ class TailnumberSyncTests(APITestCase):
         self.assertEqual(record['user'], self.user.pk)
         self.assertEqual(len(record['revision']), 64)
 
+    def test_numeric_aircraft_type_is_not_interpreted_as_database_id(self):
+        aircraft = Aircraft.objects.create(user=self.user, aircraft_type='737')
+        self.payload['data']['aircraft'] = '737'
+        first = self.send()
+        self.assertEqual(first.status_code, 200, first.data)
+        self.assertEqual(first.data['record']['aircraft'], '737')
+        tail = TailNumber.objects.get(pk=first.data['record']['id'])
+        self.assertEqual(tail.aircraft_id, aircraft.pk)
+        self.assertEqual(self.send().data, first.data)
+        self.assertEqual(TailNumber.objects.filter(user=self.user).count(), 1)
+
+    def test_numeric_type_update_and_integer_id_input_remain_owner_scoped(self):
+        aircraft = Aircraft.objects.create(user=self.user, aircraft_type='737')
+        response = self.client.post('/api/tailnumbers/', {
+            'registration': 'N737', 'aircraft': aircraft.pk, 'is_91': True,
+        }, format='json')
+        self.assertEqual(response.status_code, 201, response.data)
+        response = self.client.patch(f'/api/tailnumbers/{response.data["id"]}/', {
+            'aircraft': '737', 'is_91': False, 'is_121': True,
+        }, format='json')
+        self.assertEqual(response.status_code, 200, response.data)
+        self.assertEqual(response.data['aircraft'], '737')
+        Aircraft.objects.create(user=self.other, aircraft_type='747')
+        self.payload['data']['aircraft'] = '747'
+        self.assertEqual(self.send().status_code, 400)
+
     def test_same_operation_id_cannot_be_reused_for_another_payload(self):
         self.send()
         self.payload['data']['registration'] = 'N111ZX'

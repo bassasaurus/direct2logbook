@@ -3,9 +3,11 @@ a[href] {
   text-decoration: none;
 }
 
-body.is-saving::after {
+.app-main { position: relative; }
+
+body.is-saving .app-main::after {
   content: '';
-  position: fixed;
+  position: absolute;
   inset: 0;
   z-index: 2000;
   background: rgba(255, 255, 255, .55);
@@ -13,7 +15,7 @@ body.is-saving::after {
   animation: saving-page-fade .15s ease-out;
 }
 @keyframes saving-page-fade { from { opacity: 0; } to { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { body.is-saving::after { animation: none; } }
+@media (prefers-reduced-motion: reduce) { body.is-saving .app-main::after { animation: none; } }
 form[data-submit-feedback] [aria-disabled="true"] { pointer-events: none; opacity: .7; }
 
 a:link:active, a:visited:active {

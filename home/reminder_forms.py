@@ -88,7 +88,6 @@ class ReminderForm(forms.ModelForm):
     def save_for_user(self, user):
         reminder = self.save(commit=False)
         reminder.user = user
-        if set(self.changed_data) - {'title'}:
-            reminder.dismissed_key = ''
+        reminder.dismissed_key = ''
         reminder.save()
         return reminder
