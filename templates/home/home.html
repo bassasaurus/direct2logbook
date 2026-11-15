@@ -16,15 +16,9 @@
     {% if medical_alert %}
       <div class="d-flex align-items-center justify-content-between mb-0">
         <p class="text-{{ medical_alert.severity }} mb-0"><strong>{{ medical_alert.title }}</strong><br>{{ medical_alert.message }} <a href="{% url 'profile_update' user.profile.pk %}">Update</a></p>
-        {% if medical_alert.key %}
-          <form method="post" action="{% url 'dismiss_dashboard_medical_warning' %}">
-            {% csrf_token %}
-            <input type="hidden" name="key" value="{{ medical_alert.key }}">
-            <button class="btn btn-sm btn-link py-0" type="submit" aria-label="Dismiss medical certificate warning">Dismiss</button>
-          </form>
-        {% endif %}
+
       </div>
-    {% elif expiry_date and expiry_date != user.profile.medical_warning_dismissed_for %}
+    {% elif expiry_date %}
       <p class="text-success mb-0">Your medical certificate expires {{ expiry_date|date:"m/d/Y" }}</p>
     {% elif not expiry_date %}
       <h5>For a medical expiration reminder:</h5>
@@ -45,13 +39,7 @@
                   {% if reminder.message %}{% if reminder.severity != 'warning' %}<br>{% endif %}{{ reminder.message }}{% endif %}
                 {% endif %}
               </span>
-              {% if reminder.key %}
-              <form class="ms-2" method="post" action="{% url 'dismiss_dashboard_reminder' reminder.id %}">
-                {% csrf_token %}
-                <input type="hidden" name="key" value="{{ reminder.key }}">
-                <button class="btn btn-sm btn-link py-0" type="submit" aria-label="Dismiss {% if reminder.kind == 'expiration' %}{{ reminder.title }}{% else %}{{ reminder.progress_label }}{% endif %}">Dismiss</button>
-              </form>
-              {% endif %}
+
             </li>
           {% endfor %}
         </ul>

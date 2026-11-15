@@ -57,7 +57,7 @@ class ReminderTests(TestCase):
             reverse('dismiss_dashboard_medical_warning'), {'key': key},
         ), reverse('home'))
         self.assertIsNone(self.mobile.get(reverse('mobile_reminders')).json()['medical_alert'])
-        self.assertNotContains(self.client.get(reverse('home')), 'Expires Nov 30, 2026.')
+        self.assertContains(self.client.get(reverse('home')), 'Expires Nov 30, 2026.')
 
         localdate.return_value = expiry - timedelta(days=30)
         dismiss_url = reverse('mobile_medical_warning_dismiss')
@@ -74,7 +74,7 @@ class ReminderTests(TestCase):
         self.assertNotEqual(renewed['key'], key)
         response = self.mobile.post(dismiss_url, {'key': renewed['key']}, format='json')
         self.assertEqual(response.json(), {'medical_alert': None})
-        self.assertIsNone(self.client.get(reverse('home')).context['medical_alert'])
+        self.assertEqual(self.client.get(reverse('home')).context['medical_alert']['severity'], 'warning')
 
     @patch('home.reminders.timezone.localdate')
     def test_web_dismissal_reappears_on_mobile_at_next_expiration_stage(self, localdate):
@@ -121,7 +121,7 @@ class ReminderTests(TestCase):
         dismiss = reverse('mobile_reminder_dismiss', args=[reminder.pk])
         web_dismiss = reverse('dismiss_dashboard_reminder', args=[reminder.pk])
         self.assertRedirects(self.client.post(web_dismiss, {'key': approaching['key']}), reverse('home'))
-        self.assertNotContains(self.client.get(reverse('home')), '10.0 hours to go')
+        self.assertContains(self.client.get(reverse('home')), '10.0 hours to go')
         self.assertEqual(self.notices(), [])
         Total.objects.filter(user=self.user, total='All').update(total_time=500)
         notice, = self.notices()
@@ -329,7 +329,7 @@ class ReminderTests(TestCase):
         key = self.notices()[0]['key']
         self.client.post(reverse('dismiss_dashboard_reminder', args=[reminder.pk]), {'key': key})
         self.assertEqual(self.notices(), [])
-        self.assertContains(self.client.get(manage_url), restore_url)
+        self.assertNotContains(self.client.get(manage_url), restore_url)
         saved = self.mobile.get(reverse('mobile_manage_reminders')).json()['reminders'][0]
         self.assertTrue(saved['dismissed'])
         self.assertEqual(self.client.get(restore_url).status_code, 405)
@@ -374,3 +374,20 @@ class ReminderTests(TestCase):
         self.assertEqual(self.notices()[0]['key'], key)
         reminder.refresh_from_db()
         self.assertEqual(reminder.dismissed_key, '')
+
+
+    @patch('home.reminders.timezone.localdate')
+    def test_mobile_dismissal_does_not_hide_or_remove_web_alert_color(self, localdate):
+        localdate.return_value = self.today
+        self.user.profile.active = True
+        self.user.profile.save(update_fields=['active'])
+        reminder = Reminder.objects.create(user=self.user, title='Test', kind='expiration',
+                                           due_date=self.today + timedelta(days=15))
+        key = self.notices()[0]['key']
+        self.mobile.post(reverse('mobile_reminder_dismiss', args=[reminder.pk]), {'key': key}, format='json')
+        self.assertEqual(self.notices(), [])
+        page = self.client.get(reverse('home'))
+        row = next(row for row in page.context['reminders'] if row['id'] == reminder.pk)
+        self.assertEqual(row['severity'], 'warning')
+        self.assertContains(page, 'color: var(--bs-orange) !important;')
+        self.assertNotContains(page, 'aria-label="Dismiss ')

@@ -74,7 +74,7 @@ def milestone_progress_label(reminder):
     return reminder.milestone_label(milestone_hours(reminder, timezone.localdate()))
 
 
-def reminder_notice(reminder, today, hours):
+def reminder_notice(reminder, today, hours, *, respect_dismissal=True):
     if reminder.kind != Reminder.Kind.EXPIRATION:
         if reminder.target_hours is None:
             return None
@@ -84,7 +84,7 @@ def reminder_notice(reminder, today, hours):
         if remaining <= 0:
             message = f'You reached {reminder.milestone_label()}.'
             severity = 'success'
-        elif (remaining <= (50 if green_progress else 10) and reminder.dismissed_key != key
+        elif (remaining <= (50 if green_progress else 10) and (not respect_dismissal or reminder.dismissed_key != key)
               and (reminder.kind in (Reminder.Kind.FLIGHT_TIME, Reminder.Kind.COMPANY_TIME) or reminder.aircraft_id)):
             key = f'{key}:approaching'
             message = f'{remaining:.1f} hours to go. {reminder.milestone_label(hours)}.'
@@ -103,13 +103,13 @@ def reminder_notice(reminder, today, hours):
         message = f'Expired {date_label}.' if days < 0 else f'Due {date_label}.'
         severity = 'danger' if stage != 'upcoming' else 'warning'
 
-    if key == reminder.dismissed_key:
+    if respect_dismissal and key == reminder.dismissed_key:
         return None
     return {'id': reminder.pk, 'key': key, 'title': reminder.title, 'kind': reminder.kind,
             'message': message, 'severity': severity}
 
 
-def reminder_rows(user, *, include_saved=False):
+def reminder_rows(user, *, include_saved=False, respect_dismissal=True):
     reminders = sorted(
         Reminder.objects.filter(user=user).select_related('aircraft').order_by('pk'),
         key=lambda reminder: reminder.kind == Reminder.Kind.EXPIRATION,
@@ -119,7 +119,7 @@ def reminder_rows(user, *, include_saved=False):
     rows = []
     for reminder in reminders:
         hours = milestone_hours(reminder, today, all_hours) if reminder.kind != Reminder.Kind.EXPIRATION else None
-        notice = reminder_notice(reminder, today, hours)
+        notice = reminder_notice(reminder, today, hours, respect_dismissal=respect_dismissal)
         if include_saved:
             row = notice or {'id': reminder.pk, 'title': reminder.title, 'kind': reminder.kind}
             row['progress_label'] = reminder.milestone_label(hours) if hours is not None else None
