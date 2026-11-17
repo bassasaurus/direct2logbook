@@ -389,5 +389,5 @@ class ReminderTests(TestCase):
         page = self.client.get(reverse('home'))
         row = next(row for row in page.context['reminders'] if row['id'] == reminder.pk)
         self.assertEqual(row['severity'], 'warning')
-        self.assertContains(page, 'color: var(--bs-orange) !important;')
+        self.assertContains(page, 'color: var(--app-expiration-warning-text) !important;')
         self.assertNotContains(page, 'aria-label="Dismiss ')

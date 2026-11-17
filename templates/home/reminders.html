@@ -29,7 +29,7 @@
             <a class="btn btn-link px-0 me-3" href="{% url 'edit_reminder' reminder.pk %}">Edit</a>
             <form method="post" action="{% url 'remove_reminder' reminder.pk %}" data-submit-feedback="delete" onsubmit="return confirm('Remove this reminder?');">
               {% csrf_token %}
-              <button class="btn btn-link text-danger px-0" type="submit">Remove</button>
+              <button class="btn btn-link text-danger" type="submit">Remove</button>
             </form>
           </div>
         </li>

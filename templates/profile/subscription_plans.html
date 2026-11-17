@@ -1,6 +1,6 @@
 <form method="post" action="{% url 'start_checkout' %}" class="d-flex flex-wrap subscription-actions" data-checkout-form>
   {% csrf_token %}
   <input type="hidden" name="checkout_request" value="{{ checkout_request }}">
-  <button type="submit" name="plan" value="monthly" class="btn btn-dark btn-sm" id="monthly">Monthly plan</button>
-  <button type="submit" name="plan" value="yearly" class="btn btn-outline-dark btn-sm" id="yearly">Yearly plan</button>
+  <button type="submit" name="plan" value="monthly" class="btn btn-sm btn-link" id="monthly">Monthly plan</button>
+  <button type="submit" name="plan" value="yearly" class="btn btn-sm btn-link" id="yearly">Yearly plan</button>
 </form>

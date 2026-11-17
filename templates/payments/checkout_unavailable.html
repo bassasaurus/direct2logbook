@@ -6,7 +6,7 @@
   {% csrf_token %}
   <input type="hidden" name="plan" value="{{ plan }}">
   <input type="hidden" name="checkout_request" value="{{ checkout_request }}">
-  <button type="submit" class="btn btn-primary">Try again</button>
+  <button type="submit" class="btn btn-link">Try again</button>
 </form>
 {% endif %}
 <a href="{% url 'profile' %}">Return to profile</a>

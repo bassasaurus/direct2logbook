@@ -293,7 +293,7 @@ class FlightList(LoginRequiredMixin, ProfileNotActiveMixin, ListView):
                     if request.GET.get('errors') == '1':
                         params['errors'] = '1'
                     return redirect(reverse('flight_list') + '?' + urlencode(params) + '#logbook')
-                self.jump_error = 'No flights found for that month in this logbook view.'
+                self.jump_error = 'No flights found.'
         return super().get(request, *args, **kwargs)
 
     def get_queryset(self):

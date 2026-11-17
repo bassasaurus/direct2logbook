@@ -5,7 +5,7 @@
 <div class="alert alert-danger" role="alert">We couldn’t confirm your cancellation. Please try again. Your billing status will update when Stripe confirms it.</div>
 <form method="post" action="{% url 'subscription_canceled' %}" class="mb-3">
   {% csrf_token %}
-  <button type="submit" class="btn btn-primary">Try again</button>
+  <button type="submit" class="btn btn-link">Try again</button>
 </form>
 {% elif cancellation_scheduled %}
 <h5>Cancellation scheduled</h5>
