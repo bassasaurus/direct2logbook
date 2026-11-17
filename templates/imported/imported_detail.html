@@ -3,7 +3,7 @@
 {% block content %}
 <div class="row flex-md-row">
   <div class="col flex-md-column">
-    <div class="btn-group">
+    <div class="d-flex align-items-center gap-3">
       <a href ="{% url 'imported_update' object.pk %}" class="btn btn-outline-secondary">Update</a>
       <a href ="{% url 'imported_delete' object.pk %}" class="btn btn-outline-danger">Delete</a>
     </div>

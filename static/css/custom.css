@@ -1,6 +1,28 @@
+:root {
+  --app-warning-text: #805600;
+  --app-expiration-warning-text: #9a4700;
+}
 
-a[href] {
-  text-decoration: none;
+/* Keep warning text readable on the site's light backgrounds. */
+.text-warning {
+  color: var(--app-warning-text) !important;
+}
+
+a[href], a[href]:hover, a[href]:focus, a[href]:active,
+.btn-link, .btn-link:hover, .btn-link:focus, .btn-link:active {
+  text-decoration: none !important;
+}
+
+/* Use the same typography for page content and its controls. */
+h1, h2, h3, h4, h5, h6,
+.h1, .h2, .h3, .h4, .h5, .h6,
+.btn, .form-control, .form-select, .nav-link, .page-link {
+  font-family: inherit;
+}
+.btn-link {
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: none;
 }
 
 .app-main { position: relative; }
@@ -304,7 +326,7 @@ body.app-layout {
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-start;
-  gap: .25rem;
+  gap: .5rem;
   font: inherit;
 }
 
@@ -434,6 +456,12 @@ body.app-layout {
   border-radius: .25rem;
 }
 .breadcrumb-path { min-width: 0; overflow-wrap: anywhere; }
+.page-breadcrumb a.btn,
+.page-breadcrumb time {
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: none;
+}
 .page-action-row .detail-record-actions { margin-inline-start: auto; }
 @media (max-width: 575.98px) {
   .page-breadcrumb { --breadcrumb-outset: .5rem; }

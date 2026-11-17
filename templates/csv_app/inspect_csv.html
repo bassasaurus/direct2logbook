@@ -71,7 +71,7 @@
       <input type="hidden" id="csv-batch-id" value="{{ batch.pk }}">
       <a class="btn btn-outline-secondary" id="csv-choose-another" href="{% url 'csv_inspect' %}">Choose another CSV</a>
       <div class="csv-actions d-flex flex-wrap align-items-center">
-        <button type="button" class="btn btn-primary csv-primary-action" id="csv_upload">Import {{ row_count }} flight{{ row_count|pluralize }}</button>
+        <button type="button" class="btn csv-primary-action btn-link" id="csv_upload">Import {{ row_count }} flight{{ row_count|pluralize }}</button>
         <a class="btn btn-outline-primary d-none" id="csv-view-logbook" href="{% url 'flight_list' %}">View logbook</a>
       </div>
     {% else %}
@@ -80,7 +80,7 @@
         <label class="visually-hidden" for="{{ inspect_form.file.id_for_label }}">Choose CSV file</label>
       </div>
       <div class="csv-actions d-flex flex-wrap align-items-center">
-        <button class="btn btn-primary csv-primary-action" id="csv-inspect-submit" type="submit" disabled>Inspect file</button>
+        <button class="btn csv-primary-action btn-link" id="csv-inspect-submit" type="submit" disabled>Inspect file</button>
       </div>
     {% endif %}
   </div>

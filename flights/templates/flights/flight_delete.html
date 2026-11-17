@@ -5,7 +5,7 @@
 <hr>
 <form data-submit-feedback="delete"  action="" method="post">{% csrf_token %}
     <p>This cannot be undone! But it won't affect related data.</p>
-    <p>You can also <a href="{% url 'flight_update' object.pk %}">update</a> the entry instead.</p>
+    <p>You can also <a href="{% url 'flight_update' object.pk %}">Update</a> the entry instead.</p>
     <hr>
     <button id="delete-confirm" type="submit" class = "btn btn-danger">Delete Flight</button>
 </form>

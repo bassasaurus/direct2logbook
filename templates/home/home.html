@@ -12,7 +12,10 @@
 
   <div class="col-lg-7">
     <section aria-label="Reminders">
-      <h5>Reminders</h5>
+      <div class="d-flex align-items-baseline gap-3 mb-2">
+        <h5 class="mb-0">Reminders</h5>
+        <a href="{% url 'manage_reminders' %}" class="btn-sm">Manage</a>
+      </div>
     {% if medical_alert %}
       <div class="d-flex align-items-center justify-content-between mb-0">
         <p class="text-{{ medical_alert.severity }} mb-0"><strong>{{ medical_alert.title }}</strong><br>{{ medical_alert.message }} <a href="{% url 'profile_update' user.profile.pk %}">Update</a></p>
@@ -29,7 +32,7 @@
         <ul class="list-unstyled mb-0">
           {% for reminder in reminders %}
             <li class="d-flex align-items-center justify-content-between mb-0">
-              <span{% if reminder.severity %} class="text-{{ reminder.severity }}"{% endif %}{% if reminder.kind == 'expiration' and reminder.severity == 'warning' %} style="color: var(--bs-orange) !important;"{% endif %}>
+              <span{% if reminder.severity %} class="text-{{ reminder.severity }}"{% endif %}{% if reminder.kind == 'expiration' and reminder.severity == 'warning' %} style="color: var(--app-expiration-warning-text) !important;"{% endif %}>
                 {% if reminder.kind == 'expiration' %}
                   <strong>{{ reminder.title }}</strong><br>
                   {% if reminder.message %}{{ reminder.message }}
@@ -44,7 +47,6 @@
           {% endfor %}
         </ul>
       {% endif %}
-      <a href="{% url 'manage_reminders' %}">Manage reminders</a>
     </section>
 
     <hr>

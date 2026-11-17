@@ -197,7 +197,7 @@ class AirportResolutionTests(TestCase):
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, 'Which airports did you mean?')
             self.assertContains(response, 'Confirm airports')
-            self.assertContains(response, 'btn btn-primary btn-lg')
+            self.assertContains(response, 'btn btn-lg btn-link')
             self.assertContains(response, 'Foreign airport')
 
     def test_backfill_preserves_confirmations_and_replaces_wrong_legacy_maps(self):

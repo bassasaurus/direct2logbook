@@ -1,9 +1,11 @@
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-2">
-<form method="get" class="d-flex align-items-center mb-2">
+<form method="get" class="col-12 col-md-6 col-lg-4 mb-2">
   {% if errors_only %}<input type="hidden" name="errors" value="1">{% endif %}
   <label for="logbook-jump-month" class="visually-hidden">Jump to flight month</label>
-  <input type="text" id="logbook-jump-month" placeholder="MM/DD/YYYY" autocomplete="off" name="jump_month" class="form-control form-control-sm me-2" value="{{ jump_month }}" required>
-  <button type="submit" class="btn btn-sm btn-outline-primary">Go</button>
+  <div class="input-group">
+    <input type="text" id="logbook-jump-month" placeholder="MM/DD/YYYY" autocomplete="off" name="jump_month" class="form-control" value="{{ jump_month }}" required>
+    <button type="submit" class="btn btn-link">Go</button>
+  </div>
 </form>
 
   <span class="mb-2">Flights {{ page_obj.start_index }}–{{ page_obj.end_index }} of {{ paginator.count }}</span>

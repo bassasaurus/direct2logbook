@@ -56,6 +56,18 @@ class RedirectTargetTests(SimpleTestCase):
 
 @override_settings(SECURE_SSL_REDIRECT=False, EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
 class AnonymousPasswordResetTests(TestCase):
+    def test_reset_request_form_is_visible_signed_out_and_signed_in(self):
+        user = get_user_model().objects.create_user(username='visible_reset', email='visible@example.com', password='old-secret123')
+        for authenticated in (False, True):
+            if authenticated:
+                self.client.force_login(user)
+            response = self.client.get(reverse('account_reset_password'))
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, 'name="email"')
+            self.assertContains(response, 'Reset My Password')
+            confirmation = self.client.get(reverse('account_password_reset_done'))
+            self.assertContains(confirmation, 'We have sent you an e-mail.')
+
     def test_valid_email_reset_link_does_not_require_login(self):
         user = get_user_model().objects.create_user(username='reset_redirect', email='reset@example.com', password='old-secret123')
         token = default_token_generator.make_token(user)
