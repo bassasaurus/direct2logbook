@@ -5,7 +5,9 @@ Nginx serves a standalone page when the Django upstream is unavailable (502,
 page does not depend on Django, collected static files, JavaScript, or a CDN.
 It also covers unexpected upstream downtime, so its wording does not promise
 that every outage is an update. Normal Django validation and error pages are
-unchanged. Failed form submissions are never automatically replayed.
+unchanged. Failed form submissions are never automatically replayed. The internal URI redirect
+converts error-page POST requests to GET so Nginx can serve the static HTML;
+a named location would preserve POST and incorrectly return 405.
 
 ## One-time server setup
 
