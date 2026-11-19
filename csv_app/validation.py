@@ -90,11 +90,11 @@ def parse_csv(content):
                 values = {
                     'date': date, 'aircraft': raw[1], 'registration': raw[2],
                     'route': format_route(raw[3]), 'duration': number(raw[4]),
-                    'night': float(number(raw[8])), 'instrument': float(number(raw[9])),
+                    'night': number(raw[8]), 'instrument': number(raw[9]),
                     'approaches': number(raw[10], integer=True),
                     'landings_day': number(raw[11], integer=True),
                     'landings_night': number(raw[12], integer=True),
-                    'simulated_instrument': float(number(raw[13])), 'remarks': raw[18],
+                    'simulated_instrument': number(raw[13]), 'remarks': raw[18],
                 }
                 for index, field in [(5, 'pilot_in_command'), (6, 'second_in_command'),
                                      (7, 'cross_country'), (14, 'instructor'),

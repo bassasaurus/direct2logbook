@@ -320,18 +320,18 @@ class Flight(models.Model):
         null=True, blank=True, verbose_name="Day Ldg")
     landings_night = models.PositiveIntegerField(
         null=True, blank=True, verbose_name="Night Ldg")
-    night = models.FloatField(null=True, blank=True,
+    night = models.DecimalField(max_digits=6, decimal_places=1, null=True, blank=True,
                               validators=[positive_validator])
-    instrument = models.FloatField(
-        null=True, blank=True, verbose_name="Inst", validators=[positive_validator])
+    instrument = models.DecimalField(
+        max_digits=6, decimal_places=1, null=True, blank=True, verbose_name="Inst", validators=[positive_validator])
     cross_country = models.BooleanField(
         default=False, blank=True, verbose_name="XCountry")
     second_in_command = models.BooleanField(
         default=False, blank=True, verbose_name="SIC")
     pilot_in_command = models.BooleanField(
         default=False, blank=True, verbose_name="PIC")
-    simulated_instrument = models.FloatField(
-        null=True, blank=True, verbose_name="Sim Inst", validators=[positive_validator])
+    simulated_instrument = models.DecimalField(
+        max_digits=6, decimal_places=1, null=True, blank=True, verbose_name="Sim Inst", validators=[positive_validator])
     instructor = models.BooleanField(
         default=False, blank=True, verbose_name="CFI")
     dual = models.BooleanField(default=False, blank=True)
