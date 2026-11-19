@@ -1,7 +1,8 @@
 from flights.queryset_helpers import is_user_deletion
 from flights.models import Flight, TailNumber, Aircraft, Imported, Endorsement, Regs, Power, Weight
 from django.db.models.signals import post_save, post_delete
-from django.db.models import Q
+from django.db import transaction
+from django.db.models import Q, Sum
 from django.core.exceptions import ObjectDoesNotExist
 from django.dispatch import receiver
 from flights.queryset_helpers import avoid_none
@@ -120,68 +121,37 @@ def regs_update(sender, instance, dispatch_uid="regs_update", **kwargs):
     if is_user_deletion(kwargs.get('origin')):
         return
 
-    user = instance.user
+    refresh_operating_rule_summaries(instance.user_id, using=kwargs.get('using') or instance._state.db or 'default')
 
-    flight = Flight.objects.filter(user=user)
-    imported = Imported.objects.filter(user=user)
 
-    airline_query = Q(registration__is_121=True)
-    charter_query = Q(registration__is_135=True)
-    private_query = Q(registration__is_91=True)
+def refresh_operating_rule_summaries(user_id, *, using='default'):
+    """Aggregate all three rule categories together; never load flight records."""
+    rules = ('91', '121', '135')
+    roles = ('pilot_in_command', 'second_in_command')
+    flight_sums = {}
+    imported_sums = {}
+    for rule in rules:
+        for role in roles:
+            key = f'r{rule}_{role}'
+            flight_sums[key] = Sum('duration', filter=Q(**{
+                f'registration__is_{rule}': True, role: True,
+            }))
+            imported_sums[key] = Sum(role, filter=Q(**{f'is_{rule}': True}))
 
-    if flight.filter(pilot_in_command=True).filter(airline_query):
-        airline_pic = Regs.objects.get_or_create(user=user, reg_type='121')[0]
-        airline_pic.pilot_in_command = avoid_none(flight.filter(pilot_in_command=True).filter(airline_query), 'duration') + avoid_none(imported.filter(is_121=True), 'pilot_in_command')
-        airline_pic.save()
-    else:
-        airline_pic = Regs.objects.get_or_create(user=user, reg_type='121')[0]
-        airline_pic.pilot_in_command = 0
-        airline_pic.save()
-
-    if flight.filter(second_in_command=True).filter(airline_query):
-        airline_sic = Regs.objects.get_or_create(user=user, reg_type='121')[0]
-        airline_sic.second_in_command = avoid_none(flight.filter(second_in_command=True).filter(airline_query), 'duration') + avoid_none(imported.filter(is_121=True), 'second_in_command')
-        airline_sic.save
-    else:
-        airline_sic = Regs.objects.get_or_create(user=user, reg_type='121')[0]
-        airline_sic.second_in_command = 0
-        airline_sic.save()
-
-    if flight.filter(pilot_in_command=True).filter(charter_query):
-        charter_pic = Regs.objects.get_or_create(user=user, reg_type='135')[0]
-        charter_pic.pilot_in_command = avoid_none(flight.filter(pilot_in_command=True).filter(charter_query), 'duration') + avoid_none(imported.filter(is_135=True), 'pilot_in_command')
-        charter_pic.save()
-    else:
-        charter_pic = Regs.objects.get_or_create(user=user, reg_type='135')[0]
-        charter_pic.pilot_in_command = 0
-        charter_pic.save()
-
-    if flight.filter(second_in_command=True).filter(charter_query):
-        charter_sic = Regs.objects.get_or_create(user=user, reg_type='135')[0]
-        charter_sic.second_in_command = avoid_none(flight.filter(second_in_command=True).filter(charter_query), 'duration') + avoid_none(imported.filter(is_135=True), 'second_in_command')
-        charter_sic.save()
-    else:
-        charter_sic = Regs.objects.get_or_create(user=user, reg_type='135')[0]
-        charter_sic.second_in_command = 0
-        charter_sic.save()
-
-    if flight.filter(pilot_in_command=True).filter(private_query):
-        private_pic = Regs.objects.get_or_create(user=user, reg_type='91')[0]
-        private_pic.pilot_in_command = avoid_none(flight.filter(pilot_in_command=True).filter(private_query), 'duration') + avoid_none(imported.filter(is_135=True), 'pilot_in_command')
-        private_pic.save()
-    else:
-        private_pic = Regs.objects.get_or_create(user=user, reg_type='91')[0]
-        private_pic.pilot_in_command = 0
-        private_pic.save()
-
-    if flight.filter(pilot_in_command=True).filter(private_query):
-        private_sic = Regs.objects.get_or_create(user=user, reg_type='91')[0]
-        private_sic.second_in_command = avoid_none(flight.filter(second_in_command=True).filter(private_query), 'duration') + avoid_none(imported.filter(is_135=True), 'second_in_command')
-        private_sic.save()
-    else:
-        private_sic = Regs.objects.get_or_create(user=user, reg_type='91')[0]
-        private_sic.second_in_command = 0
-        private_sic.save()
+    with transaction.atomic(using=using):
+        flights = Flight.objects.using(using).filter(user_id=user_id).aggregate(**flight_sums)
+        imported = Imported.objects.using(using).filter(user_id=user_id).aggregate(**imported_sums)
+        summaries = Regs.objects.using(using)
+        # The unique (user, reg_type) constraint makes first-time creation safe.
+        summaries.bulk_create([
+            Regs(user_id=user_id, reg_type=rule) for rule in rules
+        ], ignore_conflicts=True)
+        rows = list(summaries.filter(user_id=user_id, reg_type__in=rules))
+        for row in rows:
+            for role in roles:
+                key = f'r{row.reg_type}_{role}'
+                setattr(row, role, round(flights[key] or 0, 1) + round(imported[key] or 0, 1))
+        summaries.bulk_update(rows, roles)
 
 
 @receiver(post_save, sender=TailNumber)
@@ -212,8 +182,6 @@ def power_update(sender, instance, dispatch_uid="power_update", **kwargs):
         pic.save()
         sic.turbine = 0
         sic.save()
-        total.turbine = 0
-        total.save()
     else:
         pic.turbine = avoid_none(flight.filter(pilot_in_command=True).filter(turbine_query), 'duration') + avoid_none(imported.filter(turbine_query), 'pilot_in_command')
         pic.save()
@@ -221,10 +189,6 @@ def power_update(sender, instance, dispatch_uid="power_update", **kwargs):
         sic.turbine = avoid_none(flight.filter(second_in_command=True).filter(turbine_query), 'duration') + avoid_none(imported.filter(turbine_query), 'second_in_command')
         sic.save()
 
-        total.turbine = pic.turbine + sic.turbine
-        total.piston = pic.piston + sic.piston
-
-        total.save()
 
     if not flight.filter(piston_query) and not imported.filter(piston_query):
         pic.piston = 0
@@ -239,10 +203,11 @@ def power_update(sender, instance, dispatch_uid="power_update", **kwargs):
         sic.piston = avoid_none(flight.filter(second_in_command=True).filter(piston_query), 'duration') + avoid_none(imported.filter(piston_query), 'second_in_command')
         sic.save()
 
-        total.turbine = pic.turbine + sic.turbine
-        total.piston = pic.piston + sic.piston
-
-        total.save()
+    # Both categories must be refreshed before saving the combined totals,
+    # including when the last piston/turbine source record was removed.
+    total.turbine = pic.turbine + sic.turbine
+    total.piston = pic.piston + sic.piston
+    total.save()
 
 
 @receiver(post_save, sender=Flight)

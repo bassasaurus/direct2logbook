@@ -13,6 +13,11 @@ def flight_revision(flight):
     )
     from flights.models import Approach, Holding
     values = {name: getattr(flight, name) for name in names}
+    # Preserve existing mobile revision fingerprints across the float-to-decimal migration.
+    # These values are only serialized for hashing, never used for arithmetic here.
+    for name in ('night', 'instrument', 'simulated_instrument'):
+        if values[name] is not None:
+            values[name] = float(values[name])
     values['approaches'] = list(Approach.objects.filter(flight_object=flight).order_by('pk').values())
     values['holding'] = list(Holding.objects.filter(flight_object=flight).order_by('pk').values())
     return hashlib.sha256(json.dumps(values, sort_keys=True, default=str).encode()).hexdigest()

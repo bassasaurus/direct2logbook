@@ -130,8 +130,9 @@ class FlightSerializer(FriendlyValidationSerializer):
 
     landings_day = serializers.IntegerField(min_value=0, max_value=20, required=False, allow_null=True)
     landings_night = serializers.IntegerField(min_value=0, max_value=20, required=False, allow_null=True)
-    instrument = serializers.FloatField(required=False, allow_null=True)
-    simulated_instrument = serializers.FloatField(required=False, allow_null=True)
+    night = serializers.DecimalField(max_digits=6, decimal_places=1, required=False, allow_null=True, coerce_to_string=False)
+    instrument = serializers.DecimalField(max_digits=6, decimal_places=1, required=False, allow_null=True, coerce_to_string=False)
+    simulated_instrument = serializers.DecimalField(max_digits=6, decimal_places=1, required=False, allow_null=True, coerce_to_string=False)
 
 
     def to_internal_value(self, data):
