@@ -139,7 +139,7 @@ ACCOUNT_USER_DISPLAY = 'utils.allauth.user_display'
 ACCOUNT_RATE_LIMITS = {
     "login_user": "5/m",      # 5 logins per minute per user
     "login_ip": "20/m",       # 20 logins per minute per IP
-    "signup_ip": "5/h",       # 5 signups per hour per IP
+    "signup": "5/h/ip",       # 5 signup attempts per hour per IP
 }
 
 ACCOUNT_LOGOUT_ON_GET = True
