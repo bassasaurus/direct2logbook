@@ -35,6 +35,37 @@ class MobileSyncTests(APITestCase):
         self.assertEqual(Flight.objects.filter(user=self.owner).count(), 1)
         self.assertEqual(MobileSyncReceipt.objects.count(), 1)
 
+    def test_decimal_hours_sync_and_replay_are_json_safe(self):
+        self.data.update(night='1.2', instrument='0.3', simulated_instrument='0.1')
+        operation, result = self.create()
+        response = self.send(**operation)
+        self.assertEqual(response.status_code, 200, response.data)
+        self.assertEqual(response.json(), result)
+        receipt = MobileSyncReceipt.objects.get(operation_id=operation['operation_id'])
+        self.assertEqual(receipt.response, result)
+        self.assertEqual(result['flight']['night'], 1.2)
+        self.assertEqual(result['flight']['instrument'], 0.3)
+        self.assertEqual(result['flight']['simulated_instrument'], 0.1)
+        self.assertEqual(Flight.objects.filter(user=self.owner).count(), 1)
+        self.assertEqual(MobileSyncReceipt.objects.count(), 1)
+
+    def test_unchanged_decimal_flight_update_syncs_once_without_duplicate(self):
+        self.data.update(night='1.2', instrument='0.3', simulated_instrument='0.1')
+        _, first = self.create()
+        operation = {'operation_id': str(uuid.uuid4()), 'action': 'update',
+                     'flight_id': first['flight']['id'], 'base_revision': first['flight']['revision'],
+                     'data': self.data.copy()}
+        response = self.send(**operation)
+        self.assertEqual(response.status_code, 200, response.data)
+        self.assertEqual(response.data['flight']['id'], first['flight']['id'])
+        self.assertEqual(self.send(**operation).json(), response.json())
+        self.assertEqual(Flight.objects.filter(user=self.owner).count(), 1)
+        self.assertEqual(MobileSyncReceipt.objects.count(), 2)
+        from decimal import Decimal
+        flight = Flight.objects.get(pk=first['flight']['id'])
+        self.assertEqual((flight.night, flight.instrument, flight.simulated_instrument),
+                         (Decimal('1.2'), Decimal('0.3'), Decimal('0.1')))
+
     def test_operation_id_cannot_be_reused_for_different_data(self):
         operation, first = self.create()
         operation['data'] = {**self.data, 'remarks': 'changed'}
