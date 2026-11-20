@@ -31,7 +31,7 @@ class SignupRateLimitTests(TestCase):
         initial = get_user_model().objects.count()
         for index in range(5):
             email = f'signup-limit-{index}@example.com'
-            response = self.post({'email': email, 'email2': email,
+            response = self.post({'email': email,
                                   'first_name': 'Signup', 'last_name': 'Test',
                                   'password1': 'LongSignupPassword972!',
                                   'password2': 'LongSignupPassword972!',
@@ -41,7 +41,7 @@ class SignupRateLimitTests(TestCase):
             self.assertTrue(get_user_model().objects.filter(email=email).exists())
         self.assertEqual(get_user_model().objects.count(), initial + 5)
         before_emails = len(mail.outbox)
-        response = self.post({'email': 'blocked-signup@example.com', 'email2': 'blocked-signup@example.com',
+        response = self.post({'email': 'blocked-signup@example.com',
                               'first_name': 'Blocked', 'last_name': 'Test',
                               'password1': 'LongSignupPassword972!', 'password2': 'LongSignupPassword972!',
                               'g-recaptcha-response': 'valid-test-token'})

@@ -11,11 +11,11 @@ class CustomSignupFormTest(TestCase):
             'first_name': 'John',
             'last_name': 'Doe',
             'email': 'john@example.com',
-            'email2': 'john@example.com',  # Match email
             'password1': 'complexpassword123',
             'password2': 'complexpassword123'
         }
         form = CustomSignupForm(data=form_data)
+        self.assertNotIn('email2', form.fields)
         self.assertTrue(form.is_valid(), form.errors)
 
     @override_settings(DEBUG=False)
@@ -25,7 +25,6 @@ class CustomSignupFormTest(TestCase):
             'first_name': 'Jane',
             'last_name': 'Smith',
             'email': 'jane@example.com',
-            'email2': 'jane@example.com',
             'password1': 'complexpassword456',
             'password2': 'complexpassword456'
             # captcha is omitted
@@ -46,7 +45,6 @@ class CustomSignupFormTest(TestCase):
             'first_name': 'Alice',
             'last_name': 'Wonderland',
             'email': 'janee@example.com',
-            'email2': 'janee@example.com',  # Match email
             'password1': 'password789xyz',
             'password2': 'password789xyz'
         }
