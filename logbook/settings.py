@@ -128,13 +128,11 @@ AUTHENTICATION_BACKENDS = (
 )
 
 
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'email2*', 'password1*', 'password2*']
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
 ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 1
 ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*']
 ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'email2*', 'password1*', 'password2*']
 ACCOUNT_USER_DISPLAY = 'utils.allauth.user_display'
 
 ACCOUNT_RATE_LIMITS = {
@@ -319,6 +317,8 @@ STORAGES = {
     },
     "staticfiles": {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        # Deployment uses umask 077; Nginx still needs to traverse public asset directories.
+        "OPTIONS": {"directory_permissions_mode": 0o755},
     },
 }
 

@@ -56,3 +56,36 @@ After a deletion, check that the cleanup queue has cleared before considering ex
 - Signature data is stored in the Signature database row in the current model; the local audit found no legacy signature URLs. Unreferenced historical storage objects cannot safely be attributed to a user from this schema alone.
 - Historical Holding rows already lacking a flight cannot be attributed to an account. This migration prevents new orphans; it does not indiscriminately purge old orphan rows.
 - Raw SQL, `TRUNCATE`, restoring an older backup, or bypassing Django's deletion collector do not run these hooks. Use the tested Django deletion paths.
+
+## Abandoned unverified signups
+
+`cleanup_unverified_signups` removes accounts older than seven days that have never
+logged in and have no verified email address. Verification of **any** address
+protects the account, including when an established user changes their email.
+Staff, superusers, free-access users, accounts with any billing provisioning or
+Stripe identifiers, active subscriptions, and accounts with aircraft, tailnumbers,
+flights, imported totals, reminders, signatures, CSV/PDF requests, or mobile sync
+receipts are preserved. Default empty profiles and calculated summaries alone do
+not prevent cleanup.
+
+Preview before enabling the schedule:
+
+```sh
+/home/blakepowell/venv312/bin/python manage.py cleanup_unverified_signups --dry-run
+```
+
+The command deletes through the existing user deletion hooks, including related
+email confirmations, tokens and database sessions. It processes at most 100
+accounts per run, rechecks eligibility under a user-row lock before each deletion,
+and skips accounts protected by the existing deletion safeguards. Output contains
+counts rather than email addresses. `--days` may extend the grace period but cannot
+shorten it below seven days; `--limit` controls the batch size.
+
+After reviewing the dry-run on production, an optional daily cron entry is:
+
+```cron
+20 3 * * * cd /home/blakepowell/app && /usr/bin/flock -n /home/blakepowell/logs/unverified-signups.lock /home/blakepowell/venv312/bin/python manage.py cleanup_unverified_signups >> /home/blakepowell/logs/unverified-signups.log 2>&1
+```
+
+The server uses UTC. This command does not create a cron entry itself. Keep the
+existing `process_account_deletions` schedule for external cleanup recovery.
