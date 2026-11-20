@@ -6,6 +6,7 @@ from django.db import transaction
 from rest_framework import serializers
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.renderers import JSONRenderer
 from rest_framework.views import APIView
 
 from api.models import MobileSyncReceipt
@@ -85,6 +86,11 @@ class MobileFlightSyncView(APIView):
             flight = serializer.save(user=request.user)
             result = {'operation_id': str(values['operation_id']),
                       'flight': FlightSerializer(flight, context={'request': request}).data}
+        # Persist the same JSON-compatible values returned over the wire. DRF's
+        # decimal fields can leave Decimal objects in serializer.data, while
+        # JSONField's encoder does not support them. Normalize before both the
+        # receipt and response so first delivery and replay have identical types.
+        result = json.loads(JSONRenderer().render(result))
         MobileSyncReceipt.objects.create(user=request.user, operation_id=values['operation_id'],
                                          request_hash=fingerprint, response=result)
         return Response(result)
