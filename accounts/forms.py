@@ -28,7 +28,7 @@ class CustomSignupForm(SignupForm):
         return user
 
 
-class GoogleSignupForm(SocialSignupForm):
+class SocialProviderSignupForm(SocialSignupForm):
     first_name = forms.CharField(max_length=30, label='First Name')
     last_name = forms.CharField(max_length=30, label='Last Name')
 
@@ -36,9 +36,10 @@ class GoogleSignupForm(SocialSignupForm):
         super().__init__(*args, **kwargs)
         self.initial['first_name'] = self.sociallogin.user.first_name
         self.initial['last_name'] = self.sociallogin.user.last_name
-        # Keep the signup address tied to the identity returned by Google.
+        # Preserve a provider-supplied identity. If no email was supplied, collect
+        # one normally and require the existing email verification flow.
         for name in ('email', 'email2'):
-            if name in self.fields:
+            if name in self.fields and self.sociallogin.user.email:
                 self.fields[name].disabled = True
                 self.initial[name] = self.sociallogin.user.email
 
@@ -47,6 +48,10 @@ class GoogleSignupForm(SocialSignupForm):
         self.sociallogin.user.last_name = self.cleaned_data['last_name']
         self.sociallogin.user.username = ''
         return super().save(request)
+
+
+# Preserve imports of the previous Google-specific form.
+GoogleSignupForm = SocialProviderSignupForm
 
 
 class UserForm(forms.ModelForm):

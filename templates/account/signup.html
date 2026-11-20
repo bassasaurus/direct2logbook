@@ -13,7 +13,7 @@
 <hr>
 
 {% trans "Or sign up below" as google_separator %}
-{% include "account/snippets/google_button.html" with separator_text=google_separator %}
+{% include "account/snippets/social_buttons.html" with separator_text=google_separator %}
 
 <form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
   {% csrf_token %}

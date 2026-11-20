@@ -591,3 +591,21 @@ body.app-layout {
 
 /* Existing form errors use the same Bootstrap danger color as field feedback. */
 .errorlist { color: var(--bs-danger, #dc3545); list-style: none; padding-left: 0; font-size: .875em; margin: .35rem 0; }
+
+/* Provider choices share the existing Google button's width and pill shape. */
+.social-signin-options { display: grid; gap: 10px; }
+.social-signin-options form { margin: 0; }
+.social-signin-button {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; min-height: 44px; padding: 8px 16px;
+  border: 1px solid transparent; border-radius: 999px;
+  font: 500 14px/20px Arial, sans-serif; text-align: center; cursor: pointer;
+}
+.social-signin-apple { background: #000; color: #fff; border-color: #000; }
+.social-signin-logo { width: 20px; height: 20px; flex: 0 0 20px; }
+.social-signin-facebook { background: #1877f2; color: #fff; border-color: #1877f2; }
+.social-signin-button:hover { filter: brightness(.9); }
+.social-signin-button:focus-visible { outline: 2px solid #1a73e8; outline-offset: 3px; }
+
+/* Apple’s supplied artwork includes padding; compensate to match the other marks. */
+.social-signin-apple .social-signin-logo { transform: scale(2.2); }
