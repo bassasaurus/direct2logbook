@@ -11,7 +11,7 @@
     <h1>{% trans "Sign In" %}</h1>
     <hr>
     {% trans "Or" as google_separator %}
-    {% include "account/snippets/google_button.html" with separator_text=google_separator %}
+    {% include "account/snippets/social_buttons.html" with separator_text=google_separator %}
 
     <form class="login" method="POST" action="{% url 'account_login' %}">
       {% csrf_token %}

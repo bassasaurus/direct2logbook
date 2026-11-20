@@ -45,8 +45,8 @@ def queue_trial_after_email_confirmation(sender, request, email_address, **kwarg
 
 @receiver(user_signed_up, dispatch_uid="payments.queue_trial_after_verified_google_signup")
 def queue_trial_after_verified_google_signup(sender, request, user, sociallogin=None, **kwargs):
-    """Google may verify a new user's email without a confirmation link."""
-    if sociallogin is None or sociallogin.account.provider != 'google':
+    """Trusted social providers may verify email without a confirmation link."""
+    if sociallogin is None or sociallogin.account.provider not in ('google', 'apple', 'facebook'):
         return
     if not EmailAddress.objects.filter(user=user, email=user.email, verified=True).exists():
         return

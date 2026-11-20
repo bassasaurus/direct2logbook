@@ -83,6 +83,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.apple',
     'allauth.socialaccount.providers.google',
     'django.contrib.sessions',
     'django.contrib.sites',
@@ -154,10 +155,16 @@ ACCOUNT_FORMS = {
 
 SOCIALACCOUNT_LOGIN_ON_GET = False
 SOCIALACCOUNT_AUTO_SIGNUP = False
-SOCIALACCOUNT_FORMS = {'signup': 'accounts.forms.GoogleSignupForm'}
+SOCIALACCOUNT_FORMS = {'signup': 'accounts.forms.SocialProviderSignupForm'}
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = False
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = False
 SOCIALACCOUNT_PROVIDERS = {
+    'apple': {},
+    'facebook': {
+        'METHOD': 'oauth2',
+        'SCOPE': ['email', 'public_profile'],
+        'FIELDS': ['id', 'email', 'first_name', 'last_name', 'name'],
+    },
     'google': {
         'SCOPE': ['profile', 'email'],
         'OAUTH_PKCE_ENABLED': True,
