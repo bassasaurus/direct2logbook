@@ -183,3 +183,8 @@ monitor's check-in and next expected run. Check the first automatic cron run too
 Manual `backup_database` and `prune_database_backups` remain available without
 scheduled check-ins, so restore drills and previews do not alter monitor status.
 No migrations, dependency updates, or collectstatic are required for this change.
+
+## Intact local development copy
+
+For a one-command download, verification and isolated local restore with console
+email and Stripe test mode, see [Local production copy](LOCAL_PRODUCTION_COPY.md).
