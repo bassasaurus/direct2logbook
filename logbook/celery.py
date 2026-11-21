@@ -10,9 +10,10 @@ from decouple import config
 # heroku logs -t -p worker
 
 # set the default Django settings module for the 'celery' program.
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'logbook.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', config('DJANGO_SETTINGS_MODULE', default='logbook.settings'))
 
-app = Celery('logbook', broker=config('BROKER_URL'))
+# Keep the broker in Django settings so the local restore profile can isolate it.
+app = Celery('logbook')
 
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.
