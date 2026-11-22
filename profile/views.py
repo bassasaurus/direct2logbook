@@ -1,11 +1,11 @@
 from django.urls import reverse_lazy
-from django.shortcuts import redirect, reverse
+from django.shortcuts import get_object_or_404, redirect, reverse
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.views.generic import TemplateView, UpdateView
 from .models import Profile
 from .billing import cancellation_scheduled, billing_period_expired
-from .forms import ProfileForm
+from .forms import MedicalForm, ProfileForm
 import uuid
 from django.core import signing
 from payments.checkout import SALT
@@ -117,10 +117,10 @@ class ProfileUpdateView(LoginRequiredMixin, OwnObjectProfileMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super(ProfileUpdateView, self).get_context_data(**kwargs)
 
-        context['title'] = "D-> | Update Profile"
+        context['title'] = "D-> | Update Company"
         context['parent_name'] = 'Profile'
         context['parent_link'] = reverse('profile')
-        context['page_title'] = 'Update Profile'
+        context['page_title'] = 'Update Company'
         context['home_link'] = reverse('home')
         return context
 
@@ -128,3 +128,18 @@ class ProfileUpdateView(LoginRequiredMixin, OwnObjectProfileMixin, UpdateView):
     form_class = ProfileForm
     template_name = 'profile/profile_update.html'
     success_url = reverse_lazy('profile')
+
+
+class MedicalUpdateView(LoginRequiredMixin, UpdateView):
+    form_class = MedicalForm
+    template_name = 'home/medical_update.html'
+    success_url = reverse_lazy('manage_reminders')
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(Profile, user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(title='D-> | Update Medical', page_title='Update Medical',
+                       parent_name='Reminders', parent_link=reverse('manage_reminders'))
+        return context

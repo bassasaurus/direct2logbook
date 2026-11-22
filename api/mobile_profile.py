@@ -9,6 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from home.currency import medical_expiry_date
+from home.reminders import medical_expiration_alert
 from profile.models import Profile
 from profile.billing import cancellation_scheduled, billing_period_expired
 from signature.models import Signature
@@ -55,7 +56,12 @@ def snapshot(user):
         status = 'Active'
     signature = Signature.objects.filter(user=user).first()
     due_date = medical_expiry_date(profile)
+    medical_status = medical_expiration_alert(due_date)
     return {
+        'medical_missing': bool(medical_status and medical_status.get('missing')),
+        'medical_severity': medical_status['severity'] if medical_status else 'neutral',
+        'medical_banner': medical_status['banner'] if medical_status else False,
+        'medical_days_remaining': medical_status['days_remaining'] if medical_status else None,
         'schema_version': 1, 'downloaded_at': timezone.now().isoformat(),
         'account': {**AccountSerializer(user).data, 'username': user.username,
                     'email': user.email, 'joined': user.date_joined.date().isoformat(),

@@ -5,18 +5,30 @@ from django.urls import reverse
 from django.views.decorators.http import require_http_methods, require_POST
 
 from profile.models import Reminder
-from .reminder_forms import ReminderForm
-from .reminders import dismiss_medical_warning, dismiss_reminder, milestone_progress_label
+from home.currency import medical_expiry_date
+from .reminder_forms import RegulatoryReminderForm, MilestoneForm
+from .reminders import dismiss_medical_warning, dismiss_reminder, medical_expiration_alert, ordered_reminders, reminder_presentation, reminder_groups
 
 
 @login_required
 @require_http_methods(['GET', 'POST'])
 @transaction.atomic
-def manage_reminders(request, pk=None):
+def manage_reminders(request, pk=None, reminder_kind=None):
     reminders = Reminder.objects.filter(user=request.user)
     editable = reminders.select_for_update() if request.method == 'POST' else reminders
     reminder = get_object_or_404(editable, pk=pk) if pk is not None else None
-    form = ReminderForm(request.POST if request.method == 'POST' else None, instance=reminder, user=request.user)
+    if reminder_kind in (Reminder.Kind.INSTRUCTOR_RENEWAL, Reminder.Kind.FLIGHT_REVIEW, Reminder.Kind.IPC) and reminder is None:
+        reminder = editable.filter(kind=reminder_kind).order_by('-pk').first()
+    selected_kind = request.POST.get('kind') or (reminder.kind if reminder else reminder_kind or request.GET.get('kind'))
+    inferred_group = 'milestones' if selected_kind in (
+        Reminder.Kind.FLIGHT_TIME, Reminder.Kind.TIME_IN_TYPE, Reminder.Kind.CREW_IN_TYPE, Reminder.Kind.COMPANY_TIME, Reminder.Kind.FLIGHT_CONDITION,
+    ) else 'regulatory'
+    group = inferred_group if reminder else request.POST.get('reminder_group') or request.GET.get('group') or inferred_group
+    if group not in ('regulatory', 'milestones'):
+        group = inferred_group
+    form_class = RegulatoryReminderForm if group == 'regulatory' else MilestoneForm
+    form = form_class(request.POST if request.method == 'POST' else None, instance=reminder, user=request.user,
+                      initial={'kind': selected_kind} if selected_kind in Reminder.Kind.values else None)
     if request.method == 'POST' and form.is_valid():
         try:
             with transaction.atomic():
@@ -29,13 +41,30 @@ def manage_reminders(request, pk=None):
                 for message in messages:
                     form.add_error(field if field in form.fields else None, message)
         else:
+            if request.POST.get('reminder_group') or request.GET.get('group'):
+                return redirect(reverse('manage_reminders') + '?group=' + group)
             return redirect('manage_reminders')
     saved_reminders = reminders.select_related('aircraft').order_by('pk')
     for saved_reminder in saved_reminders:
-        saved_reminder.progress_label = milestone_progress_label(saved_reminder)
+        presentation = reminder_presentation(saved_reminder)
+        saved_reminder.progress_label = presentation['progress_label']
+        saved_reminder.status_message = presentation.get('status_message')
+        saved_reminder.holding_warning = presentation.get('holding_warning')
+        saved_reminder.severity = presentation['severity']
+        saved_reminder.presentation = presentation
+    medical_status = medical_expiration_alert(medical_expiry_date(request.user.profile))
+    cards = [{'reminder': reminder, **reminder.presentation} for reminder in saved_reminders]
+    cards.insert(0, {**(medical_status or {}), 'medical': True, 'severity': medical_status['severity'] if medical_status else 'neutral',
+                  'plain': not medical_status or not medical_status['banner']})
     return render(request, 'home/reminders.html', {
-        'form': form, 'reminders': saved_reminders, 'editing': reminder,
-        'title': 'D-> | Reminders', 'page_title': 'Reminders',
+        'form_group': group,
+        'form_group_title': dict(form.fields['kind'].choices).get(form['kind'].value(), 'Reminder' if group == 'regulatory' else 'Milestone'),
+        'form': form, 'reminders': saved_reminders, 'editing': reminder, 'reminder_cards': ordered_reminders(cards),
+        'reminder_groups': [section for section in reminder_groups(ordered_reminders([card for card in cards if not card.get('medical')])) if section['key'] == group],
+        'medical_status': medical_status,
+        'medical_profile': request.user.profile, 'medical_due_date': medical_expiry_date(request.user.profile),
+        'title': 'D-> | Reminders',
+        'page_title': 'Reminders',
         'parent_link': reverse('home'), 'parent_name': 'Home',
     })
 

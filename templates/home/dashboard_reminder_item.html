@@ -1,0 +1,14 @@
+        <li class="reminder-banner reminder-banner-{{ reminder.severity }}{% if reminder.medical and not reminder.banner %} reminder-banner-plain{% endif %}"{% if reminder.medical %} data-medical-reminder{% endif %}>
+            {% if reminder.medical %}
+              <div class="d-flex align-items-baseline justify-content-between gap-2">
+                <strong>{{ reminder.title }}</strong>
+                <a href="{% url 'medical_update' %}">Update</a>
+              </div>
+              {{ reminder.message|linebreaksbr }}
+            {% elif reminder.kind == 'expiration' or reminder.kind == 'flight_review' or reminder.kind == 'instructor_renewal' or reminder.kind == 'ipc' %}
+              <strong>{{ reminder.title }}</strong><br>{% if reminder.message %}{{ reminder.message|linebreaksbr }}{% elif reminder.due_date %}{% if reminder.kind == 'ipc' %}Review IFR by {% else %}Review by {% endif %}{{ reminder.due_date|date:"M j, Y" }}{% endif %}
+            {% else %}
+              {{ reminder.progress_label }}
+            {% endif %}
+            {% if reminder.holding_warning %}<div class="text-danger">{{ reminder.holding_warning }}</div>{% endif %}
+          </li>

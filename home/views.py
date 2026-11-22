@@ -6,8 +6,9 @@ from flights.views import LoginRequiredMixin
 from profile.views import ProfileNotActiveMixin
 from django.views.generic import TemplateView
 import datetime
-from .reminders import medical_expiration_alert, reminder_rows
-from .currency import instrument_recency
+from .reminders import medical_expiration_alert, ordered_reminders, reminder_rows, reminder_groups
+from .currency import instrument_recency, instrument_currency_notice
+from .flight_reviews import flight_review_currency
 from .currency import (
     amel_vfr_day, amel_vfr_night, asel_vfr_day, asel_vfr_night,
     ases_vfr_day, ases_vfr_night, ames_vfr_day, ames_vfr_night,
@@ -37,10 +38,12 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
 
         context['reminders'] = reminder_rows(user, include_saved=True, respect_dismissal=False)
 
+        context['flight_review_currency'] = flight_review_currency(user)
+
         context['pdf_request'] = PDFRequest.objects.filter(user=user).first()
 
         context['recent'] = Flight.objects.filter(
-            user=user).order_by('-date')[:5]
+            user=user).order_by('-date', '-pk')[:8]
 
         # Check all aircraft in one query instead of two lookups per aircraft.
         aircraft_list = list(Aircraft.objects.filter(user=user).annotate(
@@ -385,6 +388,13 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
         context['medical_alert'] = medical_expiration_alert(
             context['expiry_date'],
         )
+
+        medical = dict(context['medical_alert'], medical=True) if context['medical_alert'] else None
+        instrument_notice = instrument_currency_notice(user, context)
+        context['dashboard_reminders'] = ordered_reminders(
+            ([medical] if medical else []) + context['reminders'] + ([instrument_notice] if instrument_notice else []))
+
+        context['reminder_groups'] = reminder_groups(context['dashboard_reminders'])
 
         context['new_user_aircraft'] = not Aircraft.objects.filter(user=user).exists()
         context['new_user_tailnumber'] = not TailNumber.objects.filter(user=user).exists()

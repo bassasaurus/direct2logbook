@@ -1,0 +1,37 @@
+        <li class="reminder-banner reminder-banner-{{ card.severity }}{% if card.plain %} reminder-banner-plain{% endif %}">
+          {% if card.medical %}
+<section aria-labelledby="medical-heading" class="mb-0">
+  <h2 id="medical-heading" class="h5">Medical Certificate</h2>
+  {% if card.missing %}<p class="mb-1">Medical expiration date not recorded.</p>{% endif %}
+  <dl class="profile-details mb-2">
+    <dt>Issued</dt><dd>{{ medical_profile.medical_issue_date|date:"m/d/Y"|default:"Not recorded" }}</dd>
+    <dt>Class</dt><dd>{% if medical_profile.first_class %}1st Class{% elif medical_profile.second_class %}2nd Class{% elif medical_profile.third_class %}3rd Class{% else %}Not recorded{% endif %}</dd>
+    <dt>Age 40 or older at examination</dt><dd>{{ medical_profile.over_40|yesno:"Yes,No" }}</dd>
+    <dt>Due Date</dt><dd>{{ medical_due_date|date:"m/d/Y"|default:"Not recorded" }}</dd>
+  </dl>
+  <a href="{% url 'medical_update' %}">Update</a>
+</section>
+          {% else %}{% with reminder=card.reminder %}
+          {% if reminder.kind == 'expiration' or reminder.kind == 'flight_review' or reminder.kind == 'instructor_renewal' or reminder.kind == 'ipc' %}<strong>{{ reminder.title }}</strong>{% endif %}
+          <div>
+            {% if reminder.status_message %}{{ reminder.status_message|linebreaksbr }}
+            {% elif reminder.due_date %}{% if reminder.kind == 'ipc' %}Review IFR by {% else %}Review by {% endif %}{{ reminder.due_date|date:"M j, Y" }}
+            {% elif reminder.progress_label %}{{ reminder.progress_label }}{% endif %}
+          </div>
+          {% if reminder.holding_warning %}<div class="text-danger">{{ reminder.holding_warning }}</div>{% endif %}
+          {% if reminder.kind == 'flight_review' %}
+            <div>Last recorded completion: {{ reminder.last_qualifying_date|date:"M j, Y" }} · {{ reminder.get_completion_type_display }}</div>
+          {% endif %}
+          {% if reminder.company_start_date %}
+            <div class="text-muted">{{ reminder.company_start_date|date:"M j, Y" }} – {% if reminder.company_end_date %}{{ reminder.company_end_date|date:"M j, Y" }}{% else %}Present{% endif %}</div>
+          {% endif %}
+          <div class="d-flex">
+
+            <a class="btn btn-link px-0 me-3" href="{% url 'edit_reminder' reminder.pk %}">Edit</a>
+            <form method="post" action="{% url 'remove_reminder' reminder.pk %}" data-submit-feedback="delete" onsubmit="return confirm('Remove this reminder?');">
+              {% csrf_token %}
+              <button class="btn btn-link text-danger" type="submit">Remove</button>
+            </form>
+          </div>
+          {% endwith %}{% endif %}
+        </li>

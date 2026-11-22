@@ -18,7 +18,7 @@ class MobileRecencyTests(APITestCase):
         tail, _ = TailNumber.objects.get_or_create(user=user, aircraft=aircraft, registration='NREC')
         flight = Flight.objects.create(user=user, aircraft_type=aircraft, registration=tail,
                                        date=datetime.date.today() - datetime.timedelta(days=days),
-                                       route='IAH-LAX', duration='2.0', landings_day=landings,
+                                       route='IAH-LAX', duration='2.0', instrument='0.2', landings_day=landings,
                                        landings_night=1, hold=True)
         Approach.objects.create(flight_object=flight, approach_type='ILS', number=approaches)
         return flight
@@ -30,7 +30,7 @@ class MobileRecencyTests(APITestCase):
 
     def test_matches_owned_website_counts_and_excludes_future_and_old_flights(self):
         self.flight(self.owner)
-        self.flight(self.owner, days=200, approaches=20)
+        self.flight(self.owner, days=250, approaches=20)
         self.flight(self.owner, days=-1, approaches=30)
         self.flight(self.other, approaches=40)
         Total.objects.get_or_create(user=self.owner, total='ASES', defaults={'total_time': 0})

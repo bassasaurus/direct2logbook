@@ -5,7 +5,7 @@ const test = require('node:test');
 const vm = require('node:vm');
 const script = fs.readFileSync(path.join(__dirname, '../../../static/js/form_feedback.js'), 'utf8');
 
-function setup(kind = '') {
+function setup(kind = '', browserCheckpoint = false) {
   const form = new EventTarget();
   form.dataset = {submitFeedback: kind};
   const window = new EventTarget();
@@ -20,7 +20,7 @@ function setup(kind = '') {
   form.querySelectorAll = () => [button];
   form.setAttribute = (name, value) => { form[name] = value; };
   form.removeAttribute = name => { delete form[name]; };
-  vm.runInNewContext(script, {window, queueMicrotask, document: {
+  vm.runInNewContext(script, {window, setTimeout, queueMicrotask: browserCheckpoint ? callback => callback() : queueMicrotask, document: {
     body, querySelectorAll: () => [form], createElement: () => ({setAttribute() {}})
   }});
   const submit = () => { const event = new Event('submit', {cancelable: true}); form.dispatchEvent(event); return event; };
@@ -30,7 +30,7 @@ function setup(kind = '') {
 test('accepted submission shows saving feedback without dropping submitter values', async () => {
   const {form, button, submit, page, classes} = setup();
   submit();
-  await Promise.resolve();
+  await new Promise(resolve => setTimeout(resolve, 0));
   assert.equal(form.status.textContent, 'Saving changes…');
   assert.equal(form.status.hidden, false);
   assert.equal(form.status.className, 'visually-hidden');
@@ -45,7 +45,7 @@ test('cancelled validation does not lock the form or claim it is saving', async 
   const {form, submit, page, classes} = setup();
   form.addEventListener('submit', event => event.preventDefault());
   submit();
-  await Promise.resolve();
+  await new Promise(resolve => setTimeout(resolve, 0));
   assert.equal(form.status.hidden, true);
   assert.equal(form['aria-busy'], undefined);
   assert.equal(page.inert, false);
@@ -70,7 +70,7 @@ test('async route validation reports checking and restores the form on failure',
 test('browser back restores controls and allows submission again', async () => {
   const {form, window, button, submit, page} = setup();
   submit();
-  await Promise.resolve();
+  await new Promise(resolve => setTimeout(resolve, 0));
   window.dispatchEvent(new Event('pageshow'));
   assert.equal(form.status.hidden, true);
   assert.equal(button['aria-disabled'], undefined);
@@ -82,7 +82,7 @@ test('create and delete show the appropriate message and lock only accepted subm
   for (const [kind, message] of [['create', 'Saving…'], ['delete', 'Deleting…']]) {
     const {form, button, submit, page} = setup(kind);
     submit();
-    await Promise.resolve();
+    await new Promise(resolve => setTimeout(resolve, 0));
     assert.equal(button.textContent, message);
     assert.equal(form.status.textContent, message);
     assert.equal(page.inert, true);
@@ -94,8 +94,22 @@ test('cancelling delete confirmation leaves the page interactive', async () => {
   const {form, submit, page, classes} = setup('delete');
   form.addEventListener('submit', event => event.preventDefault());
   submit();
-  await Promise.resolve();
+  await new Promise(resolve => setTimeout(resolve, 0));
   assert.equal(form.status.hidden, true);
   assert.equal(page.inert, false);
+  assert.equal(classes.has('is-saving'), false);
+});
+
+test('browser microtask checkpoint before confirmation cannot lock a cancelled deletion', async () => {
+  const {form, submit, page, button, classes} = setup('delete', true);
+  form.addEventListener('submit', event => {
+    assert.equal(page.inert, false, 'confirmation must run before page locking');
+    event.preventDefault();
+  });
+  submit();
+  await new Promise(resolve => setTimeout(resolve, 0));
+  assert.equal(page.inert, false);
+  assert.equal(form['aria-busy'], undefined);
+  assert.equal(button['aria-disabled'], undefined);
   assert.equal(classes.has('is-saving'), false);
 });
