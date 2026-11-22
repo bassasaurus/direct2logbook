@@ -15,7 +15,7 @@
         <dt>Name</dt><dd>{% if user.first_name or user.last_name %}{{ user.first_name }} {{ user.last_name }}{% else %}{{ user.username }}{% endif %}</dd>
         <dt>Email</dt><dd>{{ user.email }}</dd>
         {% if user.profile.company %}<dt>Company</dt><dd>{{ user.profile.company }}</dd>{% endif %}
-        <dt>Joined</dt><dd>{{ user.date_joined|date:"m/d/Y" }}</dd>
+        <dt>Joined</dt><dd>{{ user.date_joined|date:"M j, Y" }}</dd>
       </dl>
       <div class="profile-account-actions">
         <a href="{% url 'user_update' user.pk %}">Update name</a>

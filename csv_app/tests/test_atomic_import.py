@@ -31,6 +31,14 @@ def content(rows=None, headers=None):
 
 
 class CSVValidationTests(SimpleTestCase):
+    def test_named_dates_and_all_existing_csv_formats_normalize_to_iso(self):
+        from datetime import date
+        for raw in ('Nov 30, 2026', 'November 30, 2026', '2026-11-30', '11/30/2026', '11-30-2026'):
+            with self.subTest(raw=raw):
+                rows, preview = parse_csv(content([row(**{'0': raw})]))
+                self.assertEqual(rows[0]['date'], date(2026, 11, 30))
+                self.assertEqual(preview[0][0], raw)
+
     def test_typed_values_and_normalized_preview(self):
         rows, preview = parse_csv(content())
         self.assertEqual(rows[0]['approaches'], 2)

@@ -31,25 +31,25 @@
         If setup does not finish, please <a href="mailto:support@direct2logbook.com">contact support</a>.</p>
     {% elif passed_end_date %}
       <p class="fw-bold mb-1">Subscription expired</p>
-      <p class="text-muted mb-3">Access ended {{ profile.end_date|date:"m/d/Y" }}. Choose a plan to subscribe again.</p>
+      <p class="text-muted mb-3">Access ended {{ profile.end_date|date:"M j, Y" }}. Choose a plan to subscribe again.</p>
       {% include 'profile/subscription_plans.html' %}
     {% elif profile.trial %}
-      <p class="fw-bold mb-1">Free trial ends {{ profile.end_date|date:"m/d/Y" }}</p>
+      <p class="fw-bold mb-1">Free trial ends {{ profile.end_date|date:"M j, Y" }}</p>
       <p class="text-muted mb-3">Choose a plan to continue after your trial.</p>
       {% include 'profile/subscription_plans.html' %}
     {% elif profile.trial_expiring %}
       <p class="fw-bold mb-1">Trial expiring soon</p>
-      <p class="text-muted mb-3">Trial end date: {{ profile.end_date|date:"m/d/Y" }}</p>
+      <p class="text-muted mb-3">Trial end date: {{ profile.end_date|date:"M j, Y" }}</p>
       {% include 'profile/subscription_plans.html' %}
     {% elif cancellation_scheduled %}
-      <p class="fw-bold mb-1">Cancels on {{ profile.end_date|date:"m/d/Y" }}</p>
+      <p class="fw-bold mb-1">Cancels on {{ profile.end_date|date:"M j, Y" }}</p>
       <p class="text-muted mb-0">Automatic renewal is off. You can use your logbook until your current billing period ends.</p>
     {% elif profile.canceled %}
       <p class="fw-bold mb-1">Your subscription is canceled</p>
       {% include 'profile/subscription_plans.html' %}
     {% else %}
       <p class="fw-bold mb-1">Subscription active{% if profile.monthly %} · Monthly{% elif profile.yearly %} · Yearly{% endif %}</p>
-      <p class="text-muted mb-3">Next billing date: {{ profile.end_date|date:"m/d/Y" }}</p>
+      <p class="text-muted mb-3">Next billing date: {{ profile.end_date|date:"M j, Y" }}</p>
       <div class="d-flex flex-wrap align-items-center subscription-actions">
         <form method="post" action="{% url 'subscription_canceled' %}" class="mb-0">
           {% csrf_token %}

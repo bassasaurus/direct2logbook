@@ -23,7 +23,12 @@ class MedicalRemindersTests(TestCase):
         reminders = self.client.get(reverse('manage_reminders'))
         self.assertContains(reminders, 'Medical Certificate')
         home = self.client.get(reverse('home'))
-        self.assertContains(home, 'Class: 1st | 40 or older at examination')
+        self.assertContains(home, 'First Class')
+        card = home.content.decode().split('data-medical-reminder', 1)[1].split('</li>', 1)[0]
+        self.assertLess(card.index('First Class'), card.index('40 or older'))
+        self.assertLess(card.index('40 or older'), card.index('Issued'))
+        self.assertLess(card.index('Issued'), card.index('Due by') if 'Due by' in card else card.index('Was due by'))
+        self.assertContains(home, '40 or older at examination')
         self.assertContains(reminders, 'Nov 30, 2026')
         self.assertContains(reminders, reverse('medical_update'))
         profile = self.client.get(reverse('profile'))
@@ -74,10 +79,10 @@ class MedicalRemindersTests(TestCase):
         self.assertEqual(self.client.get(reverse('medical_update')).status_code, 302)
         self.assertEqual(self.client.post(reverse('medical_update'), {'medical_issue_date': '10/06/2026'}).status_code, 302)
 
-    def test_day_first_date_and_primary_save_button(self):
+    def test_named_date_display_legacy_day_first_input_and_primary_save_button(self):
         response = self.client.get(reverse('medical_update'))
-        self.assertContains(response, 'placeholder="dd/mm/yyyy"')
-        self.assertContains(response, 'value="10/05/2026"')
+        self.assertContains(response, 'placeholder="Nov 30, 2026"')
+        self.assertContains(response, 'value="May 10, 2026"')
         self.assertContains(response, 'class="btn btn-primary" type="submit">Save</button>')
         self.assertNotContains(response, '>Cancel</a>')
         response = self.client.post(reverse('medical_update'), {

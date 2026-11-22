@@ -77,7 +77,8 @@ class RegulatoryDateTests(TestCase):
         self.assertTrue(rows[0]['medical'])
         response = self.client.get(reverse('home'))
         self.assertContains(response, 'Medical expiration date not recorded.')
-        self.assertTrue(response.context['dashboard_reminders'][0]['medical'])
+        self.assertTrue(response.context['medical_card_visible'])
+        self.assertEqual(response.context['medical_card_notice']['severity'], 'danger')
         self.assertTrue(self.mobile.get('/api/mobile/profile/').data['medical_missing'])
 
     def test_holding_deadline_can_arrive_before_approaches(self):
@@ -229,7 +230,7 @@ class RegulatoryDateTests(TestCase):
             self.assertEqual(notice['severity'], 'warning')
             self.assertIsNone(notice['holding_warning'])
 
-    def test_expired_ifr_is_red_and_dismissal_persists_until_restored(self):
+    def test_expired_ifr_is_red_and_dismissal_returns_after_30_days(self):
         self.approaches(date(2023, 3, 5), 6, hold=True)
         with patch('django.utils.timezone.localdate', return_value=date(2026, 11, 21)):
             home = self.client.get(reverse('home'))
@@ -241,13 +242,13 @@ class RegulatoryDateTests(TestCase):
             self.client.post(reverse('web_reminder_action'), {'key': alert['web_action_token'], 'action': 'dismiss'})
             self.assertFalse(any(row.get('kind') == 'ipc' for row in self.client.get(reverse('home')).context['dashboard_reminders']))
             manage = self.client.get(reverse('manage_reminders'))
-            self.assertContains(manage, 'Show Now')
+            self.assertContains(manage, 'Restore')
             token = manage.context['web_hidden_reminders'][0]['token']
         # Survives session replacement and advancing the date.
         self.client.logout()
         self.user.refresh_from_db()
         self.client.force_login(self.user)
-        with patch('django.utils.timezone.localdate', return_value=date(2027, 1, 1)):
+        with patch('django.utils.timezone.localdate', return_value=date(2026, 12, 20)):
             self.assertFalse(any(row.get('kind') == 'ipc' for row in self.client.get(reverse('home')).context['dashboard_reminders']))
             self.client.post(reverse('web_reminder_action'), {'key': token, 'action': 'restore'})
             self.assertTrue(any(row.get('kind') == 'ipc' for row in self.client.get(reverse('home')).context['dashboard_reminders']))
@@ -258,8 +259,8 @@ class RegulatoryDateTests(TestCase):
             alert = next(row for row in self.client.get(reverse('home')).context['dashboard_reminders'] if row.get('id') == obj.pk)
             token = alert['web_action_token']
             self.client.post(reverse('web_reminder_action'), {'key': token, 'action': 'dismiss'})
-            self.assertTrue(any(row.get('id') == obj.pk for row in self.client.get(reverse('home')).context['dashboard_reminders']))
-            self.client.post(reverse('web_reminder_action'), {'key': token, 'action': '7'})
+            self.assertFalse(any(row.get('id') == obj.pk for row in self.client.get(reverse('home')).context['dashboard_reminders']))
+            self.client.post(reverse('web_reminder_action'), {'key': token, 'action': 'snooze', 'days': '7'})
             self.assertFalse(any(row.get('id') == obj.pk for row in self.client.get(reverse('home')).context['dashboard_reminders']))
         with patch('django.utils.timezone.localdate', return_value=date(2026, 11, 28)):
             self.assertTrue(any(row.get('id') == obj.pk for row in self.client.get(reverse('home')).context['dashboard_reminders']))

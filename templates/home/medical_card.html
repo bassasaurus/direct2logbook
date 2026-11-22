@@ -1,0 +1,18 @@
+<section id="medical-certificate-card" data-medical-reminder class="card medical-card mb-2" aria-label="Medical Certificate">
+  <div class="card-body">
+    <div class="d-flex align-items-center justify-content-between mb-1"><strong>Medical Certificate</strong><a href="{% url 'medical_update' %}">Update</a></div>
+    <div class="d-flex justify-content-between gap-2"><span>Class</span><span>{% if medical_profile.first_class %}First Class{% elif medical_profile.second_class %}Second Class{% elif medical_profile.third_class %}Third Class{% else %}Not recorded{% endif %}</span></div>
+    <div>{% if medical_profile.over_40 %}40 or older{% else %}Under 40{% endif %} at examination</div>
+    <div class="d-flex justify-content-between gap-2"><span>Issued</span><span>{{ medical_profile.medical_issue_date|date:"M j, Y"|default:"Not recorded" }}</span></div>
+    <div class="reminder-banner reminder-banner-{{ medical_status.severity }} medical-due-row mt-1 d-flex justify-content-between gap-2"><span>{% if medical_status.days_remaining < 0 %}Was due by{% else %}Due by{% endif %}</span><span>{{ medical_due_date|date:"M j, Y"|default:"Not recorded" }}</span></div>
+    {% if medical_status.missing %}<div>Medical expiration date not recorded.</div>{% endif %}
+    {% if medical_actions and medical_status.severity != 'success' %}
+    <form method="post" action="{% url 'web_reminder_action' %}" class="d-flex align-items-center gap-2 mt-1">
+      {% csrf_token %}<input type="hidden" name="key" value="{{ medical_status.web_action_token }}">
+      <select name="days" class="form-select form-select-sm w-auto" aria-label="Medical snooze duration"><option>1</option><option>3</option><option selected>7</option><option>14</option><option>30</option></select>
+      <button class="btn btn-link p-0" type="submit" name="action" value="snooze">Snooze</button>
+      {% if medical_status.severity == 'warning' %}<button class="btn btn-link p-0 ms-auto" name="action" value="dismiss_caution">Dismiss</button>{% endif %}
+    </form>
+    {% endif %}
+  </div>
+</section>

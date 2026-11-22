@@ -19,7 +19,7 @@
     {% endif %}
   </span>
   {% if show_displayed_range %}
-  <span class="page-displayed-range"><span class="d-block">Displayed Range</span>{% with last_flight=page_flights|last %}{{ last_flight.date|date:"m/d/Y" }}{% endwith %} – {{ page_flights.0.date|date:"m/d/Y" }}</span>
+  <span class="page-displayed-range"><span class="d-block">Displayed Range</span>{% with last_flight=page_flights|last %}{{ last_flight.date|date:"M j, Y" }}{% endwith %} – {{ page_flights.0.date|date:"M j, Y" }}</span>
   {% endif %}
   {% if request.resolver_match.url_name == 'flight_detail' and flight %}
     {% url 'flight_update' flight.pk as update_url %}

@@ -679,3 +679,11 @@ section:has(.other-reminders:not([open])) + .reminders-bottom-divider { display:
 .reminder-banner-success[data-medical-reminder] { background: #e5f4e9; border-color: #a8cdb2; color: #111; }
 
 .reminder-banner .reminder-dismiss { padding-right: 0; }
+
+.medical-card .card-body { padding: .65rem .8rem; }
+.medical-card .medical-due-row { color: #111; padding: .3rem .45rem; }
+.medical-show-link { color: #2c66aa; cursor: pointer; list-style: none; }
+.medical-show-link::-webkit-details-marker { display: none; }
+.medical-reveal:not([open]) .medical-hide, .medical-reveal[open] .medical-show { display: none; }
+
+.reminder-banner.milestone-completed { color: #111; }

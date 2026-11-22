@@ -2,9 +2,9 @@
   <thead class="table-light"><tr><th colspan="2" class="text-center">Flight Review</th></tr></thead>
   <tbody>
     {% if flight_review_currency %}
-      <tr><td>Last recorded completion</td><td>{{ flight_review_currency.last_qualifying_date|date:"m/d/Y" }}</td></tr>
+      <tr><td>Last recorded completion</td><td>{{ flight_review_currency.last_qualifying_date|date:"M j, Y" }}</td></tr>
       <tr><td>Completion type</td><td>{{ flight_review_currency.completion_type }}</td></tr>
-      <tr><td>Review by</td><td>{{ flight_review_currency.due_date|date:"m/d/Y" }}</td></tr>
+      <tr><td>Review by</td><td>{{ flight_review_currency.due_date|date:"M j, Y" }}</td></tr>
       <tr><td>Status</td><td class="{% if flight_review_currency.current %}text-success{% else %}text-danger{% endif %}">{% if flight_review_currency.current %}Within review window{% else %}Review overdue{% endif %}</td></tr>
       <tr><td colspan="2"><a href="{% url 'edit_reminder' flight_review_currency.reminder.pk %}">Update Flight Review</a></td></tr>
     {% else %}

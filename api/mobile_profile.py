@@ -113,6 +113,8 @@ class MobileProfileView(APIView):
             account_serializer.save()
         if medical_serializer:
             medical_serializer.save()
+            from home.medical_reminders import clear_medical_preferences
+            clear_medical_preferences(profile)
         if company_serializer:
             profile.company = company
             profile.save(update_fields=['company'])

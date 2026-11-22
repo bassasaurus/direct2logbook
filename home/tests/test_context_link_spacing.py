@@ -87,7 +87,7 @@ class ContextLinkSpacingTests(SimpleTestCase):
             'page_flights': [SimpleNamespace(date=date(2026, 11, 3)), SimpleNamespace(date=date(2026, 10, 1))],
         }))
         self.assertIn('Displayed Range', html)
-        self.assertIn('10/01/2026 – 11/03/2026', html)
+        self.assertIn('Oct 1, 2026 – Nov 3, 2026', html)
 
     def test_error_record_actions_keep_their_colors(self):
         request = RequestFactory().get(reverse('aircraft_detail', args=[1]))

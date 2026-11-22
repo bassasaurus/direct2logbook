@@ -41,7 +41,7 @@ class LogbookSpacingTests(SimpleTestCase):
         logbooks = [t for t in tables if t._cellvalues[0][:2] == ['Date', 'Type']]
         self.assertEqual(len(logbooks), 2)  # Existing 17-row page grouping remains.
         for table in logbooks:
-            for index, text in [(0, '10/27/2026'), (1, 'C172'), (2, 'N1234'),
+            for index, text in [(0, 'Oct 27, 2026'), (1, 'C172'), (2, 'N1234'),
                                 (3, 'KJFK-KBOS-KORD-KDEN-KLAX-KSFO-KSEA-KPDX-KSLC')]:
                 style = table._cellStyles[1][index]
                 required = stringWidth(text, style.fontname, style.fontsize) + style.leftPadding + style.rightPadding

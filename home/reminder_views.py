@@ -14,6 +14,9 @@ from .reminders import dismiss_medical_warning, dismiss_reminder, medical_expira
 @require_http_methods(['GET', 'POST'])
 @transaction.atomic
 def manage_reminders(request, pk=None, reminder_kind=None):
+    if request.method == 'POST':
+        from profile.models import Profile
+        Profile.objects.select_for_update().get(user=request.user)
     reminders = Reminder.objects.filter(user=request.user)
     editable = reminders.select_for_update() if request.method == 'POST' else reminders
     reminder = get_object_or_404(editable, pk=pk) if pk is not None else None
@@ -53,7 +56,7 @@ def manage_reminders(request, pk=None, reminder_kind=None):
         saved_reminder.severity = presentation['severity']
         saved_reminder.presentation = presentation
     medical_status = medical_expiration_alert(medical_expiry_date(request.user.profile))
-    cards = [{'reminder': reminder, **reminder.presentation} for reminder in saved_reminders]
+    cards = [{'reminder': reminder, 'plain': not reminder.presentation['banner'], **reminder.presentation} for reminder in saved_reminders]
     cards.insert(0, {**(medical_status or {}), 'medical': True, 'severity': medical_status['severity'] if medical_status else 'neutral',
                   'plain': not medical_status or not medical_status['banner']})
     return render(request, 'home/reminders.html', {
@@ -73,8 +76,9 @@ def manage_reminders(request, pk=None, reminder_kind=None):
 @login_required
 @require_POST
 def remove_reminder(request, pk):
-    get_object_or_404(Reminder, user=request.user, pk=pk).delete()
-    return redirect('manage_reminders')
+    from .reminder_removal import remove_saved_reminder
+    group = remove_saved_reminder(request.user, pk)
+    return redirect(reverse('manage_reminders') + '?group=' + group)
 
 
 @login_required
@@ -96,6 +100,8 @@ def dismiss_dashboard_medical_warning(request):
 def restore_dashboard_reminder(request, pk):
     reminder = get_object_or_404(Reminder, user=request.user, pk=pk)
     Reminder.objects.filter(user=request.user, pk=reminder.pk).update(dismissed_key='')
+    if not reminder.is_dated:
+        return redirect(reverse('manage_reminders') + '?group=milestones')
     return redirect('manage_reminders')
 
 
@@ -103,7 +109,7 @@ def restore_dashboard_reminder(request, pk):
 @require_POST
 @transaction.atomic
 def web_reminder_action(request):
-    from datetime import timedelta
+    from datetime import timedelta, timezone as utc_timezone
     from django.core.signing import BadSignature, Signer
     from django.utils import timezone
     from profile.models import Profile
@@ -117,19 +123,38 @@ def web_reminder_action(request):
     preferences = dict(profile.web_reminder_preferences)
     key = notice['id']
     action = request.POST.get('action')
+    if key.startswith(('regulatory:', 'ifr:')):
+        from home.regulatory_preferences import apply_action
+        today = timezone.localdate(timezone=utc_timezone.utc)
+        days = request.POST.get('days')
+        if action not in ('snooze', 'dismiss', 'restore') or (action == 'snooze' and days not in ('1', '3', '7', '14')):
+            return redirect('home')
+        until = today + timedelta(days=30 if action == 'dismiss' else int(days) if action == 'snooze' else 0)
+        try:
+            apply_action(request.user, key, action, notice.get('generation', 0),
+                         notice.get('due'), notice.get('severity'), until)
+        except ValueError:
+            pass
+        return redirect('manage_reminders' if action == 'restore' else 'home')
     if action == 'snooze':
         action = request.POST.get('days')
     if action == 'restore':
         preferences.pop(key, None)
+        if key == 'medical':
+            profile.medical_warning_dismissed_for = None
+    elif action == 'dismiss_caution' and key == 'medical':
+        alert = medical_expiration_alert(medical_expiry_date(profile))
+        if alert and alert['severity'] == 'warning' and str(alert['due_date']) == notice.get('due'):
+            preferences[key] = {'caution_due': notice['due'], 'title': notice['title']}
     elif action == 'dismiss' and key == 'ifr':
         preferences[key] = {'dismissed': True, 'title': notice['title']}
     elif action in ('1', '3', '7', '14', '30'):
-        preferences[key] = {'until': (timezone.localdate() + timedelta(days=int(action))).isoformat(),
+        preferences[key] = {'until': (timezone.localdate(timezone=utc_timezone.utc) + timedelta(days=int(action))).isoformat(),
                             'title': notice['title']}
     else:
         return redirect('home')
     profile.web_reminder_preferences = preferences
-    profile.save(update_fields=['web_reminder_preferences'])
+    profile.save(update_fields=['web_reminder_preferences', 'medical_warning_dismissed_for'])
     return redirect('manage_reminders' if action == 'restore' else 'home')
 
 
@@ -138,7 +163,21 @@ def hidden_web_reminders(user):
     from django.utils import timezone
     rows = []
     for key, preference in user.profile.web_reminder_preferences.items():
-        if preference.get('dismissed') or preference.get('until', '') > timezone.localdate().isoformat():
-            rows.append({**preference, 'token': Signer(salt='web-reminder').sign_object({
-                'user': user.pk, 'id': key, 'title': preference['title']})})
+        if key != 'medical':
+            continue
+        caution = key == 'medical' and preference.get('caution_due')
+        if caution:
+            alert = medical_expiration_alert(medical_expiry_date(user.profile))
+            caution = bool(alert and alert['severity'] == 'warning' and str(alert['due_date']) == preference['caution_due'])
+        if caution or preference.get('dismissed') or preference.get('until', '') > timezone.localdate().isoformat():
+            title = preference.get('title', 'Medical Certificate' if key == 'medical' else 'Reminder')
+            rows.append({**preference, 'title': title, 'token': Signer(salt='web-reminder').sign_object({
+                'user': user.pk, 'id': key, 'title': title})})
+    from home.regulatory_preferences import notices, key_for, annotate, hidden
+    from home.reminders import web_reminder_token
+    for row in notices(user):
+        pref = user.profile.web_reminder_preferences.get(key_for(row))
+        if hidden(pref, row):
+            rows.append({**pref, 'title': row['title'], 'caution_due': pref.get('mode') == 'until_red',
+                         'token': web_reminder_token(user, annotate(user.profile, row))})
     return rows

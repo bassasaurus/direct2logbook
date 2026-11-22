@@ -1,3 +1,4 @@
+from logbook.date_formats import display_date, parse_date
 from datetime import date, datetime
 from urllib.parse import urlencode
 from django.views.decorators.csrf import csrf_exempt
@@ -241,7 +242,7 @@ class FlightArchiveDay(LoginRequiredMixin, ProfileNotActiveMixin, DayArchiveView
             month=month,
             years=self.get_queryset().dates('date', 'year'),
             title='D-> | Flights by Day',
-            page_title=day.strftime('%B %d, %Y'),
+            page_title=display_date(day),
             home_link=reverse('home'),
             parent_name=month.strftime('%B %Y'),
             parent_link=reverse('flight_by_month', kwargs={
@@ -280,8 +281,7 @@ class FlightList(LoginRequiredMixin, ProfileNotActiveMixin, ListView):
         self.jump_error = ''
         if jump:
             try:
-                selected = (datetime.strptime(jump, '%m/%d/%Y').date()
-                            if '/' in jump else date.fromisoformat(jump + '-01'))
+                selected = date.fromisoformat(jump + '-01') if len(jump) == 7 else parse_date(jump)
             except ValueError:
                 self.jump_error = 'Choose a valid month and year.'
             else:

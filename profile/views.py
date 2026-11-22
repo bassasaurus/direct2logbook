@@ -138,6 +138,12 @@ class MedicalUpdateView(LoginRequiredMixin, UpdateView):
     def get_object(self, queryset=None):
         return get_object_or_404(Profile, user=self.request.user)
 
+    def form_valid(self, form):
+        from home.medical_reminders import clear_medical_preferences
+        response = super().form_valid(form)
+        clear_medical_preferences(self.object)
+        return response
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(title='D-> | Update Medical', page_title='Update Medical',

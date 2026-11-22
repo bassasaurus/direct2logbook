@@ -1,5 +1,6 @@
+from api.mobile_reminders import MobileRegulatoryPreferencesView
 from api.mobile_reminders import (
-    MobileMedicalWarningDismissView, MobileReminderDismissView, MobileRemindersView,
+    MobileMedicalPreferencesView, MobileMedicalWarningDismissView, MobileReminderDismissView, MobileRemindersView,
     MobileSavedRemindersView, MobileSavedReminderView, MobileReminderRestoreView,
 )
 from api.mobile_signature import MobileSignatureView
@@ -18,11 +19,13 @@ from api.mobile_sync import MobileSessionView, MobileFlightSyncView
 
 urlpatterns = [
     path('mobile/distance-preference/', DistancePreferenceView.as_view(), name='distance_preference'),
+    path('mobile/reminders/preferences/', MobileRegulatoryPreferencesView.as_view(), name='mobile_regulatory_preferences'),
     path('mobile/reminders/', MobileRemindersView.as_view(), name='mobile_reminders'),
     path('mobile/reminders/manage/', MobileSavedRemindersView.as_view(), name='mobile_manage_reminders'),
     path('mobile/reminders/manage/<int:pk>/', MobileSavedReminderView.as_view(), name='mobile_manage_reminder'),
     path('mobile/reminders/manage/<int:pk>/restore/', MobileReminderRestoreView.as_view(), name='mobile_reminder_restore'),
     path('mobile/reminders/<int:pk>/dismiss/', MobileReminderDismissView.as_view(), name='mobile_reminder_dismiss'),
+    path('mobile/reminders/medical/preferences/', MobileMedicalPreferencesView.as_view(), name='mobile_medical_preferences'),
     path('mobile/reminders/medical/dismiss/', MobileMedicalWarningDismissView.as_view(), name='mobile_medical_warning_dismiss'),
     path('mobile/signature/', MobileSignatureView.as_view(), name='mobile_signature'),
     path('mobile/profile/', MobileProfileView.as_view(), name='mobile_profile'),

@@ -26,7 +26,7 @@
     <div class="tailnumber-flight-list pe-lg-2" role="region" aria-label="Flights for this tailnumber" tabindex="0">
       {% for flight in flights %}
         <a class="d-block py-2" data-flight-id="{{ flight.pk }}" href="{% url 'flight_detail' flight.pk %}">
-          {{ flight.date|date:"m/d/Y" }} | {{ flight.route }}
+          {{ flight.date|date:"M j, Y" }} | {{ flight.route }}
         </a>
       {% empty %}
         <p>No Data</p>

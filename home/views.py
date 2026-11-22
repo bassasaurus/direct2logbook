@@ -36,7 +36,7 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
         user = self.request.user
         context = super(HomeView, self).get_context_data(**kwargs)
 
-        context['reminders'] = reminder_rows(user, include_saved=True, respect_dismissal=False)
+        context['reminders'] = reminder_rows(user, include_saved=True, respect_dismissal=True)
 
         context['flight_review_currency'] = flight_review_currency(user)
 
@@ -399,14 +399,28 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
         from .reminders import web_reminder_token, web_reminder_hidden
         from django.utils import timezone
         visible_reminders = []
+        from home.regulatory_preferences import annotate
         for notice in context['dashboard_reminders']:
+            notice = annotate(user.profile, notice)
             if web_reminder_hidden(user.profile.web_reminder_preferences, notice, timezone.localdate()):
                 continue
-            if notice['severity'] == 'danger':
+            if notice['severity'] in ('danger', 'warning'):
                 notice['web_action_token'] = web_reminder_token(user, notice)
             visible_reminders.append(notice)
+        from home.medical_reminders import medical_hidden
+        context['medical_card_notice'] = {**context['medical_alert'], 'medical': True,
+                                          'web_action_token': web_reminder_token(user, {**context['medical_alert'], 'medical': True})}
+        context['medical_card_visible'] = context['medical_alert']['severity'] != 'success' and not medical_hidden(user.profile, context['medical_alert'])
+        visible_reminders = [row for row in visible_reminders if not row.get('medical')]
         context['dashboard_reminders'] = visible_reminders
         context['reminder_groups'] = reminder_groups(context['dashboard_reminders'])
+        for group in context['reminder_groups']:
+            group['medical_rows'] = [row for row in group['rows'] if row.get('medical')]
+            available = [row for row in group['rows'] if not row.get('medical')]
+            group['preview_rows'] = available[:3]
+            preview_ids = {id(row) for row in group['preview_rows']}
+            group['extra_rows'] = [row for row in available if id(row) not in preview_ids]
+
 
         context['new_user_aircraft'] = not Aircraft.objects.filter(user=user).exists()
         context['new_user_tailnumber'] = not TailNumber.objects.filter(user=user).exists()

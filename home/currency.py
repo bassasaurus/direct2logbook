@@ -1,3 +1,4 @@
+from logbook.date_formats import display_date
 from flights.models import Flight
 from django.db.models import Sum, Q
 import datetime
@@ -393,7 +394,7 @@ def instrument_recency(user, *, ipc=None, category=None):
         tasks.append(f'{approaches_needed} approach' + ('es' if approaches_needed != 1 else ''))
     if holding_needed:
         tasks.append('holding')
-    action_text = ('By ' + due.strftime('%b %d, %Y') if action_date > today else 'Check logbook')
+    action_text = ('By ' + display_date(due) if action_date > today else 'Check logbook')
     action_text += ': ' + (', '.join(tasks) if tasks else 'review instrument currency')
     ifr_current = bool(category and review_until and review_until >= today)
     category_note = '' if category else 'Verify the aircraft category and IPC record.'
@@ -405,11 +406,11 @@ def instrument_recency(user, *, ipc=None, category=None):
     if not category:
         status_message = 'Review IFR currency. Category not specified.'
     elif ifr_current:
-        status_message = f'Based on logged information:\nRequired by {review_until:%b %d, %Y}'
+        status_message = f'Based on logged information:\nRequired by {display_date(review_until)}'
     elif ipc_required:
-        status_message = f'IFR currency expired {review_until:%b %d, %Y}.\nVerify your records.'
+        status_message = f'IFR currency expired {display_date(review_until)}.\nVerify your records.'
     elif review_until:
-        status_message = f'IFR currency expired {review_until:%b %d, %Y}. {action_text}.\nVerify your records.'
+        status_message = f'IFR currency expired {display_date(review_until)}. {action_text}.\nVerify your records.'
     else:
         status_message = f'Review IFR currency. {action_text}'
     if category_note:

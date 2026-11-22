@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block content %}
 
-<h3>{{ flight.date|date:"m/d/Y" }} | {{ flight.aircraft_type }} | {{ flight.registration }} | {{ flight.route }}</h3>
+<h3>{{ flight.date|date:"M j, Y" }} | {{ flight.aircraft_type }} | {{ flight.registration }} | {{ flight.route }}</h3>
 <hr>
 <form data-submit-feedback="delete"  action="" method="post">{% csrf_token %}
     <p>This cannot be undone! But it won't affect related data.</p>

@@ -1,3 +1,4 @@
+from logbook.date_formats import display_date
 from decimal import ROUND_HALF_UP
 from xml.sax.saxutils import escape
 import logging
@@ -309,7 +310,7 @@ def _build_pdf(user):
     story.append(spacer15)
     story.append(spacer15)
 
-    text = f"<para size=15 align=center>Data current as of {datetime.date.today().strftime('%m/%d/%Y')}</para>"
+    text = f"<para size=15 align=center>Data current as of {display_date(datetime.date.today())}</para>"
     story.append(Paragraph(text, style=styles["Normal"]))
     story.append(PageBreak())
 
@@ -334,7 +335,7 @@ def _build_pdf(user):
                 t.instrument), str(t.night), str(t.simulated_instrument),
             str(t.simulator), str(t.landings_day), str(
                 t.landings_night), str(t.landings_day + t.landings_night),
-            str(t.last_flown.strftime("%m/%d/%Y")
+            str(display_date(t.last_flown)
                 ), str(t.last_30), str(t.last_60), str(t.last_90), str(t.last_180),
             str(t.last_yr), str(t.last_2yr), str(t.ytd),
         ]
@@ -445,7 +446,7 @@ def _build_pdf(user):
             str(s.instructor), str(s.dual), str(s.solo), str(
                 s.instrument), str(s.night), str(s.simulated_instrument),
             str(s.simulator), str(s.landings_day), str(s.landings_night),
-            str(s.last_flown.strftime("%m/%d/%Y")
+            str(display_date(s.last_flown)
                 ), str(s.last_30), str(s.last_60), str(s.last_90), str(s.last_180),
             str(s.last_yr), str(s.last_2yr), str(s.ytd),
         ]
@@ -489,7 +490,7 @@ def _build_pdf(user):
     # Build raw rows with Decimals for numeric fields
     logbook_rows = []
     for f in flight_objects:
-        date_str = f.date.strftime("%m/%d/%Y")
+        date_str = display_date(f.date)
         appr = ''
         for approach in f.approach_set.all():
             appr += f"{approach.approach_type}-{approach.number} "

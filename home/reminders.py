@@ -1,3 +1,4 @@
+from logbook.date_formats import display_date
 """Evaluate the same reminders for the dashboard and the mobile API."""
 from decimal import Decimal, ROUND_HALF_UP
 
@@ -21,15 +22,15 @@ def medical_expiration_alert(expiry_date, dismissed_for=None):
                 'severity': 'danger', 'banner': True, 'days_remaining': None, 'missing': True}
     today = timezone.localdate()
     days_remaining = (expiry_date - today).days
-    severity = ('danger' if days_remaining < 14 else
-                'warning' if (expiry_date.year, expiry_date.month) <= (today.year, today.month) else 'success')
+    severity = ('danger' if (expiry_date.year, expiry_date.month) <= (today.year, today.month) else
+                'warning' if days_remaining <= 45 else 'success')
     upcoming = severity == 'warning'
     if upcoming and dismissed_for == expiry_date:
         return None
     status = 'Was due by' if days_remaining < 0 else 'Due by'
     alert = {
         'title': 'Medical Certificate',
-        'message': f'{status} {expiry_date:%b %d, %Y}.',
+        'message': f'{status} {display_date(expiry_date)}.',
         'severity': severity, 'banner': severity != 'success', 'days_remaining': days_remaining,
         'due_date': expiry_date,
     }
@@ -92,15 +93,12 @@ def reminder_notice(reminder, today, hours, *, respect_dismissal=True):
             return None
         key = f'hours:{reminder.target_hours:.1f}'
         remaining = reminder.target_hours - hours
-        total_or_company = reminder.kind in (Reminder.Kind.FLIGHT_TIME, Reminder.Kind.COMPANY_TIME)
         if remaining <= 0:
             message = f'You reached {reminder.milestone_label()}.'
             severity = 'success'
-        elif (remaining <= (50 if total_or_company else 10) and (not respect_dismissal or reminder.dismissed_key != key)
-              and (reminder.kind in (Reminder.Kind.FLIGHT_TIME, Reminder.Kind.COMPANY_TIME, Reminder.Kind.FLIGHT_CONDITION) or reminder.aircraft_id)):
-            key = f'{key}:approaching'
+        elif (remaining <= 10 and (reminder.kind in (Reminder.Kind.FLIGHT_TIME, Reminder.Kind.COMPANY_TIME, Reminder.Kind.FLIGHT_CONDITION) or reminder.aircraft_id)):
             message = f'{remaining:.1f} hours to go. {reminder.milestone_label(hours)}.'
-            severity = 'neutral'
+            severity = 'success'
         else:
             return None
     else:
@@ -111,7 +109,7 @@ def reminder_notice(reminder, today, hours, *, respect_dismissal=True):
             return None
         stage = 'expired' if days < 0 else 'urgent' if days <= 14 else 'upcoming'
         key = f'date:{reminder.due_date.isoformat()}:{stage}'
-        date_label = reminder.due_date.strftime('%b %d, %Y')
+        date_label = display_date(reminder.due_date)
         message = (instrument['instrument_status_message'] if reminder.kind == Reminder.Kind.IPC
                    else f'Review overdue since {date_label}.' if days < 0 else f'Review by {date_label}.')
         severity = 'danger' if stage != 'upcoming' else 'warning'
@@ -121,12 +119,14 @@ def reminder_notice(reminder, today, hours, *, respect_dismissal=True):
             message, severity = details['message'], details['severity']
             key = f"date:{reminder.due_date.isoformat()}:{severity}"
 
-    if respect_dismissal and key == reminder.dismissed_key:
+    if respect_dismissal and (bool(reminder.dismissed_key) if not reminder.is_dated else key == reminder.dismissed_key):
         return None
     return {'id': reminder.pk, 'key': key,
             'title': (f"IPC — {instrument['instrument_category_label']}" if reminder.kind == Reminder.Kind.IPC else reminder.title),
             'kind': reminder.kind,
             'category': instrument['instrument_category'] if reminder.kind == Reminder.Kind.IPC else None,
+            'milestone_state': ('completed' if remaining <= 0 else 'approaching') if not reminder.is_dated else None,
+            'banner': reminder.is_dated or remaining <= 0,
             'message': message, 'severity': severity, 'due_date': reminder.due_date if reminder.is_dated else None,
             'holding_warning': instrument['instrument_holding_warning'] if reminder.kind == Reminder.Kind.IPC else None,
             'progress_label': reminder.milestone_progress_label(hours) if hours is not None else None, **reminder_metrics(reminder, today, hours)}
@@ -142,8 +142,8 @@ def reminder_rows(user, *, include_saved=False, respect_dismissal=True):
     rows = []
     for reminder in reminders:
         hours = milestone_hours(reminder, today, all_hours) if not reminder.is_dated else None
-        notice = reminder_notice(reminder, today, hours, respect_dismissal=respect_dismissal)
-        if include_saved:
+        notice = reminder_notice(reminder, today, hours, respect_dismissal=respect_dismissal if not (include_saved and reminder.is_dated) else False)
+        if include_saved and (reminder.is_dated or not respect_dismissal):
             row = notice or {'id': reminder.pk, 'title': reminder.title, 'kind': reminder.kind,
                              'severity': 'success' if reminder.is_dated else 'neutral'}
             row['progress_label'] = reminder.milestone_progress_label(hours) if hours is not None else None
@@ -175,6 +175,8 @@ def reminder_sort_key(row):
         return (priority, -1, 0, Decimal('0'))
     if row.get('days_remaining') is not None:
         return (priority, 0, row['days_remaining'], Decimal('0'))
+    if row.get('milestone_state') in ('completed', 'approaching'):
+        return (priority, 1, -1 if row['milestone_state'] == 'completed' else 0, Decimal(row.get('hours_remaining') or '0'))
     if row.get('completion_percent') is not None:
         return (priority, 1, -Decimal(row['completion_percent']), Decimal(row.get('hours_remaining') or '0'))
     return (priority, 2, 0, Decimal('0'))
@@ -202,6 +204,8 @@ def reminder_presentation(reminder):
     hours = milestone_hours(reminder, today) if not reminder.is_dated else None
     notice = reminder_notice(reminder, today, hours, respect_dismissal=False)
     return {
+        'milestone_state': notice.get('milestone_state') if notice else 'inactive' if not reminder.is_dated else None,
+        'banner': notice.get('banner', True) if notice else reminder.is_dated,
         'severity': notice['severity'] if notice else 'success' if hours is None else 'neutral',
         'status_message': notice['message'] if notice and reminder.kind == Reminder.Kind.IPC else None,
         'holding_warning': notice.get('holding_warning') if notice else None,
@@ -223,6 +227,9 @@ def reminder_groups(rows):
 
 
 def web_reminder_key(notice):
+    if not notice.get('medical') and notice.get('kind') in ('expiration', 'flight_review', 'instructor_renewal', 'ipc'):
+        from home.regulatory_preferences import key_for
+        return key_for(notice)
     return 'ifr' if notice.get('kind') == 'ipc' else 'medical' if notice.get('medical') else str(notice['id'])
 
 
@@ -230,9 +237,19 @@ def web_reminder_token(user, notice):
     from django.core.signing import Signer
     return Signer(salt='web-reminder').sign_object({
         'user': user.pk, 'id': web_reminder_key(notice), 'title': notice.get('title', 'Medical Certificate'),
+        'due': str(notice['due_date']) if notice.get('due_date') else None, 'severity': notice.get('severity'),
+        'generation': notice.get('preference_generation', 0),
     })
 
 
 def web_reminder_hidden(preferences, notice, today):
+    if notice.get('milestone_state'):
+        return False  # Milestones use account-backed Dismiss, never legacy timed snoozes.
+    if not notice.get('medical') and notice.get('kind') in ('expiration', 'flight_review', 'instructor_renewal', 'ipc'):
+        from home.regulatory_preferences import hidden, key_for
+        return hidden(preferences.get(key_for(notice)), notice, today)
     preference = preferences.get(web_reminder_key(notice), {})
+    if (notice.get('medical') and notice['severity'] == 'warning'
+            and preference.get('caution_due') == str(notice.get('due_date'))):
+        return True
     return preference.get('dismissed', False) or preference.get('until', '') > today.isoformat()

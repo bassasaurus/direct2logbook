@@ -1,4 +1,6 @@
+from logbook.date_fields import NamedDateInput
 from django import forms
+from logbook.date_formats import DATE_INPUT_FORMATS
 from django.forms import inlineformset_factory
 from flights.models import Flight, Aircraft, TailNumber, Imported, Holding, Approach
 from django.contrib.auth.models import User
@@ -102,6 +104,7 @@ class UserOwnedRelationsFormMixin:
 
 
 class FlightForm(UserOwnedRelationsFormMixin, forms.ModelForm):
+    date = forms.DateField(input_formats=DATE_INPUT_FORMATS, widget=NamedDateInput(format='%b %d, %Y'))
     owned_relation_fields = ('aircraft_type', 'registration')
 
     airport_choices = forms.JSONField(required=False, max_length=5000, widget=forms.HiddenInput)
@@ -158,8 +161,8 @@ class FlightForm(UserOwnedRelationsFormMixin, forms.ModelForm):
         fields = '__all__'
         widgets = {
             'remarks': forms.Textarea(attrs={'rows': 3, 'maxlength': 500}),
-            'date': forms.DateInput(
-                format="%m/%d/%Y"
+            'date': NamedDateInput(
+                format="%b %d, %Y"
             ),
             'aircraft_type': autocomplete.ModelSelect2(
                 url='aircraft-autocomplete',
@@ -272,6 +275,7 @@ class TailNumberForm(UserOwnedRelationsFormMixin, forms.ModelForm):
 
 
 class ImportedForm(UserOwnedRelationsFormMixin, forms.ModelForm):
+    last_flown = forms.DateField(required=False, input_formats=DATE_INPUT_FORMATS, widget=NamedDateInput(format='%b %d, %Y'))
     owned_relation_fields = ('aircraft_type',)
 
     class Meta:

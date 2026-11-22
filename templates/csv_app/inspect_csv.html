@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load widget_tweaks %}
+{% load widget_tweaks date_display %}
 {% block page_container_class %}container-fluid px-3 px-lg-4{% endblock %}
 {% block content %}
 
@@ -118,13 +118,14 @@
         {% for row in file %}
         <tr>
           {% for field in row %}
-          <td>{{ field }}</td>
+          <td>{% if forloop.first %}{{ field|display_date }}{% else %}{{ field }}{% endif %}</td>
           {% endfor %}
         </tr>
         {% endfor %}
         {% else %}
         <tr>
           <td class="text-start">Formats:<br> <!-- date -->
+            &quot;Nov 30, 2026&quot;<br>
             YYYY-MM-DD<br>
             MM/DD/YYYY<br>
             MM-DD-YYYY
