@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+<div class="row">
+  <div class="col-lg-6">
+    <h3 class="mt-3 mb-3">Update Medical</h3>
+    <hr>
+    <form data-unsaved-changes data-submit-feedback="update" method="post">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      <label for="id_date" class="h6">Issue Date</label>
+      {{ form.medical_issue_date|attr:"id:id_date"|attr:"placeholder:dd/mm/yyyy"|add_class:"form-control" }}
+      {{ form.medical_issue_date.errors }}
+      <fieldset class="mt-3">
+        <legend class="h6">Class</legend>
+        <div class="form-check form-check-inline">
+          {{ form.first_class|add_class:"form-check-input" }}
+          <label class="form-check-label" for="id_first_class">1st</label>
+        </div>
+        <div class="form-check form-check-inline">
+          {{ form.second_class|add_class:"form-check-input" }}
+          <label class="form-check-label" for="id_second_class">2nd</label>
+        </div>
+        <div class="form-check form-check-inline">
+          {{ form.third_class|add_class:"form-check-input" }}
+          <label class="form-check-label" for="id_third_class">3rd</label>
+        </div>
+      </fieldset>
+      <div class="form-check mt-3">
+        {{ form.over_40|add_class:"form-check-input" }}
+        <label class="form-check-label" for="id_over_40">Age 40 or older at examination</label>
+      </div>
+      <div class="mt-3 text-start"><button class="btn btn-primary" type="submit">Save</button></div>
+    </form>
+  </div>
+</div>
+{% include 'profile/datepicker.html' %}
+{% endblock %}

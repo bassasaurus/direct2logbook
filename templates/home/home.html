@@ -1,57 +1,138 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="row">
-  <div class="col-lg-5">
-    <h5>Recent flights</h5>
-    {% for flight in recent %}
-    <a class="text-nowrap" href="{% url 'flight_detail' flight.pk %}">{{flight.date|date:"m/d/Y"}} | {{flight.route}}</a><br>
-    {% endfor %}
-  <hr>
+<div class="row home-overview">
+  <div class="col-lg-4 home-overview-column">
+    <section aria-label="Recent">
+      <h5><button class="overview-toggle" type="button" aria-expanded="true" aria-controls="recent-flights-content">Recent <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" aria-hidden="true" focusable="false" viewBox="0 0 512 512"><polyline points="112 184 256 328 400 184" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px"/></svg></button></h5>
+      <div id="recent-flights-content" class="overview-content">
+        {% for flight in recent %}
+          <a class="text-nowrap" href="{% url 'flight_detail' flight.pk %}">{{ flight.date|date:"m/d/Y" }} | {{ flight.route }}</a><br>
+        {% endfor %}
+
+      </div>
+    </section>
   </div>
-
-  <div class="col-lg-7">
-    <section aria-label="Reminders">
-      <div class="d-flex align-items-baseline gap-3 mb-2">
-        <h5 class="mb-0">Reminders</h5>
-        <a href="{% url 'manage_reminders' %}" class="btn-sm">Manage</a>
+  <div class="col-lg-8">
+  <div class="row">
+  {% for group in reminder_groups %}
+  <div class="col-lg-6 home-overview-column home-overview-{{ group.key }}">
+    <section aria-label="{{ group.title }}">
+      <div class="d-flex align-items-baseline gap-3 mb-2 overview-heading-row">
+        <h5 class="mb-0"><button class="overview-toggle" type="button" aria-expanded="true" aria-controls="{{ group.key }}-content">{{ group.title }} <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" aria-hidden="true" focusable="false" viewBox="0 0 512 512"><polyline points="112 184 256 328 400 184" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px"/></svg></button></h5>
+        <a href="{% url 'manage_reminders' %}?group={{ group.key }}" class="btn-sm ms-auto">Manage</a>
       </div>
-    {% if medical_alert %}
-      <div class="d-flex align-items-center justify-content-between mb-0">
-        <p class="text-{{ medical_alert.severity }} mb-0"><strong>{{ medical_alert.title }}</strong><br>{{ medical_alert.message }} <a href="{% url 'profile_update' user.profile.pk %}">Update</a></p>
-
-      </div>
-    {% elif expiry_date %}
-      <p class="text-success mb-0">Your medical certificate expires {{ expiry_date|date:"m/d/Y" }}</p>
-    {% elif not expiry_date %}
-      <h5>For a medical expiration reminder:</h5>
-      <h5 class="mb-0"><a class="text-dark" href="{% url 'profile_update' user.profile.pk %}">Click here</a></h5>
-    {% endif %}
-
-      {% if reminders %}
-        <ul class="list-unstyled mb-0">
-          {% for reminder in reminders %}
-            <li class="d-flex align-items-center justify-content-between mb-0">
-              <span{% if reminder.severity %} class="text-{{ reminder.severity }}"{% endif %}{% if reminder.kind == 'expiration' and reminder.severity == 'warning' %} style="color: var(--app-expiration-warning-text) !important;"{% endif %}>
-                {% if reminder.kind == 'expiration' %}
-                  <strong>{{ reminder.title }}</strong><br>
-                  {% if reminder.message %}{{ reminder.message }}
-                  {% elif reminder.due_date %}Due {{ reminder.due_date|date:"M j, Y" }}{% endif %}
-                {% else %}
-                  {% if reminder.severity != 'warning' %}{{ reminder.progress_label }}{% endif %}
-                  {% if reminder.message %}{% if reminder.severity != 'warning' %}<br>{% endif %}{{ reminder.message }}{% endif %}
-                {% endif %}
-              </span>
-
-            </li>
+      <div id="{{ group.key }}-content" class="overview-content">
+        <ul class="list-unstyled mb-0 reminder-banners">
+          {% for reminder in group.rows|slice:":3" %}
+            {% include 'home/dashboard_reminder_item.html' %}
           {% endfor %}
         </ul>
-      {% endif %}
+        <div class="home-overview-footer">
+          {% if group.rows|length > 3 %}
+          <details class="other-reminders mt-1">
+            <summary aria-label="Expand or collapse {{ group.title|lower }}"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" aria-hidden="true" focusable="false" viewBox="0 0 512 512"><polyline points="112 184 256 328 400 184" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px"/></svg></summary>
+            <ul class="list-unstyled mb-0 mt-1 reminder-banners">
+              {% for reminder in group.rows|slice:"3:" %}
+                {% include 'home/dashboard_reminder_item.html' %}
+              {% endfor %}
+            </ul>
+          </details>
+          {% endif %}
+        </div>
+      </div>
     </section>
-
-    <hr>
+  </div>
+  {% endfor %}
+  </div>
   </div>
 </div>
+<hr class="home-overview-divider">
+<script>
+(() => {
+  const stacked = window.matchMedia('(max-width: 991.98px)');
+  const toggles = document.querySelectorAll('.overview-toggle');
+  let wasStacked = false;
+  function update() {
+    if (stacked.matches && !wasStacked) {
+      toggles.forEach(button => { button.dataset.collapsed = 'true'; });
+    }
+    document.querySelectorAll('.home-overview .other-reminders').forEach(details => {
+      if (stacked.matches) {
+        if (!wasStacked) details.dataset.desktopOpen = String(details.open);
+        details.open = true;
+        details.hidden = false;
+      } else if (wasStacked) {
+        details.open = details.dataset.desktopOpen === 'true';
+      }
+    });
+    wasStacked = stacked.matches;
+    toggles.forEach(button => {
+      const collapsed = stacked.matches && button.dataset.collapsed === 'true';
+      button.disabled = !stacked.matches;
+      button.setAttribute('aria-expanded', String(!collapsed));
+      document.getElementById(button.getAttribute('aria-controls')).hidden = collapsed;
+    });
+  }
+  toggles.forEach(button => button.addEventListener('click', () => {
+    if (!stacked.matches) return;
+    button.dataset.collapsed = button.dataset.collapsed === 'true' ? 'false' : 'true';
+    update();
+  }));
+  const milestoneColumn = document.querySelector('.home-overview-milestones');
+  const referenceSection = document.querySelector('.home-overview-regulatory > section');
+  const preview = milestoneColumn.querySelector('.reminder-banners');
+  const overflow = milestoneColumn.querySelector('.other-reminders');
+  const overflowList = overflow?.querySelector('.reminder-banners');
+  const milestoneRows = [...preview.children, ...(overflowList ? overflowList.children : [])];
+  let scheduled = false;
+  function fitMilestones() {
+    scheduled = false;
+    if (!overflowList) return;
+    // Keep the existing three-item preview in the stacked layout.
+    let count = Math.min(3, milestoneRows.length);
+    if (!stacked.matches) {
+      milestoneRows.forEach(row => preview.appendChild(row));
+      const heading = milestoneColumn.querySelector('.overview-heading-row');
+      const control = overflow.querySelector('summary');
+      const headingHeight = heading.getBoundingClientRect().height + parseFloat(getComputedStyle(heading).marginBottom);
+      const controlHeight = control.getBoundingClientRect().height || 30;
+      const referenceHeading = referenceSection.querySelector('.overview-heading-row');
+      const referenceHeaderHeight = referenceHeading.getBoundingClientRect().height + parseFloat(getComputedStyle(referenceHeading).marginBottom);
+      const referenceNaturalHeight = referenceHeaderHeight
+        + referenceSection.querySelector('.reminder-banners').getBoundingClientRect().height
+        + referenceSection.querySelector('.home-overview-footer').getBoundingClientRect().height;
+      const available = Math.max(0, referenceNaturalHeight - headingHeight - controlHeight);
+      const gap = parseFloat(getComputedStyle(preview).rowGap) || 0;
+      let used = 0;
+      count = 0;
+      for (const row of milestoneRows) {
+        const next = used + row.getBoundingClientRect().height + (count ? gap : 0);
+        if (next > available + 1 && count) break;
+        used = next;
+        count++;
+      }
+      count = Math.min(milestoneRows.length, count + 1);
+    }
+    milestoneRows.forEach((row, index) => (index < count ? preview : overflowList).appendChild(row));
+    overflow.hidden = !stacked.matches && count === milestoneRows.length;
+  }
+  function scheduleFit() {
+    if (!scheduled) {
+      scheduled = true;
+      requestAnimationFrame(fitMilestones);
+    }
+  }
+  const observer = new ResizeObserver(scheduleFit);
+  observer.observe(referenceSection);
+  observer.observe(milestoneColumn);
+  document.fonts.ready.then(scheduleFit);
+  window.addEventListener('resize', scheduleFit);
+  stacked.addEventListener('change', () => { update(); scheduleFit(); });
+  update();
+  scheduleFit();
+})();
+</script>
 
 <div class="row">
   <div class="col-12">
@@ -97,11 +178,16 @@
       <div class="col-md-6" style="">
         {% include 'home/vfr_currency.html' %}
       </div>
+      {% if instrument_applicable %}
       <div class="col-md-6" style="">
         {% include 'home/ifr_currency.html' %}
       </div>
+      {% endif %}
       <div class="col-md-6" style="">
         {% include 'home/type_currency.html' %}
+      </div>
+      <div class="col-md-6">
+        {% include 'home/flight_review_currency.html' %}
       </div>
     </div>
   </div>

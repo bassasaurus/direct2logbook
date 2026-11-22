@@ -1,5 +1,5 @@
 """Evaluate the same reminders for the dashboard and the mobile API."""
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 
 from django.db import transaction
 from django.shortcuts import get_object_or_404
@@ -17,18 +17,21 @@ def total_hours(user):
 
 def medical_expiration_alert(expiry_date, dismissed_for=None):
     if expiry_date is None:
-        return None
-    days_remaining = (expiry_date - timezone.localdate()).days
-    if days_remaining > 60:
-        return None
-    upcoming = days_remaining > 30
+        return {'title': 'Medical certificate', 'message': 'Medical expiration date not recorded.',
+                'severity': 'danger', 'banner': True, 'days_remaining': None, 'missing': True}
+    today = timezone.localdate()
+    days_remaining = (expiry_date - today).days
+    severity = ('danger' if days_remaining < 14 else
+                'warning' if (expiry_date.year, expiry_date.month) <= (today.year, today.month) else 'success')
+    upcoming = severity == 'warning'
     if upcoming and dismissed_for == expiry_date:
         return None
-    status = 'Expired' if days_remaining < 0 else 'Expires'
+    status = 'Medical review overdue since' if days_remaining < 0 else 'Review medical by'
     alert = {
         'title': 'Medical certificate',
         'message': f'{status} {expiry_date:%b %d, %Y}.',
-        'severity': 'warning' if upcoming else 'danger',
+        'severity': severity, 'banner': severity != 'success', 'days_remaining': days_remaining,
+        'due_date': expiry_date,
     }
     if upcoming:
         alert['key'] = expiry_date.isoformat()
@@ -50,6 +53,11 @@ def dismiss_medical_warning(user, key):
 def milestone_hours(reminder, today, all_hours=None):
     if reminder.kind == Reminder.Kind.FLIGHT_TIME:
         return total_hours(reminder.user_id) if all_hours is None else all_hours
+    if reminder.kind == Reminder.Kind.FLIGHT_CONDITION:
+        if reminder.condition not in Reminder.FlightCondition.values:
+            return Decimal('0')
+        return Total.objects.filter(user=reminder.user_id, total='All').values_list(
+            reminder.condition, flat=True).first() or Decimal('0')
     if reminder.kind == Reminder.Kind.COMPANY_TIME:
         if not reminder.company_start_date:
             return Decimal('0')
@@ -69,73 +77,143 @@ def milestone_hours(reminder, today, all_hours=None):
 
 
 def milestone_progress_label(reminder):
-    if reminder.kind == Reminder.Kind.EXPIRATION:
+    if reminder.is_dated:
         return None
-    return reminder.milestone_label(milestone_hours(reminder, timezone.localdate()))
+    return reminder.milestone_progress_label(milestone_hours(reminder, timezone.localdate()))
 
 
 def reminder_notice(reminder, today, hours, *, respect_dismissal=True):
-    if reminder.kind != Reminder.Kind.EXPIRATION:
+    if reminder.kind == Reminder.Kind.IPC:
+        from home.currency import instrument_recency
+        instrument = instrument_recency(reminder.user_id, ipc=reminder)
+        reminder.due_date = instrument['instrument_review_date']
+    if not reminder.is_dated:
         if reminder.target_hours is None:
             return None
         key = f'hours:{reminder.target_hours:.1f}'
         remaining = reminder.target_hours - hours
-        green_progress = reminder.kind in (Reminder.Kind.FLIGHT_TIME, Reminder.Kind.COMPANY_TIME)
+        total_or_company = reminder.kind in (Reminder.Kind.FLIGHT_TIME, Reminder.Kind.COMPANY_TIME)
         if remaining <= 0:
             message = f'You reached {reminder.milestone_label()}.'
             severity = 'success'
-        elif (remaining <= (50 if green_progress else 10) and (not respect_dismissal or reminder.dismissed_key != key)
-              and (reminder.kind in (Reminder.Kind.FLIGHT_TIME, Reminder.Kind.COMPANY_TIME) or reminder.aircraft_id)):
+        elif (remaining <= (50 if total_or_company else 10) and (not respect_dismissal or reminder.dismissed_key != key)
+              and (reminder.kind in (Reminder.Kind.FLIGHT_TIME, Reminder.Kind.COMPANY_TIME, Reminder.Kind.FLIGHT_CONDITION) or reminder.aircraft_id)):
             key = f'{key}:approaching'
             message = f'{remaining:.1f} hours to go. {reminder.milestone_label(hours)}.'
-            severity = 'success' if green_progress else 'warning'
+            severity = 'neutral'
         else:
             return None
     else:
         if reminder.due_date is None:
             return None
         days = (reminder.due_date - today).days
-        if days >= 30:
+        if days >= 30 and reminder.kind != Reminder.Kind.IPC:
             return None
         stage = 'expired' if days < 0 else 'urgent' if days <= 14 else 'upcoming'
         key = f'date:{reminder.due_date.isoformat()}:{stage}'
         date_label = reminder.due_date.strftime('%b %d, %Y')
-        message = f'Expired {date_label}.' if days < 0 else f'Due {date_label}.'
+        message = (instrument['instrument_status_message'] if reminder.kind == Reminder.Kind.IPC
+                   else f'Review overdue since {date_label}.' if days < 0 else f'Review by {date_label}.')
         severity = 'danger' if stage != 'upcoming' else 'warning'
+        if reminder.kind == Reminder.Kind.IPC:
+            from home.currency import instrument_alert_details
+            details = instrument_alert_details(instrument, today)
+            message, severity = details['message'], details['severity']
+            key = f"date:{reminder.due_date.isoformat()}:{severity}"
 
     if respect_dismissal and key == reminder.dismissed_key:
         return None
     return {'id': reminder.pk, 'key': key, 'title': reminder.title, 'kind': reminder.kind,
-            'message': message, 'severity': severity}
+            'message': message, 'severity': severity, 'due_date': reminder.due_date if reminder.is_dated else None,
+            'holding_warning': instrument['instrument_holding_warning'] if reminder.kind == Reminder.Kind.IPC else None,
+            'progress_label': reminder.milestone_progress_label(hours) if hours is not None else None, **reminder_metrics(reminder, today, hours)}
 
 
 def reminder_rows(user, *, include_saved=False, respect_dismissal=True):
     reminders = sorted(
         Reminder.objects.filter(user=user).select_related('aircraft').order_by('pk'),
-        key=lambda reminder: reminder.kind == Reminder.Kind.EXPIRATION,
+        key=lambda reminder: reminder.is_dated,
     )
     today = timezone.localdate()
     all_hours = total_hours(user) if any(r.kind == Reminder.Kind.FLIGHT_TIME for r in reminders) else Decimal('0')
     rows = []
     for reminder in reminders:
-        hours = milestone_hours(reminder, today, all_hours) if reminder.kind != Reminder.Kind.EXPIRATION else None
+        hours = milestone_hours(reminder, today, all_hours) if not reminder.is_dated else None
         notice = reminder_notice(reminder, today, hours, respect_dismissal=respect_dismissal)
         if include_saved:
-            row = notice or {'id': reminder.pk, 'title': reminder.title, 'kind': reminder.kind}
-            row['progress_label'] = reminder.milestone_label(hours) if hours is not None else None
+            row = notice or {'id': reminder.pk, 'title': reminder.title, 'kind': reminder.kind,
+                             'severity': 'success' if reminder.is_dated else 'neutral'}
+            row['progress_label'] = reminder.milestone_progress_label(hours) if hours is not None else None
             row['due_date'] = reminder.due_date
+            row.update(reminder_metrics(reminder, today, hours))
             rows.append(row)
         elif notice:
             rows.append(notice)
-    return rows
+    return ordered_reminders(rows)
 
 
 @transaction.atomic
 def dismiss_reminder(user, pk, key):
     reminder = get_object_or_404(Reminder.objects.select_for_update(), user=user, pk=pk)
     today = timezone.localdate()
-    hours = milestone_hours(reminder, today) if reminder.kind != Reminder.Kind.EXPIRATION else None
+    hours = milestone_hours(reminder, today) if not reminder.is_dated else None
     notice = reminder_notice(reminder, today, hours)
     if notice and notice['key'] == key:
         reminder.dismissed_key = key
         reminder.save(update_fields=['dismissed_key'])
+
+
+REMINDER_PRIORITY = {'danger': 0, 'warning': 1, 'success': 2, 'neutral': 3}
+
+
+def reminder_sort_key(row):
+    priority = REMINDER_PRIORITY.get(row.get('severity'), 3)
+    if row.get('medical') and row.get('missing'):
+        return (priority, -1, 0, Decimal('0'))
+    if row.get('days_remaining') is not None:
+        return (priority, 0, row['days_remaining'], Decimal('0'))
+    if row.get('completion_percent') is not None:
+        return (priority, 1, -Decimal(row['completion_percent']), Decimal(row.get('hours_remaining') or '0'))
+    return (priority, 2, 0, Decimal('0'))
+
+
+def ordered_reminders(rows):
+    return sorted(rows, key=reminder_sort_key)
+
+
+def reminder_metrics(reminder, today, hours):
+    if reminder.is_dated:
+        return {'days_remaining': (reminder.due_date - today).days if reminder.due_date else None,
+                'completion_percent': None, 'hours_remaining': None}
+    if reminder.target_hours is None or reminder.target_hours <= 0 or hours is None:
+        return {'days_remaining': None, 'completion_percent': None, 'hours_remaining': None}
+    target, current = Decimal(str(reminder.target_hours)), Decimal(str(hours))
+    percent = max(Decimal('0'), current / target * 100).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)
+    percent = min(percent, Decimal('100.0') if current >= target else Decimal('99.9'))
+    return {'days_remaining': None, 'completion_percent': str(percent),
+            'hours_remaining': str(max(Decimal('0'), target - current))}
+
+
+def reminder_presentation(reminder):
+    today = timezone.localdate()
+    hours = milestone_hours(reminder, today) if not reminder.is_dated else None
+    notice = reminder_notice(reminder, today, hours, respect_dismissal=False)
+    return {
+        'severity': notice['severity'] if notice else 'success' if hours is None else 'neutral',
+        'status_message': notice['message'] if notice and reminder.kind == Reminder.Kind.IPC else None,
+        'holding_warning': notice.get('holding_warning') if notice else None,
+        'progress_label': reminder.milestone_progress_label(hours) if hours is not None else None,
+        **reminder_metrics(reminder, today, hours),
+    }
+
+
+def reminder_groups(rows):
+    """Keep date-based regulatory reminders separate from flight-hour goals."""
+    groups = [{'key': 'regulatory', 'title': 'Reminders', 'rows': []},
+              {'key': 'milestones', 'title': 'Milestones', 'rows': []}]
+    for row in rows:
+        saved = row.get('reminder')
+        kind = saved.kind if saved is not None else row.get('kind')
+        regulatory = row.get('medical') or kind in (Reminder.Kind.EXPIRATION, Reminder.Kind.FLIGHT_REVIEW, Reminder.Kind.INSTRUCTOR_RENEWAL, Reminder.Kind.IPC)
+        groups[0 if regulatory else 1]['rows'].append(row)
+    return groups

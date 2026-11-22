@@ -272,9 +272,9 @@ def medical_expiry_date(profile):
     if profile.first_class:
         months = 6 if profile.over_40 else 12
     elif profile.second_class:
-        months = 12 if profile.over_40 else 24
+        months = 12
     elif profile.third_class:
-        months = 36 if profile.over_40 else 60
+        months = 24 if profile.over_40 else 60
     else:
         return None
 
@@ -286,7 +286,7 @@ def medical_duration(user):
     current_date = datetime.date.today()
     expiry_date = medical_expiry_date(user.profile) or current_date - datetime.timedelta(days=1)
 
-    if current_date < expiry_date:
+    if current_date <= expiry_date:
         current = True
     else:
         current = False
@@ -312,19 +312,110 @@ def medical_duration(user):
     return (expiry_date, this_month, expiring, expired, current)
 
 
-def instrument_recency(user):
-    """Shared website/mobile instrument counts, preserving the website's window."""
-    today = datetime.date.today()
-    flights = Flight.objects.filter(user=user, date__lte=today,
-                                   date__gte=today - datetime.timedelta(days=180))
-    approaches = flights.filter(approach__number__gte=0)
-    quantity = approaches.aggregate(quantity=Sum('approach__number'))['quantity'] or 0
-    approach_date = approaches.first()
-    holds = flights.filter(hold=True)
-    hold_date = holds.last()
+def instrument_recency(user, *, ipc=None):
+    """Shared logged instrument checks using the rolling six-calendar-month window."""
+    from django.utils import timezone
+    from profile.models import Reminder
+    from flights.models import Total, Imported
+    from home.flight_reviews import calendar_month_due_date
+    today = timezone.localdate()
+    window_start = (today.replace(day=1) - relativedelta(months=6))
+    past = Flight.objects.filter(user=user, date__lte=today)
+    flights = past.filter(date__gte=window_start)
+    quantity = flights.filter(approach__number__gt=0).aggregate(quantity=Sum('approach__number'))['quantity'] or 0
+    approaches = past.filter(approach__number__gt=0).values('date', 'approach__number').order_by('-date', '-pk')
+    cumulative = 0
+    sixth_date = None
+    latest_approach = None
+    for row in approaches.iterator():
+        if latest_approach is None:
+            latest_approach = row['date']
+        cumulative += row['approach__number']
+        if cumulative >= 6:
+            sixth_date = row['date']
+            break
+    approach_until = calendar_month_due_date(sixth_date or latest_approach, 6)
+    last_hold = past.filter(hold=True).order_by('-date', '-pk').values_list('date', flat=True).first()
+    hold_date = last_hold if last_hold and last_hold >= window_start else None
+    logged_until = min(approach_until, calendar_month_due_date(last_hold, 6)) if sixth_date and last_hold else None
+    if ipc is None:
+        ipc = Reminder.objects.filter(user=user, kind=Reminder.Kind.IPC).order_by('-ipc_completed_date', '-pk').first()
+    ipc_date = ipc.ipc_completed_date if ipc else None
+    ipc_until = calendar_month_due_date(ipc_date, 6)
+    instrument_time = (Total.objects.filter(user=user, total='All').filter(Q(instrument__gt=0) | Q(simulated_instrument__gt=0)).exists()
+                       or past.filter(Q(instrument__gt=0) | Q(simulated_instrument__gt=0)).exists()
+                       or Imported.objects.filter(user=user).filter(Q(instrument__gt=0) | Q(simulated_instrument__gt=0)).exists())
+    applicable = bool(instrument_time or ipc_date)
+    review_until = max(value for value in (ipc_until, logged_until) if value is not None) if ipc_until or logged_until else None
+    # Show what will be missing immediately after the current window runs out.
+    # Only already-logged experience is projected; future flights are never assumed.
+    action_date = review_until + datetime.timedelta(days=1) if review_until and review_until >= today else today
+    action_window_start = action_date.replace(day=1) - relativedelta(months=6)
+    remaining = past.filter(date__gte=action_window_start, approach__number__gt=0).aggregate(quantity=Sum('approach__number'))['quantity'] or 0
+    approaches_needed = max(0, 6 - remaining)
+    holding_needed = not last_hold or last_hold < action_window_start
+    due = review_until if review_until and review_until >= today else today
+    tasks = []
+    if approaches_needed:
+        tasks.append(f'{approaches_needed} approach' + ('es' if approaches_needed != 1 else ''))
+    if holding_needed:
+        tasks.append('holding')
+    action_text = ('By ' + due.strftime('%b %d, %Y') if action_date > today else 'Check logbook')
+    action_text += ': ' + (', '.join(tasks) if tasks else 'review instrument currency')
+    ifr_current = bool(review_until and review_until >= today)
+    recency_basis = bool(logged_until and logged_until >= today and (not ipc_until or logged_until >= ipc_until))
+    source = 'recency' if ifr_current and recency_basis else 'ipc' if ifr_current else None
+    ipc_required_from = (review_until.replace(day=1) + relativedelta(months=7)) if review_until else None
+    ipc_required = bool(not ifr_current and ipc_required_from and today >= ipc_required_from)
+    recovery_until = ipc_required_from - datetime.timedelta(days=1) if ipc_required_from else None
+    if ifr_current:
+        status_message = f'Based on logged information:\nRequired by {review_until:%b %d, %Y}'
+    elif ipc_required:
+        status_message = f'An IPC may be due by {recovery_until:%b %d, %Y}. Verify your records.'
+    elif review_until:
+        status_message = f'Review IFR currency. {action_text}. An IPC may be due by {recovery_until:%b %d, %Y}.'
+    else:
+        status_message = f'Review IFR currency. {action_text}'
+    holding_warning = ('Holding required' if not hold_date else None)
+    next_requirement = {'due_date': due, 'effective_date': action_date,
+                        'approaches_needed': approaches_needed, 'holding_needed': bool(holding_needed),
+                        'message': action_text}
     return {
-        'appr_quantity': quantity,
-        'appr_current_date': approach_date.date + datetime.timedelta(days=180) if approach_date else None,
-        'hold_quantity': 1 if hold_date else 0,
-        'hold_current_date': hold_date.date if hold_date else None,
+        'instrument_history': applicable, 'instrument_applicable': applicable,
+        'instrument_currency_source': source, 'ipc_required': ipc_required, 'ipc_required_from': ipc_required_from,
+        'instrument_recovery_until': recovery_until,
+        'ifr_current': ifr_current, 'ifr_current_until': review_until if ifr_current else None,
+        'instrument_status_message': status_message, 'instrument_holding_warning': holding_warning,
+        'next_instrument_requirement': next_requirement,
+        'still_needed': max(0, 6 - quantity), 'appr_quantity': quantity, 'appr_current_date': approach_until,
+        'hold_quantity': 1 if hold_date else 0, 'hold_current_date': hold_date,
+        'instrument_window_start': window_start,
+        'ipc_completed_date': ipc_date, 'ipc_review_due_date': ipc_until,
+        'instrument_review_date': review_until,
     }
+
+
+def instrument_alert_details(instrument, today):
+    due = instrument['instrument_review_date']
+    days = (due - today).days if due else None
+    current = instrument['ifr_current']
+    requirement = instrument['next_instrument_requirement']
+    tasks_due = bool(requirement['approaches_needed'] or requirement['holding_needed'])
+    approaching = current and days is not None and 0 <= days <= 30 and tasks_due
+    missing_logged_requirements = instrument['still_needed'] > 0 or not instrument['hold_quantity']
+    severity = 'warning' if missing_logged_requirements or approaching else 'danger' if not current else 'success'
+    message = instrument['instrument_status_message']
+    if approaching:
+        message += '. ' + requirement['message']
+    return {'message': message, 'severity': severity, 'due_date': due, 'days_remaining': days,
+            'holding_warning': instrument['instrument_holding_warning']}
+
+
+def instrument_currency_notice(user, instrument):
+    """Derived IFR alert, including expired history, without duplicate saved IPC rows."""
+    if instrument['ipc_completed_date'] or not instrument['instrument_history']:
+        return None
+    from django.utils import timezone
+    return {'id': 'instrument-currency', 'kind': 'ipc', 'title': 'IFR',
+            **instrument_alert_details(instrument, timezone.localdate()),
+            'completion_percent': None, 'hours_remaining': None}

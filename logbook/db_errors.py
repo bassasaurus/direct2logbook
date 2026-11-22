@@ -5,6 +5,12 @@ from django.http import HttpResponse
 
 logger = logging.getLogger(__name__)
 MESSAGES = {
+    'reminder_ipc_complete': ('ipc_completed_date', 'Enter the IPC completion date.'),
+    'reminder_instructor_complete': ('instructor_period_start', 'Enter the recent-experience period start date.'),
+    'reminder_condition_valid': ('condition', 'Choose a flight condition.'),
+    'reminder_condition_required': ('condition', 'Choose a flight condition.'),
+    'reminder_user_flight_review_unique': ('kind', 'A Flight Review reminder already exists. Edit it to record your latest qualifying event.'),
+    'reminder_flight_review_complete': (None, 'Enter the last qualifying date and choose a completion type.'),
     'aircraft_user_type_ci_unique': ('aircraft_type', 'This aircraft type already exists in your logbook.'),
     'tailnumber_user_reg_ci_unique': ('registration', 'This tailnumber already exists in your logbook.'),
     'unique tailnumber': ('registration', 'This tailnumber already exists in your logbook.'),

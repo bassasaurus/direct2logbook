@@ -56,7 +56,9 @@
     }
     form.addEventListener('submit', function (event) {
       if (submitted) { event.preventDefault(); return; }
-      queueMicrotask(function () {
+      // Browsers can run microtasks between submit listeners, before an inline
+      // confirmation cancels the event. Wait for the entire dispatch to finish.
+      setTimeout(function () {
         if (event.defaultPrevented) return;
         submitted = true;
         show(savingMessage);

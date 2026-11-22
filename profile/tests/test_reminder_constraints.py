@@ -101,7 +101,9 @@ class ReminderConstraintMigrationTests(TransactionTestCase):
             reminder = reminder_model.objects.create(user_id=user.pk, kind='flight_time', target_hours=-5,
                                                      dismissed_key='unchanged')
             snapshot = reminder_model.objects.filter(pk=reminder.pk).values().get()
-            self.assertTrue(reminder_integrity_issues(old, 'default'))
+            from importlib import import_module
+            historical_check = import_module('profile.migrations.0015_reminder_validity').reminder_integrity_issues
+            self.assertTrue(historical_check(old, 'default'))
             with self.assertRaisesMessage(RuntimeError, 'invalid reminder'):
                 MigrationExecutor(connection).migrate(after)
             self.assertEqual(reminder_model.objects.filter(pk=reminder.pk).values().get(), snapshot)

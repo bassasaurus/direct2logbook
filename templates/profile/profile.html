@@ -20,6 +20,8 @@
       <div class="profile-account-actions">
         <a href="{% url 'user_update' user.pk %}">Update name</a>
         <span aria-hidden="true">|</span>
+        <a href="{% url 'profile_update' user.profile.pk %}">Update company</a>
+        <span aria-hidden="true">|</span>
         <a href="{% url 'account_email' %}">Update email</a>
         <span aria-hidden="true">|</span>
         <a href="{% url 'account_change_password' %}">Change password</a>
@@ -35,22 +37,13 @@
       <h5 id="signature-heading">Signature</h5>
       {% if signature %}
         <img src="{{ signature.signature }}" alt="Signature" class="img-fluid profile-signature-image">
-        <a class="text-danger" href="{% url 'signature_delete' user.pk %}">Delete Signature</a>
+        <a href="{% url 'signature_update' %}">Update Signature</a>
       {% else %}
         <a href="{% url 'signature_create' %}">Create New Signature</a>
       {% endif %}
 </section>
 <hr>
 {% include 'profile/subscription.html' %}
-<hr>
-<section aria-labelledby="medical-heading" class="profile-section">
-  <h5 id="medical-heading">Medical Certificate</h5>
-  <dl class="profile-details">
-    <dt>Issued</dt><dd>{{ user.profile.medical_issue_date|date:"m/d/Y"|default:"Not recorded" }}</dd>
-    <dt>Class</dt><dd>{% if user.profile.first_class %}1st Class{% elif user.profile.second_class %}2nd Class{% elif user.profile.third_class %}3rd Class{% else %}Not recorded{% endif %}{% if user.profile.over_40 %} | Over 40{% endif %}</dd>
-  </dl>
-  <a href="{% url 'profile_update' user.profile.pk %}">Update medical info</a>
-</section>
 <hr>
 <section aria-labelledby="data-heading" class="profile-section">
   <h5 id="data-heading" class="mb-2">Data</h5>

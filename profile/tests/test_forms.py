@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.test import TestCase
 
-from profile.forms import ProfileForm
+from profile.forms import MedicalForm, ProfileForm
 from profile.models import Profile
 from profile.signal_profile import create_user_profile, save_user_profile
 
@@ -49,8 +49,7 @@ class ProfileFormTest(TestCase):
         self.assertTrue(form.is_valid(), form.errors)
 
     def test_profile_form_invalid_date(self):
-        form = ProfileForm(data={
-            'company': 'Test Co',
+        form = MedicalForm(data={
             'medical_issue_date': 'invalid-date',
         }, instance=self.profile)
         self.assertFalse(form.is_valid())
@@ -63,7 +62,7 @@ class ProfileFormTest(TestCase):
         }, instance=self.profile)
         self.assertFalse(form.is_valid())
         self.assertIn('company', form.errors)
-        self.assertIn('medical_issue_date', form.errors)
+        self.assertNotIn('medical_issue_date', form.fields)
 
     def test_profile_form_missing_company(self):
         form = ProfileForm(data={

@@ -1,54 +1,18 @@
 {% extends 'base.html' %}
 {% load widget_tweaks %}
-
 {% block content %}
-
-
-    <form data-unsaved-changes data-submit-feedback action="" method="post">{% csrf_token %}
-
-      <h3 class="mt-3 mb-3">Update Profile</h3>
-      <p class="mb-4">{{ user.first_name }} {{ user.last_name}}</p>
-      <h5>Company</h5>
-      <div>{{ form.company |attr:"placeholder:Company" |add_class:"form-control"}}</div>
-      <hr>
-
-      <h5>Medical</h5>
-
-      <label>Issue Date</label>{{ form.medical_issue_date |attr:"id:id_date" |attr:"placeholder:Issue date *" |add_class:"form-control"}}
-      <br>
-      {{ form.profile.user.first_name }}<br <div class="row">
-      <div class="col-2">
-        <p>Class</p>
-      </div>
-      <div class="col-2">
-        <div class="form-check form-check-inline">
-          {{ form.first_class |attr:"id:id_first_class" |add_class:"form-check-input" }}
-          <label class="ms-2 form-check-label" for="id_first_class">1st</label>
-        </div>
-      </div>
-      <div class="col-2">
-        <div class="form-check form-check-inline">
-          {{ form.second_class |attr:"id:id_second_class" |add_class:"form-check-input" }}
-          <label class="ms-2 form-check-label" for="id_second_class">2nd</label>
-        </div>
-      </div>
-      <div class="col-2">
-        <div class="form-check form-check-inline">
-          {{ form.third_class |attr:"id:id_third_class" |add_class:"form-check-input" }}
-          <label class="ms-2 form-check-label" for="id_third_class">3rd</label>
-        </div>
-      </div>
-      <div class="col-2">
-        <div class="form-check form-check-inline">
-          {{ form.over_40 |attr:"id:id_over_40" |add_class:"form-check-input" }}
-          <label class="ms-2 form-check-label" for="id_over">40+</label>
-        </div>
-      </div>
+<div class="row">
+  <div class="col-lg-6">
+    <h3 class="mt-3 mb-3">Update Company</h3>
+    <hr>
+    <form data-unsaved-changes data-submit-feedback method="post">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      <label for="{{ form.company.id_for_label }}">Company</label>
+      {{ form.company|attr:"placeholder:Company"|add_class:"form-control" }}
+      {{ form.company.errors }}
+      <button class="btn mt-3 btn-link" type="submit">Save changes</button>
+    </form>
   </div>
-  <button class="btn mt-3 btn-link" type="submit">Save changes</button>
-  </form>
-
-
-
-{% include 'profile/datepicker.html' %}
+</div>
 {% endblock %}

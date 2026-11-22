@@ -33,8 +33,8 @@ class ReminderTests(TestCase):
         profile.medical_issue_date = date(2026, 5, 10)
         profile.save(update_fields=['active', 'first_class', 'over_40', 'medical_issue_date'])
         expiry = date(2026, 11, 30)
-        for days, severity in [(61, None), (60, 'warning'), (31, 'warning'),
-                               (30, 'danger'), (0, 'danger'), (-1, 'danger')]:
+        for days, severity in [(61, 'success'), (31, 'success'), (30, 'success'), (29, 'warning'),
+                               (14, 'warning'), (13, 'danger'), (0, 'danger'), (-1, 'danger')]:
             with self.subTest(days=days):
                 localdate.return_value = expiry - timedelta(days=days)
                 mobile = self.mobile.get(reverse('mobile_reminders'))
@@ -42,24 +42,24 @@ class ReminderTests(TestCase):
                 self.assertEqual(mobile.status_code, 200)
                 self.assertEqual(web.status_code, 200)
                 alert = mobile.json()['medical_alert']
-                self.assertEqual(web.context['medical_alert'], alert)
+                self.assertEqual({**web.context['medical_alert'], 'due_date': expiry.isoformat()}, alert)
                 if severity is None:
                     self.assertIsNone(alert)
                 else:
                     self.assertEqual(alert['severity'], severity)
-                    self.assertContains(web, f'class="text-{severity} mb-0"><strong>Medical certificate</strong>')
-                    self.assertEqual(alert['message'], f'{"Expired" if days < 0 else "Expires"} Nov 30, 2026.')
-                    self.assertContains(web, reverse('profile_update', args=[profile.pk]))
+                    self.assertContains(web, f'reminder-banner-{severity}')
+                    self.assertEqual(alert['message'], f'{"Medical review overdue since" if days < 0 else "Review medical by"} Nov 30, 2026.')
+                    self.assertContains(web, reverse('medical_update'))
 
-        localdate.return_value = expiry - timedelta(days=60)
+        localdate.return_value = expiry - timedelta(days=29)
         key = self.mobile.get(reverse('mobile_reminders')).json()['medical_alert']['key']
         self.assertRedirects(self.client.post(
             reverse('dismiss_dashboard_medical_warning'), {'key': key},
         ), reverse('home'))
         self.assertIsNone(self.mobile.get(reverse('mobile_reminders')).json()['medical_alert'])
-        self.assertContains(self.client.get(reverse('home')), 'Expires Nov 30, 2026.')
+        self.assertContains(self.client.get(reverse('home')), 'Review medical by Nov 30, 2026.')
 
-        localdate.return_value = expiry - timedelta(days=30)
+        localdate.return_value = expiry - timedelta(days=13)
         dismiss_url = reverse('mobile_medical_warning_dismiss')
         red = self.mobile.post(dismiss_url, {'key': key}, format='json').json()['medical_alert']
         self.assertEqual(red['severity'], 'danger')
@@ -68,7 +68,7 @@ class ReminderTests(TestCase):
 
         profile.medical_issue_date = date(2026, 6, 10)
         profile.save(update_fields=['medical_issue_date'])
-        localdate.return_value = date(2026, 11, 1)
+        localdate.return_value = date(2026, 12, 1)
         renewed = self.mobile.get(reverse('mobile_reminders')).json()['medical_alert']
         self.assertEqual(renewed['severity'], 'warning')
         self.assertNotEqual(renewed['key'], key)
@@ -97,7 +97,7 @@ class ReminderTests(TestCase):
 
         localdate.return_value = self.today + timedelta(days=22)
         expired, = self.notices()
-        self.assertIn('Expired', expired['message'])
+        self.assertIn('Review overdue', expired['message'])
 
     def test_milestone_uses_full_logbook_total_and_stays_dismissed(self):
         reminder = Reminder.objects.create(user=self.user, kind='flight_time', title='First 500 hours', target_hours=500)
@@ -108,30 +108,30 @@ class ReminderTests(TestCase):
         self.assertNotContains(self.client.get(reverse('home')), 'hours to go')
         Total.objects.filter(user=self.user, total='All').update(total_time=450)
         approaching, = self.notices()
-        self.assertEqual(approaching['severity'], 'success')
+        self.assertEqual(approaching['severity'], 'neutral')
         self.assertIn('50.0 hours to go', approaching['message'])
         Total.objects.filter(user=self.user, total='All').update(total_time=490)
         approaching, = self.notices()
-        self.assertEqual(approaching['severity'], 'success')
+        self.assertEqual(approaching['severity'], 'neutral')
         self.assertIn('10.0 hours to go', approaching['message'])
         page = self.client.get(reverse('home'))
-        self.assertContains(page, '10.0 hours to go. Total 490.0 / 500.0.', count=1)
+        self.assertContains(page, 'Total 490.0 / 500.0 | -10', count=1)
         self.assertNotContains(page, 'First 500 hours')
-        self.assertContains(self.client.get(reverse('manage_reminders')), 'Total 490.0 / 500.0')
+        self.assertContains(self.client.get(reverse('manage_reminders'), {'group': 'milestones'}), 'Total 490.0 / 500.0')
         dismiss = reverse('mobile_reminder_dismiss', args=[reminder.pk])
         web_dismiss = reverse('dismiss_dashboard_reminder', args=[reminder.pk])
         self.assertRedirects(self.client.post(web_dismiss, {'key': approaching['key']}), reverse('home'))
-        self.assertContains(self.client.get(reverse('home')), '10.0 hours to go')
+        self.assertContains(self.client.get(reverse('home')), 'Total 490.0 / 500.0 | -10')
         self.assertEqual(self.notices(), [])
         Total.objects.filter(user=self.user, total='All').update(total_time=500)
         notice, = self.notices()
         self.assertEqual(notice['severity'], 'success')
-        self.assertContains(self.client.get(reverse('home')), 'You reached 500.0 total flight hours.')
+        self.assertContains(self.client.get(reverse('home')), 'Total 500.0 / 500.0 | 0')
         self.mobile.post(dismiss, {'key': notice['key']})
         Total.objects.filter(user=self.user, total='All').update(total_time=501)
         self.assertEqual(self.notices(), [])
         saved, = self.mobile.get(reverse('mobile_manage_reminders')).json()['reminders']
-        self.assertEqual(saved['progress_label'], 'Total 501.0 / 500.0')
+        self.assertEqual(saved['progress_label'], 'Total 501.0 / 500.0 | +1')
 
     def test_type_milestones_use_logged_and_imported_hours_for_selected_type_and_role(self):
         aircraft = Aircraft.objects.create(user=self.user, aircraft_type='A320')
@@ -149,12 +149,12 @@ class ReminderTests(TestCase):
             }, format='json')
             self.assertEqual(response.status_code, 201, response.data)
             self.assertEqual(response.data['aircraft'], aircraft.pk)
-        self.assertEqual([notice['severity'] for notice in self.notices()], ['warning', 'warning'])
+        self.assertEqual([notice['severity'] for notice in self.notices()], ['neutral', 'neutral'])
         flight = Flight.objects.create(user=self.user, aircraft_type=aircraft, registration=registration,
                                        date=self.today, route='KIAH-KLAS', duration='10.0', second_in_command=True)
         time_notice, crew_notice = self.notices()
         self.assertEqual(time_notice['message'], 'You reached 100.0 hours in A320.')
-        self.assertEqual(crew_notice['severity'], 'warning')
+        self.assertEqual(crew_notice['severity'], 'neutral')
         flight.second_in_command = False
         flight.pilot_in_command = True
         flight.save()
@@ -163,7 +163,7 @@ class ReminderTests(TestCase):
         response = self.mobile.post(reverse('mobile_reminder_dismiss', args=[crew_notice['id']]),
                                     {'key': crew_notice['key']}, format='json')
         self.assertEqual(response.json()['reminders'], [time_notice])
-        self.assertContains(self.client.get(reverse('manage_reminders')), 'A320 PIC 50.0/50')
+        self.assertContains(self.client.get(reverse('manage_reminders'), {'group': 'milestones'}), 'A320 PIC 50.0/50')
 
     def test_implied_milestone_titles_are_filled_when_omitted(self):
         aircraft = Aircraft.objects.create(user=self.user, aircraft_type='A320')
@@ -216,7 +216,7 @@ class ReminderTests(TestCase):
         response = self.mobile.post(url, {**payload, 'target_hours': '3.0'}, format='json')
         self.assertEqual(response.status_code, 201, response.data)
         self.assertEqual(response.data['goal_label'], '3.0 hours at Example Air')
-        self.assertEqual(response.data['progress_label'], 'Example Air 3.0 / 3.0')
+        self.assertEqual(response.data['progress_label'], 'Example Air 3.0 / 3.0 | 0')
         self.assertEqual(response.data['company_start_date'], '2026-11-02')
         notice, = self.notices()
         self.assertEqual(notice['message'], 'You reached 3.0 hours at Example Air.')
@@ -225,12 +225,12 @@ class ReminderTests(TestCase):
         higher_goal = {**payload, 'target_hours': '4.0'}
         self.assertEqual(self.mobile.put(detail, higher_goal, format='json').status_code, 200)
         approaching, = self.notices()
-        self.assertEqual(approaching['severity'], 'success')
+        self.assertEqual(approaching['severity'], 'neutral')
         self.assertIn('1.0 hours to go', approaching['message'])
         self.assertEqual(self.mobile.put(detail, {**higher_goal, 'company_end_date': None}, format='json').status_code, 200)
         notice, = self.notices()
         self.assertEqual(notice['message'], 'You reached 4.0 hours at Example Air.')
-        self.assertContains(self.client.get(reverse('manage_reminders')), 'Nov 2, 2026 – Present')
+        self.assertContains(self.client.get(reverse('manage_reminders'), {'group': 'milestones'}), 'Nov 2, 2026 – Present')
 
     def test_new_company_milestone_prefills_from_profile_without_overwriting_saved_company(self):
         url = reverse('manage_reminders')
@@ -275,6 +275,8 @@ class ReminderTests(TestCase):
         notice, = self.notices()
         self.mobile.post(reverse('mobile_reminder_dismiss', args=[record['id']]), {'key': notice['key']})
         record['dismissed'] = True
+        record['severity'] = 'danger'
+        record['days_remaining'] = 11
         self.assertEqual(self.mobile.get(collection).json(), {'reminders': [record]})
         update = {'title': 'BFR updated', 'kind': 'expiration', 'due_date': record['due_date']}
         self.assertEqual(self.mobile.put(detail, update, format='json').status_code, 200)
@@ -287,7 +289,7 @@ class ReminderTests(TestCase):
         self.assertIsNone(response.json()['due_date'])
         self.assertEqual(response.json()['target_hours'], '500.0')
         self.assertEqual(Reminder.objects.get(pk=record['id']).dismissed_key, '')
-        self.assertEqual(self.notices()[0]['title'], 'First 500 hours')
+        self.assertEqual(self.notices()[0]['title'], 'Total flight time')
 
         self.assertEqual(self.mobile.delete(detail).status_code, 204)
         self.assertEqual(self.mobile.get(collection).json(), {'reminders': []})
@@ -389,5 +391,5 @@ class ReminderTests(TestCase):
         page = self.client.get(reverse('home'))
         row = next(row for row in page.context['reminders'] if row['id'] == reminder.pk)
         self.assertEqual(row['severity'], 'warning')
-        self.assertContains(page, 'color: var(--app-expiration-warning-text) !important;')
+        self.assertContains(page, 'reminder-banner-warning')
         self.assertNotContains(page, 'aria-label="Dismiss ')
