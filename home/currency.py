@@ -371,7 +371,7 @@ def instrument_recency(user, *, ipc=None):
     if ifr_current:
         status_message = f'Based on logged information:\nRequired by {review_until:%b %d, %Y}'
     elif ipc_required:
-        status_message = f'An IPC may be due by {recovery_until:%b %d, %Y}. Verify your records.'
+        status_message = f'An IPC may be due by {recovery_until:%b %d, %Y}.\nVerify your records.'
     elif review_until:
         status_message = f'Review IFR currency. {action_text}. An IPC may be due by {recovery_until:%b %d, %Y}.'
     else:
