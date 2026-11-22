@@ -20,7 +20,7 @@
       <div class="d-flex justify-content-between align-items-center gap-3 mb-2"><dt class="fw-normal text-start flex-grow-1">Issued</dt><dd class="text-end ms-auto mb-0">{{ medical_profile.medical_issue_date|date:"d/m/Y"|default:"Not recorded" }}</dd></div>
       <div class="d-flex justify-content-between align-items-center gap-3"><dt class="fw-normal text-start flex-grow-1">40 or older</dt><dd class="text-end ms-auto mb-0">{{ medical_profile.over_40|yesno:"Yes,No" }}</dd></div>
     </dl>
-    <div class="text-end mt-3"><a href="{% url 'medical_update' %}">Update</a></div>
+    <div class="text-start mt-3"><a href="{% url 'medical_update' %}">Update</a></div>
   </div>
   </div>
 </section>
