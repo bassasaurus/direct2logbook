@@ -48,7 +48,7 @@ class ReminderTests(TestCase):
                 else:
                     self.assertEqual(alert['severity'], severity)
                     self.assertContains(web, f'reminder-banner-{severity}')
-                    self.assertEqual(alert['message'], f'{"Medical review overdue since" if days < 0 else "Review medical by"} Nov 30, 2026.')
+                    self.assertEqual(alert['message'], f'{"Was due by" if days < 0 else "Due by"} Nov 30, 2026.')
                     self.assertContains(web, reverse('medical_update'))
 
         localdate.return_value = expiry - timedelta(days=29)
@@ -57,7 +57,7 @@ class ReminderTests(TestCase):
             reverse('dismiss_dashboard_medical_warning'), {'key': key},
         ), reverse('home'))
         self.assertIsNone(self.mobile.get(reverse('mobile_reminders')).json()['medical_alert'])
-        self.assertContains(self.client.get(reverse('home')), 'Review medical by Nov 30, 2026.')
+        self.assertContains(self.client.get(reverse('home')), 'Due by Nov 30, 2026.')
 
         localdate.return_value = expiry - timedelta(days=13)
         dismiss_url = reverse('mobile_medical_warning_dismiss')

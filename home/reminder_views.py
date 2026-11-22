@@ -61,6 +61,7 @@ def manage_reminders(request, pk=None, reminder_kind=None):
         'form_group_title': dict(form.fields['kind'].choices).get(form['kind'].value(), 'Reminder' if group == 'regulatory' else 'Milestone'),
         'form': form, 'reminders': saved_reminders, 'editing': reminder, 'reminder_cards': ordered_reminders(cards),
         'reminder_groups': [section for section in reminder_groups(ordered_reminders([card for card in cards if not card.get('medical')])) if section['key'] == group],
+        'web_hidden_reminders': hidden_web_reminders(request.user),
         'medical_status': medical_status,
         'medical_profile': request.user.profile, 'medical_due_date': medical_expiry_date(request.user.profile),
         'title': 'D-> | Reminders',
@@ -96,3 +97,48 @@ def restore_dashboard_reminder(request, pk):
     reminder = get_object_or_404(Reminder, user=request.user, pk=pk)
     Reminder.objects.filter(user=request.user, pk=reminder.pk).update(dismissed_key='')
     return redirect('manage_reminders')
+
+
+@login_required
+@require_POST
+@transaction.atomic
+def web_reminder_action(request):
+    from datetime import timedelta
+    from django.core.signing import BadSignature, Signer
+    from django.utils import timezone
+    from profile.models import Profile
+    try:
+        notice = Signer(salt='web-reminder').unsign_object(request.POST.get('key', ''))
+    except (BadSignature, ValueError, TypeError):
+        return redirect('home')
+    if not isinstance(notice, dict) or notice.get('user') != request.user.pk:
+        return redirect('home')
+    profile = Profile.objects.select_for_update().get(user=request.user)
+    preferences = dict(profile.web_reminder_preferences)
+    key = notice['id']
+    action = request.POST.get('action')
+    if action == 'snooze':
+        action = request.POST.get('days')
+    if action == 'restore':
+        preferences.pop(key, None)
+    elif action == 'dismiss' and key == 'ifr':
+        preferences[key] = {'dismissed': True, 'title': notice['title']}
+    elif action in ('1', '3', '7', '14', '30'):
+        preferences[key] = {'until': (timezone.localdate() + timedelta(days=int(action))).isoformat(),
+                            'title': notice['title']}
+    else:
+        return redirect('home')
+    profile.web_reminder_preferences = preferences
+    profile.save(update_fields=['web_reminder_preferences'])
+    return redirect('manage_reminders' if action == 'restore' else 'home')
+
+
+def hidden_web_reminders(user):
+    from django.core.signing import Signer
+    from django.utils import timezone
+    rows = []
+    for key, preference in user.profile.web_reminder_preferences.items():
+        if preference.get('dismissed') or preference.get('until', '') > timezone.localdate().isoformat():
+            rows.append({**preference, 'token': Signer(salt='web-reminder').sign_object({
+                'user': user.pk, 'id': key, 'title': preference['title']})})
+    return rows

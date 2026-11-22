@@ -7,7 +7,7 @@ from profile.views import ProfileNotActiveMixin
 from django.views.generic import TemplateView
 import datetime
 from .reminders import medical_expiration_alert, ordered_reminders, reminder_rows, reminder_groups
-from .currency import instrument_recency, instrument_currency_notice
+from .currency import instrument_recency, instrument_recency_categories, instrument_currency_notice
 from .flight_reviews import flight_review_currency
 from .currency import (
     amel_vfr_day, amel_vfr_night, asel_vfr_day, asel_vfr_night,
@@ -98,6 +98,7 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
 
         # Share the same instrument counts with the mobile API.
         context.update(instrument_recency(user))
+        context['instrument_categories'] = instrument_recency_categories(user)
 
         # iacra
         # use .exists() then assign value when queryset is None and build more specific contexts
@@ -390,10 +391,21 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
         )
 
         medical = dict(context['medical_alert'], medical=True) if context['medical_alert'] else None
-        instrument_notice = instrument_currency_notice(user, context)
+        instrument_notices = [notice for snapshot in context['instrument_categories']
+                              if (notice := instrument_currency_notice(user, snapshot))]
         context['dashboard_reminders'] = ordered_reminders(
-            ([medical] if medical else []) + context['reminders'] + ([instrument_notice] if instrument_notice else []))
+            ([medical] if medical else []) + context['reminders'] + instrument_notices)
 
+        from .reminders import web_reminder_token, web_reminder_hidden
+        from django.utils import timezone
+        visible_reminders = []
+        for notice in context['dashboard_reminders']:
+            if web_reminder_hidden(user.profile.web_reminder_preferences, notice, timezone.localdate()):
+                continue
+            if notice['severity'] == 'danger':
+                notice['web_action_token'] = web_reminder_token(user, notice)
+            visible_reminders.append(notice)
+        context['dashboard_reminders'] = visible_reminders
         context['reminder_groups'] = reminder_groups(context['dashboard_reminders'])
 
         context['new_user_aircraft'] = not Aircraft.objects.filter(user=user).exists()

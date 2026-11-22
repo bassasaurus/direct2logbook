@@ -312,15 +312,46 @@ def medical_duration(user):
     return (expiry_date, this_month, expiring, expired, current)
 
 
-def instrument_recency(user, *, ipc=None):
+INSTRUMENT_CATEGORIES = {'A': 'Airplane', 'R': 'Helicopter'}
+
+
+def default_instrument_category(user):
+    from django.utils import timezone
+    latest = Flight.objects.filter(user=user, date__lte=timezone.localdate()).select_related('aircraft_type').order_by('-date', '-pk').first()
+    if latest:
+        aircraft = latest.aircraft_type
+        if aircraft.aircraft_category == 'A':
+            return 'A'
+        if aircraft.aircraft_category == 'R' and aircraft.aircraft_class == 'HELO':
+            return 'R'
+        return ''
+    from profile.models import Reminder
+    return Reminder.objects.filter(user=user, kind='ipc').order_by('-ipc_completed_date', '-pk').values_list('ipc_category', flat=True).first() or ''
+
+
+def instrument_recency_categories(user):
+    return [snapshot for category in ('A', 'R', '')
+            if (snapshot := instrument_recency(user, category=category))['instrument_applicable']]
+
+
+def instrument_recency(user, *, ipc=None, category=None):
     """Shared logged instrument checks using the rolling six-calendar-month window."""
     from django.utils import timezone
     from profile.models import Reminder
-    from flights.models import Total, Imported
+    from flights.models import Imported
     from home.flight_reviews import calendar_month_due_date
     today = timezone.localdate()
     window_start = (today.replace(day=1) - relativedelta(months=6))
     past = Flight.objects.filter(user=user, date__lte=today)
+    if category is None:
+        category = ipc.ipc_category if ipc else default_instrument_category(user)
+    if category == 'A':
+        category_filter = Q(aircraft_type__aircraft_category='A')
+    elif category == 'R':
+        category_filter = Q(aircraft_type__aircraft_category='R', aircraft_type__aircraft_class='HELO')
+    else:
+        category_filter = ~Q(aircraft_type__aircraft_category='A') & ~Q(aircraft_type__aircraft_category='R', aircraft_type__aircraft_class='HELO')
+    past = past.filter(category_filter)
     flights = past.filter(date__gte=window_start)
     quantity = flights.filter(approach__number__gt=0).aggregate(quantity=Sum('approach__number'))['quantity'] or 0
     approaches = past.filter(approach__number__gt=0).values('date', 'approach__number').order_by('-date', '-pk')
@@ -339,12 +370,14 @@ def instrument_recency(user, *, ipc=None):
     hold_date = last_hold if last_hold and last_hold >= window_start else None
     logged_until = min(approach_until, calendar_month_due_date(last_hold, 6)) if sixth_date and last_hold else None
     if ipc is None:
-        ipc = Reminder.objects.filter(user=user, kind=Reminder.Kind.IPC).order_by('-ipc_completed_date', '-pk').first()
-    ipc_date = ipc.ipc_completed_date if ipc else None
+        ipc = Reminder.objects.filter(user=user, kind=Reminder.Kind.IPC, ipc_category=category, ipc_completed_date__lte=today).order_by('-ipc_completed_date', '-pk').first()
+    ipc_date = ipc.ipc_completed_date if ipc and ipc.ipc_category == category and ipc.ipc_completed_date <= today else None
     ipc_until = calendar_month_due_date(ipc_date, 6)
-    instrument_time = (Total.objects.filter(user=user, total='All').filter(Q(instrument__gt=0) | Q(simulated_instrument__gt=0)).exists()
-                       or past.filter(Q(instrument__gt=0) | Q(simulated_instrument__gt=0)).exists()
-                       or Imported.objects.filter(user=user).filter(Q(instrument__gt=0) | Q(simulated_instrument__gt=0)).exists())
+    # Undated summary totals cannot establish recency or a known aircraft category.
+    instrument_time = past.filter(Q(instrument__gt=0) | Q(simulated_instrument__gt=0)).exists()
+    if not category:
+        instrument_time = instrument_time or Imported.objects.filter(user=user).filter(
+            Q(instrument__gt=0) | Q(simulated_instrument__gt=0)).exists()
     applicable = bool(instrument_time or ipc_date)
     review_until = max(value for value in (ipc_until, logged_until) if value is not None) if ipc_until or logged_until else None
     # Show what will be missing immediately after the current window runs out.
@@ -362,25 +395,31 @@ def instrument_recency(user, *, ipc=None):
         tasks.append('holding')
     action_text = ('By ' + due.strftime('%b %d, %Y') if action_date > today else 'Check logbook')
     action_text += ': ' + (', '.join(tasks) if tasks else 'review instrument currency')
-    ifr_current = bool(review_until and review_until >= today)
+    ifr_current = bool(category and review_until and review_until >= today)
+    category_note = '' if category else 'Verify the aircraft category and IPC record.'
     recency_basis = bool(logged_until and logged_until >= today and (not ipc_until or logged_until >= ipc_until))
     source = 'recency' if ifr_current and recency_basis else 'ipc' if ifr_current else None
     ipc_required_from = (review_until.replace(day=1) + relativedelta(months=7)) if review_until else None
     ipc_required = bool(not ifr_current and ipc_required_from and today >= ipc_required_from)
     recovery_until = ipc_required_from - datetime.timedelta(days=1) if ipc_required_from else None
-    if ifr_current:
+    if not category:
+        status_message = 'Review IFR currency. Category not specified.'
+    elif ifr_current:
         status_message = f'Based on logged information:\nRequired by {review_until:%b %d, %Y}'
     elif ipc_required:
-        status_message = f'An IPC may be due by {recovery_until:%b %d, %Y}.\nVerify your records.'
+        status_message = f'IFR currency expired {review_until:%b %d, %Y}.\nVerify your records.'
     elif review_until:
-        status_message = f'Review IFR currency. {action_text}. An IPC may be due by {recovery_until:%b %d, %Y}.'
+        status_message = f'IFR currency expired {review_until:%b %d, %Y}. {action_text}.\nVerify your records.'
     else:
         status_message = f'Review IFR currency. {action_text}'
-    holding_warning = ('Holding required' if not hold_date else None)
+    if category_note:
+        status_message += '\n' + category_note
+    holding_warning = ('Holding required' if quantity > 0 and not hold_date else None)
     next_requirement = {'due_date': due, 'effective_date': action_date,
                         'approaches_needed': approaches_needed, 'holding_needed': bool(holding_needed),
                         'message': action_text}
     return {
+        'instrument_category': category, 'instrument_category_label': INSTRUMENT_CATEGORIES.get(category, 'Category not specified'),
         'instrument_history': applicable, 'instrument_applicable': applicable,
         'instrument_currency_source': source, 'ipc_required': ipc_required, 'ipc_required_from': ipc_required_from,
         'instrument_recovery_until': recovery_until,
@@ -403,7 +442,9 @@ def instrument_alert_details(instrument, today):
     tasks_due = bool(requirement['approaches_needed'] or requirement['holding_needed'])
     approaching = current and days is not None and 0 <= days <= 30 and tasks_due
     missing_logged_requirements = instrument['still_needed'] > 0 or not instrument['hold_quantity']
-    severity = 'warning' if missing_logged_requirements or approaching else 'danger' if not current else 'success'
+    expired = days is not None and days < 0
+    severity = ('danger' if expired else 'warning' if missing_logged_requirements or approaching
+                else 'danger' if not current else 'success')
     message = instrument['instrument_status_message']
     if approaching:
         message += '. ' + requirement['message']
@@ -416,6 +457,8 @@ def instrument_currency_notice(user, instrument):
     if instrument['ipc_completed_date'] or not instrument['instrument_history']:
         return None
     from django.utils import timezone
-    return {'id': 'instrument-currency', 'kind': 'ipc', 'title': 'IFR',
+    return {'id': 'instrument-currency' + (('-' + instrument['instrument_category']) if instrument['instrument_category'] else ''),
+            'kind': 'ipc', 'title': 'IFR — ' + instrument['instrument_category_label'],
+            'category': instrument['instrument_category'],
             **instrument_alert_details(instrument, timezone.localdate()),
             'completion_percent': None, 'hours_remaining': None}

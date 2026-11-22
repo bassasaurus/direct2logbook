@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from home.reminder_forms import ReminderForm
-from home.currency import medical_expiry_date, instrument_recency, instrument_currency_notice
+from home.currency import medical_expiry_date, instrument_recency, instrument_recency_categories, instrument_currency_notice
 from home.reminders import (
     dismiss_medical_warning, dismiss_reminder, medical_expiration_alert, ordered_reminders, reminder_presentation, reminder_rows,
 )
@@ -23,6 +23,8 @@ class MobileRemindersView(APIView):
         profile = get_object_or_404(Profile, user=request.user)
         return Response({
             'reminders': reminder_rows(request.user),
+            'instrument_alerts': [notice for row in instrument_recency_categories(request.user)
+                                  if (notice := instrument_currency_notice(request.user, row))],
             'instrument_alert': instrument_currency_notice(request.user, instrument_recency(request.user)),
             'medical_alert': medical_expiration_alert(medical_expiry_date(profile), profile.medical_warning_dismissed_for),
         })
@@ -54,6 +56,11 @@ class MobileReminderDismissView(APIView):
 
 
 class SavedReminderSerializer(serializers.ModelSerializer):
+    title = serializers.SerializerMethodField()
+
+    def get_title(self, obj):
+        return f"IPC — {obj.get_ipc_category_display() or 'Category not specified'}" if obj.kind == Reminder.Kind.IPC else obj.title
+
     ipc_completed_date = serializers.DateField(format='%Y-%m-%d')
     instructor_period_start = serializers.DateField(format='%Y-%m-%d')
     last_qualifying_date = serializers.DateField(format='%Y-%m-%d')
@@ -75,7 +82,7 @@ class SavedReminderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reminder
         fields = ('id', 'title', 'kind', 'due_date', 'target_hours', 'aircraft', 'crew_position',
-                  'company', 'company_start_date', 'company_end_date', 'goal_label', 'progress_label', 'status_message', 'holding_warning', 'dismissed', 'severity', 'days_remaining', 'completion_percent', 'hours_remaining', 'last_qualifying_date', 'completion_type', 'completion_type_label', 'condition', 'instructor_period_start', 'ipc_completed_date')
+                  'company', 'company_start_date', 'company_end_date', 'goal_label', 'progress_label', 'status_message', 'holding_warning', 'dismissed', 'severity', 'days_remaining', 'completion_percent', 'hours_remaining', 'last_qualifying_date', 'completion_type', 'completion_type_label', 'condition', 'instructor_period_start', 'ipc_completed_date', 'ipc_category')
 
     def to_representation(self, instance):
         if instance.kind == Reminder.Kind.IPC:
@@ -124,7 +131,7 @@ class SavedReminderSerializer(serializers.ModelSerializer):
 def save_reminder(request, instance=None):
     if not isinstance(request.data, dict):
         raise serializers.ValidationError('Expected a reminder object.')
-    for field in ('title', 'kind', 'due_date', 'crew_position', 'company', 'company_start_date', 'company_end_date', 'last_qualifying_date', 'completion_type', 'condition', 'instructor_period_start', 'ipc_completed_date'):
+    for field in ('title', 'kind', 'due_date', 'crew_position', 'company', 'company_start_date', 'company_end_date', 'last_qualifying_date', 'completion_type', 'condition', 'instructor_period_start', 'ipc_completed_date', 'ipc_category'):
         value = request.data.get(field)
         if value is not None and not isinstance(value, str):
             raise serializers.ValidationError({field: ['Expected a string.']})

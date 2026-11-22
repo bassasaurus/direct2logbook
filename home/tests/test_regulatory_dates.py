@@ -19,7 +19,7 @@ class RegulatoryDateTests(TestCase):
         self.user.profile.save()
         self.client.force_login(self.user)
         self.mobile = APIClient(); self.mobile.force_authenticate(self.user)
-        self.aircraft = Aircraft.objects.create(user=self.user, aircraft_type='C172')
+        self.aircraft = Aircraft.objects.create(user=self.user, aircraft_type='C172', aircraft_category='A', aircraft_class='SEL')
         self.tail = TailNumber.objects.create(user=self.user, aircraft=self.aircraft, registration='N12345')
 
     def approaches(self, completed, number, hold=True):
@@ -30,7 +30,7 @@ class RegulatoryDateTests(TestCase):
     def test_january_and_june_approaches_drop_at_august_rollover_and_reminder_matches(self):
         self.approaches(date(2026, 1, 5), 2)
         self.approaches(date(2026, 6, 5), 4)
-        reminder = Reminder.objects.create(user=self.user, title='Instrument Currency Review (IPC)', kind='ipc',
+        reminder = Reminder.objects.create(user=self.user, title='Instrument Currency Review (IPC)', kind='ipc', ipc_category='A',
                                           ipc_completed_date=date(2025, 12, 1))
         for today, count in [(date(2026, 6, 30), 6), (date(2026, 7, 31), 6), (date(2026, 8, 1), 4)]:
             with self.subTest(today=today), patch('django.utils.timezone.localdate', return_value=today):
@@ -47,7 +47,7 @@ class RegulatoryDateTests(TestCase):
                 self.assertEqual(home.context['instrument_review_date'], date(2026, 7, 31))
                 if today.month == 8:
                     alert = next(row for row in reminder_rows(self.user) if row['id'] == reminder.pk)
-                    self.assertEqual(alert['severity'], 'warning')
+                    self.assertEqual(alert['severity'], 'danger')
                     self.assertNotIn('Expired', alert['message'])
         self.approaches(date(2026, 7, 3), 2)
         with patch('django.utils.timezone.localdate', return_value=date(2026, 8, 1)):
@@ -58,7 +58,7 @@ class RegulatoryDateTests(TestCase):
 
     def test_dedicated_forms_and_month_end_dates(self):
         cases = [(RegulatoryReminderForm, {'kind': 'instructor_renewal', 'instructor_period_start': '2024-02-29'}, date(2026, 2, 28)),
-                 (RegulatoryReminderForm, {'kind': 'ipc', 'ipc_completed_date': '2026-01-05'}, date(2026, 7, 31)),
+                 (RegulatoryReminderForm, {'kind': 'ipc', 'ipc_category': 'A', 'ipc_completed_date': '2026-01-05'}, date(2026, 7, 31)),
                  (RegulatoryReminderForm, {'kind': 'flight_review', 'last_qualifying_date': '2024-11-05', 'completion_type': 'wings'}, date(2026, 11, 30))]
         for cls, data, expected in cases:
             form = cls(data, user=self.user)
@@ -102,7 +102,7 @@ class RegulatoryDateTests(TestCase):
         self.assertEqual(custom.save_for_user(self.user).title, 'My check')
         for kind, data, expected in [
             ('flight_review', {'last_qualifying_date': '2025-01-01', 'completion_type': 'wings'}, 'BFR'),
-            ('ipc', {'ipc_completed_date': '2025-01-01'}, 'IPC'),
+            ('ipc', {'ipc_category': 'A', 'ipc_completed_date': '2025-01-01'}, 'IPC'),
             ('instructor_renewal', {'instructor_period_start': '2025-01-01'}, 'FIRC'),
         ]:
             form = RegulatoryReminderForm({'kind': kind, 'title': 'Unwanted duplicate title', **data}, user=self.user)
@@ -132,12 +132,12 @@ class RegulatoryDateTests(TestCase):
             api = self.mobile.get('/api/mobile/recency/').data['instrument']
             self.assertEqual(api['status_message'], current['instrument_status_message'])
 
-    def test_recent_ipc_can_establish_currency_but_missing_separate_hold_is_reported(self):
-        obj = Reminder.objects.create(user=self.user, kind='ipc', title='IPC', ipc_completed_date=date(2026, 6, 5))
+    def test_recent_ipc_without_approaches_does_not_show_holding_warning(self):
+        obj = Reminder.objects.create(user=self.user, kind='ipc', ipc_category='A', title='IPC', ipc_completed_date=date(2026, 6, 5))
         with patch('django.utils.timezone.localdate', return_value=date(2026, 7, 1)):
             notice = next(row for row in reminder_rows(self.user) if row['id'] == obj.pk)
             self.assertIn('Based on logged information:\nRequired by Dec 31, 2026', notice['message'])
-            self.assertEqual(notice['holding_warning'], 'Holding required')
+            self.assertIsNone(notice['holding_warning'])
             self.assertNotIn('Holding required', notice['message'])
             saved = self.mobile.get(reverse('mobile_manage_reminders')).data['reminders'][0]
             self.assertEqual(saved['status_message'], notice['message'])
@@ -145,18 +145,18 @@ class RegulatoryDateTests(TestCase):
     def test_automatic_ifr_alert_at_30_day_boundary_and_after_all_experience_ages_out(self):
         self.approaches(date(2026, 1, 5), 6, hold=True)
         for today, severity in [(date(2026, 6, 30), 'success'), (date(2026, 7, 1), 'warning'),
-                                (date(2026, 7, 31), 'warning'), (date(2026, 8, 1), 'warning')]:
+                                (date(2026, 7, 31), 'warning'), (date(2026, 8, 1), 'danger')]:
             with self.subTest(today=today), patch('django.utils.timezone.localdate', return_value=today):
                 alert = self.mobile.get(reverse('mobile_reminders')).data['instrument_alert']
                 self.assertEqual(alert['severity'], severity)
                 if severity == 'warning':
                     self.assertIn('6 approaches, holding', alert['message'])
                 home = self.client.get(reverse('home'))
-                self.assertTrue(any(row.get('id') == 'instrument-currency' for row in home.context['dashboard_reminders']))
+                self.assertTrue(any(row.get('id') == 'instrument-currency-A' for row in home.context['dashboard_reminders']))
         self.assertFalse(Reminder.objects.filter(user=self.user).exists())
 
     def test_saved_ipc_alert_uses_same_30_day_rule_without_duplicate_derived_alert(self):
-        obj = Reminder.objects.create(user=self.user, kind='ipc', title='IPC', ipc_completed_date=date(2026, 1, 5))
+        obj = Reminder.objects.create(user=self.user, kind='ipc', ipc_category='A', title='IPC', ipc_completed_date=date(2026, 1, 5))
         with patch('django.utils.timezone.localdate', return_value=date(2026, 7, 1)):
             data = self.mobile.get(reverse('mobile_reminders')).data
             self.assertIsNone(data['instrument_alert'])
@@ -198,12 +198,12 @@ class RegulatoryDateTests(TestCase):
                 self.assertEqual(snapshot['instrument_recovery_until'], date(2026, 1, 31))
                 if required:
                     self.assertEqual(snapshot['instrument_status_message'],
-                                     'An IPC may be due by Jan 31, 2026.\nVerify your records.')
+                                     'IFR currency expired Jul 31, 2025.\nVerify your records.')
                 else:
-                    self.assertIn('Review IFR currency', snapshot['instrument_status_message'])
+                    self.assertIn('IFR currency expired', snapshot['instrument_status_message'])
 
     def test_explicit_ipc_stays_visible_without_instrument_hour_entries(self):
-        Reminder.objects.create(user=self.user, kind='ipc', title='IPC', ipc_completed_date=date(2026, 6, 5))
+        Reminder.objects.create(user=self.user, kind='ipc', ipc_category='A', title='IPC', ipc_completed_date=date(2026, 6, 5))
         with patch('django.utils.timezone.localdate', return_value=date(2026, 7, 1)):
             snapshot = instrument_recency(self.user)
             self.assertTrue(snapshot['instrument_applicable'])
@@ -223,8 +223,143 @@ class RegulatoryDateTests(TestCase):
             self.assertEqual(notice['severity'], 'success')
 
     def test_recorded_ipc_with_missing_logged_tasks_also_uses_caution(self):
-        obj = Reminder.objects.create(user=self.user, kind='ipc', title='IPC', ipc_completed_date=date(2026, 6, 5))
+        obj = Reminder.objects.create(user=self.user, kind='ipc', ipc_category='A', title='IPC', ipc_completed_date=date(2026, 6, 5))
         with patch('django.utils.timezone.localdate', return_value=date(2026, 7, 1)):
             notice = next(row for row in reminder_rows(self.user) if row['id'] == obj.pk)
             self.assertEqual(notice['severity'], 'warning')
-            self.assertEqual(notice['holding_warning'], 'Holding required')
+            self.assertIsNone(notice['holding_warning'])
+
+    def test_expired_ifr_is_red_and_dismissal_persists_until_restored(self):
+        self.approaches(date(2023, 3, 5), 6, hold=True)
+        with patch('django.utils.timezone.localdate', return_value=date(2026, 11, 21)):
+            home = self.client.get(reverse('home'))
+            alert = next(row for row in home.context['dashboard_reminders'] if row.get('kind') == 'ipc')
+            self.assertEqual(alert['due_date'], date(2023, 9, 30))
+            self.assertEqual(alert['severity'], 'danger')
+            self.assertEqual(alert['message'], 'IFR currency expired Sep 30, 2023.\nVerify your records.')
+            self.assertContains(home, '>Dismiss</button>')
+            self.client.post(reverse('web_reminder_action'), {'key': alert['web_action_token'], 'action': 'dismiss'})
+            self.assertFalse(any(row.get('kind') == 'ipc' for row in self.client.get(reverse('home')).context['dashboard_reminders']))
+            manage = self.client.get(reverse('manage_reminders'))
+            self.assertContains(manage, 'Show Now')
+            token = manage.context['web_hidden_reminders'][0]['token']
+        # Survives session replacement and advancing the date.
+        self.client.logout()
+        self.user.refresh_from_db()
+        self.client.force_login(self.user)
+        with patch('django.utils.timezone.localdate', return_value=date(2027, 1, 1)):
+            self.assertFalse(any(row.get('kind') == 'ipc' for row in self.client.get(reverse('home')).context['dashboard_reminders']))
+            self.client.post(reverse('web_reminder_action'), {'key': token, 'action': 'restore'})
+            self.assertTrue(any(row.get('kind') == 'ipc' for row in self.client.get(reverse('home')).context['dashboard_reminders']))
+
+    def test_red_reminder_snooze_returns_at_selected_day_and_cannot_be_permanently_dismissed(self):
+        obj = Reminder.objects.create(user=self.user, kind='expiration', title='Review', due_date=date(2023, 9, 30))
+        with patch('django.utils.timezone.localdate', return_value=date(2026, 11, 21)):
+            alert = next(row for row in self.client.get(reverse('home')).context['dashboard_reminders'] if row.get('id') == obj.pk)
+            token = alert['web_action_token']
+            self.client.post(reverse('web_reminder_action'), {'key': token, 'action': 'dismiss'})
+            self.assertTrue(any(row.get('id') == obj.pk for row in self.client.get(reverse('home')).context['dashboard_reminders']))
+            self.client.post(reverse('web_reminder_action'), {'key': token, 'action': '7'})
+            self.assertFalse(any(row.get('id') == obj.pk for row in self.client.get(reverse('home')).context['dashboard_reminders']))
+        with patch('django.utils.timezone.localdate', return_value=date(2026, 11, 28)):
+            self.assertTrue(any(row.get('id') == obj.pk for row in self.client.get(reverse('home')).context['dashboard_reminders']))
+
+    def test_web_reminder_action_rejects_other_users_and_modified_tokens(self):
+        from home.reminders import web_reminder_token
+        token = web_reminder_token(self.user, {'id': 'instrument-currency', 'kind': 'ipc', 'title': 'IFR'})
+        other = get_user_model().objects.create_user('other-reminder-owner')
+        self.client.force_login(other)
+        for key in (token, token + 'x'):
+            self.client.post(reverse('web_reminder_action'), {'key': key, 'action': 'dismiss'})
+            other.profile.refresh_from_db()
+            self.assertEqual(other.profile.web_reminder_preferences, {})
+
+    def category_flight(self, category, aircraft_class, count, hold, completed=date(2026, 6, 5)):
+        aircraft = Aircraft.objects.create(user=self.user, aircraft_type=f'{category}{aircraft_class}' or 'UNKN',
+                                           aircraft_category=category, aircraft_class=aircraft_class)
+        tail = TailNumber.objects.create(user=self.user, aircraft=aircraft, registration=f'N{aircraft.pk}')
+        flight = Flight.objects.create(user=self.user, aircraft_type=aircraft, registration=tail,
+                                       date=completed, route='IAH-DEN', duration=1, instrument='0.2', hold=hold)
+        Approach.objects.create(flight_object=flight, approach_type='ILS', number=count)
+        return flight
+
+    def test_airplane_and_helicopter_approaches_and_holds_do_not_mix(self):
+        self.category_flight('A', 'SEL', 3, True)
+        self.category_flight('R', 'HELO', 3, False)
+        with patch('django.utils.timezone.localdate', return_value=date(2026, 7, 1)):
+            airplane = instrument_recency(self.user, category='A')
+            helicopter = instrument_recency(self.user, category='R')
+            self.assertEqual((airplane['appr_quantity'], helicopter['appr_quantity']), (3, 3))
+            self.assertEqual((airplane['hold_quantity'], helicopter['hold_quantity']), (1, 0))
+            self.assertFalse(airplane['ifr_current'])
+            self.assertFalse(helicopter['ifr_current'])
+            self.assertEqual(airplane['next_instrument_requirement']['approaches_needed'], 3)
+            self.assertTrue(helicopter['next_instrument_requirement']['holding_needed'])
+
+    def test_airplane_classes_share_experience_but_helicopter_remains_expired(self):
+        self.category_flight('A', 'SEL', 3, True)
+        self.category_flight('A', 'MEL', 3, False)
+        self.category_flight('R', 'HELO', 6, True, date(2023, 3, 5))
+        with patch('django.utils.timezone.localdate', return_value=date(2026, 7, 1)):
+            airplane = instrument_recency(self.user, category='A')
+            helicopter = instrument_recency(self.user, category='R')
+            self.assertTrue(airplane['ifr_current'])
+            self.assertFalse(helicopter['ifr_current'])
+            self.assertEqual(helicopter['instrument_review_date'], date(2023, 9, 30))
+            home = self.client.get(reverse('home'))
+            self.assertContains(home, 'IFR — Airplane')
+            self.assertContains(home, 'IFR — Helicopter')
+            web = {row['instrument_category']: row for row in home.context['instrument_categories']}
+            recency = self.mobile.get('/api/mobile/recency/').data
+            api = {row['category']: row for row in recency['instrument_categories']}
+            for category in ('A', 'R'):
+                self.assertEqual(api[category]['approaches']['count'], web[category]['appr_quantity'])
+                self.assertEqual(api[category]['current'], web[category]['ifr_current'])
+            alerts = self.mobile.get(reverse('mobile_reminders')).data['instrument_alerts']
+            self.assertEqual({row['category']: row['severity'] for row in alerts}, {'A': 'success', 'R': 'danger'})
+
+    def test_ipc_only_credits_its_recorded_category_and_legacy_ipc_is_not_assumed(self):
+        self.category_flight('R', 'HELO', 1, False)
+        Reminder.objects.create(user=self.user, kind='ipc', ipc_category='A', ipc_completed_date=date(2026, 6, 5))
+        Reminder.objects.create(user=self.user, kind='ipc', ipc_category='', ipc_completed_date=date(2026, 6, 6))
+        with patch('django.utils.timezone.localdate', return_value=date(2026, 7, 1)):
+            self.assertTrue(instrument_recency(self.user, category='A')['ifr_current'])
+            self.assertFalse(instrument_recency(self.user, category='R')['ifr_current'])
+            self.assertIsNone(instrument_recency(self.user, category='R')['ipc_completed_date'])
+            unknown = instrument_recency(self.user, category='')
+            self.assertFalse(unknown['ifr_current'])
+            self.assertIn('Category not specified', unknown['instrument_status_message'])
+
+    def test_unknown_category_and_gyroplane_do_not_credit_helicopter(self):
+        self.category_flight('', '', 6, True)
+        self.category_flight('R', 'GYRO', 6, True)
+        with patch('django.utils.timezone.localdate', return_value=date(2026, 7, 1)):
+            for category in ('A', 'R'):
+                result = instrument_recency(self.user, category=category)
+                self.assertEqual(result['appr_quantity'], 0)
+                self.assertEqual(result['hold_quantity'], 0)
+                self.assertFalse(result['ifr_current'])
+
+    def test_ipc_form_and_mobile_require_category(self):
+        data = {'kind': 'ipc', 'ipc_completed_date': '2026-06-05'}
+        with patch('django.utils.timezone.localdate', return_value=date(2026, 7, 1)):
+            form = RegulatoryReminderForm(data, user=self.user)
+            self.assertFalse(form.is_valid())
+            self.assertIn('ipc_category', form.errors)
+            response = self.mobile.post(reverse('mobile_manage_reminders'), data, format='json')
+            self.assertEqual(response.status_code, 400)
+            response = self.mobile.post(reverse('mobile_manage_reminders'), {**data, 'ipc_category': 'R'}, format='json')
+            self.assertEqual(response.status_code, 201, response.data)
+            self.assertEqual(response.data['ipc_category'], 'R')
+
+    def test_holding_warning_requires_current_approaches_in_same_category(self):
+        self.category_flight('A', 'SEL', 2, False)
+        self.category_flight('R', 'HELO', 6, False, date(2023, 3, 5))
+        with patch('django.utils.timezone.localdate', return_value=date(2026, 7, 1)):
+            airplane = instrument_recency(self.user, category='A')
+            helicopter = instrument_recency(self.user, category='R')
+            self.assertEqual(airplane['instrument_holding_warning'], 'Holding required')
+            self.assertIsNone(helicopter['instrument_holding_warning'])
+            alerts = self.mobile.get(reverse('mobile_reminders')).data['instrument_alerts']
+            self.assertEqual({row['category']: row['holding_warning'] for row in alerts},
+                             {'A': 'Holding required', 'R': None})

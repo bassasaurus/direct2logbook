@@ -178,11 +178,11 @@
       <div class="col-md-6" style="">
         {% include 'home/vfr_currency.html' %}
       </div>
-      {% if instrument_applicable %}
-      <div class="col-md-6" style="">
-        {% include 'home/ifr_currency.html' %}
+      {% for instrument in instrument_categories %}
+      <div class="col-md-6">
+        {% include 'home/ifr_currency.html' with ifr_current=instrument.ifr_current instrument_category_label=instrument.instrument_category_label instrument_status_message=instrument.instrument_status_message instrument_holding_warning=instrument.instrument_holding_warning appr_quantity=instrument.appr_quantity still_needed=instrument.still_needed appr_current_date=instrument.appr_current_date hold_quantity=instrument.hold_quantity hold_current_date=instrument.hold_current_date ipc_completed_date=instrument.ipc_completed_date instrument_review_date=instrument.instrument_review_date next_instrument_requirement=instrument.next_instrument_requirement %}
       </div>
-      {% endif %}
+      {% endfor %}
       <div class="col-md-6" style="">
         {% include 'home/type_currency.html' %}
       </div>
