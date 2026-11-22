@@ -14,7 +14,7 @@
   {% for flight in object_list %}
     {% if flight.remarks %}
       <article class="mb-4">
-        <a href="{% url 'flight_detail' flight.pk %}">{{ flight.date|date:"m/d/Y" }} | {{ flight.route }}</a>
+        <a href="{% url 'flight_detail' flight.pk %}">{{ flight.date|date:"M j, Y" }} | {{ flight.route }}</a>
         <p class="mt-1 mb-0" style="white-space: pre-wrap; overflow-wrap: anywhere;">{{ flight.remarks|remarks_links }}</p>
       </article>
     {% endif %}

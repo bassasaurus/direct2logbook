@@ -1,29 +1,10 @@
 {% extends 'base.html' %}
+{% load date_display %}
 {% block content %}
 <div class="row">
   <div class="col-lg-6">
 {% if form_group == 'regulatory' %}
-<section class="mb-4" aria-labelledby="medical-certificate-heading">
-    <div class="d-flex align-items-center justify-content-between gap-3 mb-2">
-      <h2 id="medical-certificate-heading" class="h5 mb-0">Medical Certificate</h2>
-    </div>
-  <div class="card text-start medical-certificate-card" id="medical-certificate-card">
-  <div class="card-body">
-    <dl class="d-flex justify-content-between align-items-center gap-3 mb-2">
-      <dt class="fw-normal text-start flex-grow-1">Class</dt><dd class="text-end ms-auto mb-0">{% if medical_profile.first_class %}1st Class{% elif medical_profile.second_class %}2nd Class{% elif medical_profile.third_class %}3rd Class{% else %}Not recorded{% endif %}</dd>
-    </dl>
-    <div class="reminder-banner px-0 reminder-banner-{{ medical_status.severity }}{% if not medical_status.banner %} reminder-banner-plain{% endif %} mb-2">
-      <div class="d-flex justify-content-between align-items-center gap-3"><strong>Expires</strong><strong class="text-end">{{ medical_due_date|date:"M j, Y"|default:"Not recorded" }}</strong></div>
-      {% if medical_status.missing %}<div>Medical expiration date not recorded.</div>{% endif %}
-    </div>
-    <dl class="text-muted mb-0">
-      <div class="d-flex justify-content-between align-items-center gap-3 mb-2"><dt class="fw-normal text-start flex-grow-1">Issued</dt><dd class="text-end ms-auto mb-0">{{ medical_profile.medical_issue_date|date:"d/m/Y"|default:"Not recorded" }}</dd></div>
-      <div class="d-flex justify-content-between align-items-center gap-3"><dt class="fw-normal text-start flex-grow-1">40 or older</dt><dd class="text-end ms-auto mb-0">{{ medical_profile.over_40|yesno:"Yes,No" }}</dd></div>
-    </dl>
-    <div class="text-start mt-3"><a href="{% url 'medical_update' %}">Update</a></div>
-  </div>
-  </div>
-</section>
+{% include 'home/medical_card.html' %}
 {% endif %}
 
     <h2 id="reminder-form-title" class="h5">{{ form_group_title }}</h2>
@@ -35,6 +16,11 @@
       {% csrf_token %}
       <input type="hidden" name="reminder_group" value="{{ form_group }}">
       {{ form.as_p }}
+      <span id="reminder-kind-description" class="form-text">
+        <span data-kind-description="flight_review" hidden>Biennial Flight Review</span>
+        <span data-kind-description="instructor_renewal" hidden>Flight Instructor Refresher Course</span>
+        <span data-kind-description="ipc" hidden>Instrument Proficiency Check</span>
+      </span>
       <button class="btn btn-primary" type="submit">Save</button>
       {% if editing %}<a class="btn btn-link" href="{% url 'manage_reminders' %}?group={{ form_group }}">Cancel</a>{% endif %}
     </form>
@@ -46,10 +32,10 @@
       {% for item in web_hidden_reminders %}
       <div class="card card-body mb-2">
         <strong>{{ item.title }}</strong>
-        <div>{% if item.dismissed %}Dismissed{% else %}Snoozed until {{ item.until }}{% endif %}</div>
+        <div>{% if item.caution_due %}Hidden until red{% elif item.dismissed %}Dismissed{% else %}Hidden until {{ item.until|display_date }}{% endif %}</div>
         <form method="post" action="{% url 'web_reminder_action' %}">{% csrf_token %}
           <input type="hidden" name="key" value="{{ item.token }}">
-          <button name="action" value="restore" class="btn btn-link px-0">Show Now</button>
+          <button name="action" value="restore" class="btn btn-link px-0">Restore</button>
         </form>
       </div>
       {% endfor %}
@@ -79,6 +65,7 @@
 </div>
 <script>
   const reminderKind = document.getElementById('id_kind');
+  reminderKind.insertAdjacentElement('afterend', document.getElementById('reminder-kind-description'));
   const reminderFields = {
     title: ['expiration'],
     due_date: ['expiration'],
@@ -96,6 +83,7 @@
     company_end_date: ['company_time'],
   };
   function updateReminderFields() {
+    document.querySelectorAll('[data-kind-description]').forEach(item => { item.hidden = item.dataset.kindDescription !== reminderKind.value; });
     document.getElementById('reminder-form-title').textContent = reminderKind.options[reminderKind.selectedIndex].text;
     document.querySelectorAll('[data-reminder-help]').forEach(help => {
       help.hidden = help.dataset.reminderHelp !== reminderKind.value;
@@ -109,5 +97,8 @@
   }
   reminderKind.addEventListener('change', updateReminderFields);
   updateReminderFields();
+</script>
+<script>
+  $(".reminder-date").datepicker({dateFormat: "M d, yy", changeMonth: true, changeYear: true, yearRange: "1900:+30"});
 </script>
 {% endblock %}

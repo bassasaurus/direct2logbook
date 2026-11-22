@@ -7,7 +7,7 @@
       <h5><button class="overview-toggle" type="button" aria-expanded="true" aria-controls="recent-flights-content">Recent <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" aria-hidden="true" focusable="false" viewBox="0 0 512 512"><polyline points="112 184 256 328 400 184" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px"/></svg></button></h5>
       <div id="recent-flights-content" class="overview-content">
         {% for flight in recent %}
-          <a class="text-nowrap" href="{% url 'flight_detail' flight.pk %}">{{ flight.date|date:"m/d/Y" }} | {{ flight.route }}</a><br>
+          <a class="text-nowrap" href="{% url 'flight_detail' flight.pk %}">{{ flight.date|date:"M j, Y" }} | {{ flight.route }}</a><br>
         {% endfor %}
 
       </div>
@@ -22,18 +22,26 @@
         <h5 class="mb-0"><button class="overview-toggle" type="button" aria-expanded="true" aria-controls="{{ group.key }}-content">{{ group.title }} <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" aria-hidden="true" focusable="false" viewBox="0 0 512 512"><polyline points="112 184 256 328 400 184" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px"/></svg></button></h5>
         <a href="{% url 'manage_reminders' %}?group={{ group.key }}" class="btn-sm ms-auto">Manage</a>
       </div>
+      {% if group.key == 'regulatory' %}
+      <details class="medical-reveal mb-2" {% if medical_card_visible %}open{% endif %}>
+        <summary class="medical-show-link"><span class="medical-show">Show Medical Certificate</span><span class="medical-hide">Hide Medical Certificate</span></summary>
+        <div class="medical-full-card mt-1">
+          {% include 'home/medical_card.html' with medical_profile=user.profile medical_status=medical_card_notice medical_due_date=expiry_date medical_actions=True %}
+        </div>
+      </details>
+      {% endif %}
       <div id="{{ group.key }}-content" class="overview-content">
         <ul class="list-unstyled mb-0 reminder-banners">
-          {% for reminder in group.rows|slice:":3" %}
+          {% for reminder in group.preview_rows %}
             {% include 'home/dashboard_reminder_item.html' %}
           {% endfor %}
         </ul>
         <div class="home-overview-footer">
-          {% if group.rows|length > 3 %}
+          {% if group.extra_rows %}
           <details class="other-reminders mt-1">
             <summary aria-label="Expand or collapse {{ group.title|lower }}"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" aria-hidden="true" focusable="false" viewBox="0 0 512 512"><polyline points="112 184 256 328 400 184" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px"/></svg></summary>
             <ul class="list-unstyled mb-0 mt-1 reminder-banners">
-              {% for reminder in group.rows|slice:"3:" %}
+              {% for reminder in group.extra_rows %}
                 {% include 'home/dashboard_reminder_item.html' %}
               {% endfor %}
             </ul>

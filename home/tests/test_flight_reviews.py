@@ -73,7 +73,7 @@ class FlightReviewTests(TestCase):
         obj = form.save_for_user(self.user)
         table = render_to_string('home/flight_review_currency.html', {'flight_review_currency': flight_review_currency(self.user)})
         self.assertIn('Completed WINGS Phase', table)
-        self.assertIn('02/28/2026', table)
+        self.assertIn('Feb 28, 2026', table)
         self.assertIn('table table-bordered', table)
         obj.dismissed_key = 'old'
         obj.save()

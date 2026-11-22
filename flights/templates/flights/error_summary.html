@@ -4,7 +4,7 @@
   <ul class="mt-3 mb-2 ps-3">
     {% for flight in flight_error_summary %}
     <li class="mb-2">
-      <a class="alert-link" href="{% url 'flight_update' flight.pk %}">{{ flight.date|date:"m/d/Y" }} · {{ flight.aircraft_type }} · {{ flight.registration }} · {{ flight.route }}</a>
+      <a class="alert-link" href="{% url 'flight_update' flight.pk %}">{{ flight.date|date:"M j, Y" }} · {{ flight.aircraft_type }} · {{ flight.registration }} · {{ flight.route }}</a>
       <ul class="ps-3">
         {% for error in flight.validation_errors %}<li>{{ error }}</li>{% endfor %}
       </ul>

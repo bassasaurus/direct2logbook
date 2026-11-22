@@ -29,7 +29,7 @@
                 {% if flight.has_errors %}
                 text-danger logbook-row-error{% endif %}">
                 <td class="ps-2 pe-4 text-start">
-                  <a class="logbook-detail-link" href="{% url 'flight_detail' flight.pk %}">{{flight.date|date:"m/d/Y"}}</a>
+                  <a class="logbook-detail-link" href="{% url 'flight_detail' flight.pk %}">{{flight.date|date:"M j, Y"}}</a>
                   {% if flight.has_errors %}
                     <a href="{% url 'flight_update' flight.pk %}" class="btn btn-sm btn-outline-danger">Update</a>
                   {% endif %}
@@ -38,7 +38,7 @@
                 <td class="pe-4 text-start">{{flight.registration}}</td>
                 <td class="pe-4 text-start logbook-route-cell">{{flight.route}}
                   {% if flight.remarks %}
-                    <button type="button" class="logbook-remarks-toggle" data-remarks-toggle aria-expanded="false" aria-controls="flight-remarks-{{ flight.pk }}" aria-label="Toggle remarks for {{ flight.date|date:'m/d/Y' }}"><span aria-hidden="true">▼</span></button>
+                    <button type="button" class="logbook-remarks-toggle" data-remarks-toggle aria-expanded="false" aria-controls="flight-remarks-{{ flight.pk }}" aria-label="Toggle remarks for {{ flight.date|date:'M j, Y' }}"><span aria-hidden="true">▼</span></button>
                   {% endif %}
                 </td>
                 <td class="text-end">{{flight.duration}}</td>

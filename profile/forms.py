@@ -1,3 +1,4 @@
+from logbook.date_fields import NamedDateInput
 from django import forms
 from .models import Profile
 
@@ -14,8 +15,8 @@ class ProfileForm(forms.ModelForm):
 
 class MedicalForm(forms.ModelForm):
     medical_issue_date = forms.DateField(
-        input_formats=['%d/%m/%Y', '%Y-%m-%d'],
-        widget=forms.DateInput(format='%d/%m/%Y', attrs={'placeholder': 'dd/mm/yyyy'}),
+        input_formats=['%b %d, %Y', '%B %d, %Y', '%d/%m/%Y', '%Y-%m-%d'],
+        widget=NamedDateInput(format='%b %d, %Y', attrs={'placeholder': 'Nov 30, 2026'}),
     )
     class Meta:
         model = Profile

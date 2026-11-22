@@ -395,7 +395,8 @@ class Flight(models.Model):
         return reverse('flight_detail', kwargs={'pk': self.pk})
 
     def __str__(self):
-        return "{} | {}".format(self.date, self.route)
+        from logbook.date_formats import display_date
+        return "{} | {}".format(display_date(self.date), self.route)
 
 
 class TailNumber(models.Model):

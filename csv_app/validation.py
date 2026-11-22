@@ -1,3 +1,4 @@
+from logbook.date_formats import DATE_INPUT_FORMATS
 import csv
 import io
 import re
@@ -74,14 +75,14 @@ def parse_csv(content):
                 if legacy:
                     raw.insert(10, '0')
                 date = None
-                for fmt in ('%Y-%m-%d', '%m/%d/%Y', '%m-%d-%Y'):
+                for fmt in DATE_INPUT_FORMATS:
                     try:
                         date = datetime.strptime(raw[0], fmt).date()
                         break
                     except ValueError:
                         pass
                 if date is None:
-                    raise CSVValidationError('Use YYYY-MM-DD, MM/DD/YYYY, or MM-DD-YYYY for dates.')
+                    raise CSVValidationError('Use Nov 30, 2026, YYYY-MM-DD, MM/DD/YYYY, or MM-DD-YYYY for dates.')
                 for index, label, limit in [(1, 'Aircraft type', 4), (2, 'Registration', 10), (3, 'Route', 50)]:
                     if not raw[index] or len(raw[index]) > limit:
                         raise CSVValidationError(f'{label} is required and must be at most {limit} characters.')

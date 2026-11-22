@@ -43,7 +43,7 @@
 {% regroup object_list by date as flight_days %}
 <nav class="d-flex flex-wrap gap-3 mb-3" aria-label="Flight days">
   {% for group in flight_days reversed %}
-    <a data-route-group="{{ group.grouper|date:'Y-m-d' }}" href="{% url 'flight_by_day' year=group.grouper.year month=group.grouper|date:'b' day=group.grouper.day %}">{{ group.grouper|date:"M j" }}</a>
+    <a data-route-group="{{ group.grouper|date:'Y-m-d' }}" href="{% url 'flight_by_day' year=group.grouper.year month=group.grouper|date:'b' day=group.grouper.day %}">{{ group.grouper|date:"M j, Y" }}</a>
   {% endfor %}
 </nav>
 <hr>
@@ -53,7 +53,7 @@
     <div class="monthly-flight-list pe-lg-2" role="region" aria-label="{% block flight_list_label %}Flights this month{% endblock %}" tabindex="0">
       {% for flight in object_list reversed %}
         <a class="d-block py-2" data-flight-id="{{ flight.pk }}" href="{% url 'flight_detail' flight.pk %}">
-          {{ flight.date|date:"m/d/Y" }} {{ flight.registration }} | {{ flight.route }}
+          {{ flight.date|date:"M j, Y" }} {{ flight.registration }} | {{ flight.route }}
         </a>
       {% endfor %}
     </div>

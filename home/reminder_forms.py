@@ -1,6 +1,9 @@
+from logbook.date_fields import NamedDateInput
 from decimal import Decimal
 
 from django import forms
+from django.db import transaction
+from logbook.date_formats import DATE_INPUT_FORMATS
 from django.db.models.functions import Lower
 
 from flights.models import Aircraft
@@ -11,21 +14,21 @@ from home.flight_reviews import flight_review_due_date, calendar_month_due_date
 
 class ReminderForm(forms.ModelForm):
     due_date = forms.DateField(
-        required=False, input_formats=['%Y-%m-%d'],
-        widget=forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control'}),
+        required=False, input_formats=DATE_INPUT_FORMATS,
+        widget=NamedDateInput(format='%b %d, %Y', attrs={'type': 'text', 'class': 'form-control reminder-date'}),
     )
 
     last_qualifying_date = forms.DateField(
-        required=False, input_formats=['%Y-%m-%d'],
-        widget=forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control'}),
+        required=False, input_formats=DATE_INPUT_FORMATS,
+        widget=NamedDateInput(format='%b %d, %Y', attrs={'type': 'text', 'class': 'form-control reminder-date'}),
     )
 
-    instructor_period_start = forms.DateField(required=False, input_formats=['%Y-%m-%d'],
+    instructor_period_start = forms.DateField(required=False, input_formats=DATE_INPUT_FORMATS,
         label='Recent Experience Period Start Date',
         help_text='Use the start month on your recent-experience record, including the retained month after early renewal. Review scheduled at month-end, 24 months later.',
-        widget=forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control'}))
-    ipc_completed_date = forms.DateField(required=False, input_formats=['%Y-%m-%d'], label='IPC Completion Date',
-        widget=forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control'}))
+        widget=NamedDateInput(format='%b %d, %Y', attrs={'type': 'text', 'class': 'form-control reminder-date'}))
+    ipc_completed_date = forms.DateField(required=False, input_formats=DATE_INPUT_FORMATS, label='IPC Completion Date',
+        widget=NamedDateInput(format='%b %d, %Y', attrs={'type': 'text', 'class': 'form-control reminder-date'}))
 
     class Meta:
         model = Reminder
@@ -39,15 +42,15 @@ class ReminderForm(forms.ModelForm):
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'BFR, IPC, etc.'}),
             'completion_type': forms.Select(attrs={'class': 'form-control'}),
-            'instructor_period_start': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control'}),
-            'ipc_completed_date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control'}),
+            'instructor_period_start': NamedDateInput(format='%b %d, %Y', attrs={'type': 'text', 'class': 'form-control reminder-date'}),
+            'ipc_completed_date': NamedDateInput(format='%b %d, %Y', attrs={'type': 'text', 'class': 'form-control reminder-date'}),
             'condition': forms.Select(attrs={'class': 'form-control'}),
             'kind': forms.Select(attrs={'class': 'form-control'}),
             'aircraft': forms.Select(attrs={'class': 'form-control'}),
             'crew_position': forms.Select(attrs={'class': 'form-control'}),
             'company': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter company name'}),
-            'company_start_date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control'}),
-            'company_end_date': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'form-control'}),
+            'company_start_date': NamedDateInput(format='%b %d, %Y', attrs={'type': 'text', 'class': 'form-control reminder-date'}),
+            'company_end_date': NamedDateInput(format='%b %d, %Y', attrs={'type': 'text', 'class': 'form-control reminder-date'}),
             'target_hours': forms.NumberInput(attrs={'min': '0.1', 'step': '0.1', 'class': 'form-control'}),
         }
 
@@ -154,11 +157,17 @@ class ReminderForm(forms.ModelForm):
             cleaned['company_end_date'] = None
         return cleaned
 
+    @transaction.atomic
     def save_for_user(self, user):
+        from home.regulatory_preferences import key_for
+        previous = Reminder.objects.filter(pk=self.instance.pk, user=user).values('id', 'kind', 'ipc_category').first() if self.instance.pk else None
         reminder = self.save(commit=False)
         reminder.user = user
         reminder.dismissed_key = ''
         reminder.save()
+        if reminder.is_dated or (previous and previous['kind'] in ('expiration', 'flight_review', 'instructor_renewal', 'ipc')):
+            from home.regulatory_preferences import clear_for_edit
+            clear_for_edit(reminder, key_for(previous) if previous and previous['kind'] in ('expiration', 'flight_review', 'instructor_renewal', 'ipc') else None)
         return reminder
 
 

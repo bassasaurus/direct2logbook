@@ -268,9 +268,11 @@ USE_L10N = False
 
 USE_TZ = True
 
-DATE_FORMAT = 'm/d/Y'
+FORMAT_MODULE_PATH = ['logbook.formats']
+DATE_FORMAT = 'M j, Y'
+SHORT_DATE_FORMAT = DATE_FORMAT
 
-DATE_INPUT_FORMATS = ['%m/%d/%Y']
+DATE_INPUT_FORMATS = ['%b %d, %Y', '%B %d, %Y', '%m/%d/%Y', '%Y-%m-%d', '%m-%d-%Y']
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/

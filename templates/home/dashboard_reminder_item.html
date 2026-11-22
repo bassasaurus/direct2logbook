@@ -1,27 +1,37 @@
-        <li class="reminder-banner reminder-banner-{{ reminder.severity }}{% if reminder.medical and not reminder.banner %} reminder-banner-plain{% endif %}"{% if reminder.medical %} data-medical-reminder{% endif %}>
+        <li class="reminder-banner reminder-banner-{{ reminder.severity }}{% if reminder.banner == False %} reminder-banner-plain{% endif %}{% if reminder.milestone_state == "completed" %} milestone-completed{% endif %}"{% if reminder.medical %} data-medical-reminder{% endif %}>
             {% if reminder.medical %}
               <div class="d-flex align-items-baseline justify-content-between gap-2">
                 <strong>{{ reminder.title }}</strong>
                 <a href="{% url 'medical_update' %}">Update</a>
               </div>
-              <div>{{ reminder.message|linebreaksbr }}</div>
-              <div>Class: {% if user.profile.first_class %}1st{% elif user.profile.second_class %}2nd{% elif user.profile.third_class %}3rd{% else %}Not recorded{% endif %} | {% if user.profile.over_40 %}40 or older{% else %}Under 40{% endif %} at examination</div>
+              <div class="d-flex justify-content-between gap-3"><span>Class</span><span>{% if user.profile.first_class %}First Class{% elif user.profile.second_class %}Second Class{% elif user.profile.third_class %}Third Class{% else %}Not recorded{% endif %}</span></div>
+              <div>{% if user.profile.over_40 %}40 or older{% else %}Under 40{% endif %} at examination</div>
+              <div class="d-flex justify-content-between gap-3"><span>Issued</span><span>{{ user.profile.medical_issue_date|date:"M j, Y"|default:"Not recorded" }}</span></div>
+              {% if reminder.due_date %}
+              <div class="d-flex justify-content-between gap-3"><span>{% if reminder.days_remaining < 0 %}Was due by{% else %}Due by{% endif %}</span><span class="text-end ms-auto">{{ reminder.due_date|date:"M j, Y" }}</span></div>
+              {% else %}<div>{{ reminder.message|linebreaksbr }}</div>{% endif %}
             {% elif reminder.kind == 'expiration' or reminder.kind == 'flight_review' or reminder.kind == 'instructor_renewal' or reminder.kind == 'ipc' %}
               <strong>{{ reminder.title }}</strong><br>{% if reminder.message %}{{ reminder.message|linebreaksbr }}{% elif reminder.due_date %}{% if reminder.kind == 'ipc' %}Review IFR by {% else %}Review by {% endif %}{{ reminder.due_date|date:"M j, Y" }}{% endif %}
             {% else %}
               {{ reminder.progress_label }}
             {% endif %}
             {% if reminder.holding_warning %}<div class="text-danger">{{ reminder.holding_warning }}</div>{% endif %}
-            {% if reminder.web_action_token %}
+            {% if reminder.milestone_state %}
+            <form method="post" action="{% url 'dismiss_dashboard_reminder' reminder.id %}" class="d-flex">
+              {% csrf_token %}<input type="hidden" name="key" value="{{ reminder.key }}">
+              <button type="submit" class="btn btn-link ms-auto reminder-dismiss">Dismiss</button>
+            </form>
+            {% elif reminder.web_action_token %}
             <form method="post" action="{% url 'web_reminder_action' %}" class="d-flex align-items-center gap-2">
               {% csrf_token %}
               <input type="hidden" name="key" value="{{ reminder.web_action_token }}">
               <label class="visually-hidden" for="snooze-{{ reminder.id|default:'medical' }}">Snooze duration</label>
               <select class="form-select form-select-sm w-auto" name="days" id="snooze-{{ reminder.id|default:'medical' }}" aria-label="Snooze duration">
-                <option value="1">1 day</option><option value="3">3 days</option><option value="7" selected>7 days</option><option value="14">14 days</option><option value="30">30 days</option>
+                <option value="1">1 day</option><option value="3">3 days</option><option value="7" selected>7 days</option><option value="14">14 days</option>{% if reminder.medical %}<option value="30">30 days</option>{% endif %}
               </select>
               <button type="submit" name="action" value="snooze" class="btn btn-link">Snooze</button>
-              {% if reminder.kind == 'ipc' %}<button name="action" value="dismiss" type="submit" class="btn btn-link ms-auto reminder-dismiss">Dismiss</button>{% endif %}
+              {% if reminder.medical and reminder.severity == 'warning' %}<button name="action" value="dismiss_caution" type="submit" class="btn btn-link ms-auto reminder-dismiss">Dismiss</button>{% endif %}
+              {% if not reminder.medical %}<button name="action" value="dismiss" type="submit" class="btn btn-link ms-auto reminder-dismiss">Dismiss</button>{% endif %}
             </form>
             {% endif %}
           </li>
