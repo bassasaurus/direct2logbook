@@ -21,7 +21,7 @@ class MedicalRemindersTests(TestCase):
     def test_medical_details_live_on_reminders_and_company_remains_on_profile(self):
         reminders = self.client.get(reverse('manage_reminders'))
         self.assertContains(reminders, 'Medical Certificate')
-        self.assertContains(reminders, '11/30/2026')
+        self.assertContains(reminders, 'Nov 30, 2026')
         self.assertContains(reminders, reverse('medical_update'))
         profile = self.client.get(reverse('profile'))
         self.assertNotContains(profile, 'medical-heading')
@@ -41,7 +41,7 @@ class MedicalRemindersTests(TestCase):
         self.assertEqual(self.profile.medical_issue_date, date(2026, 6, 10))
         self.assertEqual(self.profile.company, 'Original Company')
         self.assertEqual(self.other.profile.medical_issue_date, before)
-        self.assertContains(self.client.get(reverse('manage_reminders')), '12/31/2026')
+        self.assertContains(self.client.get(reverse('manage_reminders')), 'Dec 31, 2026')
 
     def test_medical_form_has_reminders_breadcrumb_and_no_company_field(self):
         response = self.client.get(reverse('medical_update'))
