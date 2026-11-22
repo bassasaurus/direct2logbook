@@ -25,6 +25,7 @@ class Profile(models.Model):
     second_class = models.BooleanField(default=False)
     third_class = models.BooleanField(default=False)
     over_40 = models.BooleanField(default=False)
+    web_reminder_preferences = models.JSONField(default=dict, blank=True, editable=False)
     medical_warning_dismissed_for = models.DateField(null=True, blank=True, editable=False)
 
     free_access = models.BooleanField(default=False)
@@ -84,6 +85,7 @@ class Reminder(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=80)
     kind = models.CharField(max_length=24, choices=Kind.choices)
+    ipc_category = models.CharField(max_length=1, choices=(('A', 'Airplane'), ('R', 'Helicopter')), blank=True, default='')
     ipc_completed_date = models.DateField(blank=True, null=True)
     instructor_period_start = models.DateField(blank=True, null=True)
     last_qualifying_date = models.DateField(blank=True, null=True)

@@ -672,3 +672,10 @@ section:has(.other-reminders:not([open])) + .reminders-bottom-divider { display:
   .home-overview .other-reminders > summary { display: none; }
   .home-overview .other-reminders[open] { display: block; }
 }
+
+.medical-certificate-card { background: #e5f4e9; color: #111; border-color: #a8cdb2; }
+.medical-certificate-card .text-muted { color: #111 !important; }
+.medical-certificate-card .reminder-banner-plain { color: #111; }
+.reminder-banner-success[data-medical-reminder] { background: #e5f4e9; border-color: #a8cdb2; color: #111; }
+
+.reminder-banner .reminder-dismiss { padding-right: 0; }

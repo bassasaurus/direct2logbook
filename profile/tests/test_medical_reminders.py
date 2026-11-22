@@ -11,6 +11,7 @@ class MedicalRemindersTests(TestCase):
         self.other = get_user_model().objects.create_user('medical-reminder-other')
         self.profile = self.user.profile
         self.profile.free_access = True
+        self.profile.active = True
         self.profile.company = 'Original Company'
         self.profile.first_class = True
         self.profile.over_40 = True
@@ -21,6 +22,8 @@ class MedicalRemindersTests(TestCase):
     def test_medical_details_live_on_reminders_and_company_remains_on_profile(self):
         reminders = self.client.get(reverse('manage_reminders'))
         self.assertContains(reminders, 'Medical Certificate')
+        home = self.client.get(reverse('home'))
+        self.assertContains(home, 'Class: 1st | 40 or older at examination')
         self.assertContains(reminders, 'Nov 30, 2026')
         self.assertContains(reminders, reverse('medical_update'))
         profile = self.client.get(reverse('profile'))

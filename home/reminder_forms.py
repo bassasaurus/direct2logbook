@@ -30,7 +30,7 @@ class ReminderForm(forms.ModelForm):
     class Meta:
         model = Reminder
         fields = ('title', 'kind', 'due_date', 'aircraft', 'crew_position', 'company',
-                  'company_start_date', 'company_end_date', 'target_hours', 'last_qualifying_date', 'completion_type', 'condition', 'instructor_period_start', 'ipc_completed_date')
+                  'company_start_date', 'company_end_date', 'target_hours', 'last_qualifying_date', 'completion_type', 'condition', 'instructor_period_start', 'ipc_completed_date', 'ipc_category')
         labels = {'kind': 'Reminder Type', 'aircraft': 'Aircraft Type', 'crew_position': 'Crew Position',
                   'last_qualifying_date': 'Last Qualifying Date', 'completion_type': 'Completion Type', 'condition': 'Flight Condition', 'ipc_completed_date': 'IPC Completion Date', 'instructor_period_start': 'Recent Experience Period Start Date',
                   'company_start_date': 'Start date', 'company_end_date': 'End date (optional)'}
@@ -73,6 +73,8 @@ class ReminderForm(forms.ModelForm):
         elif kind:
             cleaned['title'] = dict(RegulatoryReminderForm.type_choices).get(kind, Reminder.Kind(kind).label)
         if kind == Reminder.Kind.IPC:
+            if not cleaned.get('ipc_category'):
+                self.add_error('ipc_category', 'Choose the IPC aircraft category.')
             completed = cleaned.get('ipc_completed_date')
             if not completed and 'ipc_completed_date' not in self.errors:
                 self.add_error('ipc_completed_date', 'Enter the IPC completion date.')
@@ -115,6 +117,7 @@ class ReminderForm(forms.ModelForm):
                 self.add_error('target_hours', 'Target hours must be greater than 0.')
             cleaned['due_date'] = None
         if kind != Reminder.Kind.IPC:
+            cleaned['ipc_category'] = ''
             cleaned['ipc_completed_date'] = None
         if kind != Reminder.Kind.INSTRUCTOR_RENEWAL:
             cleaned['instructor_period_start'] = None

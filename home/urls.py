@@ -4,7 +4,7 @@ from home.views import HomeView, index_view
 from profile.views import MedicalUpdateView
 
 from home.reminder_views import (
-    dismiss_dashboard_medical_warning, dismiss_dashboard_reminder, manage_reminders, remove_reminder, restore_dashboard_reminder,
+    web_reminder_action, dismiss_dashboard_medical_warning, dismiss_dashboard_reminder, manage_reminders, remove_reminder, restore_dashboard_reminder,
 )
 
 urlpatterns = [
@@ -20,5 +20,6 @@ urlpatterns = [
     path('home/reminders/<int:pk>/restore/', restore_dashboard_reminder, name='restore_dashboard_reminder'),
     path('home/reminders/<int:pk>/dismiss/', dismiss_dashboard_reminder, name='dismiss_dashboard_reminder'),
     path('home/reminders/medical/dismiss/', dismiss_dashboard_medical_warning, name='dismiss_dashboard_medical_warning'),
+    path('home/reminders/alerts/action/', web_reminder_action, name='web_reminder_action'),
     path('home/', HomeView.as_view(), name='home'),
 ]

@@ -1,6 +1,6 @@
 <table class="table table-bordered">
   <thead class="table-light">
-    <th colspan=2 class="text-center" style="">IFR<br>
+    <th colspan=2 class="text-center" style="">IFR — {{ instrument_category_label }}<br>
   </thead>
 
   <tr><td>Status</td><td class="{% if ifr_current %}text-success{% else %}text-danger{% endif %}">{{ instrument_status_message|linebreaksbr }}</td></tr>

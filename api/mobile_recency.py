@@ -28,23 +28,29 @@ class MobileRecencyView(APIView):
                   'night': landing_status(values[2], values[3])}
                  for label, values in sorted(currency.type_currency(user).items())]
         instrument = currency.instrument_recency(user)
-        approaches = instrument['appr_quantity']
         return Response({
             'schema_version': 1, 'downloaded_at': timezone.now().isoformat(),
             'as_of': timezone.now().date().isoformat(),
             'categories': categories, 'types': types,
-            'instrument': {
-                'applicable': instrument['instrument_applicable'], 'source': instrument['instrument_currency_source'],
-                'ipc_required': instrument['ipc_required'], 'ipc_required_from': instrument['ipc_required_from'],
-                'recovery_until': instrument['instrument_recovery_until'],
-                'current': instrument['ifr_current'], 'current_until': instrument['ifr_current_until'],
-                'status_message': instrument['instrument_status_message'], 'holding_warning': instrument['instrument_holding_warning'],
-                'next_requirement': instrument['next_instrument_requirement'],
-                'ipc_completed_date': instrument['ipc_completed_date'],
-                'review_date': instrument['instrument_review_date'],
-                'approaches': {'count': approaches, 'required': 6, 'current': approaches >= 6,
-                               'still_needed': max(0, 6 - approaches), 'until': instrument['appr_current_date']},
-                'holding': {'count': instrument['hold_quantity'], 'required': 1,
-                            'current': bool(instrument['hold_quantity']), 'last_date': instrument['hold_current_date']},
-            },
+            'instrument': instrument_payload(instrument),
+            'instrument_categories': [instrument_payload(row) for row in currency.instrument_recency_categories(user)],
         })
+
+
+def instrument_payload(instrument):
+    approaches = instrument['appr_quantity']
+    return {
+        'category': instrument['instrument_category'], 'category_label': instrument['instrument_category_label'],
+        'applicable': instrument['instrument_applicable'], 'source': instrument['instrument_currency_source'],
+        'ipc_required': instrument['ipc_required'], 'ipc_required_from': instrument['ipc_required_from'],
+        'recovery_until': instrument['instrument_recovery_until'],
+        'current': instrument['ifr_current'], 'current_until': instrument['ifr_current_until'],
+        'status_message': instrument['instrument_status_message'], 'holding_warning': instrument['instrument_holding_warning'],
+        'next_requirement': instrument['next_instrument_requirement'],
+        'ipc_completed_date': instrument['ipc_completed_date'],
+        'review_date': instrument['instrument_review_date'],
+        'approaches': {'count': approaches, 'required': 6, 'current': approaches >= 6,
+                       'still_needed': max(0, 6 - approaches), 'until': instrument['appr_current_date']},
+        'holding': {'count': instrument['hold_quantity'], 'required': 1,
+                    'current': bool(instrument['hold_quantity']), 'last_date': instrument['hold_current_date']},
+    }

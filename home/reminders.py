@@ -17,7 +17,7 @@ def total_hours(user):
 
 def medical_expiration_alert(expiry_date, dismissed_for=None):
     if expiry_date is None:
-        return {'title': 'Medical certificate', 'message': 'Medical expiration date not recorded.',
+        return {'title': 'Medical Certificate', 'message': 'Medical expiration date not recorded.',
                 'severity': 'danger', 'banner': True, 'days_remaining': None, 'missing': True}
     today = timezone.localdate()
     days_remaining = (expiry_date - today).days
@@ -26,9 +26,9 @@ def medical_expiration_alert(expiry_date, dismissed_for=None):
     upcoming = severity == 'warning'
     if upcoming and dismissed_for == expiry_date:
         return None
-    status = 'Medical review overdue since' if days_remaining < 0 else 'Review medical by'
+    status = 'Was due by' if days_remaining < 0 else 'Due by'
     alert = {
-        'title': 'Medical certificate',
+        'title': 'Medical Certificate',
         'message': f'{status} {expiry_date:%b %d, %Y}.',
         'severity': severity, 'banner': severity != 'success', 'days_remaining': days_remaining,
         'due_date': expiry_date,
@@ -123,7 +123,10 @@ def reminder_notice(reminder, today, hours, *, respect_dismissal=True):
 
     if respect_dismissal and key == reminder.dismissed_key:
         return None
-    return {'id': reminder.pk, 'key': key, 'title': reminder.title, 'kind': reminder.kind,
+    return {'id': reminder.pk, 'key': key,
+            'title': (f"IPC — {instrument['instrument_category_label']}" if reminder.kind == Reminder.Kind.IPC else reminder.title),
+            'kind': reminder.kind,
+            'category': instrument['instrument_category'] if reminder.kind == Reminder.Kind.IPC else None,
             'message': message, 'severity': severity, 'due_date': reminder.due_date if reminder.is_dated else None,
             'holding_warning': instrument['instrument_holding_warning'] if reminder.kind == Reminder.Kind.IPC else None,
             'progress_label': reminder.milestone_progress_label(hours) if hours is not None else None, **reminder_metrics(reminder, today, hours)}
@@ -217,3 +220,19 @@ def reminder_groups(rows):
         regulatory = row.get('medical') or kind in (Reminder.Kind.EXPIRATION, Reminder.Kind.FLIGHT_REVIEW, Reminder.Kind.INSTRUCTOR_RENEWAL, Reminder.Kind.IPC)
         groups[0 if regulatory else 1]['rows'].append(row)
     return groups
+
+
+def web_reminder_key(notice):
+    return 'ifr' if notice.get('kind') == 'ipc' else 'medical' if notice.get('medical') else str(notice['id'])
+
+
+def web_reminder_token(user, notice):
+    from django.core.signing import Signer
+    return Signer(salt='web-reminder').sign_object({
+        'user': user.pk, 'id': web_reminder_key(notice), 'title': notice.get('title', 'Medical Certificate'),
+    })
+
+
+def web_reminder_hidden(preferences, notice, today):
+    preference = preferences.get(web_reminder_key(notice), {})
+    return preference.get('dismissed', False) or preference.get('until', '') > today.isoformat()

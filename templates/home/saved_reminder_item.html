@@ -12,7 +12,7 @@
   <a href="{% url 'medical_update' %}">Update</a>
 </section>
           {% else %}{% with reminder=card.reminder %}
-          {% if reminder.kind == 'expiration' or reminder.kind == 'flight_review' or reminder.kind == 'instructor_renewal' or reminder.kind == 'ipc' %}<strong>{{ reminder.title }}</strong>{% endif %}
+          {% if reminder.kind == 'expiration' or reminder.kind == 'flight_review' or reminder.kind == 'instructor_renewal' or reminder.kind == 'ipc' %}<strong>{{ reminder.title }}{% if reminder.kind == 'ipc' %} — {{ reminder.get_ipc_category_display|default:"Category not specified" }}{% endif %}</strong>{% endif %}
           <div>
             {% if reminder.status_message %}{{ reminder.status_message|linebreaksbr }}
             {% elif reminder.due_date %}{% if reminder.kind == 'ipc' %}Review IFR by {% else %}Review by {% endif %}{{ reminder.due_date|date:"M j, Y" }}
