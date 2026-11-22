@@ -197,7 +197,8 @@ class RegulatoryDateTests(TestCase):
                 self.assertEqual(snapshot['ipc_required'], required)
                 self.assertEqual(snapshot['instrument_recovery_until'], date(2026, 1, 31))
                 if required:
-                    self.assertIn('An IPC may be due by', snapshot['instrument_status_message'])
+                    self.assertEqual(snapshot['instrument_status_message'],
+                                     'An IPC may be due by Jan 31, 2026.\nVerify your records.')
                 else:
                     self.assertIn('Review IFR currency', snapshot['instrument_status_message'])
 
