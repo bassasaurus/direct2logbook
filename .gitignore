@@ -113,3 +113,11 @@ media/
 
 **/.idea/
 **/.vscode/
+
+# Private signature encryption keys and recovery copies
+**/.config/direct2logbook/
+key-backups/
+signature-key-backups/
+signature.key
+direct2logbook-signature.key
+production-signature*.key
