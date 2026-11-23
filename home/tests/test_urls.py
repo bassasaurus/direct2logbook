@@ -1,4 +1,4 @@
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, override_settings
 from django.urls import reverse, resolve
 from home.views import index_view, HomeView
 
@@ -33,3 +33,19 @@ class TestHomeURLs(SimpleTestCase):
         self.assertContains(response, 'Hide My Email')
         self.assertContains(response, 'We do not use Google Analytics on the website.')
         self.assertNotContains(response, 'page includes Google Analytics code')
+
+
+@override_settings(SECURE_SSL_REDIRECT=False)
+class MobilePrivacyTests(SimpleTestCase):
+    def test_mobile_policy_is_public_and_shares_web_policy(self):
+        response = self.client.get(reverse('mobile_privacy_policy'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'blocks/privacy_policy.html')
+        for text in ('Mobile App Privacy Policy', 'encrypted', 'stroke coordinates',
+                     'Registration text recognition runs on your device',
+                     'Session Replay', 'masked in diagnostic replays.', 'Mobile Storage and Synchronization'):
+            self.assertContains(response, text)
+
+    def test_mobile_policy_preserves_dark_appearance(self):
+        response = self.client.get(reverse('mobile_privacy_policy') + '?appearance=dark')
+        self.assertContains(response, 'css/privacy-dark.css')

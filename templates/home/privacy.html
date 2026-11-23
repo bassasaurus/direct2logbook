@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Privacy Policy | Direct2Logbook</title>
+  <title>{% if mobile_policy %}Mobile App {% endif %}Privacy Policy | Direct2Logbook</title>
   <link rel="stylesheet" href="{% static 'theme/dist/bootstrap/bootstrap.min.css' %}">
   {% if request.GET.appearance == 'dark' %}
     <link rel="stylesheet" href="{% static 'css/privacy-dark.css' %}">
@@ -13,7 +13,12 @@
 <body>
   <main class="container py-4">
     <article class="col-12 col-lg-9 mx-auto">
-      <h1 class="mb-4">Privacy Policy</h1>
+      <h1 class="mb-4">{% if mobile_policy %}Mobile App {% endif %}Privacy Policy</h1>
+      {% if mobile_policy %}
+        <p>This policy covers the Direct2Logbook iOS and Android apps and their connected
+          account services. The shared policy below also explains the website features
+          you may use with the same account.</p>
+      {% endif %}
       {% include 'blocks/privacy_policy.html' %}
     </article>
   </main>

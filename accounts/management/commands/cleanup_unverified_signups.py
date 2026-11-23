@@ -32,6 +32,7 @@ def candidates(cutoff):
         Profile.objects.filter(user_id=OuterRef('pk')).exclude(subscription_id=''),
         BillingProvisioning.objects.filter(user_id=OuterRef('pk')),
         Signature.objects.filter(user_id=OuterRef('pk')).exclude(signature=None).exclude(signature=''),
+        Signature.objects.filter(user_id=OuterRef('pk')).exclude(encrypted_data=''),
     ]
     protected.extend(model.objects.filter(user_id=OuterRef('pk')) for model in (
         Aircraft, Flight, Imported, TailNumber, Reminder,

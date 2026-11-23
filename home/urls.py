@@ -9,6 +9,8 @@ from home.reminder_views import (
 
 urlpatterns = [
     path('', index_view, name='index'),
+    path('privacy/mobile/', TemplateView.as_view(template_name='home/privacy.html',
+         extra_context={'mobile_policy': True}), name='mobile_privacy_policy'),
     path('privacy/', TemplateView.as_view(template_name='home/privacy.html'), name='privacy_policy'),
     path('home/reminders/medical/', MedicalUpdateView.as_view(), name='medical_update'),
     path('home/reminders/flight-review/', manage_reminders, {'reminder_kind': 'flight_review'}, name='flight_review_reminder'),

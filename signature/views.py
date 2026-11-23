@@ -65,7 +65,7 @@ class SignatureUpdateView(LoginRequiredMixin, UpdateView):
     def get_object(self, queryset=None):
         signature = get_object_or_404(Signature, user=self.request.user)
         # Keep a saved snapshot for comparison even if POST validation mutates the form instance.
-        self.current_signature = str(signature.signature or '')
+        self.current_signature = signature.rendered_signature or ''
         return signature
 
     def get_context_data(self, **kwargs):

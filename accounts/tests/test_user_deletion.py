@@ -32,6 +32,7 @@ from signature.models import Signature
 from pdf_output.models import PDFRequest
 
 
+@override_settings(SIGNATURE_ENCRYPTION_KEYS=["c2lnbmF0dXJlLXRlc3Qta2V5LW9ubHktMzItYnl0ZXM="])
 class UserDeletionTests(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(username='delete_me', email='delete@example.com')
@@ -79,7 +80,7 @@ class UserDeletionTests(TestCase):
             flight_object=self.flight, approach_type='ILS', number=1)
         self.holding = Holding.objects.create(flight_object=self.flight, hold=True)
         Imported.objects.create(user=self.user, aircraft_type=self.aircraft, total_time=2)
-        Signature.objects.create(user=self.user, signature='data:image/png;base64,example')
+        Signature.objects.create(user=self.user, signature='data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aP1sAAAAASUVORK5CYII=')
         Reminder.objects.create(user=self.user, title='BFR',
                                 kind=Reminder.Kind.EXPIRATION, due_date=date(2027, 1, 1))
         PDFRequest.objects.create(user=self.user, task_id='pdf-deletion')

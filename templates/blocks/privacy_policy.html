@@ -15,8 +15,18 @@
     aircraft types and registrations, flight times, operating rules, landings,
     approaches, remarks, and other records you enter or import. We use these
     records to provide your logbook, maps, totals, recency information, and exports.</li>
-  <li><strong>Signatures:</strong> when you draw or update a signature, we store
-    a representation of it for display in your account and logbook PDF exports.</li>
+  <li><strong>Signatures:</strong> new signature drawings are stored as encrypted
+    stroke coordinates and converted to an image when needed for display or
+    logbook PDF exports. We use authenticated encryption to detect alterations to
+    the encrypted data, with encryption keys managed separately from the database.
+    Previously saved image signatures are preserved and encrypted during the storage
+    upgrade; they cannot be reconstructed into their original pen strokes.
+    An encrypted database value resembles <code>gAAAAA…</code> (illustrative only),
+    rather than readable drawing coordinates or image data. Authorized application
+    functions decrypt signatures to display them or include them in exports.
+    Exported PDFs contain a visible copy of the signature.
+    This electronic representation of handwriting is not a cryptographic digital
+    signature that verifies a document's origin or detects changes to a signed document.</li>
   <li><strong>Communications:</strong> information you send when requesting
     support or contacting us.</li>
 </ul>
@@ -27,7 +37,7 @@
   <strong>The age-category selection is used only to
   calculate medical certificate expiry.</strong> This feature does not ask for
   your date of birth, diagnoses, medical examination results, or medical history.
-  You can review and update these settings in your profile.</p>
+  You can review and update these settings in Manage Reminders.</p>
 <p>Please avoid including medical diagnoses, payment-card details, or other
   unnecessary sensitive information in remarks or support messages.</p>
 
@@ -90,6 +100,17 @@
   services may collect information about your activity across websites or apps
   under their own policies. This does not limit rights you have under applicable law.</p>
 
+<h2 class="h5 mt-4">Mobile Camera and Signature Capture</h2>
+<p>Camera access is optional and used when you choose to scan an aircraft registration.
+  Registration text recognition runs on your device, including offline; we do not
+  send scan photos to an external OCR service. The app uses temporary images during
+  scanning and adjustment and attempts to remove them when they are no longer needed.
+  You review the recognized registration before saving it to your logbook.</p>
+<p>You can enter registrations manually without camera permission and manage camera
+  permission in your device settings. Drawing a signature uses touch input. Signature
+  encryption protects the server's stored signature, not a visible signature in an
+  exported PDF, a downloaded preview, or a locally saved draft.</p>
+
 <h2 class="h5 mt-4">Mobile Storage and Synchronization</h2>
 <p>The mobile app stores downloaded records, account information, preferences,
   and pending changes on your device to support offline use. Changes made offline
@@ -118,6 +139,14 @@
   <li><strong>Error monitoring:</strong> Sentry receives diagnostic reports to
     help us find and fix problems. Reports can include account identifiers,
     IP addresses, browser or device details, error messages, and request context.
+    Installed mobile releases also use error-triggered Session Replay to help us
+    understand the steps around unexpected failures. Replay can include visible
+    screen text, images, and drawings, including logbook and medical-certificate
+    information displayed on screen. Signature previews and the signature drawing
+    area are masked in diagnostic replays.
+    The app does not intentionally attach network request bodies to replay.
+    Normal offline operation does not by itself trigger an error report.
+    Contact Support opens your mail app so you can review a support email before sending.
     See the <a href="https://sentry.io/privacy/">Sentry privacy policy</a>.</li>
   <li><strong>Authentication, payments, and abuse prevention:</strong> Google, Apple,
     Facebook, and Stripe process information for the purposes described above.</li>
@@ -183,7 +212,7 @@
 
 <h2 class="h5 mt-4">Security and Processing Locations</h2>
 <p>We use safeguards including HTTPS for connections to our service, account access
-  controls, password hashing, and encryption of off-server database backups.
+  controls, password hashing, encrypted signature storage, and encryption of off-server database backups.
   No system or transmission is completely secure. Protect your account credentials
   and device, especially when it contains offline logbook records.</p>
 <p>We operate from the United States. Our providers may process information in the
