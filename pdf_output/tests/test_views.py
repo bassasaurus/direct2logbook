@@ -9,7 +9,7 @@ from signature.models import Signature
 from pdf_output.models import PDFRequest
 
 
-@override_settings(SECURE_SSL_REDIRECT=False)
+@override_settings(SECURE_SSL_REDIRECT=False, SIGNATURE_ENCRYPTION_KEYS=["c2lnbmF0dXJlLXRlc3Qta2V5LW9ubHktMzItYnl0ZXM="])
 class PDFOutputViewsTest(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(

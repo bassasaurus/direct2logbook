@@ -8,10 +8,10 @@ class SignatureAdmin(admin.ModelAdmin):
     list_display = ('user', 'signature_preview')
 
     def signature_preview(self, obj):
-        if obj.signature:
+        if obj.rendered_signature:
             return format_html(
                 '<img src="{}" height="80" style="border:1px solid #ccc"/>',
-                obj.signature
+                obj.rendered_signature
             )
         return "No signature"
 

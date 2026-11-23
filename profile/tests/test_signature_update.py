@@ -6,6 +6,8 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from signature.models import Signature
 
+TEST_SIGNATURE_KEY = "c2lnbmF0dXJlLXRlc3Qta2V5LW9ubHktMzItYnl0ZXM="
+
 
 def image(color):
     output = BytesIO()
@@ -13,7 +15,7 @@ def image(color):
     return 'data:image/png;base64,' + base64.b64encode(output.getvalue()).decode()
 
 
-@override_settings(SECURE_SSL_REDIRECT=False)
+@override_settings(SECURE_SSL_REDIRECT=False, SIGNATURE_ENCRYPTION_KEYS=[TEST_SIGNATURE_KEY])
 class SignatureUpdateTests(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user('signature-web-owner')
@@ -40,9 +42,9 @@ class SignatureUpdateTests(TestCase):
         response = self.client.post(reverse('signature_update'), {'signature': replacement, 'user': self.other.pk})
         self.assertRedirects(response, reverse('profile'))
         self.signature.refresh_from_db(); self.foreign.refresh_from_db()
-        self.assertEqual(self.signature.signature, replacement)
+        self.assertEqual(self.signature.rendered_signature, replacement)
         self.assertEqual(self.signature.user_id, self.user.pk)
-        self.assertEqual(self.foreign.signature, image('white'))
+        self.assertEqual(self.foreign.rendered_signature, image('white'))
         self.assertEqual(Signature.objects.filter(user=self.user).count(), 1)
 
     def test_invalid_or_anonymous_updates_do_not_change_signature(self):
@@ -50,6 +52,6 @@ class SignatureUpdateTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['current_signature'], image('black'))
         self.signature.refresh_from_db()
-        self.assertEqual(self.signature.signature, image('black'))
+        self.assertEqual(self.signature.rendered_signature, image('black'))
         self.client.logout()
         self.assertEqual(self.client.post(reverse('signature_update'), {'signature': image('red')}).status_code, 302)

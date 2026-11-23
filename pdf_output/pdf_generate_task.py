@@ -262,9 +262,7 @@ def _build_pdf(user):
             logger.debug("PDF sig: checking signature for user=%s", user.pk)
             if Signature.objects.filter(user=user).exists():
                 sig = Signature.objects.get(user=user)
-                logger.debug("PDF sig: raw field repr=%r",
-                             getattr(sig, 'signature', None))
-                raw = getattr(sig, 'signature', None)
+                raw = sig.rendered_signature
                 if raw and isinstance(raw, str) and raw.startswith('data:image'):
                     import base64
                     from io import BytesIO

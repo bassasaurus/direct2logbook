@@ -1,0 +1,50 @@
+Encrypted signature storage
+
+New drawings are normalized stroke coordinates encrypted using authenticated
+Fernet encryption. The encrypted envelope includes the account ID, format version,
+and drawing proportions. Database storage contains ciphertext only. Existing PNG
+images are encrypted as images; they are not traced into artificial strokes.
+Web/mobile previews and PDFs render/decrypt on the server. Mobile API output and
+revision hashes remain compatible with already-installed clients.
+
+Configure SIGNATURE_ENCRYPTION_KEYS as a comma-separated list of Fernet keys,
+newest first, OR SIGNATURE_ENCRYPTION_KEY_FILE as an absolute path to a private
+file with one key per line. These are independent of Django SECRET_KEY. Do not
+commit keys or put them in mobile configuration. Store a separate recoverable
+copy of every key needed to decrypt retained database backups.
+
+Rollout
+1. Provision a private key for the target environment and configure Django and
+   Celery to use it. The approved deployment explicitly runs configure_signature_encryption
+   --create-key for first setup. Configured keys are validated and reused. Missing
+   keys for existing encrypted records stop deployment rather than generating replacements.
+2. Apply migrations: python manage.py migrate
+3. Preview conversion: python manage.py encrypt_signatures
+4. Apply and verify: python manage.py encrypt_signatures --apply
+5. Restart Django and Celery with the configured key. Verify signature display
+   and PDF output before shipping the mobile note/policy update.
+
+The conversion is transactional, locks the rows, clears the legacy plaintext
+field, and verifies identical rendered output before committing. Default mode
+rolls back all writes. Repeated conversion skips already-encrypted entries.
+Existing plaintext signatures remain readable until converted. Old database
+backups may still contain the former plaintext representation.
+
+Rotation
+Add the new key FIRST while retaining old keys; restart web and workers so they
+can read both. Run encrypt_signatures --rotate to preview, then add --apply.
+Verify output, then retire old keys only when no retained backups need them.
+An encrypted production backup restored locally requires access to its matching
+signature key; a separately generated development key cannot decrypt it.
+
+Database access alone does not reveal the coordinates. The application can
+decrypt them. A visible signature in a PDF, device cache, draft, screenshot or
+unmasked diagnostic replay is not protected by server-side field encryption.
+The user-facing note reads:
+Your signature is stored as encrypted data and only converted to an image when needed for display or PDF exports.
+
+Production deployment provisions the key under ~/.config/direct2logbook/signature.key
+with owner-only permissions and stores only its path in the application .env.
+Back up this key separately in secure recovery storage. A database backup alone
+cannot recover encrypted signatures if the key is lost. The deployment encrypts
+and verifies existing signatures during maintenance, before restarting services.

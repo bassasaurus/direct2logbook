@@ -49,6 +49,10 @@ DJANGO_ROOT = dirname(dirname(abspath(__file__)))
 
 SECRET_KEY = config('SECRET_KEY')
 
+# Independent keys: first encrypts, remaining keys permit rotation of old records.
+SIGNATURE_ENCRYPTION_KEYS = config('SIGNATURE_ENCRYPTION_KEYS', default='', cast=Csv())
+SIGNATURE_ENCRYPTION_KEY_FILE = config('SIGNATURE_ENCRYPTION_KEY_FILE', default='')
+
 SITE_ID = 8
 
 # SECURITY WARNING: don't run with debug turned on in production!

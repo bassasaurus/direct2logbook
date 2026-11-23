@@ -36,7 +36,7 @@
 <section aria-labelledby="signature-heading" class="profile-section">
       <h5 id="signature-heading">Signature</h5>
       {% if signature %}
-        <img src="{{ signature.signature }}" alt="Signature" class="img-fluid profile-signature-image">
+        <img src="{{ signature.rendered_signature }}" alt="Signature" class="img-fluid profile-signature-image">
         <a href="{% url 'signature_update' %}">Update Signature</a>
       {% else %}
         <a href="{% url 'signature_create' %}">Create New Signature</a>

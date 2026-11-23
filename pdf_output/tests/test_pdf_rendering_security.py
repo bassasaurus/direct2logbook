@@ -18,7 +18,7 @@ def render_sample(first_name, last_name, capture=None, signature=None):
         signatures = stack.enter_context(patch('pdf_output.pdf_generate_task.Signature.objects.filter'))
         signatures.return_value.exists.return_value = signature is not None
         stack.enter_context(patch('pdf_output.pdf_generate_task.Signature.objects.get',
-                                  return_value=SimpleNamespace(signature=signature)))
+                                  return_value=SimpleNamespace(signature=signature, rendered_signature=signature)))
         flights = stack.enter_context(patch('pdf_output.pdf_generate_task.Flight.objects.filter'))
         rows = []
         for day in range(1, 4):

@@ -55,6 +55,7 @@ def snapshot(user):
     else:
         status = 'Active'
     signature = Signature.objects.filter(user=user).first()
+    signature_image = signature.rendered_signature if signature else None
     due_date = medical_expiry_date(profile)
     medical_status = medical_expiration_alert(due_date)
     return {
@@ -71,8 +72,8 @@ def snapshot(user):
         'medical_due_date': due_date.isoformat() if due_date else None,
         'subscription': {'status': status, 'end_date': profile.end_date,
                          'plan': 'Monthly' if profile.monthly else 'Yearly' if profile.yearly else None},
-        'signature_revision': signature_revision(str(signature.signature) if signature and signature.signature else None),
-        'signature': str(signature.signature) if signature and signature.signature else None,
+        'signature_revision': signature_revision(signature_image),
+        'signature': signature_image,
     }
 
 

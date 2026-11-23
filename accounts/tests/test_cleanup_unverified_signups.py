@@ -5,7 +5,7 @@ from unittest.mock import patch
 from allauth.account.models import EmailAddress, EmailConfirmation
 from django.contrib.auth import get_user_model
 from django.core.management import call_command, CommandError
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 from rest_framework.authtoken.models import Token
 
@@ -16,6 +16,7 @@ from profile.models import Reminder
 from signature.models import Signature
 
 
+@override_settings(SIGNATURE_ENCRYPTION_KEYS=["c2lnbmF0dXJlLXRlc3Qta2V5LW9ubHktMzItYnl0ZXM="])
 class UnverifiedSignupCleanupTests(TestCase):
     def setUp(self):
         self.now = timezone.now()
@@ -106,7 +107,7 @@ class UnverifiedSignupCleanupTests(TestCase):
             self.assertIn('Removed 1', self.run_cleanup())
 
     def test_preserves_drawn_signature_but_not_empty_default_signature(self):
-        Signature.objects.update_or_create(user=self.user, defaults={'signature': 'data:image/png;base64,example'})
+        Signature.objects.update_or_create(user=self.user, defaults={'signature': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aP1sAAAAASUVORK5CYII='})
         empty = self.make_user('empty-signature')
         Signature.objects.update_or_create(user=empty, defaults={'signature': ''})
         self.assertIn('Removed 1', self.run_cleanup())

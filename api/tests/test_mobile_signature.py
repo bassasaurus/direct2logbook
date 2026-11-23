@@ -7,8 +7,10 @@ from rest_framework.test import APITestCase
 from api.mobile_signature import signature_revision
 from signature.models import Signature
 
+TEST_SIGNATURE_KEY = "c2lnbmF0dXJlLXRlc3Qta2V5LW9ubHktMzItYnl0ZXM="
 
-@override_settings(SECURE_SSL_REDIRECT=False)
+
+@override_settings(SECURE_SSL_REDIRECT=False, SIGNATURE_ENCRYPTION_KEYS=[TEST_SIGNATURE_KEY])
 class MobileSignatureTests(APITestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(username='signature-owner')
@@ -41,14 +43,14 @@ class MobileSignatureTests(APITestCase):
         self.assertEqual(second.status_code, 200)
         self.assertNotEqual(first['signature'], second.data['signature'])
         self.assertEqual(self.client.put(self.url, self.payload, format='json').status_code, 409)
-        self.assertEqual(Signature.objects.get(user=self.user).signature, second.data['signature'])
+        self.assertEqual(Signature.objects.get(user=self.user).rendered_signature, second.data['signature'])
 
     def test_invalid_input_preserves_signature(self):
         self.client.force_authenticate(self.user)
         self.client.put(self.url, self.payload, format='json')
-        before = Signature.objects.get(user=self.user).signature
+        before = Signature.objects.get(user=self.user).rendered_signature
         for strokes in ([], [[[.5, .5]]], [[[0, 0], [2, 1]]], [[[0, 0, 0]]], [[[0, 0]]] * 201):
             response = self.client.put(self.url, {**self.payload, 'strokes': strokes}, format='json')
             self.assertEqual(response.status_code, 400, response.data)
         self.assertEqual(self.client.put(self.url, {**self.payload, 'user': self.other.pk}, format='json').status_code, 400)
-        self.assertEqual(Signature.objects.get(user=self.user).signature, before)
+        self.assertEqual(Signature.objects.get(user=self.user).rendered_signature, before)
