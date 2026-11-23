@@ -369,6 +369,14 @@ class Flight(models.Model):
         ]
 
     def save(self, *args, **kwargs):
+        from flights.route_normalization import normalize_route
+        if kwargs.get('update_fields') is None or 'route' in kwargs['update_fields']:
+            original_route = self.route
+            self.route = normalize_route(self.route)
+            if self.route != original_route and isinstance(self.route_airport_choices, dict) and self.route_airport_choices.get('route') == original_route:
+                self.route_airport_choices = {**self.route_airport_choices, 'route': self.route}
+                if kwargs.get('update_fields') is not None:
+                    kwargs['update_fields'] = set(kwargs['update_fields']) | {'route_airport_choices'}
         if not isinstance(self.route_airport_choices, dict):
             self.route_airport_choices = {}
         if self.route_airport_choices and self.route_airport_choices.get('route') != self.route:

@@ -111,7 +111,7 @@ def reminder_notice(reminder, today, hours, *, respect_dismissal=True):
         key = f'date:{reminder.due_date.isoformat()}:{stage}'
         date_label = display_date(reminder.due_date)
         message = (instrument['instrument_status_message'] if reminder.kind == Reminder.Kind.IPC
-                   else f'Review overdue since {date_label}.' if days < 0 else f'Review by {date_label}.')
+                   else f'Review overdue since {date_label}.' if days < 0 else f'Due {date_label}.')
         severity = 'danger' if stage != 'upcoming' else 'warning'
         if reminder.kind == Reminder.Kind.IPC:
             from home.currency import instrument_alert_details

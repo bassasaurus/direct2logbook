@@ -1,4 +1,5 @@
-        <li class="reminder-banner reminder-banner-{{ card.severity }}{% if card.plain %} reminder-banner-plain{% endif %}{% if card.milestone_state == "completed" %} milestone-completed{% endif %}">
+{% load date_display %}
+        <li data-reminder-id="{{ card.id }}" class="reminder-banner reminder-banner-{{ card.severity }}{% if card.plain %} reminder-banner-plain{% endif %}{% if card.milestone_state == "completed" %} milestone-completed{% endif %}">
           {% if card.medical %}
 <section aria-labelledby="medical-heading" class="mb-0">
   <h2 id="medical-heading" class="h5">Medical Certificate</h2>
@@ -6,35 +7,55 @@
   <dl class="profile-details mb-2">
     <dt>Issued</dt><dd>{{ medical_profile.medical_issue_date|date:"M j, Y"|default:"Not recorded" }}</dd>
     <dt>Class</dt><dd>{% if medical_profile.first_class %}1st Class{% elif medical_profile.second_class %}2nd Class{% elif medical_profile.third_class %}3rd Class{% else %}Not recorded{% endif %}</dd>
-    <dt>Age 40 or older at examination</dt><dd>{{ medical_profile.over_40|yesno:"Yes,No" }}</dd>
+    <dt>40 or older</dt><dd>{{ medical_profile.over_40|yesno:"Yes,No" }}</dd>
     <dt>Due Date</dt><dd>{{ medical_due_date|date:"M j, Y"|default:"Not recorded" }}</dd>
   </dl>
   <a href="{% url 'medical_update' %}">Update</a>
 </section>
+          {% elif card.derived %}
+          <strong>{{ card.title }}</strong>
+          <div>{{ card.message|linebreaksbr }}</div>
+          {% if card.holding_warning %}<div class="text-danger">{{ card.holding_warning }}</div>{% endif %}
+          {% include 'home/reminder_hidden_status.html' with status=card.hidden_status %}
+          <div class="d-flex mt-1">
+            <form method="post" action="{% url 'web_reminder_action' %}">{% csrf_token %}
+              <input type="hidden" name="key" value="{{ card.hidden_status.token }}">
+              <button name="action" value="restore" class="btn btn-link px-0">Restore</button>
+            </form>
+          </div>
           {% else %}{% with reminder=card.reminder %}
           {% if reminder.kind == 'expiration' or reminder.kind == 'flight_review' or reminder.kind == 'instructor_renewal' or reminder.kind == 'ipc' %}<strong>{{ reminder.title }}{% if reminder.kind == 'ipc' %} — {{ reminder.get_ipc_category_display|default:"Category not specified" }}{% endif %}</strong>{% endif %}
           <div>
             {% if reminder.status_message %}{{ reminder.status_message|linebreaksbr }}
-            {% elif reminder.due_date %}{% if reminder.kind == 'ipc' %}Review IFR by {% else %}Review by {% endif %}{{ reminder.due_date|date:"M j, Y" }}
+            {% elif reminder.due_date %}{% if reminder.kind == 'ipc' %}Review IFR by {% else %}Due {% endif %}{{ reminder.due_date|date:"M j, Y" }}
             {% elif reminder.progress_label %}{{ reminder.progress_label }}{% endif %}
           </div>
           {% if reminder.holding_warning %}<div class="text-danger">{{ reminder.holding_warning }}</div>{% endif %}
           {% if reminder.kind == 'flight_review' %}
-            <div>Last recorded completion: {{ reminder.last_qualifying_date|date:"M j, Y" }} · {{ reminder.get_completion_type_display }}</div>
+            <div>{{ reminder.last_qualifying_date|date:"M j, Y" }} — {{ reminder.get_completion_type_display }}</div>
           {% endif %}
           {% if reminder.company_start_date %}
             <div class="text-muted">{{ reminder.company_start_date|date:"M j, Y" }} – {% if reminder.company_end_date %}{{ reminder.company_end_date|date:"M j, Y" }}{% else %}Present{% endif %}</div>
           {% endif %}
           {% if card.milestone_state and reminder.dismissed_key %}<div>Dismissed</div>{% endif %}
-          <div class="d-flex">
-            {% if card.milestone_state and reminder.dismissed_key %}
+          {% include 'home/reminder_hidden_status.html' with status=card.hidden_status %}
+          <div class="d-flex align-items-center gap-3 reminder-card-actions">
+            {% if card.hidden_status %}
+            <form method="post" action="{% url 'web_reminder_action' %}" class="me-auto">{% csrf_token %}
+              <input type="hidden" name="key" value="{{ card.hidden_status.token }}">
+              <button type="submit" name="action" value="restore" class="btn btn-link px-0">Restore</button>
+            </form>
+            {% endif %}            {% if card.milestone_state and reminder.dismissed_key %}
             <form method="post" action="{% url 'restore_dashboard_reminder' reminder.pk %}" class="me-auto">{% csrf_token %}<button type="submit" class="btn btn-link px-0">Restore</button></form>
             {% endif %}
 
-            <a class="btn btn-link px-0 me-3" href="{% url 'edit_reminder' reminder.pk %}">Edit</a>
-            <form method="post" action="{% url 'remove_reminder' reminder.pk %}" data-submit-feedback="delete" onsubmit="return confirm('Remove this {% if reminder.kind == 'expiration' or reminder.kind == 'flight_review' or reminder.kind == 'instructor_renewal' or reminder.kind == 'ipc' %}reminder{% else %}milestone{% endif %} from your account? Its alert will be removed from all devices after sync.');">
+            <a class="btn btn-link px-0 ms-auto" href="{% url 'edit_reminder' reminder.pk %}">Edit</a>
+            <form method="post" action="{% url 'remove_reminder' reminder.pk %}" data-submit-feedback="delete">
               {% csrf_token %}
-              <button class="btn btn-link text-danger" type="submit">Remove</button>
+              <button class="btn btn-link text-danger px-0" type="submit" data-confirm-removal
+                data-confirm-title="Remove {% if reminder.is_dated %}Reminder{% else %}Milestone{% endif %}?"
+                data-confirm-detail="{{ reminder.progress_label|default:reminder.title }}"
+                data-confirm-message="Remove this {% if reminder.is_dated %}reminder{% else %}milestone{% endif %} from your account? Its alert will be removed from all devices after sync.">Remove</button>
             </form>
           </div>
           {% endwith %}{% endif %}

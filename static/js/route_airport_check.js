@@ -5,9 +5,9 @@
   var hidden = document.getElementById('id_airport_choices');
   if (!input || !feedback || !hidden) return;
   var timer, controller, revision = 0, checkedRoute = null;
-  var choices;
+  var choices, resumeRoute = null, lastRecognizedRoute = null;
   try { choices = JSON.parse(hidden.value || '{}'); } catch (error) { choices = {}; }
-  function routeValue() { return input.value.trim().replace(/\s+/g, '-').toUpperCase(); }
+  function routeValue() { return input.value.trim().replace(/\s+/g, '-').toUpperCase().replace(/-+$/, ''); }
   function airportLabel(airport) {
     return airport.label || [airport.name, airport.city, airport.country, airport.icao].filter(Boolean).join(' — ');
   }
@@ -41,6 +41,12 @@
       if (response.redirected || !response.ok) throw new Error('Unavailable');
       var data = await response.json();
       if (current !== revision || route !== routeValue()) return;
+      var last = data.entries[data.entries.length - 1];
+      var lastCode = route.split(/[^A-Z0-9]+/).filter(Boolean).pop();
+      lastRecognizedRoute = last && last.code === lastCode && (last.status === 'recognized'
+        || (last.status === 'ambiguous' && last.candidates.some(function (airport) {
+          return String(airport.id) === String(choices.airports[last.position]);
+        }))) ? route : null;
       var invalidCodes = [];
       data.entries.forEach(function (entry, index) {
         var line = document.createElement('div');
@@ -63,6 +69,7 @@
             if (select.value) choices.airports[entry.position] = Number(select.value);
             else delete choices.airports[entry.position];
             saveChoices(route);
+            if (index === data.entries.length - 1) lastRecognizedRoute = select.value ? route : null;
             label.className = (select.value ? 'text-success' : 'text-warning') + ' mb-1';
             label.textContent = entry.code + (select.value ? ' — Airport selected' : ' — Which airport did you mean?');
           });
@@ -88,7 +95,18 @@
       return null;
     }
   }
-  input.addEventListener('input', function () {
+  input.addEventListener('focus', function () { resumeRoute = input.value; });
+  input.addEventListener('input', function (event) {
+    var previous = resumeRoute;
+    resumeRoute = null;
+    if (!event.isComposing && (!event.inputType || event.inputType === 'insertText') && previous
+        && lastRecognizedRoute === previous && /[A-Z0-9]$/.test(previous)
+        && input.value.indexOf(previous) === 0 && input.value.length === previous.length + 1
+        && /^[A-Z0-9]$/i.test(input.value.slice(-1)) && input.selectionStart === input.value.length
+        && input.value.length < 50) {
+      input.value = previous + '-' + input.value.slice(-1);
+      input.setSelectionRange(input.value.length, input.value.length);
+    }
     checkedRoute = null;
     input.setCustomValidity('');
     input.classList.remove('is-invalid');

@@ -52,6 +52,34 @@ class AirportResolutionTests(TestCase):
             date=date(2025, 1, 1), aircraft_type=aircraft, registration=tail,
             duration=1, pilot_in_command=True, **kwargs)])[0]
 
+    def test_route_form_removes_trailing_dash_and_whitespace(self):
+        form = FlightForm()
+        form.cleaned_data = {'route': 'KLBX--- '}
+        self.assertEqual(form.clean_route(), 'KLBX')
+        form.cleaned_data = {'route': '--- '}
+        with self.assertRaisesMessage(Exception, 'Enter a route.'):
+            form.clean_route()
+
+    def test_route_save_removes_trailing_dash_without_losing_airport_choices(self):
+        flight = self.flight('KLBX')
+        flight.route = 'KLBX-- '
+        flight.route_airport_choices = {'route': flight.route, 'airports': {'0': self.lbx_us.pk}}
+        flight.save(update_fields=['route', 'route_airport_choices'])
+        flight.refresh_from_db()
+        self.assertEqual(flight.route, 'KLBX')
+        self.assertEqual(flight.route_airport_choices, {'route': 'KLBX', 'airports': {'0': self.lbx_us.pk}})
+
+    def test_api_route_update_normalizes_before_validating_airport_choices(self):
+        from api.serializers import FlightSerializer
+        flight = self.flight('KLBX')
+        serializer = FlightSerializer(flight, data={
+            'route': 'KLBX-- ', 'validate_airports': True,
+            'route_airport_choices': {'route': 'KLBX-- ', 'airports': {'0': self.lbx_us.pk}},
+        }, partial=True, context={'request': SimpleNamespace(user=self.user)})
+        self.assertTrue(serializer.is_valid(), serializer.errors)
+        self.assertEqual(serializer.validated_data['route'], 'KLBX')
+        self.assertEqual(serializer.validated_data['route_airport_choices']['airports'], {'0': self.lbx_us.pk})
+
     def test_confirmation_labels_distinguish_facility_and_state(self):
         first = self.airport('TKI', 'KTKI', 'McKinney National Airport', 'United States')
         first.state = 'Texas'

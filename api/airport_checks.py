@@ -30,7 +30,8 @@ class RouteAirportCheckView(APIView):
 def validate_route_choices(route, choices, strict=False):
     if not isinstance(choices, dict):
         raise serializers.ValidationError({'route_airport_choices': 'Invalid airport choices.'})
-    selections = choices.get('airports', {}) if choices.get('route') == route else {}
+    from flights.route_normalization import normalize_route
+    selections = choices.get('airports', {}) if normalize_route(choices.get('route')) == route else {}
     if not isinstance(selections, dict):
         raise serializers.ValidationError({'route_airport_choices': 'Invalid airport choices.'})
     resolution = resolve_route(route)

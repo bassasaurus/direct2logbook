@@ -1,0 +1,2 @@
+{% load date_display %}
+{% if status %}<div class="text-muted reminder-hidden-status">{% if status.caution_due %}Hidden until red{% else %}Hidden until {{ status.until|display_date }}{% endif %}</div>{% endif %}

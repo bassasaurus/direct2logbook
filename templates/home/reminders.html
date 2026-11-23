@@ -26,21 +26,6 @@
     </form>
   </div>
   <div class="col-lg-6 mt-4 mt-lg-0">
-    {% if form_group == 'regulatory' and web_hidden_reminders %}
-    <section class="mb-3" aria-label="Hidden reminders">
-      <h2 class="h5">Hidden Reminders</h2>
-      {% for item in web_hidden_reminders %}
-      <div class="card card-body mb-2">
-        <strong>{{ item.title }}</strong>
-        <div>{% if item.caution_due %}Hidden until red{% elif item.dismissed %}Dismissed{% else %}Hidden until {{ item.until|display_date }}{% endif %}</div>
-        <form method="post" action="{% url 'web_reminder_action' %}">{% csrf_token %}
-          <input type="hidden" name="key" value="{{ item.token }}">
-          <button name="action" value="restore" class="btn btn-link px-0">Restore</button>
-        </form>
-      </div>
-      {% endfor %}
-    </section>
-    {% endif %}
     {% for group in reminder_groups %}
     <section aria-label="{{ group.title }}" class="mb-3">
       <h2 class="h5">{{ group.title }}</h2>
