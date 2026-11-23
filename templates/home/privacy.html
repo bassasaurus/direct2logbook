@@ -1,14 +1,16 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-appearance="{{ request.GET.appearance }}">
 <head>
   <meta charset="utf-8">
+  <script src="{% static 'js/appearance.js' %}?v=20261123-6"></script>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% if mobile_policy %}Mobile App {% endif %}Privacy Policy | Direct2Logbook</title>
   <link rel="stylesheet" href="{% static 'theme/dist/bootstrap/bootstrap.min.css' %}">
   {% if request.GET.appearance == 'dark' %}
     <link rel="stylesheet" href="{% static 'css/privacy-dark.css' %}">
   {% endif %}
+  <link rel="stylesheet" href="{% static 'css/appearance.css' %}?v=20261123-6">
 </head>
 <body>
   <main class="container py-4">
