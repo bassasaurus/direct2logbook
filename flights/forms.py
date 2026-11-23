@@ -122,7 +122,10 @@ class FlightForm(UserOwnedRelationsFormMixin, forms.ModelForm):
 
     def clean_route(self):
         from flights.airport_resolution import resolve_route
-        route = self.cleaned_data['route']
+        from flights.route_normalization import normalize_route
+        route = normalize_route(self.cleaned_data['route'])
+        if not route:
+            raise forms.ValidationError('Enter a route.')
         unknown = list(dict.fromkeys(item['code'] for item in resolve_route(route) if item['unknown']))
         if unknown:
             raise forms.ValidationError('Unknown airport codes: ' + ', '.join(unknown) + '. Correct the route before saving.')

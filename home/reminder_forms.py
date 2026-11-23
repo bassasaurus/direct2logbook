@@ -34,12 +34,13 @@ class ReminderForm(forms.ModelForm):
         model = Reminder
         fields = ('title', 'kind', 'due_date', 'aircraft', 'crew_position', 'company',
                   'company_start_date', 'company_end_date', 'target_hours', 'last_qualifying_date', 'completion_type', 'condition', 'instructor_period_start', 'ipc_completed_date', 'ipc_category')
-        labels = {'kind': 'Reminder Type', 'aircraft': 'Aircraft Type', 'crew_position': 'Crew Position',
+        labels = {'ipc_category': 'IPC Category', 'kind': 'Reminder Type', 'aircraft': 'Aircraft Type', 'crew_position': 'Crew Position',
                   'last_qualifying_date': 'Last Qualifying Date', 'completion_type': 'Completion Type', 'condition': 'Flight Condition', 'ipc_completed_date': 'IPC Completion Date', 'instructor_period_start': 'Recent Experience Period Start Date',
                   'company_start_date': 'Start date', 'company_end_date': 'End date (optional)'}
         help_texts = {'instructor_period_start': 'Use the start month on your recent-experience record. This may be the retained prior due month after early renewal. Due at month-end, 24 months later; this is a recent-experience deadline, not certificate expiration.','completion_type': 'Select only a qualifying event under 14 CFR 61.56. WINGS requires a completed phase, not individual credits.',
                       'company_end_date': 'All flights in this date range count. Leave blank for an ongoing job.'}
         widgets = {
+            'ipc_category': forms.Select(attrs={'class': 'form-select'}),
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'BFR, IPC, etc.'}),
             'completion_type': forms.Select(attrs={'class': 'form-control'}),
             'instructor_period_start': NamedDateInput(format='%b %d, %Y', attrs={'type': 'text', 'class': 'form-control reminder-date'}),

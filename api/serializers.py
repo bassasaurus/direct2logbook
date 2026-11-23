@@ -136,7 +136,10 @@ class FlightSerializer(FriendlyValidationSerializer):
 
 
     def to_internal_value(self, data):
+        from flights.route_normalization import normalize_route
         data = data.copy()
+        if 'route' in data:
+            data['route'] = normalize_route(data['route'])
 
         if data.get('landings_day') == '':
             data['landings_day'] = None

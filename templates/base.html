@@ -77,6 +77,8 @@
   <script type="text/javascript" src="{% static 'js/tableHeadFixer.js' %}"></script>
   <script type="text/javascript" src="{% static 'js/jquery.formset.js' %}"></script>
 
+  {% include 'blocks/confirm_removal.html' %}
+  <script src="{% static 'js/confirm_removal.js' %}" defer></script>
   <script src="{% static 'js/unsaved_changes.js' %}" defer></script>
   <script src="{% static 'js/form_feedback.js' %}?v=create-delete-fade" defer></script>
 </body>

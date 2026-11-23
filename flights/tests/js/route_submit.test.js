@@ -36,3 +36,29 @@ test('unchanged checked routes submit directly and edited routes are checked aga
   assert.equal(requests, 2);
   assert.equal(nativeSubmits, 1);
 });
+
+test('resuming a checked airport adds a dash only for the first appended character', async () => {
+  const node = () => ({classList: {add() {}, remove() {}, toggle() {}}, setAttribute() {}, removeAttribute() {}});
+  const input = Object.assign(new EventTarget(), node(), {value: 'SEA-ORD', form: new EventTarget(),
+    setCustomValidity() {}, setSelectionRange() {}});
+  const feedback = Object.assign(node(), {dataset: {checkUrl: '/check/'}, replaceChildren() {}, appendChild() {}});
+  const hidden = {value: '{}'};
+  vm.runInNewContext(script, {AbortController, CustomEvent, clearTimeout, window: {setTimeout: () => 0},
+    document: {getElementById: id => ({route: input, 'route-airport-feedback': feedback, id_airport_choices: hidden})[id], createElement: node},
+    fetch: async () => ({ok: true, json: async () => ({entries: [
+      {code: 'SEA', status: 'recognized', airport: {}}, {code: 'ORD', status: 'recognized', airport: {}}
+    ]})})
+  });
+  await new Promise(setImmediate);
+  input.dispatchEvent(new Event('focus'));
+  input.value = 'SEA-ORDM'; input.selectionStart = input.value.length;
+  input.dispatchEvent(new Event('input'));
+  assert.equal(input.value, 'SEA-ORD-M');
+  input.value = 'SEA-ORD-ME'; input.selectionStart = input.value.length;
+  input.dispatchEvent(new Event('input'));
+  assert.equal(input.value, 'SEA-ORD-ME');
+  input.dispatchEvent(new Event('focus'));
+  input.value = 'SEA-ORD-M'; input.selectionStart = input.value.length;
+  input.dispatchEvent(new Event('input'));
+  assert.equal(input.value, 'SEA-ORD-M');
+});

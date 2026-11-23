@@ -56,7 +56,22 @@ def manage_reminders(request, pk=None, reminder_kind=None):
         saved_reminder.severity = presentation['severity']
         saved_reminder.presentation = presentation
     medical_status = medical_expiration_alert(medical_expiry_date(request.user.profile))
-    cards = [{'reminder': reminder, 'plain': not reminder.presentation['banner'], **reminder.presentation} for reminder in saved_reminders]
+    cards = [{'id': reminder.pk, 'reminder': reminder, 'plain': not reminder.presentation['banner'], **reminder.presentation} for reminder in saved_reminders]
+    hidden_items = hidden_web_reminders(request.user)
+    hidden_by_key = {item['preference_key']: item for item in hidden_items}
+    from home.regulatory_preferences import key_for
+    represented = set()
+    for card in cards:
+        saved = card['reminder']
+        if saved.is_dated:
+            key = key_for({'id': saved.pk, 'kind': saved.kind, 'ipc_category': saved.ipc_category})
+            represented.add(key)
+            card['hidden_status'] = hidden_by_key.get(key)
+    for item in hidden_items:
+        notice = item.get('notice')
+        if notice and isinstance(notice.get('id'), str) and item['preference_key'] not in represented:
+            cards.append({**notice, 'derived': True, 'hidden_status': item})
+            represented.add(item['preference_key'])
     cards.insert(0, {**(medical_status or {}), 'medical': True, 'severity': medical_status['severity'] if medical_status else 'neutral',
                   'plain': not medical_status or not medical_status['banner']})
     return render(request, 'home/reminders.html', {
@@ -64,7 +79,8 @@ def manage_reminders(request, pk=None, reminder_kind=None):
         'form_group_title': dict(form.fields['kind'].choices).get(form['kind'].value(), 'Reminder' if group == 'regulatory' else 'Milestone'),
         'form': form, 'reminders': saved_reminders, 'editing': reminder, 'reminder_cards': ordered_reminders(cards),
         'reminder_groups': [section for section in reminder_groups(ordered_reminders([card for card in cards if not card.get('medical')])) if section['key'] == group],
-        'web_hidden_reminders': hidden_web_reminders(request.user),
+        'web_hidden_reminders': hidden_items,
+        'medical_hidden_status': hidden_by_key.get('medical'),
         'medical_status': medical_status,
         'medical_profile': request.user.profile, 'medical_due_date': medical_expiry_date(request.user.profile),
         'title': 'D-> | Reminders',
@@ -171,13 +187,13 @@ def hidden_web_reminders(user):
             caution = bool(alert and alert['severity'] == 'warning' and str(alert['due_date']) == preference['caution_due'])
         if caution or preference.get('dismissed') or preference.get('until', '') > timezone.localdate().isoformat():
             title = preference.get('title', 'Medical Certificate' if key == 'medical' else 'Reminder')
-            rows.append({**preference, 'title': title, 'token': Signer(salt='web-reminder').sign_object({
+            rows.append({**preference, 'preference_key': key, 'title': title, 'token': Signer(salt='web-reminder').sign_object({
                 'user': user.pk, 'id': key, 'title': title})})
     from home.regulatory_preferences import notices, key_for, annotate, hidden
     from home.reminders import web_reminder_token
     for row in notices(user):
         pref = user.profile.web_reminder_preferences.get(key_for(row))
         if hidden(pref, row):
-            rows.append({**pref, 'title': row['title'], 'caution_due': pref.get('mode') == 'until_red',
+            rows.append({**pref, 'preference_key': key_for(row), 'notice': row, 'title': row['title'], 'caution_due': pref.get('mode') == 'until_red',
                          'token': web_reminder_token(user, annotate(user.profile, row))})
     return rows
