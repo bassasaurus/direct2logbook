@@ -53,10 +53,12 @@ git merge --ff-only "$revision"
 "$uv_bin" pip sync --python "$app_python" requirements.txt
 "$uv_bin" pip check --python "$app_python"
 "$app_python" -m pip check
+"$app_python" manage.py configure_signature_encryption --create-key
 "$app_python" manage.py check
 "$app_python" manage.py migrate --plan
 "$app_python" manage.py migrate --noinput
 "$app_python" manage.py check_database_schema
+"$app_python" manage.py encrypt_signatures --apply
 "$app_python" manage.py collectstatic --noinput
 sudo -n /usr/bin/supervisorctl start logbook celery
 status="$(sudo -n /usr/bin/supervisorctl status logbook celery)"
