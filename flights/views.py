@@ -78,7 +78,8 @@ class AircraftAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView)
     def get_results(self, context):
         results = super().get_results(context)
         for result, aircraft in zip(results, context['object_list']):
-            result.update(aircraft_category=aircraft.aircraft_category, self_launch_capable=aircraft.self_launch_capable)
+            result.update(aircraft_category=aircraft.aircraft_category, self_launch_capable=aircraft.self_launch_capable,
+                default_crew_role=aircraft.default_crew_role, default_cross_country=aircraft.default_cross_country)
         return results
 
     def get_queryset(self):
@@ -635,6 +636,9 @@ class AircraftDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, 
 
     def get_context_data(self, **kwargs):
         context = super(AircraftDetail, self).get_context_data(**kwargs)
+        from api.revisions import aircraft_revision
+        context['flight_defaults'] = {'default_crew_role': self.object.default_crew_role,
+            'default_cross_country': self.object.default_cross_country, 'revision': aircraft_revision(self.object)}
         context['can_delete'] = self.object.can_delete()
         context['tailnumbers'] = TailNumber.objects.filter(
             user=self.request.user, aircraft=self.object)

@@ -124,12 +124,19 @@ class FlightForm(UserOwnedRelationsFormMixin, forms.ModelForm):
             self.data = self.data.copy()
             self.data['registration'] = self.instance.registration_id or ''
         from flights.launch_methods import launch_choices
-        available = list(self.fields['aircraft_type'].queryset.only('pk', 'aircraft_category', 'self_launch_capable'))
+        available = list(self.fields['aircraft_type'].queryset.only('pk', 'aircraft_category', 'self_launch_capable',
+            'default_crew_role', 'default_cross_country'))
         self.launch_aircraft_metadata = {str(row.pk): {'category': row.aircraft_category,
             'self_launch_capable': row.self_launch_capable} for row in available}
         selected = (self.data.get(self.add_prefix('aircraft_type')) if self.is_bound
                     else self.initial.get('aircraft_type'))
         aircraft = next((row for row in available if str(row.pk) == str(getattr(selected, 'pk', selected))), None)
+        self.flight_defaults_metadata = {str(row.pk): {'default_crew_role': row.default_crew_role,
+            'default_cross_country': row.default_cross_country} for row in available}
+        if not self.is_bound and self.instance._state.adding and aircraft:
+            self.initial.update(pilot_in_command=aircraft.default_crew_role == 'PIC',
+                second_in_command=aircraft.default_crew_role == 'SIC',
+                cross_country=aircraft.default_cross_country and not self.initial.get('simulator', False))
         self.launch_method_visible = bool(aircraft and aircraft.aircraft_category == 'GL'
             and not (self.data.get(self.add_prefix('simulator')) if self.is_bound else self.initial.get('simulator')))
         self.fields['launch_method'].choices = [('', 'Choose launch method')] + launch_choices(aircraft)
@@ -279,7 +286,7 @@ class AircraftForm(UserOwnedRelationsFormMixin, forms.ModelForm):
 
     class Meta:
         model = Aircraft
-        exclude = ['user']
+        exclude = ['user', 'default_crew_role', 'default_cross_country']
         fields = '__all__'
         widgets = {
             'turbine': forms.CheckboxInput(),

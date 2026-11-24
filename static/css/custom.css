@@ -766,7 +766,7 @@ section:has(.other-reminders:not([open])) + .reminders-bottom-divider { display:
   margin: 0;
 }
 
-/* Row and column tracking use the same color, without extra cell emphasis. */
+/* Row and column tracking share a color; an inset border marks the intersection. */
 @media screen {
   .table-scroll-shell { position: relative; min-width: 0; max-width: 100%; }
   .table-scroll-hint { position: absolute; top: 50%; transform: translateY(-50%); z-index: 6;
@@ -782,6 +782,12 @@ section:has(.other-reminders:not([open])) + .reminders-bottom-divider { display:
   html[data-bs-theme="dark"] :is(table.table, table#logbook) { --table-row-tint: #283b52; }
   :is(table.table, table#logbook) .table-row-hover > :is(td,th):not(.iacra-shaded) { background-color: var(--table-row-tint) !important; }
   :is(table.table, table#logbook) .table-column-hover:not(.iacra-shaded) { box-shadow: inset 0 0 0 9999px var(--table-row-tint); }
+  :is(table.table, table#logbook) .table-cell-hover:not(.iacra-shaded) {
+    box-shadow: inset 0 0 0 1px #555, inset 0 0 0 9999px var(--table-row-tint);
+  }
+  [data-table-tracking="cell"] table.table .table-cell-hover {
+    box-shadow: inset 0 0 0 1px #555;
+  }
 }
 @media print {
   .table-scroll-hint { display: none !important; }

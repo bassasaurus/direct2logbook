@@ -39,7 +39,7 @@ class LogbookSpacingTests(SimpleTestCase):
         result = long_route_sample(tables)
         self.assertTrue(result.startswith(b'%PDF-'))
         logbooks = [t for t in tables if t._cellvalues[0][:2] == ['Date', 'Type']]
-        self.assertEqual(len(logbooks), 2)  # Existing 17-row page grouping remains.
+        self.assertEqual(sum(len(t._cellvalues) - 1 for t in logbooks), 20)
         for table in logbooks:
             for index, text in [(0, 'Oct 27, 2026'), (1, 'C172'), (2, 'N1234'),
                                 (3, 'KJFK-KBOS-KORD-KDEN-KLAX-KSFO-KSEA-KPDX-KSLC')]:
@@ -51,7 +51,7 @@ class LogbookSpacingTests(SimpleTestCase):
             self.assertEqual(table._cellStyles[1][2].rightPadding, 10)
             self.assertEqual(table._cellStyles[1][3].leftPadding, 8)
         footers = [t for t in tables if t._cellvalues[0][0] == 'Current page']
-        self.assertEqual(len(footers), 2)
+        self.assertEqual(len(footers), len(logbooks))
         for footer in footers:
             self.assertEqual(footer._colWidths, logbooks[0]._colWidths)
-        self.assertEqual(logbooks[0]._colWidths, logbooks[1]._colWidths)
+        self.assertTrue(all(t._colWidths == logbooks[0]._colWidths for t in logbooks))

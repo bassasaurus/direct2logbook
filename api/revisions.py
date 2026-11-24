@@ -37,5 +37,9 @@ def aircraft_revision(aircraft):
         values.pop('electric', None)
     if not aircraft.self_launch_capable:
         values.pop('self_launch_capable', None)
+    if not aircraft.default_crew_role:
+        values.pop('default_crew_role', None)
+    if not aircraft.default_cross_country:
+        values.pop('default_cross_country', None)
     values.update(medium='False', light_sport='False')
     return hashlib.sha256(json.dumps(values, sort_keys=True).encode()).hexdigest()

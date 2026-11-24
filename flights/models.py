@@ -243,6 +243,9 @@ class Aircraft(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     aircraft_type = models.CharField(db_index=True, max_length=10)
     is_default = models.BooleanField(default=False)
+    default_crew_role = models.CharField(max_length=3, blank=True, default='',
+        choices=[('PIC', 'PIC'), ('SIC', 'SIC')])
+    default_cross_country = models.BooleanField(default=False)
     turbine = models.BooleanField(default=False)
     piston = models.BooleanField(default=False)
     electric = models.BooleanField(default=False)
@@ -272,6 +275,8 @@ class Aircraft(models.Model):
         ordering = ['user', 'aircraft_type']
         verbose_name_plural = "Aircraft"
         constraints = [
+            models.CheckConstraint(condition=models.Q(default_crew_role__in=['', 'PIC', 'SIC']),
+                                   name='aircraft_default_crew_role_valid'),
             models.UniqueConstraint(fields=['user'], condition=models.Q(is_default=True),
                                     name='one_default_aircraft_per_user'),
             models.UniqueConstraint(Lower('aircraft_type'), 'user', name='aircraft_user_type_ci_unique'),

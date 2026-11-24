@@ -31,7 +31,6 @@ from reportlab.platypus import (
     Spacer,
     TableStyle,
     PageBreak,
-    LongTable,
     Image as RLImage,
 )
 from reportlab.lib.styles import getSampleStyleSheet
@@ -485,13 +484,17 @@ def _build_pdf(user):
     else:
         flight_objects = Flight.objects.filter(user=user).order_by('date')
 
-    # Build raw rows with Decimals for numeric fields
+    approach_style = styles['Normal'].clone('LogbookApproaches')
+    approach_style.fontSize = 10
+    approach_style.leading = 12
+
+    # Build raw rows with Decimals for numeric fields.
     logbook_rows = []
     for f in flight_objects:
         date_str = display_date(f.date)
-        appr = ''
-        for approach in f.approach_set.all():
-            appr += f"{approach.approach_type}-{approach.number} "
+        approach_lines = [escape(f'{approach.approach_type} × {approach.number}')
+                          for approach in f.approach_set.all()]
+        appr = Paragraph('<br/>'.join(approach_lines), approach_style) if approach_lines else ''
         hold = 'Yes' if any(h.hold for h in f.holding_set.all()) else '-'
 
         def dec_or_zero(val):
@@ -568,19 +571,24 @@ def _build_pdf(user):
     # Map each display row to its corresponding raw row index (since 1:1)
     display_row_map = list(range(len(logbook_rows)))
 
-    # --- Fixed rows-per-page pagination ---
-    # Define ROWS_PER_PAGE constant for logbook rows per page
-    ROWS_PER_PAGE = 17
-
-    # Build a prototype LongTable to get column widths
+    # Fix the approach column so additional entries grow the row, not the page width.
+    numeric_cols = [4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17, 18]
     all_data = [logbook_header] + logbook_display_rows
-    proto_table = LongTable(all_data, repeatRows=1, hAlign='LEFT')
+    total_width_row = [''] * len(logbook_header)
+    for col in numeric_cols:
+        total_width_row[col] = display_cell(sum((row[col] for row in logbook_rows), Decimal('0')), col)
+    natural_widths = [None] * len(logbook_header)
+    natural_widths[10] = 100
+    # Running totals can have more digits than an individual flight.
+    proto_table = Table(all_data + [total_width_row], colWidths=natural_widths, repeatRows=1, hAlign='LEFT')
     proto_style = TableStyle([
         ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold', 10),
         ('LINEBELOW', (0, 0), (-1, 0), 1.0, colors.black),
         ('TEXTCOLOR', (0, 0), (-1, -1), colors.black),
         ('LINEBELOW', (0, 0), (-1, -1), .25, colors.black),
         ('ALIGN', (4, 0), (-1, -1), 'RIGHT'),
+        ('ALIGN', (10, 0), (10, -1), 'LEFT'),
+        ('VALIGN', (0, 0), (-1, -1), 'TOP'),
         ('RIGHTPADDING', (0, 0), (0, -1), 10),
         ('LEFTPADDING', (1, 0), (1, -1), 8),
         ('RIGHTPADDING', (2, 0), (2, -1), 10),
@@ -601,26 +609,46 @@ def _build_pdf(user):
         # Keep natural widths: PageWidthTable scales text, padding and columns
         # together. Shrinking columns alone makes dates overlap aircraft types.
 
-    numeric_cols = [4, 5, 6, 7, 8, 9, 12, 13, 14, 15, 16, 17, 18]
-
     header_para = Paragraph(
         "<para size=15 align=left><u><b>Logbook</b></u></para>", style=styles["Normal"])
     _, header_h = header_para.wrap(doc.width, doc.height)
     first_spacer_h = 0.25 * inch
 
-    # Measure a sample footer table with 3 rows to reserve accurate footer space (for vertical spacing)
+    # SimpleDocTemplate's default frame has six-point insets on every side.
+    frame_width, frame_height = doc.width - 12, doc.height - 12
+    scale = min(1.0, frame_width / sum(col_widths))
+    measured_table = Table(all_data, colWidths=col_widths)
+    measured_table.setStyle(proto_style)
+    measured_table.wrapOn(None, frame_width, frame_height)
+    header_height, *row_heights = measured_table._rowHeights
+
+    # Reserve the actual footer height, including the amount-forwarded row on
+    # subsequent pages. Keep each flight and its totals on the same page.
     sample_footer = Table(
         [['' for _ in logbook_header]] * 3,
         colWidths=col_widths, hAlign='LEFT'
     )
+    sample_footer.setStyle(proto_style)
     _, reserved_footer_h = sample_footer.wrap(doc.width, doc.height)
+    footer_row_height = reserved_footer_h / 3
+    footer_gap = 0.1 * inch
 
-    # Fixed pagination: chunk logbook_display_rows into ROWS_PER_PAGE slices
     page_chunks = []
     page_row_indices = []
     n_rows = len(logbook_display_rows)
-    for page_start in range(0, n_rows, ROWS_PER_PAGE):
-        page_end = min(page_start + ROWS_PER_PAGE, n_rows)
+    page_start = 0
+    while page_start < n_rows:
+        first_page = not page_chunks
+        reserved = (2 if first_page else 3) * footer_row_height * scale + footer_gap
+        if first_page:
+            reserved += header_h + first_spacer_h
+        available = frame_height - reserved - header_height * scale
+        page_end, used_height = page_start, 0
+        while page_end < n_rows and used_height + row_heights[page_end] * scale <= available:
+            used_height += row_heights[page_end] * scale
+            page_end += 1
+        if page_end == page_start:
+            raise ValueError('A flight has too many approach entries to fit on one PDF page.')
         rows_this_page = list(range(page_start, page_end))
         table_data = [logbook_header] + [logbook_display_rows[idx]
                                          for idx in rows_this_page]
@@ -630,6 +658,7 @@ def _build_pdf(user):
         page_chunks.append(page_table)
         page_row_indices.append([display_row_map[idx]
                                 for idx in rows_this_page])
+        page_start = page_end
 
     # Second pass: render each page, append only the logbook table for each page
     num_pages = len(page_chunks)
@@ -698,6 +727,9 @@ def _build_pdf(user):
         footer_data.append(running_row)
         footer_table = Table(footer_data, colWidths=col_widths, hAlign='LEFT')
         footer_table.setStyle(proto_style)
+        footer_table.setStyle(TableStyle([
+            ('SPAN', (0, row), (3, row)) for row in range(len(footer_data))
+        ]))
         # Align numeric columns for all rows
         for row_idx_ in range(len(footer_data)):
             for col in numeric_cols:
@@ -711,7 +743,7 @@ def _build_pdf(user):
              (-1, len(footer_data)-1), colors.whitesmoke),
         ]))
         # Insert a fixed spacer to separate table and footer
-        story.append(Spacer(1, 0.1 * inch))
+        story.append(Spacer(1, footer_gap))
         story.append(PageWidthTable(footer_table))
         if not is_last:
             story.append(PageBreak())
