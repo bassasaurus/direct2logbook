@@ -837,6 +837,5 @@ form .form-control.is-invalid, form .form-select.is-invalid,
 form .form-control:required:invalid, form .form-select:required:invalid,
 form select.is-invalid ~ .select2-container .select2-selection,
 form select:required:invalid ~ .select2-container .select2-selection {
-  background-color: rgba(var(--bs-danger-rgb, 220, 53, 69), .08) !important;
   border-color: var(--bs-danger, #dc3545);
 }
