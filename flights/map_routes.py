@@ -20,6 +20,8 @@ def flight_map_data(flights):
     total_nm, counted, unavailable = 0.0, 0, 0
     distances = {}
     for flight in flights:
+        if getattr(flight, 'simulator', False):
+            continue
         distance = route_distance_nm(flight)
         distances[str(flight.pk)] = distance
         if distance is None:

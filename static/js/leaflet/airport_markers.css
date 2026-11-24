@@ -98,3 +98,41 @@
 }
 .airport-details-name { font-weight: 600; }
 .airport-details-elevation { color: #74808b; }
+
+/* Theme only the raster background; keep routes and markers in their own panes. */
+@media screen {
+  html[data-bs-theme="dark"] #mapid { background: #151c26; }
+  html[data-bs-theme="dark"] #mapid .leaflet-tile-pane {
+    filter: invert(1) hue-rotate(180deg) brightness(.75) contrast(.9);
+  }
+  html[data-bs-theme="dark"] #mapid :is(.leaflet-bar a,.leaflet-control-layers,.leaflet-control-attribution) {
+    background: #191f29;
+    color: #edf1f7;
+    border-color: #414b59;
+  }
+  html[data-bs-theme="dark"] #mapid .leaflet-bar a:hover { background: #283b52; }
+  html[data-bs-theme="dark"] #mapid .leaflet-bar a.leaflet-disabled { color: #8994a4; }
+  html[data-bs-theme="dark"] #mapid .leaflet-bar { border-color: #414b59; }
+  html[data-bs-theme="dark"] #mapid .airport-marker-label {
+    color: #edf1f7;
+    text-shadow: -1px -1px 2px #0f131a, 1px -1px 2px #0f131a,
+      -1px 1px 2px #0f131a, 1px 1px 2px #0f131a;
+  }
+  html[data-bs-theme="dark"] #mapid .airport-marker-dot { background: #edf1f7; border-color: #a8c7ff; }
+  html[data-bs-theme="dark"] #mapid :is(.leaflet-popup-content-wrapper,.leaflet-popup-tip) {
+    background: #191f29;
+    color: #edf1f7;
+    border-color: #414b59;
+  }
+  html[data-bs-theme="dark"] #mapid .airport-details-elevation { color: #b1bbca; }
+  html[data-bs-theme="dark"] #mapid :is(.route-mileage-overlay,.route-leg-distance) {
+    background: #191f29 !important;
+    color: #edf1f7;
+  }
+  html[data-bs-theme="dark"] #mapid .mileage-units { background: #0f131a; }
+  html[data-bs-theme="dark"] #mapid .mileage-units button { color: #b1bbca; }
+  html[data-bs-theme="dark"] #mapid .mileage-units button:is(:hover,[aria-pressed="true"]) {
+    background: #283b52;
+    color: #a8c7ff;
+  }
+}

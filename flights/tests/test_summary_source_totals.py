@@ -68,9 +68,11 @@ class SummarySourceTotalsTests(TestCase):
                 list(Imported.objects.filter(user=self.user).select_related('aircraft_type')))
 
     def assert_lifetime_and_recency(self, summary, flights, imported):
+        sessions = flights
+        flights = [row for row in sessions if not row.simulator]
         expected = {'total_time': summed(flights, 'duration') + summed(imported, 'total_time')}
         for field in ROLE_FIELDS:
-            expected[field] = summed([row for row in flights if getattr(row, field)], 'duration') + summed(imported, field)
+            expected[field] = summed([row for row in (sessions if field == 'simulator' else flights) if getattr(row, field)], 'duration') + summed(imported, field)
         for field in VALUE_FIELDS:
             expected[field] = summed(flights, field) + summed(imported, field)
         if isinstance(summary, Total):
@@ -98,6 +100,7 @@ class SummarySourceTotalsTests(TestCase):
             self.assert_lifetime_and_recency(summary,
                 [row for row in flights if row.aircraft_type.aircraft_type == summary.aircraft_type],
                 [row for row in imported if row.aircraft_type.aircraft_type == summary.aircraft_type])
+        flights = [row for row in flights if not row.simulator]
         for summary in Regs.objects.filter(user=self.user):
             for role in ('pilot_in_command', 'second_in_command'):
                 expected = summed([row for row in flights if getattr(row.registration, f'is_{summary.reg_type}') and getattr(row, role)], 'duration')
@@ -150,3 +153,27 @@ class SummarySourceTotalsTests(TestCase):
         for row in Power.objects.filter(user=self.user):
             with self.subTest(role=row.role):
                 self.assertEqual((row.turbine, row.piston), (0, 0))
+
+    def test_simulator_migration_rebuilds_every_summary_without_changing_sources(self):
+        from importlib import import_module
+        from types import SimpleNamespace
+        from django.apps import apps
+        from django.db import connection
+        migration = import_module('flights.migrations.0074_separate_simulator_summaries')
+        schema = SimpleNamespace(connection=connection)
+        models = (Total, Stat, Regs, Power, Weight, Endorsement)
+        before_sources = {model.__name__: list(model.objects.order_by('pk').values())
+                          for model in (Flight, Imported)}
+        foreign = {model.__name__: list(model.objects.filter(user=self.other).order_by('pk').values())
+                   for model in models}
+        # Recreate the old inclusion of simulator duration, then upgrade it.
+        migration.restore(apps, schema)
+        migration.rebuild(apps, schema)
+        self.assert_all_summaries()
+        once = {model.__name__: list(model.objects.order_by('pk').values()) for model in models}
+        migration.rebuild(apps, schema)
+        self.assertEqual(once, {model.__name__: list(model.objects.order_by('pk').values()) for model in models})
+        for model in (Flight, Imported):
+            self.assertEqual(before_sources[model.__name__], list(model.objects.order_by('pk').values()))
+        for model in models:
+            self.assertEqual(foreign[model.__name__], list(model.objects.filter(user=self.other).order_by('pk').values()))

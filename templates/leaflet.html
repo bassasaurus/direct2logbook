@@ -13,7 +13,7 @@
   type="text/javascript"
   src="{% static 'js/leaflet/leaflet_config.js' %}"
 ></script>
-<link rel="stylesheet" href="{% static 'js/leaflet/airport_markers.css' %}" />
+<link rel="stylesheet" href="{% static 'js/leaflet/airport_markers.css' %}?v=dark-map-1" />
 <script src="{% static 'js/leaflet/airport_markers.js' %}"></script>
 <!-- control_loading -->
 <script
@@ -97,5 +97,5 @@
 {% if flight_map %}
   {% include 'blocks/map_mileage.html' %}
   {{ flight_map|json_script:"flight-map-data" }}
-  <script src="{% static 'js/leaflet/flight_route_highlight.js' %}?v=route-mileage"></script>
+  <script src="{% static 'js/leaflet/flight_route_highlight.js' %}?v=dark-map-1"></script>
 {% endif %}

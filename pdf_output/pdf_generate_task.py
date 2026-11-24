@@ -508,29 +508,29 @@ def _build_pdf(user):
         row = [
             date_str,
             str(f.aircraft_type),
-            str(f.registration),
+            str(f.device_id or f.registration or '') if getattr(f, 'simulator', False) else str(f.registration),
             str(f.route),
-            dec_or_zero(f.duration),           # Block
-            dec_or_zero(f.duration) if getattr(f, "pilot_in_command", False) else Decimal(
+            dec_or_zero(f.duration) if not f.simulator else Decimal('0.0'), # Aircraft block time
+            dec_or_zero(f.duration) if getattr(f, "pilot_in_command", False) and not f.simulator else Decimal(
                 "0.0"),   # PIC time = duration if logged as PIC
-            dec_or_zero(f.duration) if getattr(f, "second_in_command", False) else Decimal(
+            dec_or_zero(f.duration) if getattr(f, "second_in_command", False) and not f.simulator else Decimal(
                 "0.0"),  # SIC time = duration if logged as SIC
-            dec_or_zero(f.duration) if getattr(f, "cross_country", False) else Decimal(
+            dec_or_zero(f.duration) if getattr(f, "cross_country", False) and not f.simulator else Decimal(
                 "0.0"),  # XC time = duration if logged as XC
-            dec_or_zero(f.night),              # Night
-            dec_or_zero(f.instrument),         # IFR
+            dec_or_zero(f.night) if not f.simulator else Decimal("0.0"),              # Night
+            dec_or_zero(f.instrument) if not f.simulator else Decimal("0.0"),         # IFR
             appr,
             hold,
-            dec_or_zero(f.landings_day),
-            dec_or_zero(f.landings_night),
-            dec_or_zero(f.simulated_instrument),
-            dec_or_zero(f.duration) if getattr(f, "instructor", False) else Decimal(
+            dec_or_zero(f.landings_day) if not f.simulator else Decimal("0.0"),
+            dec_or_zero(f.landings_night) if not f.simulator else Decimal("0.0"),
+            dec_or_zero(f.simulated_instrument) if not f.simulator else Decimal("0.0"),
+            dec_or_zero(f.duration) if getattr(f, "instructor", False) and not f.simulator else Decimal(
                 "0.0"),  # CFI time = duration if logged as CFI
-            dec_or_zero(f.duration) if getattr(f, "dual", False) else Decimal(
+            dec_or_zero(f.duration) if getattr(f, "dual", False) and not f.simulator else Decimal(
                 "0.0"),        # Dual time = duration if logged as Dual
-            dec_or_zero(f.duration) if getattr(f, "solo", False) else Decimal(
+            dec_or_zero(f.duration) if getattr(f, "solo", False) and not f.simulator else Decimal(
                 "0.0"),  # Solo time = duration if logged as Solo
-            dec_or_zero(f.simulator),
+            dec_or_zero(f.duration) if f.simulator else Decimal("0.0"),
         ]
         logbook_rows.append(row)
 

@@ -4,7 +4,7 @@
 {% include "flights/airport_confirmation.html" %}
 <div class="row justify-content-center">
   <div class="col-12">
-    <form data-unsaved-changes data-submit-feedback action="" class="mt-3" method="post">
+    <form data-flight-validation data-unsaved-changes data-submit-feedback action="" class="mt-3" method="post">
       {% csrf_token %}
         <div class="mb-3">
           <h4>Update Flight {{ flight.pk }}</h4>
@@ -12,7 +12,7 @@
           {{ form.non_field_errors }}
         </div>
         {% include 'flights/flight_form.html' %}
-      <button class="btn mt-3 btn-link" type="submit">Save changes</button>
+      <button class="btn btn-primary mt-3" type="submit">Save changes</button>
     </form>
   </div>
 </div>

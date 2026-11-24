@@ -189,3 +189,45 @@ class CSVAtomicImportTests(TestCase):
         self.assertEqual(rows[0]['approaches'], 2)
         self.assertEqual(rows[0]['landings_day'], 1)
         self.assertEqual(rows[0]['remarks'], 'Training')
+
+    def test_device_download_reimports_without_a_phantom_tailnumber(self):
+        from datetime import date
+        aircraft = Aircraft.objects.create(user=self.user, aircraft_type='B737',
+            aircraft_category='A', aircraft_class='MEL', turbine=True, large=True)
+        original = Flight.objects.create(user=self.user, date=date(2026, 11, 20),
+            aircraft_type=aircraft, registration=None, route='', duration=Decimal('2.0'),
+            simulator=True, device_type='ATD', device_id='Trainer 12', atd_type='AATD',
+            dual=True, simulated_instrument=Decimal('1.5'), instrument_credit_eligible=True)
+        response = self.client.get(reverse('csv_download'))
+        parsed, preview = parse_csv(response.content.decode())
+        self.assertEqual(parsed[0]['registration'], '')
+        self.assertEqual(parsed[0]['device_id'], 'Trainer 12')
+        self.assertEqual(len(preview[0]), 23)
+        self.assertEqual(self.import_file(response.content.decode()), 1)
+        copy = Flight.objects.exclude(pk=original.pk).get()
+        for field in ('aircraft_type_id', 'registration_id', 'route', 'duration', 'simulator',
+                      'device_type', 'device_id', 'atd_type', 'dual', 'simulated_instrument',
+                      'instrument_credit_eligible'):
+            self.assertEqual(getattr(copy, field), getattr(original, field), field)
+        self.assertFalse(TailNumber.objects.exists())
+        self.assertEqual(Total.objects.get(user=self.user, total='All').total_time, Decimal('0.0'))
+        self.assertEqual(Total.objects.get(user=self.user, total='All').simulator, Decimal('4.0'))
+
+    def test_legacy_simulator_import_still_accepts_missing_device_metadata(self):
+        self.import_file(content([row(**{'2': '', '3': '', '7': '0', '17': '1.5'})]))
+        flight = Flight.objects.get()
+        self.assertTrue(flight.simulator)
+        self.assertIsNone(flight.registration)
+        self.assertEqual(flight.device_type, '')
+        self.assertFalse(TailNumber.objects.exists())
+
+    def test_invalid_device_import_rolls_back_all_rows(self):
+        from csv_app.validation import DEVICE_HEADERS
+        data = row(**{'2': '', '3': '', '7': '0', '15': '1.5', '17': '1.5'})
+        for metadata in [('ATD', 'Trainer', '', '0'), ('FFS', '', '', '0'),
+                         ('INVALID', 'Trainer', '', '0')]:
+            with self.subTest(metadata=metadata):
+                with self.assertRaises(CSVValidationError):
+                    self.import_file(content([data + list(metadata)], HEADERS + DEVICE_HEADERS))
+                self.assertFalse(Flight.objects.exists())
+                self.assertFalse(Aircraft.objects.exists())

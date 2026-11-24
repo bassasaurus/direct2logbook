@@ -10,6 +10,8 @@ def record_integrity_issues(app_registry, using):
         model = app_registry.get_model('flights', model_name)
         for field in fields:
             rows = model.objects.using(using).filter(Q(**{field + '__regex': r'^\s*$'}) | Q(**{field + '__isnull': True})).order_by('pk')
+            if model_name == 'Flight':
+                rows = rows.exclude(simulator=True)
             if rows.exists():
                 issues.append(f'{model_name}.{field}: {rows.count()} empty value(s); sample IDs {list(rows.values_list("pk", flat=True)[:10])}')
     for model_name, fields in (

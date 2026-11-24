@@ -1,0 +1,15 @@
+<section class="card mt-3" aria-labelledby="instrument-credit-heading">
+  <div class="card-body">
+    <h5 id="instrument-credit-heading">{{ instrument_device_credit.title }}</h5>
+    <p class="small text-muted mb-2">{{ instrument_device_credit.basis }}</p>
+    <div class="table-responsive">
+      <table class="table table-sm mb-2">
+        <thead><tr><th scope="col">Device</th><th scope="col" class="text-end">Logged instrument</th><th scope="col" class="text-end">Eligible training</th><th scope="col" class="text-end">Device limit</th></tr></thead>
+        <tbody>{% for row in instrument_device_credit.rows %}<tr><th scope="row">{{ row.type }}</th><td class="text-end">{{ row.logged|floatformat:1 }}</td><td class="text-end">{{ row.eligible|floatformat:1 }}</td><td class="text-end">{{ row.limit|floatformat:1 }}</td></tr>{% endfor %}</tbody>
+      </table>
+    </div>
+    <p class="fw-bold mb-2">Estimated device credit: {{ instrument_device_credit.device_credit|floatformat:1 }} / {{ instrument_device_credit.combined_limit|floatformat:1 }} hours</p>
+    {% if instrument_device_credit.unclassified_instrument %}<p class="small mb-2">{{ instrument_device_credit.unclassified_instrument|floatformat:1 }} instrument hours need device classification before calculating credit.</p>{% endif %}
+    <p class="small text-muted mb-0">{{ instrument_device_credit.note }}</p>
+  </div>
+</section>

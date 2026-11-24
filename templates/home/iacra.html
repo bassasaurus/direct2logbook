@@ -1,155 +1,89 @@
-{% load math_filters %}
-
-	<table class="table table-sm table-bordered mb-0">
-  <tbody>
-    <tr>
-      <th colspan="13" class="text-start">III RECORD OF PILOT TIME</th>
-    </tr>
-    <tr>
-      <td>&nbsp;</td>
-      <td class="text-center">Total</td>
-      <td class="text-center">Instruction Recieved</td>
-      <td class="text-center">Solo</td>
-      <td class="text-center">PIC and SIC</td>
-      <td class="text-center">Cross Country Instruction Recieved</td>
-      <td class="text-center">Cross Country Solo</td>
-      <td class="text-center">Cross Country PIC and SIC</td>
-      <td class="text-center">Instrument</td>
-      <td class="text-center">Night Instruction Recieved</td>
-      <td class="text-center">Night Take-Off / Landing</td>
-      <td class="text-center">Night PIC/SIC</td>
-      <td class="text-center">Night Take-Off/Landing PIC/SIC</td>
-    </tr>
-    <tr>
-      <td rowspan="4">Airplane</td>
-      <td rowspan="4" class="text-center">{{ airplane_total }}</td>
-      <td rowspan="4" class="text-center">{{ airplane_dual }}</td>
-      <td rowspan="4" class="text-center">{{ airplane_solo }}</td>
-      <td class="text-center">PIC</td>
-      <td rowspan="4" class="text-center">{{ airplane_xc_dual }}</td>
-      <td rowspan="4" class="text-center">{{ airplane_xc_solo }}</td>
-      <td class="text-center">PIC</td>
-      <td rowspan="4" class="text-center">{{ airplane_ifr }}</td>
-      <td rowspan="4" class="text-center">{{ airplane_night_dual }}</td>
-      <td rowspan="4" class="text-center">{{ airplane_ldg_night }}</td>
-      <td rowspan="4" class="text-center">{{ airplane_night_pic_sic }}</td>
-      <td class="text-center">PIC</td>
-    </tr>
-    <tr>
-      <td class="text-center">{{ airplane_pic }}</td>
-      <td class="text-center">{{ airplane_xc_pic }}</td>
-      <td class="text-center">{{ airplane_night_ldg_pic }}</td>
-    </tr>
-    <tr>
-      <td class="text-center">SIC</td>
-      <td class="text-center">SIC</td>
-      <td class="text-center">SIC</td>
-
-    </tr>
-    <tr>
-      <td class="text-center">{{ airplane_sic }}</td>
-      <td class="text-center">{{ airplane_xc_sic }}</td>
-      <td class="text-center">{{ airplane_night_ldg_sic }}</td>
-    </tr>
-    <tr>
-      <td rowspan="4">Rotorcraft</td>
-      <td rowspan="4" class="text-center">{{ rotor_total }}</td>
-      <td rowspan="4" class="text-center">{{ rotor_dual }}</td>
-      <td rowspan="4" class="text-center">{{ rotor_solo }}</td>
-      <td class="text-center">PIC</td>
-      <td rowspan="4" class="text-center">{{ rotorcraft_xc_dual }}</td>
-      <td rowspan="4" class="text-center">{{ rotorcraft_xc_solo }}</td>
-      <td class="text-center">PIC</td>
-      <td rowspan="4" class="text-center">{{ rotor_ifr }}</td>
-      <td rowspan="4" class="text-center">{{ rotorcraft_night_dual }}</td>
-      <td rowspan="4" class="text-center">{{ rotor_ldg_night }}</td>
-      <td rowspan="4" class="text-center">{{ rotorcraft_night_pic_sic }}</td>
-      <td class="text-center">PIC</td>
-    </tr>
-    <tr>
-      <td class="text-center">{{ rotor_pic }}</td>
-      <td class="text-center">{{ rotorcraft_xc_pic }}</td>
-      <td class="text-center">{{ rotorcraft_night_ldg_pic }}</td>
-    </tr>
-    <tr>
-      <td class="text-center">SIC</td>
-      <td class="text-center">SIC</td>
-      <td class="text-center">SIC</td>
-    </tr>
-    <tr>
-      <td class="text-center">{{ rotor_sic }}</td>
-      <td class="text-center">{{ rotorcraft_xc_sic }}</td>
-      <td class="text-center">{{ rotorcraft_night_ldg_sic }}</td>
-    </tr>
-  </tbody>
-</table>
-<br>
-<div class="row justify-content-center align-items-center">
-	<table class="table table-sm table-bordered w-50 mb-0">
-		<thead>
-			<tr>
-			  <th colspan="9" class="text-center">Class Totals</th>
-			</tr>
-		</thead>
-  <tbody>
-    <tr>
-      <td rowspan="3" class="text-center">Airplane</td>
-      <td colspan="2" class="text-center">SEL</td>
-      <td colspan="2" class="text-center">MEL</td>
-      <td colspan="2" class="text-center">SES</td>
-      <td colspan="2" class="text-center">MES</td>
-    </tr>
-    <tr>
-      <td class="text-center">PIC</td>
-	    <td class="text-center">{{ asel_pic }}</td>
-      <td class="text-center">PIC</td>
-      <td class="text-center">{{ amel_pic }} </td>
-	    <td class="text-center">PIC</td>
-      <td class="text-center">{{ ases_pic }}</td>
-	  <td class="text-center">PIC</td>
-    <td class="text-center">{{ ames_pic }}</td>
-    </tr>
-        <tr>
-          <td class="text-center">SIC</td>
-          <td class="text-center">{{ asel_sic }}</td>
-          <td class="text-center">SIC</td>
-          <td class="text-center">{{ amel_sic }}</td>
-          <td class="text-center">SIC</td>
-          <td class="text-center">{{ ases_sic }}</td>
-    	    <td class="text-center">SIC</td>
-          <td class="text-center">{{ ames_sic }}</td>
-        </tr>
-        <tr>
-          <td rowspan="2" class="text-center">Rotorcraft</td>
-          <td colspan="4" class="text-center">Helicopter</td>
-          <td colspan="4" class="text-center">Gyroplane</td>
-        </tr>
-     	  <td colspan="4" class="text-center">{{ helo_total }}</td>
-    	  <td colspan="4" class="text-center">{{ gyro_total }}</td>
-    	<tr>
-    	  <td rowspan="2" class="text-center">FFS</td>
-    	  <td colspan="2" class="text-center">SE</td>
-    	  <td colspan="2" class="text-center">ME</td>
-    	  <td colspan="4" class="text-center">Helicopter</td>
-    	</tr>
-    	<tr>
-    	  <td colspan="2">&nbsp;</td>
-    	  <td colspan="2">&nbsp;</td>
-    	  <td colspan="4">&nbsp;</td>
-    	</tr>
-    	<!-- <tr>
-    	  <td class="text-center">FTD</td>
-    	  <td colspan="2">&nbsp;</td>
-    	  <td colspan="2">&nbsp;</td>
-    	  <td colspan="4">&nbsp;</td>
-    	</tr>
-    	<tr>
-    	  <td class="text-center">ATD</td>
-    	  <td colspan="2">&nbsp;</td>
-    	  <td colspan="2">&nbsp;</td>
-    	  <td colspan="4">&nbsp;</td>
-    	</tr> -->
-      </tbody>
-    </table>
-
+{% load static %}
+<section class="iacra-section" aria-labelledby="iacra-heading">
+  <h5 id="iacra-heading" class="mb-2">III. Record of Pilot Time</h5>
+  <p class="small text-muted mb-3" id="iacra-legend">FAA Form 8710-1, Section III (03/26). Shaded cells are not applicable. A dash (—) means information is unavailable; 0.0 means no time is recorded. Night takeoff/landing counts use recorded night landings and crew roles. Unclassified historical Sim sessions remain in Sim totals.</p>
+  <div class="iacra-layout">
+    <div class="iacra-grid-scroll" role="region" aria-label="Record of Pilot Time" aria-describedby="iacra-legend" tabindex="0">
+      <table class="table table-sm table-bordered iacra-grid mb-0">
+        <caption class="visually-hidden">Record of Pilot Time by aircraft category. Hours are shown to one decimal place.</caption>
+        <thead>
+          <tr>
+            <th rowspan="2" scope="col">Aircraft</th>
+            <th rowspan="2" scope="col">Total</th>
+            <th rowspan="2" scope="col">Instruction Received</th>
+            <th rowspan="2" scope="col">Solo</th>
+            <th colspan="2" scope="colgroup">PIC and SIC</th>
+            <th rowspan="2" scope="col">Cross Country Instruction Received</th>
+            <th rowspan="2" scope="col">Cross Country Solo</th>
+            <th colspan="2" scope="colgroup">Cross Country PIC/SIC</th>
+            <th rowspan="2" scope="col">Instrument</th>
+            <th rowspan="2" scope="col">Night Instruction Received</th>
+            <th rowspan="2" scope="col">Night Take-Off/Landing</th>
+            <th colspan="2" scope="colgroup">Night PIC/SIC</th>
+            <th colspan="2" scope="colgroup">Night Take-Off/Landing PIC/SIC</th>
+          </tr>
+          <tr>
+            <th scope="col">PIC</th><th scope="col">SIC</th>
+            <th scope="col">PIC</th><th scope="col">SIC</th>
+            <th scope="col">PIC</th><th scope="col">SIC</th>
+            <th scope="col">PIC</th><th scope="col">SIC</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in iacra_rows %}
+            <tr>
+              <th scope="row">{{ row.label }}</th>
+              {% for cell in row.cells %}
+                {% if cell.shaded %}
+                  <td class="iacra-shaded" aria-label="{{ row.label }}: {{ cell.label }} — not applicable"></td>
+                {% elif cell.value is None %}
+                  <td class="iacra-unavailable" aria-label="{{ row.label }}: {{ cell.label }} — unavailable" title="Not available from recorded information">—</td>
+                {% else %}
+                  <td data-iacra-value="{{ row.label }}:{{ cell.label }}">{% if cell.count %}{{ cell.value|floatformat:0 }}{% else %}{{ cell.value|floatformat:1 }}{% endif %}</td>
+                {% endif %}
+              {% endfor %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
     </div>
+    <div class="iacra-supplementary">
+      <table class="table table-sm table-bordered iacra-launches mb-3">
+        <caption class="visually-hidden">Number of flights and launches. These counts are not recorded separately.</caption>
+        <thead>
+          <tr><th colspan="6" scope="colgroup">Number of</th></tr>
+          <tr><th rowspan="2" scope="col">Aircraft</th><th colspan="2" scope="colgroup">Flights</th><th rowspan="2" scope="col">Aero-Tows</th><th rowspan="2" scope="col">Ground Launches</th><th rowspan="2" scope="col">Powered Launches</th></tr>
+          <tr><th scope="col">PIC</th><th scope="col">Dual</th></tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">Gliders</th><td class="iacra-unavailable" colspan="5" aria-label="Glider flight and launch counts unavailable">—</td></tr>
+          <tr><th scope="row">Lighter-Than-Air</th><td class="iacra-unavailable" colspan="5" aria-label="Lighter-than-air flight and launch counts unavailable">—</td></tr>
+        </tbody>
+      </table>
+      <table class="table table-sm table-bordered iacra-classes mb-0">
+        <caption class="visually-hidden">Class Totals</caption>
+        <thead>
+          <tr><th colspan="5" scope="colgroup">Class Totals</th></tr>
+          <tr><th scope="col">Aircraft</th>{% for item in iacra_airplane_classes %}<th scope="col">{{ item.label }}</th>{% endfor %}</tr>
+        </thead>
+        <tbody>
+          <tr><th rowspan="3" scope="rowgroup">Airplane</th>{% for item in iacra_airplane_classes %}<td><span class="iacra-cell-label">PIC</span>{{ item.pic|floatformat:1 }}</td>{% endfor %}</tr>
+          <tr>{% for item in iacra_airplane_classes %}<td><span class="iacra-cell-label">SIC</span>{{ item.sic|floatformat:1 }}</td>{% endfor %}</tr>
+          <tr>{% for item in iacra_airplane_classes %}<td><span class="iacra-cell-label">Instruction Received</span>{{ item.instruction|floatformat:1 }}</td>{% endfor %}</tr>
+          <tr><th rowspan="2" scope="rowgroup">Rotorcraft</th><th colspan="2" scope="colgroup">Helicopter</th><th colspan="2" scope="colgroup">Gyroplane</th></tr>
+          <tr><td colspan="2">{{ helo_total|floatformat:1 }}</td><td colspan="2">{{ gyro_total|floatformat:1 }}</td></tr>
+          <tr><th rowspan="2" scope="rowgroup">Lighter-Than-Air</th><th colspan="2" scope="colgroup">Balloon</th><th colspan="2" scope="colgroup">Airship</th></tr>
+          <tr><td colspan="2" class="iacra-unavailable" aria-label="Balloon time unavailable">—</td><td colspan="2" class="iacra-unavailable" aria-label="Airship time unavailable">—</td></tr>
+          <tr><th scope="col">Device</th><th scope="col">SE</th><th scope="col">ME</th><th colspan="2" scope="colgroup">Helicopter</th></tr>
+          {% for device in iacra_device_classes %}
+          <tr><th scope="row">{{ device.type }}</th><td>{{ device.se|floatformat:1|default:"—" }}</td><td>{{ device.me|floatformat:1|default:"—" }}</td><td colspan="2">{{ device.helicopter|floatformat:1|default:"—" }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<script src="{% static 'js/iacra.js' %}" defer></script>
+
+{% include 'home/instrument_credit.html' %}

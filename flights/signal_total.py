@@ -6,7 +6,7 @@ from django.db.models import Q
 
 from django.core.exceptions import ObjectDoesNotExist
 from flights.queryset_helpers import avoid_none
-from flights.rolling_stats import assign_rolling_values, normalize_total_category
+from flights.rolling_stats import assign_rolling_values, normalize_total_category, CATEGORY_FILTERS
 from django.dispatch import receiver
 
 
@@ -18,7 +18,8 @@ def total_all_update(sender, instance, dispatch_uid="total_all_update", **kwargs
     if is_user_deletion(kwargs.get('origin')):
         return
 
-    flight = Flight.objects.filter(user=instance.user)
+    all_sessions = Flight.objects.filter(user=instance.user)
+    flight = all_sessions.exclude(simulator=True)
     imported = Imported.objects.filter(user=instance.user)
 
     asel_query = Q(aircraft_type__aircraft_category='A') & Q(aircraft_type__aircraft_class='SEL')
@@ -93,7 +94,8 @@ def total_all_update(sender, instance, dispatch_uid="total_all_update", **kwargs
 
         object.simulated_instrument = avoid_none(flight, 'simulated_instrument') + avoid_none(imported, 'simulated_instrument')
 
-        object.simulator = avoid_none(flight.filter(simulator=True), 'duration') + avoid_none(imported, 'simulator')
+        object.simulator = avoid_none(all_sessions.filter(simulator=True).filter(
+            CATEGORY_FILTERS[key]), 'duration') + avoid_none(imported, 'simulator')
 
         object.night = avoid_none(flight, 'night') + avoid_none(imported, 'night')
 

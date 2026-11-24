@@ -39,7 +39,7 @@ def rolling_values(flights, imported, as_of=None):
     bounds['ytd'] = date(as_of.year, 1, 1)
     # CSV-imported flights are normal dated Flight rows. Historical Imported
     # snapshots lack individual dates, so their rolling balances cannot be aged.
-    values = flights.aggregate(
+    values = flights.exclude(simulator=True).aggregate(
         **{field: Sum('duration', filter=Q(date__gte=start, date__lte=as_of))
            for field, start in bounds.items()},
         last_flown=Max('date', filter=Q(date__lte=as_of)),

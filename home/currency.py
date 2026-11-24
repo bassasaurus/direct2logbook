@@ -279,8 +279,8 @@ def medical_expiry_date(profile):
     else:
         return None
 
-    expiry_date = profile.medical_issue_date + relativedelta(months=months)
-    return expiry_date.replace(day=calendar.monthrange(expiry_date.year, expiry_date.month)[1])
+    from home.flight_reviews import calendar_month_due_date
+    return calendar_month_due_date(profile.medical_issue_date, months)
 
 
 def medical_duration(user):

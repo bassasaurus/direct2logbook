@@ -35,7 +35,7 @@
                   {% endif %}
                 </td>
                 <td class="pe-4 text-start">{{flight.aircraft_type}}</td>
-                <td class="pe-4 text-start">{{flight.registration}}</td>
+                <td class="pe-4 text-start">{% if flight.simulator %}{{ flight.device_id|default:flight.registration|default:"—" }}{% else %}{{ flight.registration }}{% endif %}</td>
                 <td class="pe-4 text-start logbook-route-cell">{{flight.route}}
                   {% if flight.remarks %}
                     <button type="button" class="logbook-remarks-toggle" data-remarks-toggle aria-expanded="false" aria-controls="flight-remarks-{{ flight.pk }}" aria-label="Toggle remarks for {{ flight.date|date:'M j, Y' }}"><span aria-hidden="true">▼</span></button>
@@ -62,7 +62,7 @@
                 <td class="text-end">{{flight.instructor|iconbool}}</td>
                 <td class="text-end">{{flight.dual|iconbool}}</td>
                 <td class="text-end">{{flight.solo|iconbool}}</td>
-                <td class="text-end">{{flight.simulator|iconbool}}</td>
+                <td class="text-end">{% if flight.simulator %}{{ flight.device_type|default:"Sim" }}{% else %}—{% endif %}</td>
                 <td class="ps-3 text-center" data-flight-remarks>{{ flight.remarks|default:"-"|remarks_links }}</td>
             </tr>
           {% endfor %}

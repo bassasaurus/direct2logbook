@@ -107,31 +107,17 @@ class FirstTableParser(HTMLParser):
 
 
 class IACRACrossCountryLayoutTests(SimpleTestCase):
-    def test_xc_column_matches_existing_pic_sic_row_layout(self):
+    def test_cross_country_crew_values_use_separate_faa_columns(self):
+        from home.iacra import iacra_tables
+        context = {
+            'airplane_xc_pic': Decimal('12.3'), 'airplane_xc_sic': Decimal('45.6'),
+            'rotorcraft_xc_pic': Decimal('7.8'), 'rotorcraft_xc_sic': Decimal('9.1'),
+        }
         parser = FirstTableParser()
-        parser.feed(render_to_string('home/iacra.html', {
-            'airplane_xc_pic': 'XC-A-PIC', 'airplane_xc_sic': 'XC-A-SIC',
-            'rotorcraft_xc_pic': 'XC-R-PIC', 'rotorcraft_xc_sic': 'XC-R-SIC',
-        }))
-        spans = [0] * 13
-        grid = []
-        for row in parser.rows[1:]:
-            occupied = [span > 0 for span in spans]
-            spans = [max(0, span - 1) for span in spans]
-            values = {}
-            column = 0
-            for cell in row:
-                while column < 13 and occupied[column]:
-                    column += 1
-                self.assertLess(column, 13, 'Too many table cells')
-                values[column] = cell['text'].strip()
-                spans[column] = int(cell['attrs'].get('rowspan', 1)) - 1
-                occupied[column] = True
-                column += 1
-            self.assertTrue(all(occupied), 'Missing table cell')
-            grid.append(values)
-        self.assertEqual(grid[0][7], 'Cross Country PIC and SIC')
-        self.assertEqual([row[7] for row in grid[1:]], [
-            'PIC', 'XC-A-PIC', 'SIC', 'XC-A-SIC',
-            'PIC', 'XC-R-PIC', 'SIC', 'XC-R-SIC',
-        ])
+        parser.feed(render_to_string('home/iacra.html', iacra_tables(context)))
+        self.assertEqual(len(parser.rows), 10)  # Two header rows, eight aircraft rows.
+        for row, pic, sic in [(parser.rows[2], '12.3', '45.6'),
+                              (parser.rows[3], '7.8', '9.1')]:
+            self.assertEqual(len(row), 17)
+            self.assertEqual(row[8]['text'].strip(), pic)
+            self.assertEqual(row[9]['text'].strip(), sic)

@@ -20,7 +20,7 @@ def weight_update(sender, instance, dispatch_uid="weight_update", **kwargs):
 
     user = instance.user
 
-    flight = Flight.objects.filter(user=user)
+    flight = Flight.objects.filter(user=user).exclude(simulator=True)
     imported = Imported.objects.filter(user=user)
 
     superr_query = Q(aircraft_type__superr=True)
@@ -139,7 +139,7 @@ def refresh_operating_rule_summaries(user_id, *, using='default'):
             imported_sums[key] = Sum(role, filter=Q(**{f'is_{rule}': True}))
 
     with transaction.atomic(using=using):
-        flights = Flight.objects.using(using).filter(user_id=user_id).aggregate(**flight_sums)
+        flights = Flight.objects.using(using).filter(user_id=user_id).exclude(simulator=True).aggregate(**flight_sums)
         imported = Imported.objects.using(using).filter(user_id=user_id).aggregate(**imported_sums)
         summaries = Regs.objects.using(using)
         # The unique (user, reg_type) constraint makes first-time creation safe.
@@ -168,7 +168,7 @@ def power_update(sender, instance, dispatch_uid="power_update", **kwargs):
 
     user = instance.user
 
-    flight = Flight.objects.filter(user=user)
+    flight = Flight.objects.filter(user=user).exclude(simulator=True)
     imported = Imported.objects.filter(user=user)
     total = Power.objects.get_or_create(user=user, role='Total')[0]
     pic = Power.objects.get_or_create(user=user, role='PIC')[0]
@@ -222,7 +222,7 @@ def endorsement_update(sender, instance, dispatch_uid="endorsement_update", **kw
 
     user = instance.user
 
-    flight = Flight.objects.filter(user=user)
+    flight = Flight.objects.filter(user=user).exclude(simulator=True)
     imported = Imported.objects.filter(user=user)
 
     simple_query = Q(aircraft_type__simple=True)

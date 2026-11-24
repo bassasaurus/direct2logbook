@@ -63,7 +63,8 @@ class RecordValidationParityTests(APITestCase):
 
     def test_legacy_flight_allows_unrelated_edits_but_checks_landing_changes(self):
         form = FlightForm(
-            data={**self.web_flight_data, 'simulator': True, 'cross_country': True, 'remarks': 'Edited'},
+            data={**self.web_flight_data, 'simulator': True, 'cross_country': True, 'remarks': 'Edited',
+                  'device_type': 'FFS', 'device_id': 'LEGACY-SIM'},
             instance=self.flight, user=self.user,
         )
         self.assertTrue(form.is_valid(), form.errors)

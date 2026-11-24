@@ -36,10 +36,14 @@
 {% endif %}
 
 
-{% regroup tailnumbers by aircraft as aircraft_list %}
+<form id="aircraft-default-settings" hidden>{% csrf_token %}</form>
+<p id="aircraft-default-status" class="small mb-2" role="status" aria-live="polite" hidden></p>
+<div id="aircraft-default-controls" data-url="{% url 'mobile_default_aircraft' %}" data-revision="{{ default_aircraft_record.revision }}">
 <div class="row">
-  {% for aircraft in aircraft_list %}
-      <div class="col-12" data-aircraft-group><a
+  {% for aircraft in aircraft_groups %}
+      <div class="col-12" data-aircraft-group>
+        <div class="d-flex align-items-center gap-3 mb-1">
+        <a
           {% if not aircraft.grouper.piston and not aircraft.grouper.turbine %}
             class="text-danger"
           {% elif not aircraft.grouper.requires_type and not aircraft.grouper.tailwheel and not aircraft.grouper.simple and not aircraft.grouper.compleks and not aircraft.grouper.high_performance %}
@@ -52,8 +56,14 @@
             class="text-dark"
           {% endif %}
           href="{% url 'aircraft_detail' aircraft.grouper.pk %}">
-            <h4 data-aircraft-type>{{ aircraft.grouper }}</h4>
+            <h4 class="mb-0" data-aircraft-type>{{ aircraft.grouper }}</h4>
           </a>
+          <div class="form-check aircraft-default-option mb-0">
+            <input class="form-check-input" type="checkbox" id="default-aircraft-{{ aircraft.grouper.pk }}"
+              data-default-aircraft-code="{{ aircraft.grouper.aircraft_type }}" {% if aircraft.grouper.is_default %}checked{% endif %} disabled>
+            <label class="form-check-label" for="default-aircraft-{{ aircraft.grouper.pk }}">Default</label>
+          </div>
+        </div>
 
     <div style="display: inline;">
       {% for tailnumber in aircraft.list %}
@@ -73,7 +83,9 @@
 </div>
 
 </div>
-<script src="{% static 'js/aircraft_filter.js' %}" defer></script>
+</div>
+<script src="{% static 'js/aircraft_filter.js' %}?v=all-types" defer></script>
+<script src="{% static 'js/aircraft_default.js' %}" defer></script>
 
 {% if new_user_flight or new_user_aircraft or new_user_tailnumber is True %}
   {% include 'new_user_modal.html' %}

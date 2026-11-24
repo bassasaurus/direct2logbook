@@ -16,6 +16,8 @@ MESSAGES = {
     'unique tailnumber': ('registration', 'This tailnumber already exists in your logbook.'),
     'aircraft_type_nonempty': ('aircraft_type', 'Required'),
     'flight_route_nonempty': ('route', 'Required'),
+    'flight_registration_required': ('registration', 'Choose a tailnumber.'),
+    'flight_device_type_valid': ('device_type', 'Select device type.'),
     'tailnumber_reg_nonempty': ('registration', 'Required'),
     'reminder_target_positive': ('target_hours', 'Target hours must be greater than 0.'),
     'reminder_milestone_target': ('target_hours', 'Required'),

@@ -21,7 +21,7 @@ class AircraftCRUDTests(TestCase):
         tailnumber = TailNumber.objects.create(user=self.user, aircraft=aircraft, registration='N737')
         self.client.force_login(self.user)
         response = self.client.get(reverse('aircraft_list'))
-        self.assertRegex(response.content.decode(), rf'<a\s+class="text-dark"\s+href="{reverse("aircraft_detail", args=[aircraft.pk])}">\s*<h4 data-aircraft-type>737</h4>')
+        self.assertRegex(response.content.decode(), rf'<a\s+class="text-dark"\s+href="{reverse("aircraft_detail", args=[aircraft.pk])}">\s*<h4[^>]*data-aircraft-type[^>]*>737</h4>')
         self.assertRegex(response.content.decode(), rf'<a data-tailnumber\s+class="text-danger"\s+href="{reverse("tailnumber_detail", args=[tailnumber.pk])}">N737</a>')
 
     def test_create_aircraft(self):

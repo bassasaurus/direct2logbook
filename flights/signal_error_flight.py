@@ -23,7 +23,7 @@ def flight_misc_error(sender, instance, dispatch_uid='flight_misc_error', **kwar
     else:
         Flight.objects.filter(user=user).filter(pk=instance.pk).update(aircraft_type_error='')
 
-    if not instance.registration:
+    if not instance.registration and not instance.simulator:
         registration_error = "Please select a tailnumber"
         Flight.objects.filter(user=user).filter(pk=instance.pk).update(registration_error=registration_error)
     else:

@@ -95,6 +95,8 @@ def resolve_route(route, choices=None, airports=None):
 
 
 def flight_resolution(flight):
+    if getattr(flight, 'simulator', False):
+        return []
     choices = getattr(flight, 'route_airport_choices', {})
     key = (flight.route, repr(choices))
     if getattr(flight, '_airport_resolution_key', None) != key:

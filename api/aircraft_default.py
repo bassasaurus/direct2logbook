@@ -4,6 +4,7 @@ import json
 from django.contrib.auth import get_user_model
 from django.db import transaction
 from rest_framework import serializers
+from rest_framework.authentication import BasicAuthentication, SessionAuthentication, TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -34,6 +35,7 @@ class DefaultOperation(serializers.Serializer):
 
 
 class MobileDefaultAircraftView(APIView):
+    authentication_classes = (SessionAuthentication, BasicAuthentication, TokenAuthentication)
     permission_classes = [IsAuthenticated]
 
     def get(self, request):

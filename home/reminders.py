@@ -63,7 +63,7 @@ def milestone_hours(reminder, today, all_hours=None):
         if not reminder.company_start_date:
             return Decimal('0')
         end = reminder.company_end_date or today
-        flights = Flight.objects.filter(user=reminder.user_id, date__range=(reminder.company_start_date, end))
+        flights = Flight.objects.filter(user=reminder.user_id, date__range=(reminder.company_start_date, end)).exclude(simulator=True)
         return avoid_none(flights, 'duration')
     if not reminder.aircraft_id:
         return Decimal('0')

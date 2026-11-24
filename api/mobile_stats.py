@@ -31,7 +31,9 @@ class MobileStatsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        from home.instrument_credit import instrument_airplane_device_credit
         return Response({
+            'instrument_device_credit': instrument_airplane_device_credit(request.user),
             'schema_version': 1,
             'downloaded_at': timezone.now().isoformat(),
             'totals': TotalSummarySerializer(
