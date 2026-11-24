@@ -7,7 +7,6 @@
       {% csrf_token %}
         <div class="mb-3">
           <h4>Update {{ object.aircraft_type }}</h4>
-          <p>Required *</p>
           {{ form.non_field_errors }}
         </div>
           {% include 'imported/imported_form.html' %}
