@@ -822,7 +822,7 @@ form .form-control:required:invalid, form .form-select:required:invalid,
 form select:required:invalid + .select2-container .select2-selection,
 form select:required:invalid ~ .select2-container .select2-selection,
 form fieldset:has(input[type="radio"]):not(:has(input:checked)) .record-choice-label {
-  border-color: var(--bs-danger, #dc3545);
+  border-color: var(--bs-danger, #dc3545) !important;
 }
 
 /* Show validation through field color, without circular status icons. */
@@ -837,5 +837,14 @@ form .form-control.is-invalid, form .form-select.is-invalid,
 form .form-control:required:invalid, form .form-select:required:invalid,
 form select.is-invalid ~ .select2-container .select2-selection,
 form select:required:invalid ~ .select2-container .select2-selection {
-  border-color: var(--bs-danger, #dc3545);
+  border-color: var(--bs-danger, #dc3545) !important;
+}
+
+@media screen {
+  html[data-bs-theme="dark"] form :is(.form-control,.form-select).is-invalid,
+  html[data-bs-theme="dark"] form :is(.form-control,.form-select):required:invalid,
+  html[data-bs-theme="dark"] form select.is-invalid ~ .select2-container .select2-selection,
+  html[data-bs-theme="dark"] form select:required:invalid ~ .select2-container .select2-selection {
+    border-color: #ffb1b8 !important;
+  }
 }
