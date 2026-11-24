@@ -15,9 +15,11 @@ from rest_framework.authtoken.views import obtain_auth_token
 
 from api.airport_checks import RouteAirportCheckView
 from api.aircraft_sync import MobileAircraftSyncView
+from api.aircraft_flight_defaults import AircraftFlightDefaultsView
 from api.mobile_sync import MobileSessionView, MobileFlightSyncView
 
 urlpatterns = [
+    path('aircraft/<int:pk>/flight-defaults/', AircraftFlightDefaultsView.as_view(), name='aircraft_flight_defaults'),
     path('mobile/distance-preference/', DistancePreferenceView.as_view(), name='distance_preference'),
     path('mobile/reminders/preferences/', MobileRegulatoryPreferencesView.as_view(), name='mobile_regulatory_preferences'),
     path('mobile/reminders/', MobileRemindersView.as_view(), name='mobile_reminders'),

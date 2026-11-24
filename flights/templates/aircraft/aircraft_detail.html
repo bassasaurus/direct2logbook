@@ -46,6 +46,23 @@
   </div>
 </div>
 <hr>
+<section class="card record-form-card mb-3" aria-labelledby="flight-defaults-heading">
+  <div class="card-body">
+    <h5 id="flight-defaults-heading">Flight Defaults</h5>
+    <form id="aircraft-flight-defaults" data-url="{% url 'aircraft_flight_defaults' aircraft.pk %}">
+      {% csrf_token %}
+      {{ flight_defaults|json_script:'aircraft-flight-defaults-data' }}
+      <div class="d-flex flex-wrap align-items-center gap-4">
+        <div class="form-check mb-0"><input class="form-check-input" type="checkbox" id="default-pic" data-crew-role="PIC"{% if aircraft.default_crew_role == 'PIC' %} checked{% endif %}><label class="form-check-label" for="default-pic">PIC</label></div>
+        <div class="form-check mb-0"><input class="form-check-input" type="checkbox" id="default-sic" data-crew-role="SIC"{% if aircraft.default_crew_role == 'SIC' %} checked{% endif %}><label class="form-check-label" for="default-sic">SIC</label></div>
+        <div class="form-check mb-0"><input class="form-check-input" type="checkbox" id="default-xc"{% if aircraft.default_cross_country %} checked{% endif %}><label class="form-check-label" for="default-xc">XC</label></div>
+      </div>
+      <p class="small text-muted mt-2 mb-0">Prefills new flights for this aircraft. You can change these choices on each flight.</p>
+      <p id="aircraft-flight-defaults-status" class="small mb-0" role="status" aria-live="polite" hidden></p>
+    </form>
+  </div>
+</section>
+<script src="{% static 'js/aircraft_flight_defaults.js' %}" defer></script>
 <div class="row">
   <div class="col-12">
     {% if is_imported %}

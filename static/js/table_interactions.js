@@ -29,6 +29,7 @@
   }
   var currentCell = null, marked = [], currentRow = null;
   function clear() {
+    if (currentCell) currentCell.classList.remove('table-cell-hover');
     marked.forEach(function (cell) { cell.classList.remove('table-column-hover'); });
     if (currentRow) currentRow.classList.remove('table-row-hover');
     currentCell = null; currentRow = null; marked = [];
@@ -37,17 +38,22 @@
     if (event.pointerType === 'touch') return;
     var cell = event.target.closest('td,th');
     var table = cell && cell.closest('table.table,table#logbook');
-    if (!table || cell.classList.contains('iacra-shaded')) { clear(); return; }
+    var cellOnly = table && table.closest('[data-table-tracking="cell"]');
+    if (!table || table.closest('[data-table-tracking="off"]') || (!cellOnly && cell.classList.contains('iacra-shaded'))) { clear(); return; }
     if (currentCell === cell) return;
     clear();
     currentCell = cell;
+    cell.classList.add('table-cell-hover');
+    if (cellOnly) return;
     var positions = columnGrid(table.rows), target = positions.get(cell);
     if (!target) return;
-    positions.forEach(function (range, candidate) {
-      if (range.start < target.end && range.end > target.start) {
-        candidate.classList.add('table-column-hover'); marked.push(candidate);
-      }
-    });
+    if (table.id !== 'logbook') {
+      positions.forEach(function (range, candidate) {
+        if (range.start < target.end && range.end > target.start) {
+          candidate.classList.add('table-column-hover'); marked.push(candidate);
+        }
+      });
+    }
     if (cell.parentElement.parentElement.tagName !== 'THEAD') {
       currentRow = cell.parentElement;
       currentRow.classList.add('table-row-hover');

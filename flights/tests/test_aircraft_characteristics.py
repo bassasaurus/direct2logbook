@@ -73,7 +73,7 @@ class AircraftCharacteristicsTests(TestCase):
     def test_unaffected_aircraft_revision_matches_the_installed_app_schema(self):
         aircraft = Aircraft.objects.create(user=self.user, **self.payload(engine='piston'))
         old_values = {field.attname: str(getattr(aircraft, field.attname)) for field in aircraft._meta.concrete_fields
-                      if field.attname not in ('is_default', 'electric', 'self_launch_capable')}
+                      if field.attname not in ('is_default', 'electric', 'self_launch_capable', 'default_crew_role', 'default_cross_country')}
         old_values.update(medium='False', light_sport='False')
         old_revision = hashlib.sha256(json.dumps(old_values, sort_keys=True).encode()).hexdigest()
         self.assertEqual(aircraft_revision(aircraft), old_revision)
@@ -199,7 +199,8 @@ class AircraftWakeMigrationTests(TransactionTestCase):
         before = list(OldFlight.objects.order_by('pk').values())
         self.executor = MigrationExecutor(connection)
         self.executor.migrate([('flights', '0078_engine_and_wake_classes')])
-        aircraft = Aircraft.objects.get(pk=aircraft.pk)
+        MigratedAircraft = self.executor.loader.project_state([('flights', '0078_engine_and_wake_classes')]).apps.get_model('flights', 'Aircraft')
+        aircraft = MigratedAircraft.objects.get(pk=aircraft.pk)
         self.assertTrue(aircraft.small)
         self.assertTrue(aircraft.turbine)
         self.assertFalse(aircraft.electric)
