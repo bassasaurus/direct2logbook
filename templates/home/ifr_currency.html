@@ -1,3 +1,4 @@
+{% load flights_filters %}
 <table class="table table-bordered">
   <thead class="table-light">
     <th colspan=2 class="text-center" style="">IFR — {{ instrument_category_label }}<br>
@@ -8,12 +9,12 @@
   {% if appr_quantity < 6 %}
   <tr>
     <td>Approaches</td>
-    <td class="text-danger text-nowrap">{{ appr_quantity }}/6 - Log {{ still_needed }} more</td>
+    <td class="text-danger text-nowrap">{{ appr_quantity|zero_dash }}/6 - Log {{ still_needed|zero_dash }} more</td>
   </tr>
   {% elif appr_quantity >= 6 %}
   <tr>
     <td>Approaches</td>
-    <td class="text-success text-nowrap">{{ appr_quantity }}/6 - Logged window through {{ appr_current_date }}</td>
+    <td class="text-success text-nowrap">{{ appr_quantity|zero_dash }}/6 - Logged window through {{ appr_current_date }}</td>
   </tr>
   {% else %}
   <tr>
@@ -29,7 +30,7 @@
   {% else %}
   <tr>
     <td>Holding</td>
-    <td class="text-success text-nowrap">{{ hold_quantity }}/1 - Last hold on {{ hold_current_date }}</td>
+    <td class="text-success text-nowrap">{{ hold_quantity|zero_dash }}/1 - Last hold on {{ hold_current_date }}</td>
   </tr>
   {% endif %}
 {% if ipc_completed_date %}

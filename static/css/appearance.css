@@ -59,6 +59,17 @@
   html[data-bs-theme="dark"] .profile-signature-image { filter: invert(1); }
   html[data-bs-theme="dark"] body.is-saving .app-main::after { background: rgba(15,19,26,.55); }
   html[data-bs-theme="dark"] :is(.index-app-news,.index-app-features,.index-features-files,.index-features-user,.business-single-client,.index-app-devices) { background-color: #0f131a; color: var(--bs-body-color); }
+  /* Spacial's feature panels have nested backgrounds and their own text colors. */
+  html[data-bs-theme="dark"] .index-features-files .container2 { border-color: var(--bs-border-color); }
+  html[data-bs-theme="dark"] .index-features-files .container2 .container1 { background: #191f29; border-color: var(--bs-border-color); }
+  html[data-bs-theme="dark"] .index-features-files .col-left .features .info strong { color: var(--bs-body-color); }
+  html[data-bs-theme="dark"] .index-features-files .col-left .features .info p,
+  html[data-bs-theme="dark"] .index-features-files .col-right p,
+  html[data-bs-theme="dark"] .index-app-features p,
+  html[data-bs-theme="dark"] .index-features-user section p { color: var(--bs-secondary-color); }
+  html[data-bs-theme="dark"] .index-features-files .col-right :is(h3,h4),
+  html[data-bs-theme="dark"] .index-app-features :is(h3,h4),
+  html[data-bs-theme="dark"] .index-features-user :is(header,section) :is(h3,h4) { color: var(--bs-body-color); }
   html[data-bs-theme="dark"] .footer { background: #191f29; color: var(--bs-body-color); }
   html[data-bs-theme="dark"] .footer :is(.title,.menu-link) { color: inherit; }
 }

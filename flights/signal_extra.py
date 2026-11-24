@@ -18,95 +18,16 @@ def weight_update(sender, instance, dispatch_uid="weight_update", **kwargs):
     if is_user_deletion(kwargs.get('origin')):
         return
 
-    user = instance.user
-
-    flight = Flight.objects.filter(user=user).exclude(simulator=True)
-    imported = Imported.objects.filter(user=user)
-
-    superr_query = Q(aircraft_type__superr=True)
-    heavy_query = Q(aircraft_type__heavy=True)
-    large_query = Q(aircraft_type__large=True)
-    medium_query = Q(aircraft_type__medium=True)
-    small_query = Q(aircraft_type__small=True)
-    lsa_query = Q(aircraft_type__light_sport=True)
-
-    if not flight.filter(superr_query) and not imported.filter(superr_query):
-        try:
-            superr = Weight.objects.get(user=user, weight='Super')
-            superr.delete()
-
-        except ObjectDoesNotExist:
-            pass
-
-    else:
-        superr = Weight.objects.get_or_create(user=user, weight='Super')[0]
-        superr.total = avoid_none(flight.filter(superr_query), 'duration') + avoid_none(imported.filter(superr_query), 'total_time')
-        superr.save()
-
-    if not flight.filter(heavy_query) and not imported.filter(heavy_query):
-        try:
-            heavy = Weight.objects.get(user=user, weight='Heavy')
-            heavy.delete()
-
-        except ObjectDoesNotExist:
-            pass
-
-    else:
-        heavy = Weight.objects.get_or_create(user=user, weight='Heavy')[0]
-        heavy.total = avoid_none(flight.filter(heavy_query), 'duration') + avoid_none(imported.filter(heavy_query), 'total_time')
-        heavy.save()
-
-    if not flight.filter(large_query) and not imported.filter(large_query):
-        try:
-            large = Weight.objects.get(user=user, weight='Large')
-            large.delete()
-
-        except ObjectDoesNotExist:
-            pass
-
-    else:
-        large = Weight.objects.get_or_create(user=user, weight='Large')[0]
-        large.total = avoid_none(flight.filter(large_query), 'duration') + avoid_none(imported.filter(large_query), 'total_time')
-        large.save()
-
-    if not flight.filter(medium_query) and not imported.filter(medium_query):
-        try:
-            medium = Weight.objects.get(user=user, weight='Medium')
-            medium.delete()
-
-        except ObjectDoesNotExist:
-            pass
-
-    else:
-        medium = Weight.objects.get_or_create(user=user, weight='Medium')[0]
-        medium.total = avoid_none(flight.filter(medium_query), 'duration') + avoid_none(imported.filter(medium_query), 'total_time')
-        medium.save()
-
-    if not flight.filter(small_query) and not imported.filter(small_query):
-        try:
-            small = Weight.objects.get(user=user, weight='Small')
-            small.delete()
-
-        except ObjectDoesNotExist:
-            pass
-
-    else:
-        small = Weight.objects.get_or_create(user=user, weight='Small')[0]
-        small.total = avoid_none(flight.filter(small_query), 'duration') + avoid_none(imported.filter(small_query), 'total_time')
-        small.save()
-
-    if not flight.filter(lsa_query) and not imported.filter(lsa_query):
-        try:
-            lsa = Weight.objects.get(user=user, weight='LSA')
-            lsa.delete()
-
-        except ObjectDoesNotExist:
-            pass
-
-    else:
-        lsa = Weight.objects.get_or_create(user=user, weight='LSA')[0]
-        lsa.total = avoid_none(flight.filter(lsa_query), 'duration') + avoid_none(imported.filter(lsa_query), 'total_time')
-        lsa.save()
+    flight = Flight.objects.filter(user=instance.user).exclude(simulator=True)
+    imported = Imported.objects.filter(user=instance.user)
+    for label, field in (('Small', 'small'), ('Large', 'large'), ('Heavy', 'heavy'), ('Super', 'superr')):
+        dated = flight.filter(**{'aircraft_type__' + field: True})
+        historical = imported.filter(**{'aircraft_type__' + field: True})
+        if dated.exists() or historical.exists():
+            Weight.objects.update_or_create(user=instance.user, weight=label, defaults={
+                'total': avoid_none(dated, 'duration') + avoid_none(historical, 'total_time')})
+        else:
+            Weight.objects.filter(user=instance.user, weight=label).delete()
 
 
 @receiver(post_save, sender=Imported)
@@ -166,48 +87,21 @@ def power_update(sender, instance, dispatch_uid="power_update", **kwargs):
     if is_user_deletion(kwargs.get('origin')):
         return
 
-    user = instance.user
-
-    flight = Flight.objects.filter(user=user).exclude(simulator=True)
-    imported = Imported.objects.filter(user=user)
-    total = Power.objects.get_or_create(user=user, role='Total')[0]
-    pic = Power.objects.get_or_create(user=user, role='PIC')[0]
-    sic = Power.objects.get_or_create(user=user, role='SIC')[0]
-
-    turbine_query = Q(aircraft_type__turbine=True)
-    piston_query = Q(aircraft_type__piston=True)
-
-    if not flight.filter(turbine_query) and not imported.filter(turbine_query):
-        pic.turbine = 0
-        pic.save()
-        sic.turbine = 0
-        sic.save()
-    else:
-        pic.turbine = avoid_none(flight.filter(pilot_in_command=True).filter(turbine_query), 'duration') + avoid_none(imported.filter(turbine_query), 'pilot_in_command')
-        pic.save()
-
-        sic.turbine = avoid_none(flight.filter(second_in_command=True).filter(turbine_query), 'duration') + avoid_none(imported.filter(turbine_query), 'second_in_command')
-        sic.save()
-
-
-    if not flight.filter(piston_query) and not imported.filter(piston_query):
-        pic.piston = 0
-        pic.save()
-        sic.piston = 0
-        sic.save()
-
-    else:
-        pic.piston = avoid_none(flight.filter(pilot_in_command=True).filter(piston_query), 'duration') + avoid_none(imported.filter(piston_query), 'pilot_in_command')
-        pic.save()
-
-        sic.piston = avoid_none(flight.filter(second_in_command=True).filter(piston_query), 'duration') + avoid_none(imported.filter(piston_query), 'second_in_command')
-        sic.save()
-
-    # Both categories must be refreshed before saving the combined totals,
-    # including when the last piston/turbine source record was removed.
-    total.turbine = pic.turbine + sic.turbine
-    total.piston = pic.piston + sic.piston
-    total.save()
+    from flights.aircraft_characteristics import ENGINE_FIELDS
+    # A hidden engine is not tracked as engine time, even if an older direct
+    # import left an engine flag on a glider or balloon.
+    flight = Flight.objects.filter(user=instance.user).exclude(simulator=True).exclude(
+        Q(aircraft_type__aircraft_category='GL') | Q(aircraft_type__aircraft_category='LTA', aircraft_type__aircraft_class='BALLOON'))
+    imported = Imported.objects.filter(user=instance.user).exclude(
+        Q(aircraft_type__aircraft_category='GL') | Q(aircraft_type__aircraft_category='LTA', aircraft_type__aircraft_class='BALLOON'))
+    values = {role: {} for role in ('PIC', 'SIC', 'Total')}
+    for engine in ENGINE_FIELDS:
+        for label, role in (('PIC', 'pilot_in_command'), ('SIC', 'second_in_command')):
+            values[label][engine] = avoid_none(flight.filter(**{role: True, 'aircraft_type__' + engine: True}), 'duration') + avoid_none(
+                imported.filter(**{'aircraft_type__' + engine: True}), role)
+        values['Total'][engine] = values['PIC'][engine] + values['SIC'][engine]
+    for role, defaults in values.items():
+        Power.objects.update_or_create(user=instance.user, role=role, defaults=defaults)
 
 
 @receiver(post_save, sender=Flight)

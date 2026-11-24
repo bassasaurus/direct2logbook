@@ -52,7 +52,7 @@ class IACRASectionThreeTests(SimpleTestCase):
         html = render_to_string('home/iacra.html', iacra_tables({'airplane_total': Decimal('0')}))
         parser = FirstTableParser()
         parser.feed(html)
-        self.assertEqual(parser.rows[2][1]['text'].strip(), '0.0')
+        self.assertEqual(parser.rows[2][1]['text'].strip(), '-')
         self.assertEqual(parser.rows[2][12]['text'].strip(), '—')
         self.assertEqual(parser.rows[5][7]['attrs']['class'], 'iacra-shaded')
         self.assertIn('role="region"', html)

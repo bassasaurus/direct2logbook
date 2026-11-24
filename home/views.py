@@ -101,270 +101,12 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
         context.update(instrument_recency(user))
         context['instrument_categories'] = instrument_recency_categories(user)
 
-        # iacra
-        # use .exists() then assign value when queryset is None and build more specific contexts
-        context['total'] = Total.objects.filter(user=user).get(total='All')
-
-        if Total.objects.filter(user=user, total='ASEL').exists():
-            asel = Total.objects.filter(user=user).get(total='ASEL')
-            asel_total = asel.total_time
-            asel_dual = asel.dual
-            asel_solo = asel.solo
-            asel_ifr = asel.instrument
-            asel_ldg_night = asel.landings_night
-            asel_pic = asel.pilot_in_command
-            asel_sic = asel.second_in_command
-        else:
-            asel_total = 0
-            asel_dual = 0
-            asel_solo = 0
-            asel_ifr = 0
-            asel_ldg_night = 0
-            asel_pic = 0
-            asel_sic = 0
-
-        if Total.objects.filter(user=user, total='AMEL').exists():
-            amel = Total.objects.filter(user=user).get(total='AMEL')
-            amel_total = amel.total_time
-            amel_dual = amel.dual
-            amel_solo = amel.solo
-            amel_ifr = amel.instrument
-            amel_ldg_night = amel.landings_night
-            amel_pic = amel.pilot_in_command
-            amel_sic = amel.second_in_command
-        else:
-            amel_total = 0
-            amel_dual = 0
-            amel_solo = 0
-            amel_ifr = 0
-            amel_ldg_night = 0
-            amel_pic = 0
-            amel_sic = 0
-
-        if Total.objects.filter(user=user, total='ASES').exists():
-            ases = Total.objects.filter(user=user).get(total='ASES')
-            ases_total = ases.total_time
-            ases_dual = ases.dual
-            ases_solo = ases.solo
-            ases_ifr = ases.instrument
-            ases_ldg_night = ases.landings_night
-            ases_pic = ases.pilot_in_command
-            ases_sic = ases.second_in_command
-        else:
-            ases_total = 0
-            ases_dual = 0
-            ases_solo = 0
-            ases_ifr = 0
-            ases_ldg_night = 0
-            ases_pic = 0
-            ases_sic = 0
-
-        if Total.objects.filter(user=user, total='AMES').exists():
-            ames = Total.objects.filter(user=user).get(total='AMES')
-            ames_total = ames.total_time
-            ames_dual = ames.dual
-            ames_solo = ames.solo
-            ames_ifr = ames.instrument
-            ames_ldg_night = ames.landings_night
-            ames_pic = ames.pilot_in_command
-            ames_sic = ames.second_in_command
-        else:
-            ames_total = 0
-            ames_dual = 0
-            ames_solo = 0
-            ames_ifr = 0
-            ames_ldg_night = 0
-            ames_pic = 0
-            ames_sic = 0
-
-        if Total.objects.filter(user=user, total='HELO').exists():
-            helo = Total.objects.filter(user=user).get(total='HELO')
-            helo_total = helo.total_time
-            helo_dual = helo.dual
-            helo_solo = helo.solo
-            helo_ifr = helo.instrument
-            helo_ldg_night = helo.landings_night
-            helo_pic = helo.pilot_in_command
-            helo_sic = helo.second_in_command
-        else:
-            helo_total = 0
-            helo_dual = 0
-            helo_solo = 0
-            helo_ifr = 0
-            helo_ldg_night = 0
-            helo_pic = 0
-            helo_sic = 0
-
-        if Total.objects.filter(user=user, total='GYRO').exists():
-            gyro = Total.objects.filter(user=user).get(total='GYRO')
-            gyro_total = gyro.total_time
-            gyro_dual = gyro.dual
-            gyro_solo = gyro.solo
-            gyro_ifr = gyro.instrument
-            gyro_ldg_night = gyro.landings_night
-            gyro_pic = gyro.pilot_in_command
-            gyro_sic = gyro.second_in_command
-        else:
-            gyro_total = 0
-            gyro_dual = 0
-            gyro_solo = 0
-            gyro_ifr = 0
-            gyro_ldg_night = 0
-            gyro_pic = 0
-            gyro_sic = 0
-
-        context['airplane_total'] = asel_total + amel_total + ases_total + ames_total
-        context['airplane_dual'] = asel_dual + amel_dual + ases_dual + ames_dual
-        context['airplane_solo'] = asel_solo + amel_solo + ases_solo + ames_solo
-        context['airplane_ifr'] = asel_ifr + amel_ifr + ases_ifr + ames_ifr
-        context['airplane_ldg_night'] = asel_ldg_night + amel_ldg_night + ases_ldg_night + ames_ldg_night
-        context['airplane_pic'] = asel_pic + amel_pic + ases_pic + ames_pic
-        context['airplane_sic'] = asel_sic + amel_sic + ases_sic + ames_sic
-
-        context['rotor_total'] = helo_total + gyro_total
-        context['rotor_dual'] = helo_dual + gyro_dual
-        context['rotor_solo'] = helo_solo + gyro_solo
-        context['rotor_ifr'] = helo_ifr + gyro_ifr
-        context['rotor_ldg_night'] = helo_ldg_night + gyro_ldg_night
-        context['rotor_pic'] = helo_pic + gyro_pic
-        context['rotor_sic'] = helo_sic + gyro_sic
-
-        context['asel_pic'] = asel_pic
-        context['asel_dual'] = asel_dual
-        context['asel_sic'] = asel_sic
-        context['amel_pic'] = amel_pic
-        context['amel_dual'] = amel_dual
-        context['amel_sic'] = amel_sic
-        context['ases_pic'] = ases_pic
-        context['ases_dual'] = ases_dual
-        context['ases_sic'] = ases_sic
-        context['ames_pic'] = ames_pic
-        context['ames_dual'] = ames_dual
-        context['ames_sic'] = ames_sic
-        context['helo_total'] = helo_total
-        context['gyro_total'] = gyro_total
-
-        airplane_query = Q(aircraft_type__aircraft_category='A')
-        airplane_xc_dual = Flight.objects.filter(user=user).exclude(simulator=True).filter(
-            airplane_query, cross_country=True, dual=True).aggregate(Sum('duration'))
-        if not airplane_xc_dual.get('duration__sum'):
-            context['airplane_xc_dual'] = 0.0
-        else:
-            context['airplane_xc_dual'] = round(
-                airplane_xc_dual.get('duration__sum'), 1)
-
-        airplane_xc_solo = Flight.objects.filter(user=user).exclude(simulator=True).filter(
-            airplane_query, cross_country=True, solo=True).aggregate(Sum('duration'))
-        if not airplane_xc_solo.get('duration__sum'):
-            context['airplane_xc_solo'] = 0.0
-        else:
-            context['airplane_xc_solo'] = round(
-                airplane_xc_solo.get('duration__sum'), 1)
-
-        airplane_xc = Flight.objects.filter(user=user).exclude(simulator=True).filter(
-            airplane_query, cross_country=True).aggregate(
-                pic=Sum('duration', filter=Q(pilot_in_command=True)),
-                sic=Sum('duration', filter=Q(second_in_command=True)),
-            )
-        context['airplane_xc_pic'] = round(airplane_xc['pic'] or 0, 1)
-        context['airplane_xc_sic'] = round(airplane_xc['sic'] or 0, 1)
-
-        airplane_night = Flight.objects.filter(user=user).exclude(simulator=True).filter(
-            airplane_query, night__gt=0).aggregate(
-                dual=Sum('night', filter=Q(dual=True)),
-                pic=Sum('night', filter=Q(pilot_in_command=True)),
-                sic=Sum('night', filter=Q(second_in_command=True)),
-                crew=Sum('night', filter=Q(pilot_in_command=True) | Q(second_in_command=True)),
-            )
-        context['airplane_night_dual'] = airplane_night['dual'] or Decimal('0.0')
-        context['airplane_night_pic_sic'] = airplane_night['crew'] or Decimal('0.0')
-
-        context['airplane_night_pic'] = airplane_night['pic'] or Decimal('0.0')
-        context['airplane_night_sic'] = airplane_night['sic'] or Decimal('0.0')
-
-        night_ldg_pic = Flight.objects.filter(user=user).exclude(simulator=True).filter(
-            airplane_query, pilot_in_command=True).aggregate(Sum('landings_night'))
-        if not night_ldg_pic.get('landings_night__sum'):
-            context['airplane_night_ldg_pic'] = 0
-        else:
-            context['airplane_night_ldg_pic'] = night_ldg_pic.get(
-                'landings_night__sum')
-
-        night_ldg_sic = Flight.objects.filter(user=user).exclude(simulator=True).filter(
-            airplane_query, second_in_command=True).aggregate(Sum('landings_night'))
-        if not night_ldg_sic.get('landings_night__sum'):
-            context['airplane_night_ldg_sic'] = 0
-        else:
-            context['airplane_night_ldg_sic'] = night_ldg_sic.get(
-                'landings_night__sum')
-
-# ---------------rotorcraft---------------
-        rotorcraft_query = Q(aircraft_type__aircraft_category='R')
-        rotorcraft_xc_dual = Flight.objects.filter(user=user).exclude(simulator=True).filter(
-            rotorcraft_query, cross_country=True, dual=True).aggregate(Sum('duration'))
-        if not rotorcraft_xc_dual.get('duration__sum'):
-            context['rotorcraft_xc_dual'] = 0.0
-        else:
-            context['rotorcraft_xc_dual'] = round(
-                rotorcraft_xc_dual.get('duration__sum'), 1)
-
-        rotorcraft_xc_solo = Flight.objects.filter(user=user).exclude(simulator=True).filter(
-            rotorcraft_query, cross_country=True, solo=True).aggregate(Sum('duration'))
-        if not rotorcraft_xc_solo.get('duration__sum'):
-            context['rotorcraft_xc_solo'] = 0.0
-        else:
-            context['rotorcraft_xc_solo'] = round(
-                rotorcraft_xc_solo.get('duration__sum'), 1)
-
-        rotorcraft_xc = Flight.objects.filter(user=user).exclude(simulator=True).filter(
-            rotorcraft_query, cross_country=True).aggregate(
-                pic=Sum('duration', filter=Q(pilot_in_command=True)),
-                sic=Sum('duration', filter=Q(second_in_command=True)),
-            )
-        context['rotorcraft_xc_pic'] = round(rotorcraft_xc['pic'] or 0, 1)
-        context['rotorcraft_xc_sic'] = round(rotorcraft_xc['sic'] or 0, 1)
-
-        rotorcraft_night = Flight.objects.filter(user=user).exclude(simulator=True).filter(
-            rotorcraft_query, night__gt=0).aggregate(
-                dual=Sum('night', filter=Q(dual=True)),
-                pic=Sum('night', filter=Q(pilot_in_command=True)),
-                sic=Sum('night', filter=Q(second_in_command=True)),
-                crew=Sum('night', filter=Q(pilot_in_command=True) | Q(second_in_command=True)),
-            )
-        context['rotorcraft_night_dual'] = rotorcraft_night['dual'] or Decimal('0.0')
-        context['rotorcraft_night_pic_sic'] = rotorcraft_night['crew'] or Decimal('0.0')
-
-        context['rotorcraft_night_pic'] = rotorcraft_night['pic'] or Decimal('0.0')
-        context['rotorcraft_night_sic'] = rotorcraft_night['sic'] or Decimal('0.0')
-
-        night_ldg_pic = Flight.objects.filter(user=user).exclude(simulator=True).filter(
-            rotorcraft_query, pilot_in_command=True).aggregate(Sum('landings_night'))
-        if not night_ldg_pic.get('landings_night__sum'):
-            context['rotorcraft_night_ldg_pic'] = 0.0
-        else:
-            context['rotorcraft_night_ldg_pic'] = round(
-                night_ldg_pic.get('landings_night__sum'), 1)
-
-        night_ldg_sic = Flight.objects.filter(user=user).exclude(simulator=True).filter(
-            rotorcraft_query, second_in_command=True).aggregate(Sum('landings_night'))
-        if not night_ldg_sic.get('landings_night__sum'):
-            context['rotorcraft_night_ldg_sic'] = 0.0
-        else:
-            context['rotorcraft_night_ldg_sic'] = round(
-                night_ldg_sic.get('landings_night__sum'), 1)
-
-# ---------------FTD---------------
-# ---------------ATD---------------
-# ---------------FFS---------------
-
-        from .iacra import iacra_tables, device_totals, device_class_totals
-        context['iacra_devices'] = device_totals(user)
-        context['iacra_device_classes'] = device_class_totals(user)
-        context.update(iacra_tables(context))
+        from .pilot_time import pilot_time_report, report_context
+        pilot_time = pilot_time_report(user)
+        context.update(report_context(pilot_time))
         from .instrument_credit import instrument_airplane_device_credit
         context['instrument_device_credit'] = instrument_airplane_device_credit(user)
 
-        # end iacra
 
         context['aircraft_type_rating'] = Aircraft.objects.filter(user=user).filter(requires_type=True)
         context['type_currency'] = type_currency(user)
@@ -429,15 +171,18 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
         context['new_user_flight'] = not Flight.objects.filter(user=user).exists()
 
         context['flights'] = Flight.objects.filter(user=user)
-        context['totals'] = Total.objects.filter(
-            user=user).exclude(total_time__lte=.1)
+        from .pilot_time import SUMMARY_LABELS
+        context['totals'] = list(Total.objects.filter(user=user).filter(Q(total_time__gt=0) | Q(simulator__gt=0)))
+        for total in context['totals']:
+            total.display_name = SUMMARY_LABELS.get(total.total, total.total)
+            total.launch_counts = next((row for row in pilot_time['launches'] if row['code'] == total.total == 'GL'), None)
         context['stats'] = Stat.objects.filter(user=user)
         context['regs'] = Regs.objects.filter(user=user)
         context['weights'] = Weight.objects.filter(
             user=user).exclude(total__lte=.1)
         context['powers'] = Power.objects.filter(user=user)
         context['endorsements'] = Endorsement.objects.filter(
-            user=user).exclude(total__lte=.1)
+            user=user).exclude(endorsement='Simple').exclude(total__lte=.1)
         context['title'] = 'D-> | Home'
         context['page_title'] = "Home"
         return context

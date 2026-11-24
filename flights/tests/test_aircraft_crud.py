@@ -40,9 +40,7 @@ class AircraftCRUDTests(TestCase):
             superr=False,
             heavy=False,
             large=False,
-            medium=False,
             small=True,
-            light_sport=False,
         )
         self.assertIsNotNone(aircraft.pk)
         self.assertEqual(aircraft.aircraft_type, 'C172')
@@ -63,9 +61,7 @@ class AircraftCRUDTests(TestCase):
             superr=False,
             heavy=False,
             large=False,
-            medium=False,
             small=True,
-            light_sport=False,
         )
         fetched = Aircraft.objects.get(pk=ac.pk)
         self.assertEqual(fetched.aircraft_type, 'PA28')
@@ -86,19 +82,17 @@ class AircraftCRUDTests(TestCase):
             superr=False,
             heavy=False,
             large=True,
-            medium=False,
             small=False,
-            light_sport=False,
         )
         ac.simple = True
         ac.large = False
-        ac.medium = True
+        ac.small = True
         ac.save()
 
         updated = Aircraft.objects.get(pk=ac.pk)
         self.assertTrue(updated.simple)
         self.assertFalse(updated.large)
-        self.assertTrue(updated.medium)
+        self.assertTrue(updated.small)
 
     def test_delete_aircraft(self):
         ac = Aircraft.objects.create(
@@ -116,9 +110,7 @@ class AircraftCRUDTests(TestCase):
             superr=False,
             heavy=False,
             large=False,
-            medium=False,
             small=True,
-            light_sport=False,
         )
         pk = ac.pk
         ac.delete()

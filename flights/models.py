@@ -8,6 +8,8 @@ from django.contrib.auth.models import User
 from picklefield.fields import PickledObjectField
 
 from django.core.validators import MinValueValidator, RegexValidator
+from flights.aircraft_classification import CATEGORY_CHOICES, CLASS_CHOICES
+from flights.launch_methods import LAUNCH_CHOICES
 
 
 BOOL_CHOICES = ((True, 'Yes'), (False, 'No', None, ''))
@@ -176,6 +178,7 @@ class Power(models.Model):
         decimal_places=1, max_digits=6, null=True, blank=True, default=0)
     piston = models.DecimalField(
         decimal_places=1, max_digits=6, null=True, blank=True, default=0)
+    electric = models.DecimalField(decimal_places=1, max_digits=6, null=True, blank=True, default=0)
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['user', 'role'], name='power_user_role_unique')]
@@ -236,30 +239,17 @@ class Weight(models.Model):
         return title
 
 
-CATEGORY_CHOICES = (
-    ('A', 'Airplane'),
-    ('R', 'Rotorcraft')
-)
-
-
-CLASS_CHOICES = (
-    ('SEL', 'Single-Engine Land'),
-    ('MEL', 'Multi-Engine Land'),
-    ('SES', 'Single-Engine Sea'),
-    ('MES', 'Mult-Engine Sea'),
-    ('HELO', 'Helicopter'),
-    ('GYRO', 'Gyroplane')
-)
-
-
 class Aircraft(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     aircraft_type = models.CharField(db_index=True, max_length=10)
     is_default = models.BooleanField(default=False)
     turbine = models.BooleanField(default=False)
     piston = models.BooleanField(default=False)
+    electric = models.BooleanField(default=False)
+    self_launch_capable = models.BooleanField(default=False)
     requires_type = models.BooleanField(default=False)
     tailwheel = models.BooleanField(default=False)
+    # Retired UI choice; retain historical aircraft flags and summary reconciliation.
     simple = models.BooleanField(default=False)
     compleks = models.BooleanField(default=False, verbose_name='Complex')
     high_performance = models.BooleanField(default=False)
@@ -267,17 +257,13 @@ class Aircraft(models.Model):
     aircraft_category = models.CharField(
         max_length=30, choices=CATEGORY_CHOICES, verbose_name="Aircraft Category", default='')
     aircraft_class = models.CharField(
-        max_length=30, choices=CLASS_CHOICES, verbose_name="Aircraft Class", default='')
+        max_length=30, choices=CLASS_CHOICES, verbose_name="Aircraft Class", default='', blank=True)
 
     superr = models.BooleanField(default=False, verbose_name='Super')
-    heavy = models.BooleanField(default=False, verbose_name='Heavy >300k lbs')
+    heavy = models.BooleanField(default=False, verbose_name='Heavy ≥300,000 lbs')
     large = models.BooleanField(
-        default=False, verbose_name='Large 41k-300k lbs')
-    medium = models.BooleanField(
-        default=False, verbose_name='Meduim 12.5-41k lbs')
-    small = models.BooleanField(default=False, verbose_name='Small <12.5k lbs')
-    light_sport = models.BooleanField(
-        default=False, verbose_name='LSA <1320 lbs')
+        default=False, verbose_name='Large >41,000 and <300,000 lbs')
+    small = models.BooleanField(default=False, verbose_name='Small ≤41,000 lbs')
     # file will be uploaded to MEDIA_ROOT/aircraft
     image = models.FileField(upload_to='aircraft/',
                              default=None, null=True, blank=True)
@@ -298,6 +284,21 @@ class Aircraft(models.Model):
         aircraft_type = str(self.aircraft_type)
         return aircraft_type
 
+    @property
+    def class_display(self):
+        from flights.aircraft_classification import class_display
+        return class_display(self.aircraft_category, self.aircraft_class)
+
+    @property
+    def engine_type_required(self):
+        from flights.aircraft_characteristics import engine_required
+        return engine_required(self.aircraft_category, self.aircraft_class)
+
+    @property
+    def class_required(self):
+        from flights.aircraft_classification import class_required
+        return class_required(self.aircraft_category)
+
     def can_delete(self):
         return not (
             TailNumber.objects.filter(aircraft=self).exists()
@@ -314,6 +315,7 @@ class Flight(models.Model):
     registration = models.ForeignKey(
         'TailNumber', default=None, null=True, blank=True, on_delete=models.CASCADE)
     route = models.CharField(max_length=50, blank=True)
+    launch_method = models.CharField(max_length=8, blank=True, default='', choices=LAUNCH_CHOICES)
     duration = models.DecimalField(
         decimal_places=1, max_digits=3, null=True, validators=[positive_validator])
     landings_day = models.PositiveIntegerField(
@@ -362,6 +364,14 @@ class Flight(models.Model):
     app_markers = models.JSONField(default=str, blank=True)
     app_polylines = models.JSONField(default=str, blank=True)
 
+    def clean(self):
+        super().clean()
+        from django.core.exceptions import ValidationError
+        from flights.launch_methods import validate_launch_method
+        errors = validate_launch_method({}, self)
+        if errors:
+            raise ValidationError(errors)
+
     class Meta:
         ordering = ['-date', 'pk']
         indexes = [
@@ -371,6 +381,7 @@ class Flight(models.Model):
             models.CheckConstraint(condition=models.Q(simulator=True, simulator__isnull=False) | ~models.Q(route__regex=r'^\s*$'), name='flight_route_nonempty'),
             models.CheckConstraint(condition=models.Q(simulator=True, simulator__isnull=False) | models.Q(registration__isnull=False), name='flight_registration_required'),
             models.CheckConstraint(condition=models.Q(device_type__in=['', 'FFS', 'FTD', 'ATD']), name='flight_device_type_valid'),
+            models.CheckConstraint(condition=models.Q(launch_method__in=['', 'AEROTOW', 'GROUND', 'SELF']), name='flight_launch_method_valid'),
             models.CheckConstraint(condition=(
                 (models.Q(duration__gte=0) | models.Q(duration__isnull=True))
                 & (models.Q(night__gte=0) | models.Q(night__isnull=True))

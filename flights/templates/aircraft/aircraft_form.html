@@ -1,73 +1,76 @@
-{% load widget_tweaks %}
+{% load widget_tweaks static %}
+<div class="row gx-2" data-aircraft-classification data-existing="{{ form.instance.pk|yesno:'true,false' }}"
+     data-initial-category="{{ form.initial.aircraft_category|default:'' }}" data-initial-class="{{ form.initial.aircraft_class|default:'' }}">
+  {{ form.classification_choices|json_script }}
+  <div class="mb-3 col-12">
+    <label class="form-label" for="{{ form.aircraft_category.id_for_label }}">Category *</label>
+    {{ form.aircraft_category|add_class:"form-control" }}
+    {% for error in form.aircraft_category.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+  </div>
+  <div class="mb-3 col-12" data-aircraft-class-field{% if form.class_not_applicable %} hidden{% endif %}>
+    <label class="form-label" for="{{ form.aircraft_class.id_for_label }}">Class *</label>
+    {{ form.aircraft_class|add_class:"form-control" }}
+    {% for error in form.aircraft_class.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+  </div>
+  {% if form.classification_changed_warning %}<p class="small text-muted mb-2" data-classification-warning hidden>Changing Category or Class regroups this aircraft’s existing flights and totals.</p>{% endif %}
+</div>
+<script src="{% static 'js/aircraft_classification.js' %}?v=record-form-1" defer></script>
 <div class="mb-3">
-  <label class="visually-hidden" for="{{ form.aircraft_type.id_for_label }}">Aircraft Type *</label>
-  {{ form.aircraft_type|attr:"autocomplete:off"|attr:"placeholder:Aircraft Type *"|add_class:"form-control" }}
+  <label class="form-label" for="{{ form.aircraft_type.id_for_label }}">Aircraft Type *</label>
+  {{ form.aircraft_type|attr:"autocomplete:off"|attr:"placeholder:e.g. C172"|add_class:"form-control" }}
   {% for error in form.aircraft_type.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
 </div>
-<fieldset class="mb-3">
-  <legend class="visually-hidden">Engine</legend>
-  <div class="d-flex flex-wrap">
+<fieldset class="mb-3" data-aircraft-engine{% if form.engine_not_applicable %} hidden{% endif %}>
+  <legend class="form-label fs-6">Engine *</legend>
+  <div class="d-flex flex-wrap gap-2">
     {% for radio in form.engine %}
-    <div class="form-check form-check-inline me-4 mb-2">
+    <div class="record-choice">
       {{ radio.tag }}
-      <label class="form-check-label ms-1" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+      <label class="record-choice-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
     </div>
     {% endfor %}
   </div>
   {% for error in form.engine.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
 </fieldset>
-<fieldset class="mb-3">
+<div class="form-check form-switch record-switch mb-3" data-glider-capability{% if form.aircraft_category.value != 'GL' %} hidden{% endif %}>
+  {{ form.self_launch_capable|add_class:'form-check-input' }}
+  <label class="form-check-label" for="{{ form.self_launch_capable.id_for_label }}">Self-launch capable</label>
+</div>
+<fieldset class="mb-3" data-aircraft-equipment-group>
   <legend class="visually-hidden">Equipment</legend>
-  <div class="d-flex flex-wrap">
-    <div class="form-check form-check-inline me-4 mb-2">
+  <div class="record-equipment-options">
+    <div class="form-check form-switch record-switch" data-aircraft-equipment="requires_type"{% if form.aircraft_category.value != 'A' and form.aircraft_category.value != 'R' and form.aircraft_category.value != 'PL' %} hidden{% endif %}>
       {{ form.requires_type|attr:"id:type"|add_class:"form-check-input" }}
       <label class="form-check-label" for="type">Requires Type Rating</label>
       {% for error in form.requires_type.errors %}<span class="text-danger small ms-2">{{ error }}</span>{% endfor %}
     </div>
-    <div class="form-check form-check-inline me-4 mb-2">
+    <div class="form-check form-switch record-switch" data-aircraft-equipment="tailwheel"{% if form.aircraft_category.value != 'A' %} hidden{% endif %}>
       {{ form.tailwheel|attr:"id:id_tailwheel"|add_class:"form-check-input" }}
       <label class="form-check-label" for="id_tailwheel">Tailwheel</label>
       {% for error in form.tailwheel.errors %}<span class="text-danger small ms-2">{{ error }}</span>{% endfor %}
     </div>
-    <div class="form-check form-check-inline me-4 mb-2">
-      {{ form.simple|attr:"id:simple"|add_class:"form-check-input" }}
-      <label class="form-check-label" for="simple">Simple</label>
-      {% for error in form.simple.errors %}<span class="text-danger small ms-2">{{ error }}</span>{% endfor %}
-    </div>
-    <div class="form-check form-check-inline me-4 mb-2">
+    <div class="form-check form-switch record-switch" data-aircraft-equipment="compleks"{% if form.aircraft_category.value != 'A' %} hidden{% endif %}>
       {{ form.compleks|attr:"id:complex"|add_class:"form-check-input" }}
       <label class="form-check-label" for="complex">Complex</label>
       {% for error in form.compleks.errors %}<span class="text-danger small ms-2">{{ error }}</span>{% endfor %}
     </div>
-    <div class="form-check form-check-inline me-4 mb-2">
+    <div class="form-check form-switch record-switch" data-aircraft-equipment="high_performance"{% if form.aircraft_category.value != 'A' %} hidden{% endif %}>
       {{ form.high_performance|attr:"id:high_perf"|add_class:"form-check-input" }}
       <label class="form-check-label" for="high_perf">High Performance</label>
       {% for error in form.high_performance.errors %}<span class="text-danger small ms-2">{{ error }}</span>{% endfor %}
     </div>
   </div>
 </fieldset>
-<fieldset class="mb-3">
-  <legend class="visually-hidden">Weight</legend>
-  <div class="d-flex flex-wrap">
+<fieldset class="mb-3" data-aircraft-wake>
+  <legend class="form-label fs-6">Wake Category *</legend>
+  <div class="d-flex flex-wrap gap-2">
     {% for radio in form.weight_category %}
-    <div class="form-check form-check-inline me-4 mb-2">
+    <div class="record-choice">
       {{ radio.tag }}
-      <label class="form-check-label ms-1" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+      <label class="record-choice-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
     </div>
     {% endfor %}
   </div>
   {% for error in form.weight_category.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+  <p class="small text-muted mb-0">ATC wake classes: Small ≤41,000 lb; Large &gt;41,000 and &lt;300,000 lb; Heavy ≥300,000 lb; Super designation.</p>
 </fieldset>
-<div class="row gx-2">
-  <div class="mb-3 col-md-6">
-    <label for="{{ form.aircraft_category.id_for_label }}">Category</label>
-    {{ form.aircraft_category|add_class:"form-control" }}
-    {% for error in form.aircraft_category.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
-  </div>
-  <div class="mb-3 col-md-6">
-    <label for="{{ form.aircraft_class.id_for_label }}">Class</label>
-    {{ form.aircraft_class|add_class:"form-control" }}
-    {% for error in form.aircraft_class.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
-  </div>
-</div>
-{% include 'aircraft/aircraft_form_checkbox_logic.html' %}

@@ -44,13 +44,11 @@
       <div class="col-12" data-aircraft-group>
         <div class="d-flex align-items-center gap-3 mb-1">
         <a
-          {% if not aircraft.grouper.piston and not aircraft.grouper.turbine %}
+          {% if aircraft.grouper.engine_type_required and not aircraft.grouper.piston and not aircraft.grouper.turbine and not aircraft.grouper.electric %}
             class="text-danger"
-          {% elif not aircraft.grouper.requires_type and not aircraft.grouper.tailwheel and not aircraft.grouper.simple and not aircraft.grouper.compleks and not aircraft.grouper.high_performance %}
+          {% elif not aircraft.grouper.aircraft_category or aircraft.grouper.class_required and not aircraft.grouper.aircraft_class %}
             class="text-danger"
-          {% elif not aircraft.grouper.aircraft_category or not aircraft.grouper.aircraft_class %}
-            class="text-danger"
-          {% elif not aircraft.grouper.superr and not aircraft.grouper.heavy and not aircraft.grouper.large and not aircraft.grouper.medium and not aircraft.grouper.small and not aircraft.grouper.light_sport %}
+          {% elif not aircraft.grouper.superr and not aircraft.grouper.heavy and not aircraft.grouper.large and not aircraft.grouper.small %}
             class="text-danger"
           {% else %}
             class="text-dark"
@@ -58,6 +56,7 @@
           href="{% url 'aircraft_detail' aircraft.grouper.pk %}">
             <h4 class="mb-0" data-aircraft-type>{{ aircraft.grouper }}</h4>
           </a>
+          <span class="text-muted">{{ aircraft.list|length }} Tailnumber{{ aircraft.list|length|pluralize }}</span>
           <div class="form-check aircraft-default-option mb-0">
             <input class="form-check-input" type="checkbox" id="default-aircraft-{{ aircraft.grouper.pk }}"
               data-default-aircraft-code="{{ aircraft.grouper.aircraft_type }}" {% if aircraft.grouper.is_default %}checked{% endif %} disabled>

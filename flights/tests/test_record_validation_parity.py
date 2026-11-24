@@ -82,7 +82,11 @@ class RecordValidationParityTests(APITestCase):
     def test_new_aircraft_requires_classification_engine_and_weight(self):
         response = self.client.post('/api/aircraft/', {'aircraft_type': 'H125'}, format='json')
         self.assertEqual(response.status_code, 400, response.data)
-        self.assertEqual(set(response.data), {'aircraft_category', 'aircraft_class', 'engine', 'weight_category'})
+        # Class becomes required only after a category with class ratings is chosen.
+        self.assertEqual(set(response.data), {'aircraft_category', 'engine', 'weight_category'})
+        response = self.client.post('/api/aircraft/', {'aircraft_type': 'H125', 'aircraft_category': 'R'}, format='json')
+        self.assertEqual(response.status_code, 400, response.data)
+        self.assertIn('aircraft_class', response.data)
         form = AircraftForm(data={
             'aircraft_type': 'H125', 'aircraft_category': 'R', 'aircraft_class': 'SEL',
             'engine': 'turbine', 'weight_category': 'small',

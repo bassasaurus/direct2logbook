@@ -103,7 +103,30 @@ class FlightAdmin(admin.ModelAdmin):
     list_filter = ('user',)
     search_fields = ['route',]
 
+class AircraftClassificationAdminForm(forms.ModelForm):
+    class Meta:
+        model = Aircraft
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['simple'].disabled = True
+        self.fields['simple'].widget = forms.HiddenInput()
+        if not self.instance._state.adding and not self.instance.aircraft_category:
+            self.fields['aircraft_category'].required = False
+
+    def clean(self):
+        from flights.record_validation import validate_aircraft
+        from flights.aircraft_characteristics import normalize_characteristics
+        cleaned = normalize_characteristics(super().clean(), self.instance)
+        self.cleaned_data = cleaned
+        for field, message in validate_aircraft(cleaned, self.instance, user=cleaned.get('user')).items():
+            self.add_error(field if field in self.fields else None, message)
+        return cleaned
+
+
 class AircraftAdmin(admin.ModelAdmin):
+    form = AircraftClassificationAdminForm
     list_display = ('aircraft_type', 'user', 'pk', 'turbine', 'piston', 'requires_type',
     'tailwheel', 'compleks', 'high_performance', 'aircraft_category', 'aircraft_class', 'image')
 

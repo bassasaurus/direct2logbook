@@ -86,9 +86,13 @@ def refresh_previous_aircraft_summary(sender, instance, **kwargs):
 @receiver(pre_save, sender=Aircraft)
 def remember_aircraft_summary_name(sender, instance, **kwargs):
     instance._previous_summary_type = None
+    instance._previous_classification = None
     if instance.pk:
-        instance._previous_summary_type = Aircraft.objects.filter(
-            pk=instance.pk, user_id=instance.user_id).values_list('aircraft_type', flat=True).first()
+        previous = Aircraft.objects.filter(pk=instance.pk, user_id=instance.user_id).values_list(
+            'aircraft_type', 'aircraft_category', 'aircraft_class').first()
+        if previous:
+            instance._previous_summary_type = previous[0]
+            instance._previous_classification = previous[1:]
 
 
 @receiver(post_save, sender=Aircraft)
@@ -100,3 +104,17 @@ def refresh_renamed_aircraft_summary(sender, instance, **kwargs):
         with transaction.atomic():
             Stat.objects.filter(user_id=instance.user_id, aircraft_type=previous).delete()
             stat_update(sender, SimpleNamespace(user=instance.user, aircraft_type=instance))
+
+
+@receiver(post_save, sender=Aircraft, dispatch_uid='aircraft_classification_totals')
+def refresh_reclassified_aircraft_totals(sender, instance, update_fields=None, **kwargs):
+    previous = getattr(instance, '_previous_classification', None)
+    if not previous or (update_fields is not None and not {'aircraft_category', 'aircraft_class'} & set(update_fields)):
+        return
+    if previous == (instance.aircraft_category, instance.aircraft_class):
+        return
+    from types import SimpleNamespace
+    from flights.signal_total import total_all_update
+    from django.db import transaction
+    with transaction.atomic():
+        total_all_update(sender, SimpleNamespace(user=instance.user, aircraft_type=instance))

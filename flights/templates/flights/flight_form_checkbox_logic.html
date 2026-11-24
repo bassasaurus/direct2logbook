@@ -86,7 +86,7 @@ function updateDeviceFields() {
     $('#id_device_type').prop('required', sim);
     $('#flight-tailnumber-fields').prop('hidden', sim);
     $('#id_registration').prop('required', !sim).prop('disabled', sim);
-    $('#route').prop('required', !sim).attr('placeholder', sim ? 'Route (optional)' : 'Route * (e.g. IAH-LAX)');
+    $('#route').prop('required', !sim).attr('placeholder', 'e.g. IAH-LAX');
     $('#aircraft-type-label').text(sim ? 'Aircraft Represented *' : 'Aircraft Type *');
     if (!sim) { $('#id_device_type, #id_device_id, #id_atd_type').val(''); $('#id_instrument_credit_eligible').prop('checked', false); }
     const atd = sim && $('#id_device_type').val() === 'ATD';
@@ -100,8 +100,8 @@ function updateDeviceFields() {
     $('#id_device_id').prop('required', sim && classified);
     $('#dual').prop('required', credit && deviceReady);
     $('label[for="dual"]').text(credit ? 'Dual *' : 'Dual');
-    $('label[for="id_simulated_instrument"]').text(credit ? 'Simulated Instrument (hours) *' : 'Simulated Instrument (hours)');
-    $('#id_simulated_instrument').attr('placeholder', credit ? 'Simulated Instrument * xx.x' : 'Simulated Instrument xx.x');
+    $('label[for="id_simulated_instrument"]').text(credit ? 'Simulated Instrument *' : 'Simulated Instrument');
+    $('#id_simulated_instrument').attr('placeholder', '##.#');
     $('#id_simulated_instrument').prop('required', credit && deviceReady && $('#dual').is(':checked') && Number($('#id_duration').val()) > 0);
     const values = {simulator: sim, device_type: $('#id_device_type').val(), atd_type: $('#id_atd_type').val(),
       device_id: $('#id_device_id').val(), instrument_credit_eligible: credit, dual: $('#dual').is(':checked'),

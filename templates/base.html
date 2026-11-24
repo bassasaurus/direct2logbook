@@ -25,7 +25,7 @@
   <!-- google icons -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <!-- custom css -->
-  <link rel="stylesheet" type="text/css" href="{% static 'css/custom.css' %}?v=checkbox-alignment-3" />
+  <link rel="stylesheet" type="text/css" href="{% static 'css/custom.css' %}?v=record-forms-2" />
   <!-- animate.css -->
   <link rel="stylesheet" type="text/css" href="{% static 'css/animate.css' %}" />
   <!-- sweetalert2 -->
@@ -51,7 +51,7 @@
             <div class="alert alert-danger" role="alert">{{ message }}</div>
           {% endif %}
           {% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
-            <div class="text-success" data-animate-delay="2" data-animate="fadeOutUp" data-animate-duration=".5" role="alert">{{ message }}</div>
+            <div class="text-success"{% if 'account-welcome-back' not in message.tags or request.resolver_match.url_name != 'home' %} data-animate-delay="2" data-animate="fadeOutUp" data-animate-duration=".5"{% endif %} role="alert">{{ message }}</div>
           {% endif %}
         {% endfor %}
         {% include 'blocks/breadcrumb.html' %}
@@ -83,6 +83,7 @@
   <script src="{% static 'js/confirm_removal.js' %}" defer></script>
   <script src="{% static 'js/unsaved_changes.js' %}" defer></script>
   <script src="{% static 'js/form_feedback.js' %}?v=create-delete-fade" defer></script>
+  <script src="{% static 'js/table_interactions.js' %}?v=2" defer></script>
 </body>
 
 </html>

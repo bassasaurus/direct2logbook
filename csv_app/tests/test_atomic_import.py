@@ -202,7 +202,7 @@ class CSVAtomicImportTests(TestCase):
         parsed, preview = parse_csv(response.content.decode())
         self.assertEqual(parsed[0]['registration'], '')
         self.assertEqual(parsed[0]['device_id'], 'Trainer 12')
-        self.assertEqual(len(preview[0]), 23)
+        self.assertEqual(len(preview[0]), 24)
         self.assertEqual(self.import_file(response.content.decode()), 1)
         copy = Flight.objects.exclude(pk=original.pk).get()
         for field in ('aircraft_type_id', 'registration_id', 'route', 'duration', 'simulator',

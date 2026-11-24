@@ -1,10 +1,12 @@
 """Validation shared by web forms and API writes for logbook records."""
 import re
+from flights.aircraft_classification import CLASSES_BY_CATEGORY, class_required
+from flights.aircraft_characteristics import ENGINE_FIELDS, WAKE_FIELDS, engine_required
 
 FLIGHT_ROLES = ('pilot_in_command', 'second_in_command', 'solo', 'dual')
 AIRCRAFT_SELECTIONS = {
-    'engine': ('turbine', 'piston'),
-    'weight_category': ('superr', 'heavy', 'large', 'medium', 'small', 'light_sport'),
+    'engine': ENGINE_FIELDS,
+    'weight_category': WAKE_FIELDS,
 }
 OPERATING_RULES = ('is_91', 'is_135', 'is_121')
 
@@ -23,6 +25,8 @@ def fields_changed(values, instance, normalize=lambda value: value):
 
 def validate_flight(data, instance):
     errors = {}
+    from flights.launch_methods import validate_launch_method
+    errors.update(validate_launch_method(data, instance))
     links = effective_values(data, instance, ('aircraft_type', 'registration'))
     aircraft, tail = links['aircraft_type'], links['registration']
     if aircraft is not None and tail is not None and tail.aircraft_id != aircraft.pk:
@@ -64,27 +68,43 @@ def validate_flight(data, instance):
     return errors
 
 
+def validate_aircraft_classification(data, instance):
+    errors = {}
+    classification = effective_values(data, instance, ('aircraft_category', 'aircraft_class'))
+    if not fields_changed(classification, instance):
+        return errors
+    category = classification['aircraft_category']
+    aircraft_class = classification['aircraft_class'] or ''
+    if category not in CLASSES_BY_CATEGORY:
+        errors['aircraft_category'] = 'Choose an aircraft category.'
+    elif class_required(category):
+        if not aircraft_class:
+            errors['aircraft_class'] = 'Choose an aircraft class.'
+        elif aircraft_class not in CLASSES_BY_CATEGORY[category]:
+            errors['aircraft_class'] = 'Aircraft category and class must agree.'
+    elif aircraft_class:
+        errors['aircraft_class'] = 'Class does not apply to this category.'
+    return errors
+
+
 def validate_aircraft(data, instance, user=None):
     errors = {}
     designator = effective_values(data, instance, ('aircraft_type',))
     if fields_changed(designator, instance) and not re.fullmatch(r'[A-Za-z0-9-]{1,10}', designator['aircraft_type'] or ''):
         errors['aircraft_type'] = 'Use 1–10 letters, numbers or hyphens.'
 
-    classification = effective_values(data, instance, ('aircraft_category', 'aircraft_class'))
-    if fields_changed(classification, instance):
-        category = classification['aircraft_category']
-        aircraft_class = classification['aircraft_class']
-        if not category:
-            errors['aircraft_category'] = 'Choose an aircraft category.'
-        if not aircraft_class:
-            errors['aircraft_class'] = 'Choose an aircraft class.'
-        elif category and (category == 'R') != (aircraft_class in ('HELO', 'GYRO')):
-            errors['aircraft_class'] = 'Aircraft category and class must agree.'
+    errors.update(validate_aircraft_classification(data, instance))
 
+    classification = effective_values(data, instance, ('aircraft_category', 'aircraft_class'))
     for group, fields in AIRCRAFT_SELECTIONS.items():
         choices = effective_values(data, instance, fields)
-        if fields_changed(choices, instance, bool) and sum(map(bool, choices.values())) != 1:
-            errors[group] = f"Choose one {group.replace('_', ' ')}."
+        if group == 'engine' and not engine_required(classification['aircraft_category'], classification['aircraft_class']):
+            continue
+        changed = fields_changed(choices, instance, bool)
+        if group == 'engine':
+            changed = changed or fields_changed(classification, instance)
+        if changed and sum(map(bool, choices.values())) != 1:
+            errors[group] = 'Choose one engine.' if group == 'engine' else 'Choose a wake category.'
     if case_duplicate('Aircraft', 'aircraft_type', designator['aircraft_type'], instance, user):
         errors['aircraft_type'] = 'This aircraft type already exists in your logbook.'
     return errors

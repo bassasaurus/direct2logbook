@@ -1,19 +1,18 @@
 {% extends 'base.html' %}
-{% load widget_tweaks %}
 {% block content %}
-<div class="row justify-content-center">
-  <div class="col-lg-12 col-sm-12">
-
-    <form data-submit-feedback="create" data-unsaved-changes action="" class="mt-3" method="post">
+<div class="card record-form-card mx-auto mt-3">
+  <div class="card-body">
+    <form data-submit-feedback="create" data-unsaved-changes action="" class="mobile-record-form" method="post">
       {% csrf_token %}
-      <div class="mb-3">
-        <h4>New Aircraft</h4>
-        <hr>
-        <p>Required *</p>
-        <p class="text-danger">{{ form.non_field_errors }}</p>
-      </div>
+      <header class="mb-3">
+        <h4 class="mb-1">New Aircraft</h4>
+        <p class="small text-muted mb-0">Required *</p>
+      </header>
+      {% if form.non_field_errors %}<div class="text-danger mb-3" role="alert">{{ form.non_field_errors }}</div>{% endif %}
       {% include 'aircraft/aircraft_form.html' %}
-      <button class="btn btn-primary mt-3" type="submit">Create Aircraft</button>
+      <div class="record-form-actions">
+        <button class="btn btn-primary w-100" type="submit">Save</button>
+      </div>
     </form>
   </div>
 </div>

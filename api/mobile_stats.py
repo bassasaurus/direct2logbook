@@ -16,9 +16,15 @@ SUMMARY_FIELDS = (
 
 
 class TotalSummarySerializer(serializers.ModelSerializer):
+    display_name = serializers.SerializerMethodField()
+
+    def get_display_name(self, obj):
+        from home.pilot_time import SUMMARY_LABELS
+        return SUMMARY_LABELS.get(obj.total, obj.total)
+
     class Meta:
         model = Total
-        fields = ('total', 'landings_total') + SUMMARY_FIELDS
+        fields = ('total', 'display_name', 'landings_total') + SUMMARY_FIELDS
 
 
 class AircraftSummarySerializer(serializers.ModelSerializer):
@@ -32,8 +38,10 @@ class MobileStatsView(APIView):
 
     def get(self, request):
         from home.instrument_credit import instrument_airplane_device_credit
+        from home.pilot_time import pilot_time_report
         return Response({
             'instrument_device_credit': instrument_airplane_device_credit(request.user),
+            'iacra': pilot_time_report(request.user),
             'schema_version': 1,
             'downloaded_at': timezone.now().isoformat(),
             'totals': TotalSummarySerializer(

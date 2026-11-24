@@ -26,9 +26,7 @@ class TailNumberCRUDTests(TestCase):
             superr=False,
             heavy=False,
             large=False,
-            medium=False,
             small=True,
-            light_sport=False,
         )
 
     def test_create_tailnumber(self):

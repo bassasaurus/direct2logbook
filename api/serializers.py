@@ -56,6 +56,12 @@ class GroupSerializer(serializers.HyperlinkedModelSerializer):
 
 class AircraftSerializer(FriendlyValidationSerializer):
     revision = SerializerMethodField()
+    medium = serializers.BooleanField(required=False, write_only=True)
+
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        # Classification and its regrouped summaries commit together.
+        return super().update(instance, validated_data)
 
     def get_revision(self, obj):
         from api.revisions import aircraft_revision
@@ -76,6 +82,8 @@ class AircraftSerializer(FriendlyValidationSerializer):
         }
 
     def validate(self, attrs):
+        from flights.aircraft_characteristics import normalize_characteristics
+        attrs = normalize_characteristics(attrs, self.instance)
         errors = validate_aircraft(attrs, self.instance, user=serializer_owner(self))
         if errors:
             raise serializers.ValidationError(errors)
@@ -114,7 +122,7 @@ class FlightSerializer(FriendlyValidationSerializer):
         model = Flight
         fields = ['id', 'user', 'date', 'aircraft_type', 'registration', 'route', 'duration', 'landings_day', 'landings_night', 
                     'night', 'instrument', 'cross_country', 'second_in_command', 'pilot_in_command', 'simulated_instrument', 
-                    'instructor', 'simulator', 'device_type', 'device_id', 'atd_type', 'instrument_credit_eligible', 'dual', 'remarks', 'solo', 'hold', 'app_markers', 'app_polylines','approaches', 'holding', 'revision', 'route_airport_choices', 'validate_airports', 'distance_nm']
+                    'instructor', 'simulator', 'device_type', 'device_id', 'atd_type', 'instrument_credit_eligible', 'launch_method', 'dual', 'remarks', 'solo', 'hold', 'app_markers', 'app_polylines','approaches', 'holding', 'revision', 'route_airport_choices', 'validate_airports', 'distance_nm']
         read_only_fields = ['user']
 
     revision = SerializerMethodField()

@@ -14,6 +14,7 @@ HEADERS = ['date', 'aircraft', 'registration', 'route', 'duration',
            'instrument', 'approaches', 'day landing', 'night landing',
            'simulated instrument', 'instructor', 'dual', 'solo', 'simulator', 'remarks']
 DEVICE_HEADERS = ['device type', 'device id', 'atd type', 'instrument credit eligible']
+OPTIONAL_HEADERS = DEVICE_HEADERS + ['launch method']
 ALIASES = {'type': 'aircraft', 'aircraft type': 'aircraft', 'reg': 'registration',
            'pic': 'pilot in command', 'sic': 'second in command', 'xc': 'cross country',
            'x country': 'cross country', 'ifr': 'instrument', 'appr': 'approaches',
@@ -63,9 +64,9 @@ def parse_csv(content):
         legacy = normalized == HEADERS[:10] + HEADERS[11:]
         extended = (normalized[:len(HEADERS)] == HEADERS and
                     len(set(normalized)) == len(normalized) and
-                    all(name in DEVICE_HEADERS for name in normalized[len(HEADERS):]))
+                    all(name in OPTIONAL_HEADERS for name in normalized[len(HEADERS):]))
         if not extended and not legacy:
-            raise CSVValidationError('Use the 19-column format, optionally followed by device columns, or the older 18-column download.')
+            raise CSVValidationError('Use the 19-column format, optionally followed by device or launch method columns, or the older 18-column download.')
         rows, preview = [], []
         for line, raw in enumerate(reader, start=2):
             if not any(cell.strip() for cell in raw):
@@ -108,6 +109,16 @@ def parse_csv(content):
                                      (15, 'dual'), (16, 'solo'), (17, 'simulator')]:
                     values[field] = number(raw[index]) > 0
                 extra = dict(zip(normalized[len(HEADERS):], raw[len(HEADERS):])) if extended else {}
+                method = extra.get('launch method', '').upper()
+                if method:
+                    from flights.launch_methods import LAUNCH_CHOICES
+                    labels = {label.upper(): code for code, label in LAUNCH_CHOICES}
+                    method = labels.get(method, method)
+                    if method not in dict(LAUNCH_CHOICES):
+                        raise CSVValidationError('Choose Aerotow, Ground Launch, or Self-launch.')
+                    if simulator:
+                        raise CSVValidationError('Launch method requires an actual glider flight.')
+                    values['launch_method'] = method
                 metadata = {name.replace(' ', '_'): extra.get(name, '') for name in DEVICE_HEADERS[:3]}
                 metadata['device_type'] = metadata['device_type'].upper()
                 metadata['atd_type'] = metadata['atd_type'].upper()
@@ -132,7 +143,7 @@ def parse_csv(content):
                         raise CSVValidationError('; '.join(errors.values()))
                 rows.append(values)
                 raw[3] = values['route']
-                preview.append(raw[:len(HEADERS)] + [extra.get(name, '') for name in DEVICE_HEADERS])
+                preview.append(raw[:len(HEADERS)] + [extra.get(name, '') for name in OPTIONAL_HEADERS])
             except CSVValidationError as exc:
                 raise CSVValidationError(f'Row {line}: {exc}') from exc
         if not rows:

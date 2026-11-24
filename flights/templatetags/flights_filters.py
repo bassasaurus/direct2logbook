@@ -1,3 +1,5 @@
+from decimal import Decimal, InvalidOperation
+
 from django import template
 from django.utils.html import urlize
 from django.utils.safestring import mark_safe
@@ -34,3 +36,16 @@ def iconbool(value):
     else:
         result = '-'
     return mark_safe(result)
+
+
+@register.filter
+def zero_dash(value):
+    """Display numeric zero as a dash without changing nonzero formatting."""
+    if value is None or isinstance(value, bool):
+        return value
+    try:
+        if Decimal(str(value).strip()).is_zero():
+            return '-'
+    except (InvalidOperation, ValueError, TypeError):
+        pass
+    return value

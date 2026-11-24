@@ -1,14 +1,15 @@
+{% load flights_filters %}
 
 
 <table class="table custom-table">
   <thead class="table-light">
     <tr>
-      <th scope="row">Role</th><th class="text-end">Turbine</th><th class="text-end">Piston</th>
+      <th scope="row">Role</th><th class="text-end">Turbine</th><th class="text-end">Piston</th><th class="text-end">Electric</th>
     </tr>
   </thead>
   {% for power in powers %}
   <tr>
-    <td>{{ power.role }}</td><td class="text-end">{{ power.turbine }}</td><td class="text-end">{{ power.piston }}</td>
+    <td>{{ power.role }}</td><td class="text-end">{{ power.turbine|zero_dash }}</td><td class="text-end">{{ power.piston|zero_dash }}</td><td class="text-end">{{ power.electric|zero_dash }}</td>
   </tr>
   {% endfor %}
 </table>
