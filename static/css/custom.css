@@ -848,3 +848,18 @@ form select:required:invalid ~ .select2-container .select2-selection {
     border-color: #ffb1b8 !important;
   }
 }
+
+/* Conditional choice groups use the same outline as required text inputs. */
+form fieldset[data-required-choice] {
+  border: 1px solid var(--bs-border-color, #ccc); border-radius: 5px; padding: 12px;
+}
+form fieldset[data-required-choice] > legend { float: none; width: auto; padding: 0 4px; }
+form fieldset[data-required-choice]:not(:has(input:checked)),
+form fieldset.required-choice-empty { border-color: var(--bs-danger, #dc3545) !important; }
+@media screen {
+  html[data-bs-theme="dark"] form fieldset[data-required-choice]:not(:has(input:checked)),
+  html[data-bs-theme="dark"] form fieldset.required-choice-empty,
+  html[data-bs-theme="dark"] form fieldset[data-required-choice]:not(:has(input:checked)) .record-choice-label {
+    border-color: #ffb1b8 !important;
+  }
+}

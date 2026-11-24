@@ -20,7 +20,7 @@
   {{ form.aircraft_type|attr:"autocomplete:off"|attr:"placeholder:e.g. C172"|add_class:"form-control" }}
   {% for error in form.aircraft_type.errors %}<div class="text-danger small">{% if error != 'Required' %}{{ error }}{% endif %}</div>{% endfor %}
 </div>
-<fieldset class="mb-3" data-aircraft-engine{% if form.engine_not_applicable %} hidden{% endif %}>
+<fieldset class="mb-3" data-required-choice data-aircraft-engine{% if form.engine_not_applicable %} hidden{% endif %}>
   <legend class="form-label fs-6">Engine</legend>
   <div class="d-flex flex-wrap gap-2">
     {% for radio in form.engine %}
@@ -61,7 +61,7 @@
     </div>
   </div>
 </fieldset>
-<fieldset class="mb-3" data-aircraft-wake>
+<fieldset class="mb-3" data-required-choice data-aircraft-wake>
   <legend class="form-label fs-6">Wake Category</legend>
   <div class="d-flex flex-wrap gap-2">
     {% for radio in form.weight_category %}

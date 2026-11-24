@@ -78,6 +78,7 @@
       const visible = kinds.includes(reminderKind.value);
       field.closest('p').hidden = !visible;
       field.disabled = !visible;
+      field.required = visible && name !== 'company_end_date';
     }
   }
   reminderKind.addEventListener('change', updateReminderFields);

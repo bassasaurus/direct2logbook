@@ -86,7 +86,7 @@
         message.hidden = !error || error === 'Required';
         message.classList.toggle('d-block', Boolean(error) && error !== 'Required');
       });
-      group.classList.toggle('flight-role-invalid', Boolean(errors.flight_role));
+      group.closest('fieldset').classList.toggle('required-choice-empty', Boolean(errors.flight_role) || fields.some(function (field) { return field.type === 'checkbox' && field.required && !field.checked && !field.disabled; }));
       groupFeedback.textContent = '';
       groupFeedback.hidden = true;
       groupFeedback.classList.remove('d-block');
