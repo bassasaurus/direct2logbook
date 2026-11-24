@@ -5,8 +5,51 @@
 <div class="mb-3 col-12 col-md-6">
   <label class="visually-hidden" for="id_date">Date *</label>
   {{ form.date.errors }}
-  {{ form.date |attr:"autocomplete:off" |attr:"placeholder:Date (Nov 30, 2026)" |add_class:"form-control" }}
+<div class="d-flex align-items-start gap-3 flight-date-row"><div class="flex-grow-1">  {{ form.date |attr:"autocomplete:off" |attr:"placeholder:Date * (Nov 30, 2026)" |add_class:"form-control" }}</div>
+    <div class="form-check flight-sim-toggle flex-shrink-0 mb-0">
+      {{ form.simulator|attr:"id:id_simulator"|add_class:"form-check-input" }}
+      <label class="form-check-label" for="id_simulator">Sim</label>{{ form.simulator.errors }}
+    </div>
+</div>
 
+</div>
+<div class="col-12 mb-3">
+  <div class="d-flex align-items-start gap-2 flight-aircraft-identity">
+    <div class="flex-grow-1" style="min-width:0;flex-basis:0">
+      <label class="visually-hidden" for="id_aircraft_type" id="aircraft-type-label">Aircraft Type *</label>
+      {{ form.aircraft_type.errors }}{{ form.aircraft_type }}
+      <a class="d-inline-block mt-1" target="new" href="{% url 'aircraft_create' %}">New Aircraft</a>
+    </div>
+
+    <div class="flex-grow-1" id="flight-tailnumber-fields" style="min-width:0;flex-basis:0">
+      <label class="visually-hidden" for="id_registration">Tailnumber *</label>
+      {{ form.registration.errors }}{{ form.registration }}
+      <a class="d-inline-block mt-1" target="new" href="{% url 'tailnumber_create' %}">New Tailnumber</a>
+    </div>
+  </div>
+</div>
+<div class="col-12" id="flight-device-fields" {% if not form.simulator.value %}hidden{% endif %}>
+  <fieldset class="border rounded p-3 mb-3">
+    <legend class="float-none w-auto px-1 fs-6">Training Device</legend>
+    <p id="sim-stage-help" class="small text-muted mb-2" role="status" aria-live="polite"></p>
+    <p class="small text-muted mb-2">Aircraft Type is the aircraft represented. Simulator time is recorded separately from aircraft flight totals.</p>
+    <div class="row gx-2">
+      <div class="col-12 col-md-6 mb-2"><label for="id_device_type" class="form-label">Device Type *</label>
+        {{ form.device_type.errors }}{{ form.device_type|add_class:"form-select" }}
+      </div>
+      <div class="col-12 col-md-6 mb-2"><label for="id_device_id" class="form-label">Device ID *</label>
+        {{ form.device_id.errors }}{{ form.device_id|add_class:"form-control"|attr:"placeholder:Device identifier" }}
+      </div>
+    </div>
+    <div id="atd-classification" class="mb-2"><label for="id_atd_type">ATD Classification *</label>
+      {{ form.atd_type.errors }}{{ form.atd_type|add_class:"form-select" }}
+    </div>
+    <div class="form-check mt-2">{{ form.instrument_credit_eligible|add_class:"form-check-input" }}
+      <label class="form-check-label" for="id_instrument_credit_eligible">Eligible Instrument–Airplane training</label>
+      {{ form.instrument_credit_eligible.errors }}
+    </div>
+    <small class="text-muted">Select only for approved instrument training with an authorized instructor. Enter the instrument portion in Simulated Instrument and select Dual.</small>
+  </fieldset>
 </div>
 <div class="mb-3 col-12 col-md-6">
   <label class="visually-hidden" for="id_duration">Duration (hours) *</label>
@@ -14,23 +57,7 @@
   {{ form.duration |attr:"placeholder:Duration * xx.x" |attr:"aria-describedby:duration-help" |add_class:"form-control" }}
   <small id="duration-help" class="form-text text-muted">Hours to one decimal place, for example 1.5.</small>
 </div>
-<div class="mb-3 col-12 col-md-6">
-  <label class="visually-hidden" for="id_aircraft_type">Aircraft *</label>
-  {{ form.aircraft_type.errors }}
-  <div class="flight-picker-row">
-    <div class="flight-picker-control">{{ form.aircraft_type }}</div>
-    <a target="new" href="{% url 'aircraft_create' %}">New Aircraft</a>
-  </div>
-</div>
-<div class="mb-3 col-12 col-md-6">
-  <label class="visually-hidden" for="id_registration">Tailnumber *</label>
-  {{ form.registration.errors }}
-  <div class="flight-picker-row">
-    <div class="flight-picker-control">{{ form.registration }}</div>
-    <a target="new" href="{% url 'tailnumber_create' %}">New Tailnumber</a>
-  </div>
-</div>
-<div class="mb-3 col-12 col-lg-4">
+<div class="mb-3 col-12 col-lg-6">
   <label class="visually-hidden" for="route">Route *</label>
   {{ form.route.errors }}
   {{ form.route |attr:"id:route" |attr:"autocomplete:off" |attr:"placeholder:Route * (e.g. IAH-LAX)" |attr:"aria-describedby:route-help" |add_class:"form-control" }}
@@ -38,32 +65,29 @@
   <div id="route-airport-feedback" class="mt-2" role="status" aria-live="polite" data-check-url="{% url 'route_airport_check' %}"></div>
   <small id="route-help" class="form-text text-muted">Use FAA, IATA or ICAO airport codes, for example 1G3-IAH or KIAH-KLAX. Spaces are formatted automatically.</small>
 </div>
-<div class="mb-3 col-12 col-lg-8 pt-lg-2"><div class="d-flex flex-wrap" role="group" aria-label="Role and flight type">
-<div class="form-check form-check-inline me-3 mb-2">
+<div class="mb-3 col-12 col-lg-8 pt-lg-2"><div class="d-flex flex-wrap" role="group" aria-label="Role and flight type" id="flight-role-fields" tabindex="-1">
+<div class="form-check">
  {{ form.pilot_in_command|attr:"id:pic"|add_class:"form-check-input" }}
  <label class="form-check-label" for="pic">PIC</label>{{ form.pilot_in_command.errors }}
 </div>
-<div class="form-check form-check-inline me-3 mb-2">
+<div class="form-check">
  {{ form.second_in_command|attr:"id:sic"|add_class:"form-check-input" }}
  <label class="form-check-label" for="sic">SIC</label>{{ form.second_in_command.errors }}
 </div>
-<div class="form-check form-check-inline me-3 mb-2">
+<div class="form-check">
  {{ form.solo|attr:"id:solo"|add_class:"form-check-input" }}
  <label class="form-check-label" for="solo">Solo</label>{{ form.solo.errors }}
 </div>
-<div class="form-check form-check-inline me-3 mb-2">
+<div class="form-check">
  {{ form.dual|attr:"id:dual"|add_class:"form-check-input" }}
  <label class="form-check-label" for="dual">Dual</label>{{ form.dual.errors }}
 </div>
-<div class="form-check form-check-inline me-3 mb-2">
+<div class="form-check">
  {{ form.instructor|attr:"id:cfi"|add_class:"form-check-input" }}
  <label class="form-check-label" for="cfi">CFI</label>{{ form.instructor.errors }}
 </div>
-<div class="form-check form-check-inline me-3 mb-2">
- {{ form.simulator|attr:"id:id_simulator"|add_class:"form-check-input" }}
- <label class="form-check-label" for="id_simulator">Sim</label>{{ form.simulator.errors }}
-</div>
-<div class="form-check form-check-inline me-3 mb-2">
+
+<div class="form-check">
  {{ form.cross_country|attr:"id:id_cross_country"|add_class:"form-check-input" }}
  <label class="form-check-label" for="id_cross_country">Cross-country</label>{{ form.cross_country.errors }}
 </div>
@@ -92,15 +116,15 @@
 
 </div>
 <div class="mb-3 col-12 col-md-4">
-  <label class="visually-hidden" for="id_instrument">IFR (hours)</label>
+  <label class="visually-hidden" for="id_instrument">Actual Instrument (hours)</label>
   {{ form.instrument.errors }}
-  {{ form.instrument |attr:"placeholder:IFR xx.x" |add_class:"form-control" }}
+  {{ form.instrument |attr:"placeholder:Actual Instrument xx.x" |add_class:"form-control" }}
 
 </div>
 <div class="mb-3 col-12 col-md-4">
-  <label class="visually-hidden" for="id_simulated_instrument">Simulated IFR (hours)</label>
+  <label class="visually-hidden" for="id_simulated_instrument">Simulated Instrument (hours)</label>
   {{ form.simulated_instrument.errors }}
-  {{ form.simulated_instrument |attr:"placeholder:Simulated IFR xx.x" |add_class:"form-control" }}
+  {{ form.simulated_instrument |attr:"placeholder:Simulated Instrument xx.x" |add_class:"form-control" }}
 
 </div>
 </div></fieldset>
@@ -108,8 +132,9 @@
 {{ approaches.management_form }}
 {{ approaches.non_form_errors }}
 <div class="approach-holding-layout">
-<div id="approach_form" class="table-responsive mb-0" role="group" aria-labelledby="approaches-label">
-<div id="approaches-label" class="mb-2">Approaches</div>
+<fieldset id="approach_form" class="border rounded p-3 mb-0">
+<legend id="approaches-label" class="float-none w-auto px-1 fs-6">Approaches</legend>
+<div class="table-responsive">
 <table>
   <tbody>
   {% for approach in approaches %}
@@ -122,6 +147,7 @@
   </tbody>
 </table>
 </div>
+</fieldset>
 <div class="approach-holding-option">
 {{ holding.management_form }}
 {{ holding.non_form_errors }}
@@ -149,3 +175,7 @@ $(function () {
 </script>
 
 <script src="{% static 'js/route_airport_check.js' %}?v=route-submit-page-fade" defer></script>
+
+<script src="{% static 'js/simulator_validation.js' %}?v=staged-1"></script>
+
+<script src="{% static 'js/flight_form_validation.js' %}?v=inline-1" defer></script>

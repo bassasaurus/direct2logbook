@@ -79,7 +79,7 @@
     var icon = L.divIcon({
       className: '',
       iconSize: [0, 0],
-      html: '<span class="position-absolute text-nowrap bg-white rounded px-1 fw-semibold" ' +
+      html: '<span class="route-leg-distance position-absolute text-nowrap bg-white rounded px-1 fw-semibold" ' +
         'style="transform: translate(-50%, -50%) rotate(' + angle + 'deg)">' +
         distance + ' ' + conversion[1] + '</span>'
     });

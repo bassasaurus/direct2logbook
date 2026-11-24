@@ -312,8 +312,8 @@ class Flight(models.Model):
     aircraft_type = models.ForeignKey(
         'Aircraft', default=None, on_delete=models.CASCADE)
     registration = models.ForeignKey(
-        'TailNumber', default=None, on_delete=models.CASCADE)
-    route = models.CharField(max_length=50, )
+        'TailNumber', default=None, null=True, blank=True, on_delete=models.CASCADE)
+    route = models.CharField(max_length=50, blank=True)
     duration = models.DecimalField(
         decimal_places=1, max_digits=3, null=True, validators=[positive_validator])
     landings_day = models.PositiveIntegerField(
@@ -338,6 +338,15 @@ class Flight(models.Model):
     remarks = models.CharField(max_length=500, null=True, blank=True)
     simulator = models.BooleanField(
         null=True, blank=True, verbose_name="Sim")
+    class DeviceType(models.TextChoices):
+        FFS = 'FFS', 'FFS — Full Flight Simulator'
+        FTD = 'FTD', 'FTD — Flight Training Device'
+        ATD = 'ATD', 'ATD — Aviation Training Device'
+
+    device_type = models.CharField(max_length=3, choices=DeviceType.choices, blank=True, default='')
+    device_id = models.CharField(max_length=100, blank=True, default='', verbose_name='Device ID')
+    atd_type = models.CharField(max_length=4, blank=True, default='', choices=[('BATD', 'BATD'), ('AATD', 'AATD')])
+    instrument_credit_eligible = models.BooleanField(default=False)
     solo = models.BooleanField(default=False, blank=True)
     hold = models.BooleanField(
         default=False, blank=True, verbose_name="Hold")
@@ -359,7 +368,9 @@ class Flight(models.Model):
             models.Index(fields=['route', 'date', 'duration']),
         ]
         constraints = [
-            models.CheckConstraint(condition=~models.Q(route__regex=r'^\s*$'), name='flight_route_nonempty'),
+            models.CheckConstraint(condition=models.Q(simulator=True, simulator__isnull=False) | ~models.Q(route__regex=r'^\s*$'), name='flight_route_nonempty'),
+            models.CheckConstraint(condition=models.Q(simulator=True, simulator__isnull=False) | models.Q(registration__isnull=False), name='flight_registration_required'),
+            models.CheckConstraint(condition=models.Q(device_type__in=['', 'FFS', 'FTD', 'ATD']), name='flight_device_type_valid'),
             models.CheckConstraint(condition=(
                 (models.Q(duration__gte=0) | models.Q(duration__isnull=True))
                 & (models.Q(night__gte=0) | models.Q(night__isnull=True))
@@ -440,23 +451,8 @@ class TailNumber(models.Model):
 
 class Approach(models.Model):
 
-    APPR_CHOICES = (
-        ('', 'Type'),
-        ('ILS', 'ILS'),
-        ('CATII', 'CAT II'),
-        ('CATIII', 'CAT III'),
-        ('GPS', 'GPS'),
-        ('RNAV', 'RNAV'),
-        ('LOC', 'LOC'),
-        ('VOR', 'VOR'),
-        ('NDB', 'NDB'),
-        ('LOC BC', 'LOC BC'),
-
-        ('SDF', 'SDF'),
-        ('LDA', 'LDA'),
-        ('TACAN', 'TACAN'),
-        ('MLS', 'MLS'),
-    )
+    from flights.approach_choices import ALL_APPROACH_CHOICES
+    APPR_CHOICES = ALL_APPROACH_CHOICES
 
     flight_object = models.ForeignKey(
         'Flight', default=None, null=True, blank=True, verbose_name="Flight", on_delete=models.CASCADE)

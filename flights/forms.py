@@ -111,10 +111,21 @@ class FlightForm(UserOwnedRelationsFormMixin, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['registration'].required = False
+        self.fields['route'].required = False
         self.initial['airport_choices'] = self.instance.route_airport_choices or {}
+        if not self.is_bound and self.instance._state.adding and self.user is not None and not self.initial.get('aircraft_type'):
+            default = Aircraft.objects.filter(user=self.user, is_default=True).first()
+            if default:
+                self.initial['aircraft_type'] = default.pk
+        if self.is_bound and self.data.get('simulator') and 'registration' not in self.data and self.instance.pk:
+            self.data = self.data.copy()
+            self.data['registration'] = self.instance.registration_id or ''
 
     def clean(self):
         cleaned = super().clean()
+        if cleaned.get('simulator') and (cleaned.get('device_type') or cleaned.get('device_id')):
+            cleaned['registration'] = None
         for field, message in validate_flight(cleaned, self.instance).items():
             if field not in self.errors:
                 self.add_error(field, message)
@@ -125,7 +136,10 @@ class FlightForm(UserOwnedRelationsFormMixin, forms.ModelForm):
         from flights.route_normalization import normalize_route
         route = normalize_route(self.cleaned_data['route'])
         if not route:
-            raise forms.ValidationError('Enter a route.')
+            sim = self.fields['simulator'].widget.value_from_datadict(self.data, self.files, 'simulator')
+            if not sim:
+                raise forms.ValidationError('Enter a route.')
+            return route
         unknown = list(dict.fromkeys(item['code'] for item in resolve_route(route) if item['unknown']))
         if unknown:
             raise forms.ValidationError('Unknown airport codes: ' + ', '.join(unknown) + '. Correct the route before saving.')
@@ -188,7 +202,21 @@ class FlightForm(UserOwnedRelationsFormMixin, forms.ModelForm):
         }
 
 
-ApproachFormSet = inlineformset_factory(Flight, Approach, fields=(
+class ApproachForm(forms.ModelForm):
+    class Meta:
+        model = Approach
+        fields = ('approach_type', 'number')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from flights.approach_choices import APPROACH_CHOICES, LEGACY_APPROACH_CHOICES
+        choices = [('', 'Type'), *APPROACH_CHOICES]
+        current = self.initial.get('approach_type')
+        choices.extend((code, label) for code, label in LEGACY_APPROACH_CHOICES if code == current)
+        self.fields['approach_type'].choices = choices
+
+
+ApproachFormSet = inlineformset_factory(Flight, Approach, form=ApproachForm, fields=(
     'approach_type', 'number'), max_num=4, extra=1)
 
 HoldingFormSet = inlineformset_factory(

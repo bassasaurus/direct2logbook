@@ -22,6 +22,13 @@ class FlightMapDataTests(SimpleTestCase):
         self.assertEqual(len(data['airports']['features']), 3)
         self.assertEqual(data['airports']['features'][0]['geometry']['coordinates'], [20, 10])
 
+    def test_simulators_are_not_routes_or_unresolved_flights(self):
+        airport = SimpleNamespace(pk=1, latitude=10, longitude=20)
+        data = flight_map_data([SimpleNamespace(pk=99, simulator=True, route_data=[airport])])
+        self.assertEqual(data['routes'], {})
+        self.assertEqual(data['airports']['features'], [])
+        self.assertEqual(data['mileage'], {'total_nm': 0.0, 'unavailable': 0, 'distances': {}})
+
     def test_missing_and_invalid_coordinates_are_safe(self):
         invalid = [None, SimpleNamespace(latitude=None, longitude=20),
                    SimpleNamespace(latitude=float('nan'), longitude=20),
@@ -49,6 +56,23 @@ class MonthlyMapOwnershipTests(TestCase):
         registration, _ = TailNumber.objects.get_or_create(user=user, registration='N726T', defaults={'aircraft': aircraft})
         return Flight.objects.create(user=user, date=day, aircraft_type=aircraft,
                                       registration=registration, route='KAAA-KBBB', duration=1)
+
+    def test_simulators_are_excluded_from_every_route_archive(self):
+        real = self.flight(self.user, date(2025, 1, 15))
+        sim = self.flight(self.user, date(2025, 1, 15))
+        Flight.objects.filter(pk=sim.pk).update(simulator=True)
+        sim_only = self.flight(self.user, date(2024, 2, 10))
+        Flight.objects.filter(pk=sim_only.pk).update(simulator=True)
+        for url in [reverse('flight_by_date'), reverse('flight_by_year', args=[2025]),
+                    reverse('flight_by_month', args=[2025, 'jan']),
+                    reverse('flight_by_day', args=[2025, 'jan', 15])]:
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                data = response.context['flight_map']
+                self.assertEqual(set(data['routes']), {str(real.pk)})
+                self.assertEqual(data['mileage']['unavailable'], 0)
+                self.assertNotContains(response, f'data-flight-id="{sim.pk}"')
+                self.assertEqual(list(response.context['years']), [date(2025, 1, 1)])
 
     def test_mileage_overlay_totals_follow_owner_and_date_filters(self):
         first = self.flight(self.user, date(2025, 1, 15))

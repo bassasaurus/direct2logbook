@@ -13,7 +13,7 @@
     var matches = 0;
     groups.forEach(function (group) {
       var typeMatches = normalize(group.querySelector('[data-aircraft-type]').textContent).includes(query);
-      var visible = false;
+      var visible = typeMatches;
       group.querySelectorAll('[data-tailnumber]').forEach(function (link) {
         var show = typeMatches || normalize(link.textContent).includes(query);
         link.hidden = !show;

@@ -140,7 +140,9 @@
       if (valid === false) {
         input.form.dispatchEvent(new CustomEvent('form-feedback', {detail: null}));
         input.focus();
-        input.reportValidity();
+        if (input.form.hasAttribute && input.form.hasAttribute('data-flight-validation'))
+          input.dispatchEvent(new Event('change', {bubbles: true}));
+        else input.reportValidity();
       } else {
         approvedRoute = route;
         input.form.requestSubmit(submitter || undefined);

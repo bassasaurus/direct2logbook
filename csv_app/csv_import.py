@@ -68,11 +68,20 @@ def csv_import(request, file):
         for index, row in enumerate(rows, start=2):
             values = row.copy()
             aircraft, _ = Aircraft.objects.get_or_create(user=user, aircraft_type=values.pop('aircraft'))
-            registration, _ = TailNumber.objects.get_or_create(
-                user=user, registration=values.pop('registration'), defaults={'aircraft': aircraft},
-            )
-            if registration.aircraft_id != aircraft.pk:
-                raise CSVValidationError(f'Row {index}: registration belongs to a different aircraft type.')
+            registration_name = values.pop('registration')
+            registration = None
+            if registration_name:
+                registration, _ = TailNumber.objects.get_or_create(
+                    user=user, registration=registration_name, defaults={'aircraft': aircraft})
+                if registration.aircraft_id != aircraft.pk:
+                    raise CSVValidationError(f'Row {index}: registration belongs to a different aircraft type.')
+            if values.get('device_type') or values.get('device_id') or values.get('instrument_credit_eligible'):
+                from flights.simulator_validation import validate_simulator_entry
+                errors = validate_simulator_entry(values, aircraft_category=aircraft.aircraft_category)
+                if values.get('cross_country'):
+                    errors['cross_country'] = 'Select either Sim or Cross-country.'
+                if errors:
+                    raise CSVValidationError(f'Row {index}: {"; ".join(errors.values())}')
             approaches = values.pop('approaches')
             flight = Flight(user=user, aircraft_type=aircraft, registration=registration, **values)
             try:

@@ -114,7 +114,7 @@ class FlightSerializer(FriendlyValidationSerializer):
         model = Flight
         fields = ['id', 'user', 'date', 'aircraft_type', 'registration', 'route', 'duration', 'landings_day', 'landings_night', 
                     'night', 'instrument', 'cross_country', 'second_in_command', 'pilot_in_command', 'simulated_instrument', 
-                    'instructor', 'simulator', 'dual', 'remarks', 'solo', 'hold', 'app_markers', 'app_polylines','approaches', 'holding', 'revision', 'route_airport_choices', 'validate_airports', 'distance_nm']
+                    'instructor', 'simulator', 'device_type', 'device_id', 'atd_type', 'instrument_credit_eligible', 'dual', 'remarks', 'solo', 'hold', 'app_markers', 'app_polylines','approaches', 'holding', 'revision', 'route_airport_choices', 'validate_airports', 'distance_nm']
         read_only_fields = ['user']
 
     revision = SerializerMethodField()
@@ -206,21 +206,26 @@ class FlightSerializer(FriendlyValidationSerializer):
     def validate(self, attrs):
         attrs = super().validate(attrs)
         owner = serializer_owner(self)
+        sim = attrs.get('simulator', getattr(self.instance, 'simulator', False))
         for field, model, lookup in (
             ('aircraft_type', Aircraft, 'aircraft_type'),
             ('registration', TailNumber, 'registration'),
         ):
-            if field in self.initial_data:
+            if field == 'registration' and sim and not self.initial_data.get(field):
+                attrs[field] = None
+            elif field in self.initial_data:
                 attrs[field] = owned_relation(
                     model, owner, self.initial_data[field], lookup, field,
                 )
             elif self.instance is None:
                 raise serializers.ValidationError({field: 'This field is required.'})
+        if sim and (attrs.get('device_type', getattr(self.instance, 'device_type', '')) or attrs.get('device_id', getattr(self.instance, 'device_id', ''))):
+            attrs['registration'] = None
         errors = validate_flight(attrs, self.instance)
         if errors:
             raise serializers.ValidationError(errors)
         strict = attrs.pop('validate_airports', False)
-        if strict or 'route_airport_choices' in attrs:
+        if (strict or 'route_airport_choices' in attrs) and attrs.get('route', getattr(self.instance, 'route', '')):
             from api.airport_checks import validate_route_choices
             route = attrs.get('route', self.instance.route if self.instance else '')
             choices = attrs.get('route_airport_choices', self.instance.route_airport_choices if self.instance else {})

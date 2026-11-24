@@ -11,7 +11,7 @@ from django.views.decorators.http import require_GET, require_POST, require_http
 from django.db import transaction
 from django.views.decorators.csrf import csrf_protect
 from django.db.models import Sum, F
-from .validation import parse_csv, CSVValidationError, CSVPreviewExpired, MAX_BYTES
+from .validation import parse_csv, CSVValidationError, CSVPreviewExpired, MAX_BYTES, DEVICE_HEADERS
 import logging
 
 logger = logging.getLogger('django.csv_app')
@@ -49,7 +49,7 @@ def csv_download_view(request):
         'solo',
         'simulator',
         'remarks',
-
+        *DEVICE_HEADERS,
     ])
 
     for flight in flights:
@@ -117,7 +117,7 @@ def csv_download_view(request):
         writer.writerow([
             str(flight.date),
             str(flight.aircraft_type),
-            str(flight.registration),
+            str(flight.registration or ''),
             str(flight.route),
             flight.duration,
             pic,
@@ -133,7 +133,9 @@ def csv_download_view(request):
             dual,
             solo,
             sim,
-            flight.remarks
+            flight.remarks,
+            flight.device_type, flight.device_id, flight.atd_type,
+            int(flight.instrument_credit_eligible),
         ])
 
     return response

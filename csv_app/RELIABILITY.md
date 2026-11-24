@@ -11,7 +11,15 @@ Counts must be whole numbers. Aircraft type is at most four characters;
 registration uses the existing ten-character database limit because nationality
 prefixes mean a five-character total limit would reject legitimate registrations.
 Headers accept the 19-column format or the older 18-column download, which has
-zero approaches inserted. Downloads now include approach counts; imported counts
+zero approaches inserted. Downloads append four optional device columns:
+`device type`, `device id`, `atd type`, and `instrument credit eligible` (1 or 0).
+Existing 18/19-column files remain accepted. Simulator rows may omit registration
+and route; no placeholder tailnumber is created. Unclassified legacy simulator
+rows remain unclassified. Classified devices require FFS/FTD/ATD, a Device ID,
+and BATD/AATD when ATD is selected. Claiming instrument credit also requires Dual,
+instrument time, and an aircraft represented in the Airplane category.
+Device metadata survives export/import; existing source records are not rewritten.
+Downloads include approach counts; imported counts
 are assigned ILS, so this is not a lossless export of approach types or holdings.
 
 Each preview gets a UUID batch belonging to the user. Tabs keep separate batch

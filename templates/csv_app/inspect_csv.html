@@ -48,7 +48,8 @@
   }
 
   .csv-preview-table td:nth-child(4),
-  .csv-preview-table td:last-child {
+  .csv-preview-table td:nth-child(19),
+  .csv-preview-table td:nth-child(21) {
     min-width: 7rem;
     max-width: 20rem;
     white-space: normal;
@@ -111,6 +112,7 @@
           <th class="text-end">Solo</th>
           <th class="text-end">Sim</th>
           <th class="text-center">Remarks</th>
+          <th>Device Type</th><th>Device ID</th><th>ATD Type</th><th>Instrument Credit Eligible</th>
         </tr>
       </thead>
       <tbody>
@@ -150,6 +152,8 @@
           <td class="text-end">##.#</td> <!-- solo -->
           <td class="text-end">##.#</td> <!-- sim -->
           <td class="text-end">Text</td> <!-- remarks -->
+          <td>Optional: FFS / FTD / ATD</td><td>Optional device ID</td>
+          <td>BATD / AATD for ATD</td><td>1 or 0</td>
         </tr>
         {% endif %}
       </tbody>

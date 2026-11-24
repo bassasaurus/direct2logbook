@@ -138,7 +138,7 @@ class FlightArchive(LoginRequiredMixin, ProfileNotActiveMixin, ArchiveIndexView)
     allow_future = False
 
     def get_queryset(self):
-        queryset = Flight.objects.filter(user=self.request.user)
+        queryset = Flight.objects.filter(user=self.request.user).exclude(simulator=True)
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -156,9 +156,9 @@ class FlightArchive(LoginRequiredMixin, ProfileNotActiveMixin, ArchiveIndexView)
         context['parent_link'] = reverse('home')
         context['page_title'] = 'Routes'
         context['years'] = Flight.objects.filter(
-            user=user).dates('date', 'year')
+            user=user).exclude(simulator=True).dates('date', 'year')
         context['months'] = Flight.objects.filter(
-            user=user).dates('date', 'month')
+            user=user).exclude(simulator=True).dates('date', 'month')
         return context
 
 
@@ -170,7 +170,7 @@ class FlightArchiveYear(LoginRequiredMixin, ProfileNotActiveMixin, YearArchiveVi
     allow_future = False
 
     def get_queryset(self):
-        queryset = Flight.objects.filter(user=self.request.user)
+        queryset = Flight.objects.filter(user=self.request.user).exclude(simulator=True)
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -189,7 +189,7 @@ class FlightArchiveYear(LoginRequiredMixin, ProfileNotActiveMixin, YearArchiveVi
         context['parent_link'] = reverse('flight_by_date')
         context['page_title'] = "Flights by Year"
         context['years'] = Flight.objects.filter(
-            user=user).dates('date', 'year')
+            user=user).exclude(simulator=True).dates('date', 'year')
         return context
 
 
@@ -201,7 +201,7 @@ class FlightArchiveMonth(LoginRequiredMixin, ProfileNotActiveMixin, MonthArchive
     allow_future = False
 
     def get_queryset(self):
-        queryset = Flight.objects.filter(user=self.request.user).select_related('registration')
+        queryset = Flight.objects.filter(user=self.request.user).exclude(simulator=True).select_related('registration')
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -220,9 +220,9 @@ class FlightArchiveMonth(LoginRequiredMixin, ProfileNotActiveMixin, MonthArchive
         context['parent_link'] = reverse('flight_by_date')
         context['page_title'] = "Flights by Month"
         context['years'] = Flight.objects.filter(
-            user=user).dates('date', 'year')
+            user=user).exclude(simulator=True).dates('date', 'year')
         context['months'] = Flight.objects.filter(
-            user=user).dates('date', 'month')
+            user=user).exclude(simulator=True).dates('date', 'month')
         return context
 
 
@@ -231,7 +231,7 @@ class FlightArchiveDay(LoginRequiredMixin, ProfileNotActiveMixin, DayArchiveView
     date_field = 'date'
 
     def get_queryset(self):
-        return Flight.objects.filter(user=self.request.user).select_related('registration')
+        return Flight.objects.filter(user=self.request.user).exclude(simulator=True).select_related('registration')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -737,30 +737,24 @@ class TailNumberList(LoginRequiredMixin, ProfileNotActiveMixin, ListView):
 
         user = self.request.user
 
-        aircraft_list = []
-        for aircraft in Aircraft.objects.filter(user=user).all():
-            if TailNumber.objects.filter(user=user).filter(aircraft__aircraft_type=aircraft).exists() or Imported.objects.filter(user=user).filter(aircraft_type=aircraft).exists():
-                pass
-            else:
-                aircraft_list.append(aircraft)
-                context['aircraft_needs_tailnumber'] = aircraft_list
-
-        if len(Aircraft.objects.filter(user=user)) == 0:
-            context['new_user_aircraft'] = True
-        else:
-            context['new_user_aircraft'] = False
-
-        if len(TailNumber.objects.filter(user=user)) == 0:
-            context['new_user_tailnumber'] = True
-        else:
-            context['new_user_tailnumber'] = False
-
-        if len(Flight.objects.filter(user=user)) == 0:
-            context['new_user_flight'] = True
-        else:
-            context['new_user_flight'] = False
-
-        context['imported'] = Imported.objects.filter(user=user)
+        # Include types without tailnumbers (including simulator-only aircraft).
+        aircraft = list(Aircraft.objects.filter(user=user).order_by('aircraft_type', 'pk'))
+        tails = list(context['tailnumbers'].select_related('aircraft'))
+        by_type = {item.pk: [] for item in aircraft}
+        for tail in tails:
+            by_type[tail.aircraft_id].append(tail)
+        imported = list(Imported.objects.filter(user=user).select_related('aircraft_type'))
+        imported_types = {item.aircraft_type_id for item in imported}
+        simulator_types = set(Flight.objects.filter(user=user, simulator=True).values_list('aircraft_type_id', flat=True))
+        context['aircraft_groups'] = [{'grouper': item, 'list': by_type[item.pk]} for item in aircraft]
+        context['aircraft_needs_tailnumber'] = [item for item in aircraft
+            if not by_type[item.pk] and item.pk not in imported_types and item.pk not in simulator_types]
+        context['new_user_aircraft'] = not aircraft
+        context['new_user_tailnumber'] = not tails
+        context['new_user_flight'] = not Flight.objects.filter(user=user).exists()
+        context['imported'] = imported
+        from api.aircraft_default import default_aircraft_record
+        context['default_aircraft_record'] = default_aircraft_record(user)
 
         context['title'] = "D-> | Aircraft"
         context['parent_name'] = 'Home'

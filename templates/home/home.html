@@ -7,7 +7,7 @@
       <h5><button class="overview-toggle" type="button" aria-expanded="true" aria-controls="recent-flights-content">Recent <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" aria-hidden="true" focusable="false" viewBox="0 0 512 512"><polyline points="112 184 256 328 400 184" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px"/></svg></button></h5>
       <div id="recent-flights-content" class="overview-content">
         {% for flight in recent %}
-          <a class="text-nowrap" href="{% url 'flight_detail' flight.pk %}">{{ flight.date|date:"M j, Y" }} | {{ flight.route }}</a><br>
+          <a class="text-nowrap" href="{% url 'flight_detail' flight.pk %}">{{ flight.date|date:"M j, Y" }} | {% if flight.simulator %}{{ flight.aircraft_type }} {{ flight.device_type|default:"Sim" }}{% else %}{{ flight.route }}{% endif %}</a><br>
         {% endfor %}
 
       </div>
@@ -222,11 +222,7 @@
 
   <div role="tabpanel" class="tab-pane fade" id="iacra" aria-labelledby="iacra-tab">
     <br>
-    <div class="scrolling-wrapper">
-      <div class="card">
-        {% include 'home/iacra.html' %}
-      </div>
-    </div>
+    {% include 'home/iacra.html' %}
   </div>
 </div>
 

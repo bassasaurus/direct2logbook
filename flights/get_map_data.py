@@ -3,6 +3,8 @@ from django.core.cache import cache
 
 def get_map_data(queryset, user):
 
+    queryset = [flight for flight in queryset if not getattr(flight, 'simulator', False)]
+
     features = []
     line_json = []
 

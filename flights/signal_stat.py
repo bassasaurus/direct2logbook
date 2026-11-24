@@ -21,11 +21,12 @@ def stat_update(sender, instance, dispatch_uid="stat_update", **kwargs):
     if is_user_deletion(kwargs.get('origin')):
         return
 
-    flight = Flight.objects.filter(user=instance.user).filter(aircraft_type=instance.aircraft_type)
+    all_sessions = Flight.objects.filter(user=instance.user).filter(aircraft_type=instance.aircraft_type)
+    flight = all_sessions.exclude(simulator=True)
     imported = Imported.objects.filter(user=instance.user).filter(aircraft_type=instance.aircraft_type)
     # Recalculate only after deletion, while preserving historical summaries if
     # dated flights disappear but Imported balances still exist.
-    if not flight.exists() and not imported.exists():
+    if not all_sessions.exists() and not imported.exists():
         Stat.objects.filter(user=instance.user, aircraft_type=str(instance.aircraft_type)).delete()
         return
     stat, _ = Stat.objects.get_or_create(user=instance.user, aircraft_type=str(instance.aircraft_type))
@@ -48,7 +49,7 @@ def stat_update(sender, instance, dispatch_uid="stat_update", **kwargs):
 
     stat.simulated_instrument = avoid_none(flight, 'simulated_instrument') + avoid_none(imported, 'simulated_instrument')
 
-    stat.simulator = avoid_none(flight.filter(simulator=True), 'duration') + avoid_none(imported, 'simulator')
+    stat.simulator = avoid_none(all_sessions.filter(simulator=True), 'duration') + avoid_none(imported, 'simulator')
 
     stat.night = avoid_none(flight, 'night') + avoid_none(imported, 'night')
 
@@ -56,7 +57,7 @@ def stat_update(sender, instance, dispatch_uid="stat_update", **kwargs):
 
     stat.landings_night = avoid_none(flight, 'landings_night') + avoid_none(imported, 'landings_night')
 
-    stat.landings_stat = zero_if_none(stat.landings_day) + zero_if_none(stat.landings_night) + avoid_none(imported, 'landings_day') + avoid_none(imported, 'landings_night')
+    stat.landings_stat = stat.landings_day + stat.landings_night
 
     assign_rolling_values(stat, flight, imported)
     stat.save()
@@ -80,3 +81,22 @@ def refresh_previous_aircraft_summary(sender, instance, **kwargs):
         previous = Aircraft.objects.filter(pk=previous_id, user_id=instance.user_id).first()
         if previous:
             stat_update(sender, SimpleNamespace(user=instance.user, aircraft_type=previous))
+
+
+@receiver(pre_save, sender=Aircraft)
+def remember_aircraft_summary_name(sender, instance, **kwargs):
+    instance._previous_summary_type = None
+    if instance.pk:
+        instance._previous_summary_type = Aircraft.objects.filter(
+            pk=instance.pk, user_id=instance.user_id).values_list('aircraft_type', flat=True).first()
+
+
+@receiver(post_save, sender=Aircraft)
+def refresh_renamed_aircraft_summary(sender, instance, **kwargs):
+    previous = getattr(instance, '_previous_summary_type', None)
+    if previous and previous != instance.aircraft_type:
+        from django.db import transaction
+        from types import SimpleNamespace
+        with transaction.atomic():
+            Stat.objects.filter(user_id=instance.user_id, aircraft_type=previous).delete()
+            stat_update(sender, SimpleNamespace(user=instance.user, aircraft_type=instance))

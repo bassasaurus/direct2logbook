@@ -27,8 +27,29 @@ def validate_flight(data, instance):
     aircraft, tail = links['aircraft_type'], links['registration']
     if aircraft is not None and tail is not None and tail.aircraft_id != aircraft.pk:
         errors['registration'] = f'{tail.registration} is assigned to {tail.aircraft.aircraft_type}. Choose a tailnumber for {aircraft.aircraft_type}.'
+    device = effective_values(data, instance, ('simulator', 'device_type', 'device_id', 'atd_type',
+        'instrument_credit_eligible', 'dual', 'simulated_instrument', 'duration'))
+    if not device['simulator']:
+        if tail is None:
+            errors['registration'] = 'Choose a tailnumber.'
+        if not data.get('route', getattr(instance, 'route', '')):
+            errors['route'] = 'Enter a route.'
+        if device['device_type'] or device['device_id']:
+            errors['device_type'] = 'Select Sim first.'
+        if device['instrument_credit_eligible']:
+            errors['instrument_credit_eligible'] = 'Select Sim first.'
+    if device['atd_type'] and device['device_type'] != 'ATD':
+        errors['atd_type'] = 'Requires ATD.'
+    metadata = {name: device[name] or '' for name in ('device_type', 'device_id', 'atd_type')}
+    previous = {name: getattr(instance, name, '') or '' for name in metadata}
+    require_device = any(name in data for name in metadata) or metadata != previous
+    require_device = require_device or (instance and not instance._state.adding and not instance.simulator)
+    from flights.simulator_validation import validate_simulator_entry
+    simulator_errors = validate_simulator_entry(device, require_device=require_device,
+        aircraft_category=getattr(aircraft, 'aircraft_category', None))
+    errors.update(simulator_errors)
     roles = effective_values(data, instance, FLIGHT_ROLES)
-    if fields_changed(roles, instance, bool) and not any(roles.values()):
+    if not simulator_errors and fields_changed(roles, instance, bool) and not any(roles.values()):
         errors['pilot_in_command'] = 'Select PIC, SIC, Solo, or Dual.'
 
     solo_landings = effective_values(data, instance, ('solo', 'landings_day', 'landings_night'))

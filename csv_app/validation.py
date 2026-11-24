@@ -13,6 +13,7 @@ HEADERS = ['date', 'aircraft', 'registration', 'route', 'duration',
            'pilot in command', 'second in command', 'cross country', 'night',
            'instrument', 'approaches', 'day landing', 'night landing',
            'simulated instrument', 'instructor', 'dual', 'solo', 'simulator', 'remarks']
+DEVICE_HEADERS = ['device type', 'device id', 'atd type', 'instrument credit eligible']
 ALIASES = {'type': 'aircraft', 'aircraft type': 'aircraft', 'reg': 'registration',
            'pic': 'pilot in command', 'sic': 'second in command', 'xc': 'cross country',
            'x country': 'cross country', 'ifr': 'instrument', 'appr': 'approaches',
@@ -60,8 +61,11 @@ def parse_csv(content):
             name = ' '.join(name.split())
             normalized.append(ALIASES.get(name, name))
         legacy = normalized == HEADERS[:10] + HEADERS[11:]
-        if normalized != HEADERS and not legacy:
-            raise CSVValidationError('Headers must match the displayed 19-column format (or the older 18-column download).')
+        extended = (normalized[:len(HEADERS)] == HEADERS and
+                    len(set(normalized)) == len(normalized) and
+                    all(name in DEVICE_HEADERS for name in normalized[len(HEADERS):]))
+        if not extended and not legacy:
+            raise CSVValidationError('Use the 19-column format, optionally followed by device columns, or the older 18-column download.')
         rows, preview = [], []
         for line, raw in enumerate(reader, start=2):
             if not any(cell.strip() for cell in raw):
@@ -83,8 +87,10 @@ def parse_csv(content):
                         pass
                 if date is None:
                     raise CSVValidationError('Use Nov 30, 2026, YYYY-MM-DD, MM/DD/YYYY, or MM-DD-YYYY for dates.')
+                simulator = number(raw[17]) > 0
                 for index, label, limit in [(1, 'Aircraft type', 4), (2, 'Registration', 10), (3, 'Route', 50)]:
-                    if not raw[index] or len(raw[index]) > limit:
+                    required = index == 1 or not simulator
+                    if (required and not raw[index]) or len(raw[index]) > limit:
                         raise CSVValidationError(f'{label} is required and must be at most {limit} characters.')
                 if len(raw[18]) > 500:
                     raise CSVValidationError('Remarks must be at most 500 characters.')
@@ -101,9 +107,32 @@ def parse_csv(content):
                                      (7, 'cross_country'), (14, 'instructor'),
                                      (15, 'dual'), (16, 'solo'), (17, 'simulator')]:
                     values[field] = number(raw[index]) > 0
+                extra = dict(zip(normalized[len(HEADERS):], raw[len(HEADERS):])) if extended else {}
+                metadata = {name.replace(' ', '_'): extra.get(name, '') for name in DEVICE_HEADERS[:3]}
+                metadata['device_type'] = metadata['device_type'].upper()
+                metadata['atd_type'] = metadata['atd_type'].upper()
+                flag = extra.get('instrument credit eligible', '').lower()
+                if flag not in ('', '0', '1', 'false', 'true', 'no', 'yes'):
+                    raise CSVValidationError('Instrument credit eligible must be 1 or 0.')
+                metadata['instrument_credit_eligible'] = flag in ('1', 'true', 'yes')
+                if any(metadata.values()):
+                    if not simulator:
+                        raise CSVValidationError('Select Sim for training device details.')
+                    if len(metadata['device_id']) > 100:
+                        raise CSVValidationError('Device ID must be at most 100 characters.')
+                    if metadata['atd_type'] and metadata['device_type'] != 'ATD':
+                        raise CSVValidationError('BATD/AATD requires ATD.')
+                    values.update(metadata)
+                    from flights.simulator_validation import validate_simulator_entry
+                    # Aircraft ownership/category is checked again against the DB at import.
+                    errors = validate_simulator_entry(values, aircraft_category='A')
+                    if values['cross_country']:
+                        errors['cross_country'] = 'Select either Sim or Cross-country.'
+                    if errors:
+                        raise CSVValidationError('; '.join(errors.values()))
                 rows.append(values)
                 raw[3] = values['route']
-                preview.append(raw)
+                preview.append(raw[:len(HEADERS)] + [extra.get(name, '') for name in DEVICE_HEADERS])
             except CSVValidationError as exc:
                 raise CSVValidationError(f'Row {line}: {exc}') from exc
         if not rows:

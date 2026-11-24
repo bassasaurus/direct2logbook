@@ -687,3 +687,81 @@ section:has(.other-reminders:not([open])) + .reminders-bottom-divider { display:
 .medical-reveal:not([open]) .medical-hide, .medical-reveal[open] .medical-show { display: none; }
 
 .reminder-banner.milestone-completed { color: #111; }
+
+/* FAA 8710-1 Section III: keep the form's grid, paired crew cells and shading. */
+.iacra-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; align-items: start; }
+.iacra-grid-scroll { overflow: auto; max-height: 38rem; border: 1px solid var(--bs-border-color); border-radius: .25rem; }
+.iacra-grid { min-width: 1120px; font-size: .8rem; font-variant-numeric: tabular-nums; }
+.iacra-grid th, .iacra-grid td { text-align: center; vertical-align: middle; padding: .45rem .3rem; }
+.iacra-grid thead th { position: sticky; z-index: 2; background: #e9ecef; }
+.iacra-grid thead tr:first-child th { top: 0; }
+.iacra-grid thead tr:nth-child(2) th { top: var(--iacra-header-height, 5.8rem); }
+.iacra-grid thead tr:first-child th[rowspan] { z-index: 3; }
+.iacra-grid tbody th { position: sticky; left: 0; z-index: 1; background: #fff; text-align: left; min-width: 100px; }
+.iacra-grid thead tr:first-child th:first-child { left: 0; z-index: 4; }
+.iacra-grid tbody td.iacra-shaded { background-color: #b7bcc3 !important; }
+.iacra-unavailable { color: var(--bs-secondary-color); text-align: center; }
+.iacra-classes, .iacra-launches { font-size: .8rem; text-align: center; font-variant-numeric: tabular-nums; }
+.iacra-classes th, .iacra-classes td, .iacra-launches th, .iacra-launches td { vertical-align: middle; padding: .4rem; }
+.iacra-cell-label { display: block; font-size: .68rem; color: var(--bs-secondary-color); }
+.iacra-supplementary { min-width: 0; }
+
+@media screen {
+  [data-bs-theme="dark"] .iacra-grid tbody td.iacra-shaded { background-color: #56616f !important; }
+  [data-bs-theme="dark"] .iacra-grid tbody th { background-color: #0f131a !important; }
+}
+
+/* Inline flight validation follows the mobile form's field feedback. */
+.flight-entry-fields .is-invalid + .select2-container .select2-selection,
+.flight-entry-fields select.is-invalid ~ .select2-container .select2-selection { border-color: var(--bs-danger, #dc3545); }
+.flight-entry-fields .flight-role-invalid { border: 1px solid var(--bs-danger, #dc3545); border-radius: .25rem; padding: .5rem; }
+.flight-entry-fields .invalid-feedback { margin-top: .25rem; }
+
+/* Match checkbox labels to input placeholders and center Sim beside Date. */
+.flight-entry-fields .form-check-label,
+#aircraft-default-controls .form-check-label {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+.flight-entry-fields .flight-sim-toggle {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  padding-left: 0;
+}
+.flight-entry-fields .flight-sim-toggle .form-check-input {
+  float: none;
+  margin: 0;
+}
+
+/* Feedback under Date must not move Sim below the input's center. */
+.flight-entry-fields .flight-sim-toggle {
+  min-height: calc(1.5rem + .75rem + 2 * var(--bs-border-width, 1px));
+  align-self: flex-start;
+}
+.flight-entry-fields #flight-role-fields {
+  align-items: center;
+  gap: .5rem 1rem;
+}
+.flight-entry-fields #flight-role-fields .form-check {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  margin: 0;
+  padding-left: 0;
+}
+.flight-entry-fields #flight-role-fields .form-check-input {
+  float: none;
+  margin: 0;
+}
+
+#aircraft-default-controls .aircraft-default-option {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  padding-left: 0;
+}
+#aircraft-default-controls .aircraft-default-option .form-check-input {
+  float: none;
+  margin: 0;
+}

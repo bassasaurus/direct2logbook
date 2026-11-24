@@ -1,4 +1,4 @@
-[data-bs-theme="light"] .table thead > tr > * { background-color: #f8f9fa !important; }
+[data-bs-theme="light"] :is(.table,#logbook) thead > tr > * { background-color: #f8f9fa !important; }
 [data-bs-theme="light"] .table tbody > tr > :first-child { background-color: #fff !important; }
 [data-bs-theme="light"] .table-striped tbody > tr:nth-of-type(odd) > :first-child { background-color: #f2f2f2 !important; }
 [data-appearance-toggle] { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; }
@@ -40,8 +40,9 @@
   html[data-bs-theme="dark"] .page-breadcrumb time { color: inherit; }
   html[data-bs-theme="dark"] .table { color: var(--bs-body-color); --bs-table-color: #edf1f7; --bs-table-bg: transparent; --bs-table-striped-bg: #1c2531; --bs-table-striped-color: #edf1f7; --bs-table-hover-bg: #283b52; --bs-table-hover-color: #edf1f7; border-color: var(--bs-border-color); }
   html[data-bs-theme="dark"] .table > :not(caption) > * > * { color: var(--bs-body-color); border-color: var(--bs-border-color); }
+  html[data-bs-theme="dark"] #logbook thead > tr > * { color: var(--bs-body-color); }
   /* tableHeadFixer writes light backgrounds inline; frozen cells must remain opaque. */
-  html[data-bs-theme="dark"] .table thead > tr > * { background-color: #232d3b !important; }
+  html[data-bs-theme="dark"] :is(.table,#logbook) thead > tr > * { background-color: #232d3b !important; }
   html[data-bs-theme="dark"] .table tbody > tr > :first-child { background-color: #0f131a !important; }
   html[data-bs-theme="dark"] .table-striped tbody > tr:nth-of-type(odd) > :first-child { background-color: #1c2531 !important; }
   html[data-bs-theme="dark"] #logbook .logbook-flight-row > td:first-child { background-color: #0f131a !important; }

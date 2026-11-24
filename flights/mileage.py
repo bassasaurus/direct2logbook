@@ -16,6 +16,8 @@ def format_distance(distance, unit='nm'):
 def route_distance_nm(flight):
     from flights.airport_resolution import route_segments
 
+    if getattr(flight, 'simulator', False):
+        return None
     airports = flight.route_data or []
     codes = route_segments(getattr(flight, 'route', '') or '')
     if not codes or len(airports) != len(codes):

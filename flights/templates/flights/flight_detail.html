@@ -20,7 +20,8 @@
 <hr>
 <div class="row">
   <div class="col-12">
-    <h4>{{ flight.date|date:"M j, Y"}} {{ flight.aircraft_type }} | {{ flight.registration }} | {{ flight.duration }}</h4>
+    <h4>{{ flight.date|date:"M j, Y"}} {{ flight.aircraft_type }} | {% if flight.simulator %}{{ flight.device_type|default:"Sim" }} {{ flight.device_id }}{% else %}{{ flight.registration }}{% endif %} | {{ flight.duration }}</h4>
+    {% if flight.simulator %}<p>Aircraft Represented: {{ flight.aircraft_type }} · Simulator time (excluded from aircraft flight totals)</p>{% endif %}
     <h6>{{ flight.route }}
       {% if flight.pilot_in_command %}| PIC{% endif %}
       {% if flight.second_in_command %}| SIC{% endif %}
@@ -52,9 +53,9 @@
 
 <div class="row">
   <div class="col-12">
-    <div style="margin-top: 10px;" id="mapid" class="col image-shadow custom-popup">
+    {% if not flight.simulator %}<div style="margin-top: 10px;" id="mapid" class="col image-shadow custom-popup">
       {% include 'leaflet.html' %}
-    </div>
+    </div>{% endif %}
   </div>
 </div>
 
