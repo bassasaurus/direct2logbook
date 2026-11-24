@@ -41,24 +41,24 @@
                     <button type="button" class="logbook-remarks-toggle" data-remarks-toggle aria-expanded="false" aria-controls="flight-remarks-{{ flight.pk }}" aria-label="Toggle remarks for {{ flight.date|date:'M j, Y' }}"><span aria-hidden="true">▼</span></button>
                   {% endif %}
                 </td>
-                <td class="text-end">{{flight.duration}}</td>
+                <td class="text-end">{{ flight.duration|zero_dash }}</td>
                 <td class="text-end">{{flight.pilot_in_command|iconbool}}</td>
                 <td class="text-end">{{flight.second_in_command|iconbool}}</td>
                 <td class="text-end">{{flight.cross_country|iconbool}}</td>
-                <td class="text-end">{{flight.night|default:"-"}}</td>
-                <td class="pe-4 text-end">{{flight.instrument|default:"-"}}</td>
+                <td class="text-end">{{ flight.night|default:"-"|zero_dash }}</td>
+                <td class="pe-4 text-end">{{ flight.instrument|default:"-"|zero_dash }}</td>
                 <td class="text-start">
                   {% for approach in flight.approach_set.all %}
-                    <small>{{ approach.approach_type }}-{{ approach.number }}</small>
+                    <small>{{ approach.approach_type }}-{{ approach.number|zero_dash }}</small>
                   {% endfor %}
 
                   {% for holding in flight.holding_set.all %}
                     <small>{% if holding.hold %}| Hold {% endif %}</small>
                   {% endfor %}
                 </td>
-                <td class="text-end">{{flight.landings_day|default:"-"}}</td>
-                <td class="text-end">{{flight.landings_night|default:"-"}}</td>
-                <td class="text-end">{{flight.simulated_instrument|default:"-"}}</td>
+                <td class="text-end">{{ flight.landings_day|default:"-"|zero_dash }}</td>
+                <td class="text-end">{{ flight.landings_night|default:"-"|zero_dash }}</td>
+                <td class="text-end">{{ flight.simulated_instrument|default:"-"|zero_dash }}</td>
                 <td class="text-end">{{flight.instructor|iconbool}}</td>
                 <td class="text-end">{{flight.dual|iconbool}}</td>
                 <td class="text-end">{{flight.solo|iconbool}}</td>

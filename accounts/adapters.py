@@ -11,6 +11,12 @@ class AccountAdapter(DefaultAccountAdapter):
             base = first[:1] + last if first and last else first or last or user.email.split('@')[0]
             user.username = self.generate_unique_username([base])
 
+    def add_message(self, request, level, message_template=None, message_context=None, extra_tags='', message=None):
+        if message_template == 'account/messages/logged_in.txt':
+            extra_tags = (extra_tags + ' account-welcome-back').strip()
+        return super().add_message(request, level, message_template=message_template,
+            message_context=message_context, extra_tags=extra_tags, message=message)
+
     def post_login(self, request, user, **kwargs):
         # Apply after allauth completes authentication and verification, including social login.
         profile = Profile.objects.filter(user=user).first()

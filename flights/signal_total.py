@@ -2,7 +2,7 @@ from flights.queryset_helpers import is_user_deletion
 from flights.models import Total, Flight, Imported
 
 from django.db.models.signals import post_save, post_delete
-from django.db.models import Q
+from flights.aircraft_classification import summary_key
 
 from django.core.exceptions import ObjectDoesNotExist
 from flights.queryset_helpers import avoid_none
@@ -22,50 +22,11 @@ def total_all_update(sender, instance, dispatch_uid="total_all_update", **kwargs
     flight = all_sessions.exclude(simulator=True)
     imported = Imported.objects.filter(user=instance.user)
 
-    asel_query = Q(aircraft_type__aircraft_category='A') & Q(aircraft_type__aircraft_class='SEL')
-    amel_query = Q(aircraft_type__aircraft_category='A') & Q(aircraft_type__aircraft_class='MEL')
-    ases_query = Q(aircraft_type__aircraft_category='A') & Q(aircraft_type__aircraft_class='SES')
-    ames_query = Q(aircraft_type__aircraft_category='A') & Q(aircraft_type__aircraft_class='MES')
-    helo_query = Q(aircraft_type__aircraft_category='R') & Q(aircraft_type__aircraft_class='HELO')
-    gyro_query = Q(aircraft_type__aircraft_category='R') & Q(aircraft_type__aircraft_class='GYRO')
-
-    flight_queries = {
-                    'All': flight,
-                    'ASEL': flight.filter(asel_query),
-                    'AMEL': flight.filter(amel_query),
-                    'ASES': flight.filter(ases_query),
-                    'AMES': flight.filter(ames_query),
-                    'HELO': flight.filter(helo_query),
-                    'GYRO': flight.filter(gyro_query),
-                }
-
-    imported_queries = {
-                    'All': imported,
-                    'ASEL': imported.filter(asel_query),
-                    'AMEL': imported.filter(amel_query),
-                    'ASES': imported.filter(ases_query),
-                    'AMES': imported.filter(ames_query),
-                    'HELO': imported.filter(helo_query),
-                    'GYRO': imported.filter(gyro_query),
-                }
-
-    if str(instance.aircraft_type.aircraft_category) == "A" and str(instance.aircraft_type.aircraft_class) == 'SEL':
-        Total.objects.get_or_create(user=instance.user, total='ASEL',)
-
-    elif str(instance.aircraft_type.aircraft_category) == "A" and str(instance.aircraft_type.aircraft_class) == 'MEL':
-        Total.objects.get_or_create(user=instance.user, total='AMEL',)
-
-    elif str(instance.aircraft_type.aircraft_category) == "A" and str(instance.aircraft_type.aircraft_class) == 'SES':
-        Total.objects.get_or_create(user=instance.user, total='ASES',)
-
-    elif str(instance.aircraft_type.aircraft_category) == "A" and str(instance.aircraft_type.aircraft_class) == 'MES':
-        Total.objects.get_or_create(user=instance.user, total='AMES',)
-
-    elif str(instance.aircraft_type.aircraft_category) == "R" and str(instance.aircraft_type.aircraft_class) == 'HELO':
-        Total.objects.get_or_create(user=instance.user, total='HELO',)
-
-    elif str(instance.aircraft_type.aircraft_category) == "R" and str(instance.aircraft_type.aircraft_class) == 'GYRO':
-        Total.objects.get_or_create(user=instance.user, total='GYRO',)
+    flight_queries = {key: flight.filter(scope) for key, scope in CATEGORY_FILTERS.items()}
+    imported_queries = {key: imported.filter(scope) for key, scope in CATEGORY_FILTERS.items()}
+    key = summary_key(instance.aircraft_type.aircraft_category, instance.aircraft_type.aircraft_class)
+    if key:
+        Total.objects.get_or_create(user=instance.user, total=key)
 
     total = Total.objects.filter(user=instance.user)
 

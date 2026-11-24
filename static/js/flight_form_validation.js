@@ -82,15 +82,15 @@
         field.classList.toggle('is-invalid', Boolean(error));
         if (error) field.setAttribute('aria-invalid', 'true');
         else field.removeAttribute('aria-invalid');
-        message.textContent = error;
-        message.hidden = !error;
-        message.classList.toggle('d-block', Boolean(error));
+        message.textContent = error === 'Required' ? '' : error;
+        message.hidden = !error || error === 'Required';
+        message.classList.toggle('d-block', Boolean(error) && error !== 'Required');
       });
-      group.classList.toggle('flight-role-invalid', Boolean(errors.flight_role));
-      groupFeedback.textContent = errors.flight_role || '';
-      groupFeedback.hidden = !errors.flight_role;
-      groupFeedback.classList.toggle('d-block', Boolean(errors.flight_role));
-      return fields.find(function (field) { return !feedback.get(field).hidden; }) || (errors.flight_role ? group : null);
+      group.closest('fieldset').classList.toggle('required-choice-empty', Boolean(errors.flight_role) || fields.some(function (field) { return field.type === 'checkbox' && field.required && !field.checked && !field.disabled; }));
+      groupFeedback.textContent = '';
+      groupFeedback.hidden = true;
+      groupFeedback.classList.remove('d-block');
+      return fields.find(function (field) { return field.classList.contains('is-invalid'); }) || (errors.flight_role ? group : null);
     }
     if (root.jQuery) root.jQuery(form).on('input.flightValidation change.flightValidation changeDate.flightValidation', update);
     else { form.addEventListener('input', update); form.addEventListener('change', update); }

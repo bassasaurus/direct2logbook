@@ -32,9 +32,7 @@ class FlightCRUDTests(TestCase):
             superr=False,
             heavy=False,
             large=False,
-            medium=False,
             small=True,
-            light_sport=False
         )
 
         self.tailnumber = TailNumber.objects.create(

@@ -1,7 +1,8 @@
+{% load flights_filters %}
 {% load static %}
 <section class="iacra-section" aria-labelledby="iacra-heading">
   <h5 id="iacra-heading" class="mb-2">III. Record of Pilot Time</h5>
-  <p class="small text-muted mb-3" id="iacra-legend">FAA Form 8710-1, Section III (03/26). Shaded cells are not applicable. A dash (—) means information is unavailable; 0.0 means no time is recorded. Night takeoff/landing counts use recorded night landings and crew roles. Unclassified historical Sim sessions remain in Sim totals.</p>
+  <p class="small text-muted mb-3" id="iacra-legend">FAA Form 8710-1, Section III (03/26). Shaded cells are not applicable. A hyphen (-) means zero; an em dash (—) means information is unavailable. Night takeoff/landing counts use recorded night landings and crew roles. Unclassified historical Sim sessions remain in Sim totals.</p>
   <div class="iacra-layout">
     <div class="iacra-grid-scroll" role="region" aria-label="Record of Pilot Time" aria-describedby="iacra-legend" tabindex="0">
       <table class="table table-sm table-bordered iacra-grid mb-0">
@@ -39,7 +40,7 @@
                 {% elif cell.value is None %}
                   <td class="iacra-unavailable" aria-label="{{ row.label }}: {{ cell.label }} — unavailable" title="Not available from recorded information">—</td>
                 {% else %}
-                  <td data-iacra-value="{{ row.label }}:{{ cell.label }}">{% if cell.count %}{{ cell.value|floatformat:0 }}{% else %}{{ cell.value|floatformat:1 }}{% endif %}</td>
+                  <td data-iacra-value="{{ row.label }}:{{ cell.label }}">{% if cell.count %}{{ cell.value|floatformat:0|zero_dash }}{% else %}{{ cell.value|floatformat:1|zero_dash }}{% endif %}</td>
                 {% endif %}
               {% endfor %}
             </tr>
@@ -49,15 +50,19 @@
     </div>
     <div class="iacra-supplementary">
       <table class="table table-sm table-bordered iacra-launches mb-3">
-        <caption class="visually-hidden">Number of flights and launches. These counts are not recorded separately.</caption>
+        <caption class="visually-hidden">Number of recorded aircraft flights and glider launches.</caption>
         <thead>
           <tr><th colspan="6" scope="colgroup">Number of</th></tr>
           <tr><th rowspan="2" scope="col">Aircraft</th><th colspan="2" scope="colgroup">Flights</th><th rowspan="2" scope="col">Aero-Tows</th><th rowspan="2" scope="col">Ground Launches</th><th rowspan="2" scope="col">Powered Launches</th></tr>
           <tr><th scope="col">PIC</th><th scope="col">Dual</th></tr>
         </thead>
         <tbody>
-          <tr><th scope="row">Gliders</th><td class="iacra-unavailable" colspan="5" aria-label="Glider flight and launch counts unavailable">—</td></tr>
-          <tr><th scope="row">Lighter-Than-Air</th><td class="iacra-unavailable" colspan="5" aria-label="Lighter-than-air flight and launch counts unavailable">—</td></tr>
+          {% for item in iacra_launches %}
+          <tr><th scope="row">{{ item.label }}</th><td>{{ item.pic|zero_dash }}</td><td>{{ item.dual|zero_dash }}</td>
+            {% if item.code == 'GL' %}<td>{{ item.aerotow|zero_dash }}</td><td>{{ item.ground|zero_dash }}</td><td>{{ item.self_launch|zero_dash }}</td>
+            {% else %}<td colspan="3" class="iacra-shaded" aria-label="Launch method not applicable"></td>{% endif %}
+          </tr>
+          {% endfor %}
         </tbody>
       </table>
       <table class="table table-sm table-bordered iacra-classes mb-0">
@@ -67,21 +72,22 @@
           <tr><th scope="col">Aircraft</th>{% for item in iacra_airplane_classes %}<th scope="col">{{ item.label }}</th>{% endfor %}</tr>
         </thead>
         <tbody>
-          <tr><th rowspan="3" scope="rowgroup">Airplane</th>{% for item in iacra_airplane_classes %}<td><span class="iacra-cell-label">PIC</span>{{ item.pic|floatformat:1 }}</td>{% endfor %}</tr>
-          <tr>{% for item in iacra_airplane_classes %}<td><span class="iacra-cell-label">SIC</span>{{ item.sic|floatformat:1 }}</td>{% endfor %}</tr>
-          <tr>{% for item in iacra_airplane_classes %}<td><span class="iacra-cell-label">Instruction Received</span>{{ item.instruction|floatformat:1 }}</td>{% endfor %}</tr>
+          <tr><th rowspan="3" scope="rowgroup">Airplane</th>{% for item in iacra_airplane_classes %}<td><span class="iacra-cell-label">PIC</span>{{ item.pic|floatformat:1|zero_dash }}</td>{% endfor %}</tr>
+          <tr>{% for item in iacra_airplane_classes %}<td><span class="iacra-cell-label">SIC</span>{{ item.sic|floatformat:1|zero_dash }}</td>{% endfor %}</tr>
+          <tr>{% for item in iacra_airplane_classes %}<td><span class="iacra-cell-label">Instruction Received</span>{{ item.instruction|floatformat:1|zero_dash }}</td>{% endfor %}</tr>
           <tr><th rowspan="2" scope="rowgroup">Rotorcraft</th><th colspan="2" scope="colgroup">Helicopter</th><th colspan="2" scope="colgroup">Gyroplane</th></tr>
-          <tr><td colspan="2">{{ helo_total|floatformat:1 }}</td><td colspan="2">{{ gyro_total|floatformat:1 }}</td></tr>
+          <tr><td colspan="2">{{ iacra_helo_total|floatformat:1|zero_dash }}</td><td colspan="2">{{ iacra_gyro_total|floatformat:1|zero_dash }}</td></tr>
           <tr><th rowspan="2" scope="rowgroup">Lighter-Than-Air</th><th colspan="2" scope="colgroup">Balloon</th><th colspan="2" scope="colgroup">Airship</th></tr>
-          <tr><td colspan="2" class="iacra-unavailable" aria-label="Balloon time unavailable">—</td><td colspan="2" class="iacra-unavailable" aria-label="Airship time unavailable">—</td></tr>
+          <tr><td colspan="2">{{ iacra_balloon_total|floatformat:1|zero_dash }}</td><td colspan="2">{{ iacra_airship_total|floatformat:1|zero_dash }}</td></tr>
           <tr><th scope="col">Device</th><th scope="col">SE</th><th scope="col">ME</th><th colspan="2" scope="colgroup">Helicopter</th></tr>
           {% for device in iacra_device_classes %}
-          <tr><th scope="row">{{ device.type }}</th><td>{{ device.se|floatformat:1|default:"—" }}</td><td>{{ device.me|floatformat:1|default:"—" }}</td><td colspan="2">{{ device.helicopter|floatformat:1|default:"—" }}</td></tr>
+          <tr><th scope="row">{{ device.type }}</th><td>{{ device.se|floatformat:1|default:"—"|zero_dash }}</td><td>{{ device.me|floatformat:1|default:"—"|zero_dash }}</td><td colspan="2">{{ device.helicopter|floatformat:1|default:"—"|zero_dash }}</td></tr>
           {% endfor %}
         </tbody>
       </table>
     </div>
   </div>
+  {% if iacra_note %}<p class="small text-muted mt-2">{{ iacra_note }}</p>{% endif %}
 </section>
 
 <script src="{% static 'js/iacra.js' %}" defer></script>

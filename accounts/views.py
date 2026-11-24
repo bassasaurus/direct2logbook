@@ -41,6 +41,7 @@ class EmailView(LoginRequiredMixin, EmailView):
     def get_context_data(self, **kwargs):
         context = super(EmailView, self).get_context_data(**kwargs)
 
+        context['can_remove_email'] = len(context['emailaddresses']) > 1
         context['title'] = "D-> | Update Email"
         context['home_link'] = reverse('home')
         context['parent_name'] = 'Profile'

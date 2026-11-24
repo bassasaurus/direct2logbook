@@ -1,3 +1,4 @@
+{% load flights_filters %}
 
 <table id="total" class="table custom-table">
   <thead class="table-light">
@@ -29,29 +30,29 @@
   </thead>
   {% for total in totals %}
   <tr>
-    <td>{{ total.total }}</td>
-    <td class="text-end">{{ total.total_time }}</td>
-    <td class="text-end">{{ total.pilot_in_command }}</td>
-    <td class="text-end">{{ total.second_in_command }}</td>
-    <td class="text-end">{{ total.cross_country }}</td>
-    <td class="text-end">{{ total.instructor }}</td>
-    <td class="text-end">{{ total.dual }}</td>
-    <td class="text-end">{{ total.solo }}</td>
-    <td class="text-end">{{ total.instrument }}</td>
-    <td class="text-end">{{ total.night }}</td>
-    <td class="text-end">{{ total.simulated_instrument }}</td>
-    <td class="text-end">{{ total.simulator }}</td>
-    <td class="text-end">{{ total.landings_day }}</td>
-    <td class="text-end">{{ total.landings_night }}</td>
-    <td class="text-end">{{ total.landings_total }}</td>
+    <td>{{ total.display_name|default:total.total }}{% if total.launch_counts %}<div class="small text-muted">{{ total.launch_counts.flights|zero_dash }} flight{{ total.launch_counts.flights|pluralize }} / launches<br>Aerotow {{ total.launch_counts.aerotow|zero_dash }} · Ground {{ total.launch_counts.ground|zero_dash }} · Self-launch {{ total.launch_counts.self_launch|zero_dash }}</div>{% endif %}</td>
+    <td class="text-end">{{ total.total_time|zero_dash }}</td>
+    <td class="text-end">{{ total.pilot_in_command|zero_dash }}</td>
+    <td class="text-end">{{ total.second_in_command|zero_dash }}</td>
+    <td class="text-end">{{ total.cross_country|zero_dash }}</td>
+    <td class="text-end">{{ total.instructor|zero_dash }}</td>
+    <td class="text-end">{{ total.dual|zero_dash }}</td>
+    <td class="text-end">{{ total.solo|zero_dash }}</td>
+    <td class="text-end">{{ total.instrument|zero_dash }}</td>
+    <td class="text-end">{{ total.night|zero_dash }}</td>
+    <td class="text-end">{{ total.simulated_instrument|zero_dash }}</td>
+    <td class="text-end">{{ total.simulator|zero_dash }}</td>
+    <td class="text-end">{{ total.landings_day|zero_dash }}</td>
+    <td class="text-end">{{ total.landings_night|zero_dash }}</td>
+    <td class="text-end">{{ total.landings_total|zero_dash }}</td>
     <td class="text-end">{{ total.last_flown|date:"M j, Y"|default:"-" }}</td>
-    <td class="text-end">{{ total.last_30 }}</td>
-    <td class="text-end">{{ total.last_60 }}</td>
-    <td class="text-end">{{ total.last_90 }}</td>
-    <td class="text-end">{{ total.last_180 }}</td>
-    <td class="text-end">{{ total.last_yr }}</td>
-    <td class="text-end">{{ total.last_2yr }}</td>
-    <td class="text-end">{{ total.ytd }}</td>
+    <td class="text-end">{{ total.last_30|zero_dash }}</td>
+    <td class="text-end">{{ total.last_60|zero_dash }}</td>
+    <td class="text-end">{{ total.last_90|zero_dash }}</td>
+    <td class="text-end">{{ total.last_180|zero_dash }}</td>
+    <td class="text-end">{{ total.last_yr|zero_dash }}</td>
+    <td class="text-end">{{ total.last_2yr|zero_dash }}</td>
+    <td class="text-end">{{ total.ytd|zero_dash }}</td>
   </tr>
   {% endfor %}
 </table>

@@ -108,7 +108,7 @@ class InlineErrorTests(TestCase):
             self.assertContains(response, f'aria-label="{label} errors"')
             self.assertContains(response, 'class="detail-update btn btn-outline-danger">Update</a>')
             self.assertNotContains(response, 'id="errors"')
-        self.assertContains(self.client.get(aircraft_url), 'Please select Piston or Turbine.')
+        self.assertContains(self.client.get(aircraft_url), 'Choose Piston, Turbine, or Electric.')
         self.assertContains(self.client.get(tail_url), 'Please select FAR 91, 135 or 121.')
 
     def test_invalid_codes_survive_valid_later_legs_and_repeat_codes_are_deduplicated(self):
@@ -206,7 +206,7 @@ class InlineErrorTests(TestCase):
         response = self.client.get(reverse('aircraft_detail', args=[self.aircraft.pk]))
         self.assertContains(response, '<li>ASEL</li>')
         self.assertContains(response, '<li>Piston</li>')
-        self.assertContains(response, '<li>Simple</li>')
+        self.assertNotContains(response, '<li>Simple</li>')
         self.assertContains(response, '<li>Small</li>')
         self.assertNotContains(response, '<li>Turbine</li>')
         self.assertNotContains(response, '<li>Complex</li>')

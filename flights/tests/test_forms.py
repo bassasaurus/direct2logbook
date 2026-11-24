@@ -25,9 +25,7 @@ class FlightFormTests(TestCase):
             superr=False,
             heavy=False,
             large=False,
-            medium=False,
             small=True,
-            light_sport=False
         )
         self.tailnumber = TailNumber.objects.create(
             user=self.user,
@@ -149,8 +147,7 @@ class TailNumberFormTests(TestCase):
             user=user, aircraft_type='C172', piston=True, turbine=False,
             requires_type=False, tailwheel=False, simple=True, compleks=False,
             high_performance=False, aircraft_category='A', aircraft_class='SEL',
-            superr=False, heavy=False, large=False, medium=False, small=True,
-            light_sport=False
+            superr=False, heavy=False, large=False, small=True,
         )
 
         data = {

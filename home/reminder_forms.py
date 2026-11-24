@@ -52,7 +52,7 @@ class ReminderForm(forms.ModelForm):
             'company': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter company name'}),
             'company_start_date': NamedDateInput(format='%b %d, %Y', attrs={'type': 'text', 'class': 'form-control reminder-date'}),
             'company_end_date': NamedDateInput(format='%b %d, %Y', attrs={'type': 'text', 'class': 'form-control reminder-date'}),
-            'target_hours': forms.NumberInput(attrs={'min': '0.1', 'step': '0.1', 'class': 'form-control'}),
+            'target_hours': forms.NumberInput(attrs={'min': '0.1', 'step': '0.1', 'class': 'form-control', 'placeholder': '##.#'}),
         }
 
     def __init__(self, *args, user, **kwargs):

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load widget_tweaks date_display %}
+{% load widget_tweaks date_display flights_filters %}
 {% block page_container_class %}container-fluid px-3 px-lg-4{% endblock %}
 {% block content %}
 
@@ -112,7 +112,7 @@
           <th class="text-end">Solo</th>
           <th class="text-end">Sim</th>
           <th class="text-center">Remarks</th>
-          <th>Device Type</th><th>Device ID</th><th>ATD Type</th><th>Instrument Credit Eligible</th>
+          <th>Device Type</th><th>Device ID</th><th>ATD Type</th><th>Instrument Credit Eligible</th><th>Launch Method</th>
         </tr>
       </thead>
       <tbody>
@@ -120,7 +120,7 @@
         {% for row in file %}
         <tr>
           {% for field in row %}
-          <td>{% if forloop.first %}{{ field|display_date }}{% else %}{{ field }}{% endif %}</td>
+          <td>{% if forloop.first %}{{ field|display_date }}{% else %}{{ field|zero_dash }}{% endif %}</td>
           {% endfor %}
         </tr>
         {% endfor %}
@@ -154,6 +154,7 @@
           <td class="text-end">Text</td> <!-- remarks -->
           <td>Optional: FFS / FTD / ATD</td><td>Optional device ID</td>
           <td>BATD / AATD for ATD</td><td>1 or 0</td>
+          <td>Glider: AEROTOW / GROUND / SELF</td>
         </tr>
         {% endif %}
       </tbody>

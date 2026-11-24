@@ -82,7 +82,7 @@ class MedicalRemindersTests(TestCase):
 
     def test_named_date_display_legacy_day_first_input_and_primary_save_button(self):
         response = self.client.get(reverse('medical_update'))
-        self.assertContains(response, 'placeholder="Nov 30, 2026"')
+        self.assertContains(response, 'placeholder="Select date"')
         self.assertContains(response, 'value="May 10, 2026"')
         self.assertContains(response, 'class="btn btn-primary" type="submit">Save</button>')
         self.assertNotContains(response, '>Cancel</a>')

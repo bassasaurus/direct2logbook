@@ -16,7 +16,7 @@ class ProfileForm(forms.ModelForm):
 class MedicalForm(forms.ModelForm):
     medical_issue_date = forms.DateField(
         input_formats=['%b %d, %Y', '%B %d, %Y', '%d/%m/%Y', '%Y-%m-%d'],
-        widget=NamedDateInput(format='%b %d, %Y', attrs={'placeholder': 'Nov 30, 2026'}),
+        widget=NamedDateInput(format='%b %d, %Y', attrs={'placeholder': 'Select date'}),
     )
     class Meta:
         model = Profile

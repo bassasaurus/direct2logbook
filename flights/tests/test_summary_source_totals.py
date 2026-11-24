@@ -14,7 +14,7 @@ ROLE_FIELDS = ('pilot_in_command', 'second_in_command', 'cross_country', 'instru
 VALUE_FIELDS = ('night', 'instrument', 'simulated_instrument', 'landings_day', 'landings_night')
 CLASSES = {'ASEL': ('A', 'SEL'), 'AMEL': ('A', 'MEL'), 'ASES': ('A', 'SES'),
            'AMES': ('A', 'MES'), 'HELO': ('R', 'HELO'), 'GYRO': ('R', 'GYRO')}
-WEIGHTS = {'Super': 'superr', 'Heavy': 'heavy', 'Large': 'large', 'Medium': 'medium', 'Small': 'small', 'LSA': 'light_sport'}
+WEIGHTS = {'Super': 'superr', 'Heavy': 'heavy', 'Large': 'large', 'Small': 'small'}
 ENDORSEMENTS = {'Simple': 'simple', 'Complex': 'compleks', 'High Performance': 'high_performance',
                 'Tailwheel': 'tailwheel', 'Type Rating': 'requires_type'}
 
@@ -154,24 +154,32 @@ class SummarySourceTotalsTests(TestCase):
             with self.subTest(role=row.role):
                 self.assertEqual((row.turbine, row.piston), (0, 0))
 
-    def test_simulator_migration_rebuilds_every_summary_without_changing_sources(self):
-        from importlib import import_module
+    def test_summary_rebuild_is_idempotent_and_does_not_change_sources(self):
         from types import SimpleNamespace
-        from django.apps import apps
-        from django.db import connection
-        migration = import_module('flights.migrations.0074_separate_simulator_summaries')
-        schema = SimpleNamespace(connection=connection)
+        from flights.signal_stat import stat_update
+        from flights.signal_total import total_all_update
+        from flights.signal_extra import weight_update, endorsement_update, power_update, refresh_operating_rule_summaries
+
+        def rebuild():
+            for aircraft in Aircraft.objects.filter(user=self.user):
+                instance = SimpleNamespace(user=self.user, aircraft_type=aircraft)
+                stat_update(Flight, instance)
+                total_all_update(Flight, instance)
+                weight_update(Flight, instance)
+                endorsement_update(Flight, instance)
+                power_update(Flight, instance)
+            refresh_operating_rule_summaries(self.user.pk)
         models = (Total, Stat, Regs, Power, Weight, Endorsement)
         before_sources = {model.__name__: list(model.objects.order_by('pk').values())
                           for model in (Flight, Imported)}
         foreign = {model.__name__: list(model.objects.filter(user=self.other).order_by('pk').values())
                    for model in models}
-        # Recreate the old inclusion of simulator duration, then upgrade it.
-        migration.restore(apps, schema)
-        migration.rebuild(apps, schema)
+        # Corrupt a cached number, then rebuild solely from unchanged source rows.
+        Total.objects.filter(user=self.user).update(total_time=999)
+        rebuild()
         self.assert_all_summaries()
         once = {model.__name__: list(model.objects.order_by('pk').values()) for model in models}
-        migration.rebuild(apps, schema)
+        rebuild()
         self.assertEqual(once, {model.__name__: list(model.objects.order_by('pk').values()) for model in models})
         for model in (Flight, Imported):
             self.assertEqual(before_sources[model.__name__], list(model.objects.order_by('pk').values()))

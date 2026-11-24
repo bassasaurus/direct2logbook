@@ -18,6 +18,7 @@ MESSAGES = {
     'flight_route_nonempty': ('route', 'Required'),
     'flight_registration_required': ('registration', 'Choose a tailnumber.'),
     'flight_device_type_valid': ('device_type', 'Select device type.'),
+    'flight_launch_method_valid': ('launch_method', 'Choose a launch method.'),
     'tailnumber_reg_nonempty': ('registration', 'Required'),
     'reminder_target_positive': ('target_hours', 'Target hours must be greater than 0.'),
     'reminder_milestone_target': ('target_hours', 'Required'),

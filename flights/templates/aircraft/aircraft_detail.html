@@ -6,8 +6,7 @@
 <section class="alert alert-danger" aria-label="Aircraft errors">
   <h5>Please correct the following errors</h5>
   <ul class="ps-3">
-    {% if power_error %}<li>Please select Piston or Turbine.</li>{% endif %}
-    {% if config_error %}<li>Please select the aircraft configuration.</li>{% endif %}
+    {% if power_error %}<li>Choose Piston, Turbine, or Electric.</li>{% endif %}
     {% if weight_error %}<li>Please choose a weight category.</li>{% endif %}
     {% if category_error %}<li>Please choose a category.</li>{% endif %}
     {% if class_error %}<li>Please choose a class.</li>{% endif %}
@@ -19,20 +18,30 @@
   <div class="col-12">
     <h4>{{ aircraft.aircraft_type }}</h4>
     <ul class="aircraft-detail-summary" aria-label="Aircraft characteristics">
-      {% if aircraft.aircraft_category or aircraft.aircraft_class %}<li>{{ aircraft.aircraft_category }}{{ aircraft.aircraft_class }}</li>{% endif %}
+      {% if aircraft.aircraft_category == 'A' or aircraft.aircraft_category == 'R' %}
+      <li>{{ aircraft.aircraft_category }}{{ aircraft.aircraft_class }}{% if not aircraft.aircraft_class %} — Class: Not recorded{% endif %}</li>
+      {% else %}
+      <li>Category: {{ aircraft.get_aircraft_category_display|default:'Not recorded' }}</li>
+      <li>Class: {{ aircraft.class_display }}</li>
+      {% endif %}
+      {% if aircraft.engine_type_required %}
       {% if aircraft.turbine %}<li>Turbine</li>{% endif %}
       {% if aircraft.piston %}<li>Piston</li>{% endif %}
+      {% if aircraft.electric %}<li>Electric</li>{% endif %}
+      {% endif %}
+      {% if aircraft.aircraft_category == 'GL' and aircraft.self_launch_capable %}<li>Self-launch capable</li>{% endif %}
+      {% if aircraft.aircraft_category == 'A' or aircraft.aircraft_category == 'R' or aircraft.aircraft_category == 'PL' %}
       {% if aircraft.requires_type %}<li>Type rating required</li>{% endif %}
+      {% endif %}
+      {% if aircraft.aircraft_category == 'A' %}
       {% if aircraft.tailwheel %}<li>Tailwheel</li>{% endif %}
-      {% if aircraft.simple %}<li>Simple</li>{% endif %}
       {% if aircraft.compleks %}<li>Complex</li>{% endif %}
       {% if aircraft.high_performance %}<li>High performance</li>{% endif %}
+      {% endif %}
       {% if aircraft.superr %}<li>Super</li>{% endif %}
       {% if aircraft.heavy %}<li>Heavy</li>{% endif %}
       {% if aircraft.large %}<li>Large</li>{% endif %}
-      {% if aircraft.medium %}<li>Medium</li>{% endif %}
       {% if aircraft.small %}<li>Small</li>{% endif %}
-      {% if aircraft.light_sport %}<li>LSA</li>{% endif %}
     </ul>
   </div>
 </div>

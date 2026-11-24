@@ -75,6 +75,12 @@ def geoJSON_routes_view(request, user_id):
 
 class AircraftAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetView):
 
+    def get_results(self, context):
+        results = super().get_results(context)
+        for result, aircraft in zip(results, context['object_list']):
+            result.update(aircraft_category=aircraft.aircraft_category, self_launch_capable=aircraft.self_launch_capable)
+        return results
+
     def get_queryset(self):
         # Don't forget to filter out results depending on the visitor !
         if not self.request.user.is_authenticated:
@@ -607,6 +613,10 @@ class AircraftUpdate(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, 
     template_name = 'aircraft/aircraft_update_form.html'
     success_url = reverse_lazy('aircraft_list')
 
+    @transaction.atomic
+    def form_valid(self, form):
+        return super().form_valid(form)
+
     def get_context_data(self, **kwargs):
         context = super(AircraftUpdate, self).get_context_data(**kwargs)
 
@@ -647,33 +657,30 @@ class AircraftDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, 
         else:
             context['is_imported'] = False
 
-        if not self.object.piston and not self.object.turbine:
+        from flights.aircraft_characteristics import engine_required
+        if engine_required(self.object.aircraft_category, self.object.aircraft_class) and not any((self.object.piston, self.object.turbine, self.object.electric)):
             context['power_error'] = True
         else:
             context['power_error'] = False
-
-        if not self.object.requires_type and not self.object.tailwheel and not self.object.simple and not self.object.compleks and not self.object.high_performance:
-            context['config_error'] = True
-        else:
-            context['config_error'] = False
 
         if self.object.aircraft_category == '':
             context['category_error'] = True
         else:
             context['category_error'] = False
 
-        if self.object.aircraft_class == '':
+        from flights.aircraft_classification import class_required
+        if class_required(self.object.aircraft_category) and self.object.aircraft_class == '':
             context['class_error'] = True
         else:
             context['class_error'] = False
 
-        if not self.object.superr and not self.object.heavy and not self.object.large and not self.object.medium and not self.object.small and not self.object.light_sport:
+        if not self.object.superr and not self.object.heavy and not self.object.large and not self.object.small:
             context['weight_error'] = True
         else:
             context['weight_error'] = False
 
         context['detail_has_errors'] = any(context.get(key) for key in (
-            'power_error', 'config_error', 'weight_error', 'category_error',
+            'power_error', 'weight_error', 'category_error',
             'class_error', 'aircraft_needs_tailnumber',
         ))
         context['title'] = "D-> | " + str(self.object)

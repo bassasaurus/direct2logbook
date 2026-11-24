@@ -5,6 +5,8 @@ from django.forms import inlineformset_factory
 from flights.models import Flight, Aircraft, TailNumber, Imported, Holding, Approach
 from django.contrib.auth.models import User
 from dal import autocomplete
+from flights.aircraft_classification import CLASS_CHOICES, CLASSES_BY_CATEGORY, class_required
+from flights.aircraft_characteristics import ENGINE_CHOICES, WAKE_CHOICES, engine_required, normalize_characteristics
 from flights.record_validation import (
     AIRCRAFT_SELECTIONS, OPERATING_RULES, validate_aircraft, validate_flight, validate_tailnumber,
 )
@@ -121,12 +123,26 @@ class FlightForm(UserOwnedRelationsFormMixin, forms.ModelForm):
         if self.is_bound and self.data.get('simulator') and 'registration' not in self.data and self.instance.pk:
             self.data = self.data.copy()
             self.data['registration'] = self.instance.registration_id or ''
+        from flights.launch_methods import launch_choices
+        available = list(self.fields['aircraft_type'].queryset.only('pk', 'aircraft_category', 'self_launch_capable'))
+        self.launch_aircraft_metadata = {str(row.pk): {'category': row.aircraft_category,
+            'self_launch_capable': row.self_launch_capable} for row in available}
+        selected = (self.data.get(self.add_prefix('aircraft_type')) if self.is_bound
+                    else self.initial.get('aircraft_type'))
+        aircraft = next((row for row in available if str(row.pk) == str(getattr(selected, 'pk', selected))), None)
+        self.launch_method_visible = bool(aircraft and aircraft.aircraft_category == 'GL'
+            and not (self.data.get(self.add_prefix('simulator')) if self.is_bound else self.initial.get('simulator')))
+        self.fields['launch_method'].choices = [('', 'Choose launch method')] + launch_choices(aircraft)
+        self.fields['launch_method'].error_messages['invalid_choice'] = 'Choose an available launch method.'
 
     def clean(self):
         cleaned = super().clean()
         if cleaned.get('simulator') and (cleaned.get('device_type') or cleaned.get('device_id')):
             cleaned['registration'] = None
         for field, message in validate_flight(cleaned, self.instance).items():
+            # Model.clean handles launch validation for forms, admin and imports.
+            if field == 'launch_method':
+                continue
             if field not in self.errors:
                 self.add_error(field, message)
         return cleaned
@@ -183,12 +199,12 @@ class FlightForm(UserOwnedRelationsFormMixin, forms.ModelForm):
             ),
             'aircraft_type': autocomplete.ModelSelect2(
                 url='aircraft-autocomplete',
-                attrs={'data-placeholder': 'Aircraft *'}
+                attrs={'data-placeholder': 'e.g. C172'}
             ),
             'registration': autocomplete.ModelSelect2(
                 url='tailnumber-autocomplete',
                 forward=['aircraft_type'],
-                attrs={'data-placeholder': 'Tailnumber *',
+                attrs={'data-placeholder': 'e.g. N12345',
                        },
             ),
 
@@ -225,14 +241,25 @@ HoldingFormSet = inlineformset_factory(
 
 class AircraftForm(UserOwnedRelationsFormMixin, forms.ModelForm):
     engine = forms.ChoiceField(required=False, widget=forms.RadioSelect,
-        choices=[('turbine', 'Turbine'), ('piston', 'Piston')])
+        choices=ENGINE_CHOICES)
     weight_category = forms.ChoiceField(required=False, widget=forms.RadioSelect,
-        choices=[('superr', 'Super'), ('heavy', 'Heavy'),
-                 ('large', 'Large'), ('medium', 'Medium'), ('small', 'Small'), ('light_sport', 'LSA')])
+        choices=WAKE_CHOICES, label='Wake Category')
     selection_groups = AIRCRAFT_SELECTIONS
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        category = self.data.get(self.add_prefix('aircraft_category'), '') if self.is_bound else self.initial.get('aircraft_category', '')
+        self.fields['simple'].disabled = True
+        self.fields['simple'].widget = forms.HiddenInput()
+        self.class_not_applicable = category in CLASSES_BY_CATEGORY and not class_required(category)
+        klass = self.data.get(self.add_prefix('aircraft_class'), '') if self.is_bound else self.initial.get('aircraft_class', '')
+        self.engine_not_applicable = not engine_required(category, klass)
+        self.fields['aircraft_class'].required = False  # Conditional shared validation below.
+        self.fields['aircraft_class'].widget.attrs['data-category-class'] = ''
+        self.fields['aircraft_category'].widget.attrs['data-aircraft-category'] = ''
+        self.classification_choices = {key: [list(choice) for choice in CLASS_CHOICES if choice[0] in codes]
+                                       for key, codes in CLASSES_BY_CATEGORY.items()}
+        self.classification_changed_warning = not self.instance._state.adding
         if not self.instance._state.adding:
             for name in ('aircraft_category', 'aircraft_class'):
                 if not getattr(self.instance, name):
@@ -243,6 +270,8 @@ class AircraftForm(UserOwnedRelationsFormMixin, forms.ModelForm):
         cleaned = super().clean()
         for group, fields in self.selection_groups.items():
             clean_radio_group(self, cleaned, group, fields)
+        cleaned = normalize_characteristics(cleaned, self.instance)
+        self.cleaned_data = cleaned
         for field, message in validate_aircraft(cleaned, self.instance, user=self.user).items():
             if field not in self.errors:
                 self.add_error(field, message)
@@ -259,9 +288,7 @@ class AircraftForm(UserOwnedRelationsFormMixin, forms.ModelForm):
             'superr': forms.CheckboxInput(),
             'heavy': forms.CheckboxInput(),
             'large': forms.CheckboxInput(),
-            'medium': forms.CheckboxInput(),
             'small': forms.CheckboxInput(),
-            'light_sport': forms.CheckboxInput(),
             'tailwheel': forms.CheckboxInput(),
             'simple': forms.CheckboxInput(),
             'compleks': forms.CheckboxInput(),
@@ -293,7 +320,7 @@ class TailNumberForm(UserOwnedRelationsFormMixin, forms.ModelForm):
         exclude = ['user']
         fields = '__all__'
         widgets = {
-            'aircraft': autocomplete.ModelSelect2(url='aircraft-autocomplete', attrs={'data-placeholder': 'Aircraft *'}),
+            'aircraft': autocomplete.ModelSelect2(url='aircraft-autocomplete', attrs={'data-placeholder': 'e.g. C172'}),
             'is_121': forms.CheckboxInput(),
             'is_135': forms.CheckboxInput(),
             'is_91': forms.CheckboxInput(),
@@ -309,12 +336,20 @@ class ImportedForm(UserOwnedRelationsFormMixin, forms.ModelForm):
     last_flown = forms.DateField(required=False, input_formats=DATE_INPUT_FORMATS, widget=NamedDateInput(format='%b %d, %Y'))
     owned_relation_fields = ('aircraft_type',)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for name, field in self.fields.items():
+            if isinstance(field, forms.DecimalField):
+                field.widget.attrs['placeholder'] = '##.#'
+            elif name in ('landings_day', 'landings_night'):
+                field.widget.attrs['placeholder'] = '#'
+
     class Meta:
         model = Imported
         exclude = ['user']
         fields = '__all__'
         widgets = {
-            'aircraft_type': autocomplete.ModelSelect2(url='aircraft-autocomplete', attrs={'data-placeholder': 'Aircraft *'}),
+            'aircraft_type': autocomplete.ModelSelect2(url='aircraft-autocomplete', attrs={'data-placeholder': 'e.g. C172'}),
             'is_121': forms.CheckboxInput(),
             'is_135': forms.CheckboxInput(),
             'is_91': forms.CheckboxInput(),

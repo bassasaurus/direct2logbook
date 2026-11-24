@@ -405,7 +405,7 @@ def _build_pdf(user):
 
     # endorsement_table
     endorsement_objects = Endorsement.objects.filter(user=user)
-    endorsements_that_exist = [e for e in endorsement_objects if e.total > 0.0]
+    endorsements_that_exist = [e for e in endorsement_objects if e.total > 0.0 and e.endorsement != 'Simple']
     endorsement_data = [[str(e.endorsement), str(e.total)]
                         for e in endorsements_that_exist]
     endorsement_header = ['Endorsement', 'Total']

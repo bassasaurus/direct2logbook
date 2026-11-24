@@ -4,6 +4,9 @@ from .date_formats import display_date
 
 class NamedDateInput(forms.DateInput):
     """Text date entry with an unambiguous, non-zero-padded display."""
+    def __init__(self, attrs=None, **kwargs):
+        super().__init__(attrs={'placeholder': 'Select date', **(attrs or {})}, **kwargs)
+
     def format_value(self, value):
         if value is None or value == '':
             return ''

@@ -37,3 +37,22 @@ class LoginLandingTests(TestCase):
         response = self.client.post(reverse('account_login'), {'login': self.user.email, 'password': 'wrong'})
         self.assertEqual(response.status_code, 200)
         self.assertNotIn('_auth_user_id', self.client.session)
+
+    def test_welcome_back_message_stays_visible_on_home(self):
+        self.login_with_access('home', active=True)
+        response = self.client.get(reverse('home'))
+        self.assertContains(response, 'Welcome back')
+        from html.parser import HTMLParser
+        class Alerts(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.alerts = []
+            def handle_starttag(self, tag, attrs):
+                attrs = dict(attrs)
+                if attrs.get('role') == 'alert':
+                    self.alerts.append(attrs)
+        parser = Alerts()
+        parser.feed(response.content.decode())
+        success = [attrs for attrs in parser.alerts if attrs.get('class') == 'text-success']
+        self.assertTrue(success)
+        self.assertNotIn('data-animate', success[0])

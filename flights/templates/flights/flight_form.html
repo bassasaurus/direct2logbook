@@ -3,9 +3,9 @@
 <fieldset class="mb-4"><legend class="visually-hidden">Flight basics</legend>
 <div class="row gx-2">
 <div class="mb-3 col-12 col-md-6">
-  <label class="visually-hidden" for="id_date">Date *</label>
+  <label class="form-label" for="id_date">Date</label>
   {{ form.date.errors }}
-<div class="d-flex align-items-start gap-3 flight-date-row"><div class="flex-grow-1">  {{ form.date |attr:"autocomplete:off" |attr:"placeholder:Date * (Nov 30, 2026)" |add_class:"form-control" }}</div>
+<div class="d-flex align-items-start gap-3 flight-date-row"><div class="flex-grow-1">  {{ form.date |attr:"autocomplete:off" |attr:"placeholder:Select date" |add_class:"form-control" }}</div>
     <div class="form-check flight-sim-toggle flex-shrink-0 mb-0">
       {{ form.simulator|attr:"id:id_simulator"|add_class:"form-check-input" }}
       <label class="form-check-label" for="id_simulator">Sim</label>{{ form.simulator.errors }}
@@ -16,17 +16,23 @@
 <div class="col-12 mb-3">
   <div class="d-flex align-items-start gap-2 flight-aircraft-identity">
     <div class="flex-grow-1" style="min-width:0;flex-basis:0">
-      <label class="visually-hidden" for="id_aircraft_type" id="aircraft-type-label">Aircraft Type *</label>
+      <label class="form-label" for="id_aircraft_type" id="aircraft-type-label">Aircraft Type</label>
       {{ form.aircraft_type.errors }}{{ form.aircraft_type }}
       <a class="d-inline-block mt-1" target="new" href="{% url 'aircraft_create' %}">New Aircraft</a>
     </div>
 
     <div class="flex-grow-1" id="flight-tailnumber-fields" style="min-width:0;flex-basis:0">
-      <label class="visually-hidden" for="id_registration">Tailnumber *</label>
+      <label class="form-label" for="id_registration">Tailnumber</label>
       {{ form.registration.errors }}{{ form.registration }}
       <a class="d-inline-block mt-1" target="new" href="{% url 'tailnumber_create' %}">New Tailnumber</a>
     </div>
   </div>
+</div>
+<div class="col-12 mb-3" id="flight-launch-fields"{% if not form.launch_method_visible %} hidden{% endif %}>
+  {{ form.launch_aircraft_metadata|json_script:'launch-aircraft-metadata' }}
+  <label class="form-label" for="{{ form.launch_method.id_for_label }}">Launch Method</label>
+  {{ form.launch_method|add_class:'form-select' }}
+  {% for error in form.launch_method.errors %}<div class="text-danger small">{% if error != 'Required' %}{{ error }}{% endif %}</div>{% endfor %}
 </div>
 <div class="col-12" id="flight-device-fields" {% if not form.simulator.value %}hidden{% endif %}>
   <fieldset class="border rounded p-3 mb-3">
@@ -34,14 +40,14 @@
     <p id="sim-stage-help" class="small text-muted mb-2" role="status" aria-live="polite"></p>
     <p class="small text-muted mb-2">Aircraft Type is the aircraft represented. Simulator time is recorded separately from aircraft flight totals.</p>
     <div class="row gx-2">
-      <div class="col-12 col-md-6 mb-2"><label for="id_device_type" class="form-label">Device Type *</label>
+      <div class="col-12 col-md-6 mb-2"><label for="id_device_type" class="form-label">Device Type</label>
         {{ form.device_type.errors }}{{ form.device_type|add_class:"form-select" }}
       </div>
-      <div class="col-12 col-md-6 mb-2"><label for="id_device_id" class="form-label">Device ID *</label>
-        {{ form.device_id.errors }}{{ form.device_id|add_class:"form-control"|attr:"placeholder:Device identifier" }}
+      <div class="col-12 col-md-6 mb-2"><label for="id_device_id" class="form-label">Device ID</label>
+        {{ form.device_id.errors }}{{ form.device_id|add_class:"form-control"|attr:"placeholder:e.g. FFS-1234" }}
       </div>
     </div>
-    <div id="atd-classification" class="mb-2"><label for="id_atd_type">ATD Classification *</label>
+    <div id="atd-classification" class="mb-2"><label class="form-label" for="id_atd_type">ATD Classification</label>
       {{ form.atd_type.errors }}{{ form.atd_type|add_class:"form-select" }}
     </div>
     <div class="form-check mt-2">{{ form.instrument_credit_eligible|add_class:"form-check-input" }}
@@ -52,20 +58,20 @@
   </fieldset>
 </div>
 <div class="mb-3 col-12 col-md-6">
-  <label class="visually-hidden" for="id_duration">Duration (hours) *</label>
+  <label class="form-label" for="id_duration">Duration</label>
   {{ form.duration.errors }}
-  {{ form.duration |attr:"placeholder:Duration * xx.x" |attr:"aria-describedby:duration-help" |add_class:"form-control" }}
+  {{ form.duration |attr:"placeholder:##.#" |attr:"aria-describedby:duration-help" |add_class:"form-control" }}
   <small id="duration-help" class="form-text text-muted">Hours to one decimal place, for example 1.5.</small>
 </div>
 <div class="mb-3 col-12 col-lg-6">
-  <label class="visually-hidden" for="route">Route *</label>
+  <label class="form-label" for="route">Route</label>
   {{ form.route.errors }}
-  {{ form.route |attr:"id:route" |attr:"autocomplete:off" |attr:"placeholder:Route * (e.g. IAH-LAX)" |attr:"aria-describedby:route-help" |add_class:"form-control" }}
+  {{ form.route |attr:"id:route" |attr:"autocomplete:off" |attr:"placeholder:e.g. IAH-LAX" |attr:"aria-describedby:route-help" |add_class:"form-control" }}
   {{ form.airport_choices }}{{ form.airport_choices.errors }}
   <div id="route-airport-feedback" class="mt-2" role="status" aria-live="polite" data-check-url="{% url 'route_airport_check' %}"></div>
   <small id="route-help" class="form-text text-muted">Use FAA, IATA or ICAO airport codes, for example 1G3-IAH or KIAH-KLAX. Spaces are formatted automatically.</small>
 </div>
-<div class="mb-3 col-12 col-lg-8 pt-lg-2"><div class="d-flex flex-wrap" role="group" aria-label="Role and flight type" id="flight-role-fields" tabindex="-1">
+<div class="mb-3 col-12"><fieldset class="border rounded p-3 mb-0"><legend class="float-none w-auto px-1 fs-6">Role</legend><div class="d-flex flex-wrap" role="group" aria-label="Role and flight type" id="flight-role-fields" tabindex="-1">
 <div class="form-check">
  {{ form.pilot_in_command|attr:"id:pic"|add_class:"form-check-input" }}
  <label class="form-check-label" for="pic">PIC</label>{{ form.pilot_in_command.errors }}
@@ -91,40 +97,40 @@
  {{ form.cross_country|attr:"id:id_cross_country"|add_class:"form-check-input" }}
  <label class="form-check-label" for="id_cross_country">Cross-country</label>{{ form.cross_country.errors }}
 </div>
-</div></div>
+</div></fieldset></div>
 </div></fieldset>
 <fieldset class="mb-4"><legend class="visually-hidden">Landings</legend><div class="row gx-2">
 <div class="mb-3 col-12 col-md-6">
-  <label class="visually-hidden" for="id_landings_day">Day landings</label>
+  <label class="form-label" for="id_landings_day">Day landings</label>
   {{ form.landings_day.errors }}
-  {{ form.landings_day |attr:"placeholder:Day landings" |add_class:"form-control" }}
+  {{ form.landings_day |attr:"placeholder:#" |add_class:"form-control" }}
 
 </div>
 <div class="mb-3 col-12 col-md-6">
-  <label class="visually-hidden" for="id_landings_night">Night landings</label>
+  <label class="form-label" for="id_landings_night">Night landings</label>
   {{ form.landings_night.errors }}
-  {{ form.landings_night |attr:"placeholder:Night landings" |add_class:"form-control" }}
+  {{ form.landings_night |attr:"placeholder:#" |add_class:"form-control" }}
 
 </div>
 </div></fieldset>
 <fieldset class="mb-4"><legend class="visually-hidden">Conditions</legend><div class="row gx-2">
 <div class="mb-3 col-12 col-md-4">
-  <label class="visually-hidden" for="id_night">Night (hours)</label>
+  <label class="form-label" for="id_night">Night</label>
   {{ form.night.errors }}
-  {{ form.night |attr:"placeholder:Night xx.x" |attr:"aria-describedby:night-time-warning" |add_class:"form-control" }}
+  {{ form.night |attr:"placeholder:##.#" |attr:"aria-describedby:night-time-warning" |add_class:"form-control" }}
   <small id="night-time-warning" class="text-warning" role="status" hidden>Night Time Required</small>
 
 </div>
 <div class="mb-3 col-12 col-md-4">
-  <label class="visually-hidden" for="id_instrument">Actual Instrument (hours)</label>
+  <label class="form-label" for="id_instrument">Actual Instrument</label>
   {{ form.instrument.errors }}
-  {{ form.instrument |attr:"placeholder:Actual Instrument xx.x" |add_class:"form-control" }}
+  {{ form.instrument |attr:"placeholder:##.#" |add_class:"form-control" }}
 
 </div>
 <div class="mb-3 col-12 col-md-4">
-  <label class="visually-hidden" for="id_simulated_instrument">Simulated Instrument (hours)</label>
+  <label class="form-label" for="id_simulated_instrument">Simulated Instrument</label>
   {{ form.simulated_instrument.errors }}
-  {{ form.simulated_instrument |attr:"placeholder:Simulated Instrument xx.x" |add_class:"form-control" }}
+  {{ form.simulated_instrument |attr:"placeholder:##.#" |add_class:"form-control" }}
 
 </div>
 </div></fieldset>
@@ -162,9 +168,9 @@
 </div>
 </fieldset>
 <div class="mb-3">
-  <label class="visually-hidden" for="id_remarks">Remarks</label>
+  <label class="form-label" for="id_remarks">Remarks</label>
   {{ form.remarks.errors }}
-  {{ form.remarks|attr:"placeholder:Remarks"|add_class:"form-control"|attr:"aria-describedby:remarks-help" }}
+  {{ form.remarks|attr:"placeholder:Optional notes or links"|add_class:"form-control"|attr:"aria-describedby:remarks-help" }}
   <small id="remarks-help" class="form-text text-muted">500-character limit. Paste a URL to include a clickable link.</small>
 </div>
 </div>
@@ -178,4 +184,5 @@ $(function () {
 
 <script src="{% static 'js/simulator_validation.js' %}?v=staged-1"></script>
 
-<script src="{% static 'js/flight_form_validation.js' %}?v=inline-1" defer></script>
+<script src="{% static 'js/flight_form_validation.js' %}?v=outline-feedback-3" defer></script>
+<script src="{% static 'js/glider_launch.js' %}" defer></script>

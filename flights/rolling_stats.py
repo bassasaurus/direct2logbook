@@ -8,6 +8,7 @@ from django.db.models import Max, Q, Sum
 from django.utils import timezone
 
 from flights.models import Flight, Imported, Stat, Total
+from flights.aircraft_classification import SUMMARY_CLASSIFICATIONS
 
 
 # Fixed rolling-day cutoffs, including the cutoff date and as-of date.
@@ -16,15 +17,10 @@ from flights.models import Flight, Imported, Stat, Total
 WINDOW_DAYS = {'last_30': 30, 'last_60': 60, 'last_90': 90,
                'last_180': 180, 'last_yr': 365, 'last_2yr': 730}
 ROLLING_FIELDS = tuple(WINDOW_DAYS) + ('ytd', 'last_flown')
-CATEGORY_FILTERS = {
-    'All': Q(),
-    'ASEL': Q(aircraft_type__aircraft_category='A', aircraft_type__aircraft_class='SEL'),
-    'AMEL': Q(aircraft_type__aircraft_category='A', aircraft_type__aircraft_class='MEL'),
-    'ASES': Q(aircraft_type__aircraft_category='A', aircraft_type__aircraft_class='SES'),
-    'AMES': Q(aircraft_type__aircraft_category='A', aircraft_type__aircraft_class='MES'),
-    'HELO': Q(aircraft_type__aircraft_category='R', aircraft_type__aircraft_class='HELO'),
-    'GYRO': Q(aircraft_type__aircraft_category='R', aircraft_type__aircraft_class='GYRO'),
-}
+CATEGORY_FILTERS = {'All': Q(), **{
+    key: Q(aircraft_type__aircraft_category=category, aircraft_type__aircraft_class=klass)
+    for key, (category, klass) in SUMMARY_CLASSIFICATIONS.items()
+}}
 
 
 def normalize_total_category(label):

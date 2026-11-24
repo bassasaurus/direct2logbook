@@ -765,3 +765,101 @@ section:has(.other-reminders:not([open])) + .reminders-bottom-divider { display:
   float: none;
   margin: 0;
 }
+
+/* Row and column tracking use the same color, without extra cell emphasis. */
+@media screen {
+  .table-scroll-shell { position: relative; min-width: 0; max-width: 100%; }
+  .table-scroll-hint { position: absolute; top: 50%; transform: translateY(-50%); z-index: 6;
+    width: 28px; height: 36px; padding: 0; border: 1px solid var(--bs-border-color, #ccc);
+    border-radius: 6px; background: var(--bs-body-bg, #fff); color: var(--bs-link-color, #0d6efd);
+    font-size: 28px; line-height: 1; box-shadow: 0 1px 5px #0002; }
+  .table-scroll-left { left: 2px; }
+  .table-scroll-right { right: 2px; }
+  .table-scroll-hint:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+}
+@media screen and (hover: hover) and (pointer: fine) {
+  :is(table.table, table#logbook) { --table-row-tint: #ebf5ff; }
+  html[data-bs-theme="dark"] :is(table.table, table#logbook) { --table-row-tint: #283b52; }
+  :is(table.table, table#logbook) .table-row-hover > :is(td,th):not(.iacra-shaded) { background-color: var(--table-row-tint) !important; }
+  :is(table.table, table#logbook) .table-column-hover:not(.iacra-shaded) { box-shadow: inset 0 0 0 9999px var(--table-row-tint); }
+}
+@media print {
+  .table-scroll-hint { display: none !important; }
+  :is(table.table, table#logbook) .table-column-hover { box-shadow: none !important; }
+}
+
+/* Aircraft and tailnumber forms follow the mobile card and selection layout. */
+.record-form-card { max-width: 44rem; border-radius: 12px; }
+.record-form-card > .card-body { padding: 24px; }
+.mobile-record-form .form-label { display: block; font-size: 1rem; font-weight: 600; margin-bottom: 6px; }
+.mobile-record-form .form-control { min-height: 44px; border-radius: 5px; }
+.mobile-record-form .select2-container .select2-selection--single { min-height: 44px; border-radius: 5px; }
+.mobile-record-form .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 42px; }
+.mobile-record-form .select2-container--default .select2-selection--single .select2-selection__arrow { height: 42px; }
+.record-choice { position: relative; }
+.record-choice > input[type="radio"] { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.record-choice-label { display: block; min-height: 44px; padding: 10px 14px; margin: 0;
+  border: 1px solid var(--bs-border-color, #ccc); border-radius: 5px; cursor: pointer;
+  color: var(--bs-body-color); background: var(--bs-body-bg); font-size: 1rem; }
+.record-choice > input:checked + .record-choice-label { border-color: var(--bs-primary); color: var(--bs-link-color); background: rgba(13,110,253,.08); }
+.record-choice > input:focus-visible + .record-choice-label { outline: 2px solid var(--bs-primary); outline-offset: 2px; }
+.record-choice > input:disabled + .record-choice-label { opacity: .6; cursor: default; }
+.record-equipment-options { display: flex; flex-direction: column; gap: 14px; }
+.mobile-record-form .record-switch { display: flex; flex-direction: row-reverse; justify-content: space-between; align-items: center; gap: 16px; padding-left: 0; margin: 0; }
+.mobile-record-form .record-switch > .form-check-input { float: none; flex-shrink: 0; margin: 0; width: 2.4em; height: 1.3em; }
+.mobile-record-form .record-switch > label { margin: 0; font-size: 1rem; }
+.record-form-actions { padding-top: 16px; margin-top: 8px; border-top: 1px solid var(--bs-border-color, #ddd); }
+.record-form-actions .btn { min-height: 46px; font-size: 1rem; }
+@media (max-width: 575px) { .record-form-card > .card-body { padding: 16px; } }
+
+.mobile-record-form .flight-entry-fields > fieldset { margin-bottom: 16px !important; }
+.mobile-record-form .flight-entry-fields .flight-sim-toggle { min-height: 44px; }
+.mobile-record-form .flight-entry-fields fieldset > legend:not(.visually-hidden) { font-weight: 600; }
+
+/* Required entries use an outline rather than asterisks. */
+.asteriskField { display: none; }
+form .form-control:required:invalid, form .form-select:required:invalid,
+form select:required:invalid + .select2-container .select2-selection,
+form select:required:invalid ~ .select2-container .select2-selection,
+form fieldset:has(input[type="radio"]):not(:has(input:checked)) .record-choice-label {
+  border-color: var(--bs-danger, #dc3545) !important;
+}
+
+/* Show validation through field color, without circular status icons. */
+form .form-control.is-invalid, form.was-validated .form-control:invalid,
+form .form-control.is-valid, form.was-validated .form-control:valid {
+  background-image: none !important;
+  padding-right: .75rem;
+}
+form .form-select.is-invalid, form .form-select.is-valid,
+form.was-validated .form-select { --bs-form-select-bg-icon: none; }
+form .form-control.is-invalid, form .form-select.is-invalid,
+form .form-control:required:invalid, form .form-select:required:invalid,
+form select.is-invalid ~ .select2-container .select2-selection,
+form select:required:invalid ~ .select2-container .select2-selection {
+  border-color: var(--bs-danger, #dc3545) !important;
+}
+
+@media screen {
+  html[data-bs-theme="dark"] form :is(.form-control,.form-select).is-invalid,
+  html[data-bs-theme="dark"] form :is(.form-control,.form-select):required:invalid,
+  html[data-bs-theme="dark"] form select.is-invalid ~ .select2-container .select2-selection,
+  html[data-bs-theme="dark"] form select:required:invalid ~ .select2-container .select2-selection {
+    border-color: #ffb1b8 !important;
+  }
+}
+
+/* Conditional choice groups use the same outline as required text inputs. */
+form fieldset[data-required-choice] {
+  border: 1px solid var(--bs-border-color, #ccc); border-radius: 5px; padding: 12px;
+}
+form fieldset[data-required-choice] > legend { float: none; width: auto; padding: 0 4px; }
+form fieldset[data-required-choice]:not(:has(input:checked)),
+form fieldset.required-choice-empty { border-color: var(--bs-danger, #dc3545) !important; }
+@media screen {
+  html[data-bs-theme="dark"] form fieldset[data-required-choice]:not(:has(input:checked)),
+  html[data-bs-theme="dark"] form fieldset.required-choice-empty,
+  html[data-bs-theme="dark"] form fieldset[data-required-choice]:not(:has(input:checked)) .record-choice-label {
+    border-color: #ffb1b8 !important;
+  }
+}
