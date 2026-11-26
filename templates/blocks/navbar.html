@@ -1,6 +1,6 @@
 {% load static %}
 <nav class="navbar navbar-dark fixed-top navbar-expand-lg" role="navigation">
-  <div class="d-flex align-items-center gap-1 d-lg-none">
+  <div class="d-flex align-items-center gap-1 ps-3 d-lg-none">
     <button type="button" class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -14,7 +14,7 @@
   {% elif request.path != '/' %}
     <a class="navbar-brand" href="{% url 'index' %}"><img src="{% static 'theme/images/D2LB_LOGO_White_LtoR.png' %}" width="300" alt="Direct2Logbook"></a>
   {% endif %}
-  <div class="collapse navbar-collapse justify-content-end" id="navbar-collapse">
+  <div class="collapse navbar-collapse justify-content-end px-3 px-lg-0" id="navbar-collapse">
     <ul class="navbar-nav">
       {% if user.is_authenticated %}
         <li class="nav-item"><a class="nav-link" href="{% url 'flight_create' %}">New Flight</a></li>
