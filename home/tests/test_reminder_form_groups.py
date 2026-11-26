@@ -51,6 +51,6 @@ class ReminderFormGroupTests(TestCase):
         self.assertEqual([section['key'] for section in milestones.context['reminder_groups']], ['milestones'])
         self.assertContains(regulatory, 'IPC check')
         self.assertNotContains(milestones, 'IPC check')
-        self.assertContains(milestones, '12345.0')
-        self.assertNotContains(regulatory, '12345.0')
+        self.assertContains(milestones, 'Total 0.0/12345')
+        self.assertNotContains(regulatory, 'Total 0.0/12345')
         self.assertNotContains(milestones, 'id="medical-heading"')
