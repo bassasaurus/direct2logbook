@@ -71,7 +71,7 @@ def pdf_status(request, request_id):
             status = PDFRequest.Status.UNCERTAIN
         elif status in (PDFRequest.Status.QUEUED, PDFRequest.Status.PROCESSING, PDFRequest.Status.RETRYING):
             status = 'delayed'
-            messages[status] = 'Your Lobook request is taking longer than expected. Contact support before requesting another copy.'
+            messages[status] = 'Your Logbook request is taking longer than expected. Contact support before requesting another copy.'
     payload = {'status': status, 'message': messages[status]}
     if status == PDFRequest.Status.SENT:
         age_ms = (timezone.now() - job.updated_at).total_seconds() * 1000

@@ -57,6 +57,6 @@ class AircraftRenameReminderTests(TestCase):
         self.assertEqual({row['id'] for row in rows}, {r.pk for r in reminders})
         for row in rows:
             self.assertEqual(row['aircraft'], aircraft.pk)
-            self.assertIn('B737', row['progress_label'])
-            self.assertIn('2.0', row['progress_label'])
+            prefix = 'B737 SIC' if row['kind'] == 'crew_in_type' else 'B737'
+            self.assertEqual(row['progress_label'], f'{prefix} 2.0/5 | -3')
             self.assertIn('B737', row['goal_label'])
