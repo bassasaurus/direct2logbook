@@ -500,7 +500,11 @@ body.app-layout {
   margin-right: .75rem;
 }
 
-.flight-entry-fields .select2-container { width: 100% !important; }
+.flight-entry-fields .select2-container {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100%;
+}
 .flight-entry-fields fieldset { min-width: 0; }
 .flight-entry-fields legend { margin-bottom: 1rem; }
 .flight-entry-fields #approach_form td { padding: .25rem .5rem .25rem 0; }
