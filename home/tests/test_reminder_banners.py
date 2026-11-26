@@ -175,7 +175,7 @@ class ReminderBannerTests(TestCase):
         for hours, expected in [('11383.5', '-10'), ('11403.5', '+10'), ('11393.5', '0'),
                                 ('11393.4', '-0.1'), ('11393.6', '+0.1')]:
             self.assertEqual(reminder.milestone_progress_label(Decimal(hours)),
-                             f'Total {Decimal(hours):.1f} / 11393.5 | {expected}')
+                             f'Total {Decimal(hours):.1f}/11393.5 | {expected}')
 
     @patch('django.utils.timezone.localdate', return_value=date(2026, 11, 21))
     def test_medical_stays_outside_collapsible_reminders_at_every_severity(self, localdate):

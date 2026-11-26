@@ -32,7 +32,7 @@ class FlightConditionMilestoneTests(TestCase):
                 reminder = form.save_for_user(self.user)
                 hours = milestone_hours(reminder, date.today())
                 self.assertEqual(hours, self.values[condition])
-                self.assertEqual(reminder.milestone_label(hours), f'{label} {hours:.1f} / 100.0')
+                self.assertEqual(reminder.milestone_label(hours), f'{label} {hours:.1f}/100')
                 self.assertIsNone(reminder.aircraft_id)
                 self.assertEqual(reminder_groups([{'kind': reminder.kind}])[1]['rows'], [{'kind': reminder.kind}])
 
@@ -49,7 +49,7 @@ class FlightConditionMilestoneTests(TestCase):
         url = reverse('mobile_manage_reminders')
         response = self.mobile.post(url, {'kind': 'flight_condition', 'condition': 'instructor', 'target_hours': '60'}, format='json')
         self.assertEqual(response.status_code, 201, response.data)
-        self.assertEqual(response.data['progress_label'], 'CFI 50.3 / 60.0 | -9.7')
+        self.assertEqual(response.data['progress_label'], 'CFI 50.3/60 | -9.7')
         self.assertEqual(response.data['condition'], 'instructor')
         reminder = Reminder.objects.get(pk=response.data['id'])
         notice = reminder_notice(reminder, date.today(), Decimal('50.3'))
@@ -61,7 +61,7 @@ class FlightConditionMilestoneTests(TestCase):
         self.assertEqual(response.status_code, 200, response.data)
         reminder.refresh_from_db()
         self.assertEqual(reminder.dismissed_key, '')
-        self.assertEqual(response.data['progress_label'], 'Sim 60.3 / 100.0 | -39.7')
+        self.assertEqual(response.data['progress_label'], 'Sim 60.3/100 | -39.7')
 
     def test_switching_kind_clears_condition(self):
         reminder = Reminder.objects.create(user=self.user, kind='flight_condition', title='Flight Conditions', condition='solo', target_hours=100)
