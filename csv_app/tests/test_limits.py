@@ -1,5 +1,6 @@
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, override_settings
+from django.core.exceptions import ImproperlyConfigured
 from csv_app.validation import MAX_BYTES, MAX_ROWS, CSVValidationError, parse_csv
 from csv_app.formats import prepare_csv
 from csv_app.mapping import read_source
@@ -25,3 +26,18 @@ class CSVLimitTests(SimpleTestCase):
         parsed,preview=parse_csv(content([row()]*10_000))
         self.assertEqual(len(parsed),10_000)
         self.assertEqual(len(preview),10_000)
+
+    @override_settings(CSV_IMPORT_MAX_ROWS=1000,CSV_IMPORT_MAX_BYTES=2*1024*1024)
+    def test_production_can_keep_lower_ceilings(self):
+        from csv_app.validation import configured_import_limits
+        self.assertEqual(configured_import_limits(),(1000,2*1024*1024))
+
+    @override_settings(CSV_IMPORT_MAX_ROWS=10001)
+    def test_configuration_cannot_exceed_tested_row_ceiling(self):
+        from csv_app.validation import configured_import_limits
+        with self.assertRaises(ImproperlyConfigured):configured_import_limits()
+
+    @override_settings(CSV_IMPORT_MAX_BYTES=21*1024*1024)
+    def test_configuration_cannot_exceed_tested_byte_ceiling(self):
+        from csv_app.validation import configured_import_limits
+        with self.assertRaises(ImproperlyConfigured):configured_import_limits()

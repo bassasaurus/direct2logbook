@@ -67,6 +67,10 @@ ALLAUTH_TRUSTED_PROXY_COUNT = config(
 )
 # Identify the site to external map tiles without sharing page paths.
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
+# Deployment-specific ceilings may be lower than the tested application limits.
+CSV_IMPORT_MAX_ROWS = config('CSV_IMPORT_MAX_ROWS', default=10_000, cast=int)
+CSV_IMPORT_MAX_BYTES = config('CSV_IMPORT_MAX_BYTES', default=20 * 1024 * 1024, cast=int)
+
 CSRF_USE_SESSIONS = True
 CSRF_FAILURE_VIEW = 'accounts.security.csrf_failure'
 SESSION_COOKIE_SECURE = True

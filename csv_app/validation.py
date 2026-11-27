@@ -7,8 +7,19 @@ from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 
 from .formatters import format_route
 
-MAX_BYTES = 20 * 1024 * 1024
-MAX_ROWS = 10_000
+def configured_import_limits():
+    from django.conf import settings
+    from django.core.exceptions import ImproperlyConfigured
+    rows = getattr(settings, 'CSV_IMPORT_MAX_ROWS', 10_000)
+    size = getattr(settings, 'CSV_IMPORT_MAX_BYTES', 20 * 1024 * 1024)
+    if not isinstance(rows, int) or not 1 <= rows <= 10_000:
+        raise ImproperlyConfigured('CSV_IMPORT_MAX_ROWS must be between 1 and 10000.')
+    if not isinstance(size, int) or not 1024 * 1024 <= size <= 20 * 1024 * 1024:
+        raise ImproperlyConfigured('CSV_IMPORT_MAX_BYTES must be between 1 MiB and 20 MiB.')
+    return rows, size
+
+
+MAX_ROWS, MAX_BYTES = configured_import_limits()
 HEADERS = ['date', 'aircraft', 'registration', 'route', 'duration',
            'pilot in command', 'second in command', 'cross country', 'night',
            'instrument', 'approaches', 'day landing', 'night landing',

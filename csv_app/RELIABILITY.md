@@ -598,3 +598,22 @@ request timeouts on the actual production machine. These local acceptance
 checks are not a production load test or justification to increase concurrency.
 Django's general request-body limit is not raised: file uploads spool through
 the existing upload handlers, and correction/record forms remain paginated.
+
+
+Production release choice (Nov 27, 2026): the existing server has 1 GiB RAM,
+approximately 561 MiB available, and 608 MiB swap in use. Keep its current
+1,000-entry / 2 MiB ceilings using environment settings:
+
+```dotenv
+CSV_IMPORT_MAX_ROWS=1000
+CSV_IMPORT_MAX_BYTES=2097152
+```
+
+Defaults remain 10,000 / 20 MiB for local validation or adequately provisioned
+servers. Configuration may lower, but not exceed, those tested ceilings. Restart
+both Django and Celery after changing environment values; all ingestion services
+and rendered upload guidance use the same configured values. Current production
+Nginx already allows 4 GiB requests, so no Nginx change is required for this release.
+Do not raise worker concurrency or production import ceilings without a new
+capacity review. The user chose to retain the server and deploy the wizard with
+its existing production limits.
