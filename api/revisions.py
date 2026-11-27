@@ -13,6 +13,8 @@ def flight_revision(flight):
     )
     from flights.models import Approach, Holding
     values = {name: getattr(flight, name) for name in names}
+    if flight.night_landings_full_stop is not None:
+        values['night_landings_full_stop'] = flight.night_landings_full_stop
     # Empty new metadata must not invalidate revisions queued by older clients.
     for name in ('device_type', 'device_id', 'atd_type', 'instrument_credit_eligible', 'launch_method'):
         if getattr(flight, name, ''):

@@ -106,6 +106,7 @@ class UserOwnedRelationsFormMixin:
 
 
 class FlightForm(UserOwnedRelationsFormMixin, forms.ModelForm):
+    night_landings_full_stop = forms.BooleanField(required=False, label='Full Stop')
     date = forms.DateField(input_formats=DATE_INPUT_FORMATS, widget=NamedDateInput(format='%b %d, %Y'))
     owned_relation_fields = ('aircraft_type', 'registration')
 
@@ -114,6 +115,7 @@ class FlightForm(UserOwnedRelationsFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['registration'].required = False
+        self.fields['remarks'].strip = False
         self.fields['route'].required = False
         self.initial['airport_choices'] = self.instance.route_airport_choices or {}
         if not self.is_bound and self.instance._state.adding and self.user is not None and not self.initial.get('aircraft_type'):
@@ -311,6 +313,18 @@ class TailNumberForm(UserOwnedRelationsFormMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         initialize_radio_groups(self, {'operating_rules': self.rule_fields})
+        # Mirror server validation while keeping untouched historical records editable.
+        previous = self.instance.registration if self.instance.pk else ''
+        attrs = self.fields['registration'].widget.attrs
+        attrs['pattern'] = r'[\s\S]{3,8}'
+        attrs['title'] = 'Use 3–8 characters.'
+        if previous and not 3 <= len(previous) <= 8:
+            escaped = ''.join('\\' + char if char in r'\^$.*+?()[]{}|' else char for char in previous)
+            attrs['pattern'] = '(?:' + escaped + r'|[\s\S]{3,8})'
+        else:
+            attrs.update(minlength=3, maxlength=8)
+        if self.instance._state.adding or sum(bool(getattr(self.instance, name)) for name in self.rule_fields) == 1:
+            self.fields['operating_rules'].widget.attrs['required'] = True
 
     def clean(self):
         cleaned = super().clean()

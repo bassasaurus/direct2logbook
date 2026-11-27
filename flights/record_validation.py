@@ -1,5 +1,6 @@
 """Validation shared by web forms and API writes for logbook records."""
 import re
+from decimal import Decimal, InvalidOperation
 from flights.aircraft_classification import CLASSES_BY_CATEGORY, class_required
 from flights.aircraft_characteristics import ENGINE_FIELDS, WAKE_FIELDS, engine_required
 
@@ -25,6 +26,20 @@ def fields_changed(values, instance, normalize=lambda value: value):
 
 def validate_flight(data, instance):
     errors = {}
+    landing = effective_values(data, instance, ('night_landings_full_stop', 'landings_night', 'night'))
+    if landing['night_landings_full_stop']:
+        if not (landing['landings_night'] or 0) > 0:
+            errors['night_landings_full_stop'] = 'Enter Night landings.'
+        if not (landing['night'] or 0) > 0:
+            errors['night'] = 'Night time required for Full Stop.'
+    hours = effective_values(data, instance, ('night', 'duration'))
+    try:
+        night = Decimal(str(hours['night'] or 0))
+        duration = Decimal(str(hours['duration']))
+        if night.is_finite() and duration.is_finite() and duration >= 0 and night > duration:
+            errors['night'] = 'Night cannot exceed Duration.'
+    except (InvalidOperation, TypeError, ValueError):
+        pass  # Numeric/required field validators provide the relevant error.
     from flights.launch_methods import validate_launch_method
     errors.update(validate_launch_method(data, instance))
     links = effective_values(data, instance, ('aircraft_type', 'registration'))

@@ -4,6 +4,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.views.generic import TemplateView, UpdateView
 from .models import Profile
+from .access import has_logbook_access
 from .billing import cancellation_scheduled, billing_period_expired
 from .forms import MedicalForm, ProfileForm
 import uuid
@@ -26,12 +27,7 @@ class ProfileNotActiveMixin(UserPassesTestMixin, View):
         user = self.request.user
         profile = Profile.objects.get(user=user)
 
-        if profile.active and not profile.expired:
-            return True
-        elif profile.trial:
-            return True
-        else:
-            return False
+        return has_logbook_access(profile)
 
     def handle_no_permission(self):
 

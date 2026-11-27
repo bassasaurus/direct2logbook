@@ -116,6 +116,24 @@ class AircraftFormTests(TestCase):
 
 
 class TailNumberFormTests(TestCase):
+    def test_browser_requirements_match_new_tailnumber_rules(self):
+        form = TailNumberForm()
+        self.assertEqual(form.fields['registration'].widget.attrs['minlength'],3)
+        self.assertEqual(form.fields['registration'].widget.attrs['maxlength'],8)
+        self.assertTrue(form.fields['operating_rules'].widget.attrs['required'])
+
+    def test_untouched_historical_registration_and_missing_rule_remain_editable(self):
+        import re
+        from flights.models import TailNumber
+        existing = TailNumber(pk=100,registration='N1',is_91=False,is_135=False,is_121=False)
+        existing._state.adding = False
+        form = TailNumberForm(instance=existing)
+        pattern = form.fields['registration'].widget.attrs['pattern']
+        self.assertIsNotNone(re.fullmatch(pattern,'N1'))
+        self.assertIsNotNone(re.fullmatch(pattern,'N12345'))
+        self.assertIsNone(re.fullmatch(pattern,'X'))
+        self.assertFalse(form.fields['operating_rules'].widget.attrs.get('required',False))
+
     def test_operating_rules_radio_maps_to_saved_booleans(self):
         from flights.models import Aircraft
         owner = User.objects.create_user(username='radio-owner')

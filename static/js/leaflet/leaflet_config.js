@@ -1,3 +1,6 @@
+// Local-flight display radius: 10 statute miles, expressed in Leaflet meters.
+var localFlightRadiusMeters = 10 * 1609.344;
+
 // map init
 var mymap = L.map('mapid', {
   preferCanvas: true,

@@ -68,6 +68,7 @@ ALLAUTH_TRUSTED_PROXY_COUNT = config(
 # Identify the site to external map tiles without sharing page paths.
 SECURE_REFERRER_POLICY = "strict-origin-when-cross-origin"
 CSRF_USE_SESSIONS = True
+CSRF_FAILURE_VIEW = 'accounts.security.csrf_failure'
 SESSION_COOKIE_SECURE = True
 SECURE_SSL_REDIRECT = True
 CSRF_COOKIE_DOMAIN = config('CSRF_COOKIE_DOMAIN')

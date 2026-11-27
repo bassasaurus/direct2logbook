@@ -21,6 +21,18 @@ class CSVImportBatch(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     content = models.TextField()
+    source_digest = models.CharField(max_length=64, blank=True, default='', db_index=True)
+    mapping_complete = models.BooleanField(default=True)
+    source_metadata = models.JSONField(default=dict, blank=True)
+    column_mapping = models.JSONField(default=dict, blank=True)
+    rows_complete = models.BooleanField(default=True)
+    row_data = models.JSONField(default=dict, blank=True)
+    records_complete = models.BooleanField(default=True)
+    record_resolution = models.JSONField(default=dict, blank=True)
+    overlap_review = models.JSONField(default=dict, blank=True)
+    date_order = models.CharField(max_length=12, blank=True, default='',
+        choices=[('pending', 'Needs a date format'), ('mdy', 'Month/Day/Year'),
+                 ('dmy', 'Day/Month/Year'), ('unambiguous', 'Unambiguous')])
     row_count = models.PositiveIntegerField()
     completed = models.BooleanField(default=False)
     status = models.CharField(max_length=20, choices=Status.choices, default=Status.PREVIEW, db_index=True)
@@ -33,7 +45,10 @@ class CSVImportBatch(models.Model):
     completed_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        constraints = [models.CheckConstraint(
+        constraints = [models.UniqueConstraint(
+            fields=['user', 'source_digest'],
+            condition=~models.Q(source_digest='') & models.Q(status__in=('queued', 'unconfirmed', 'processing', 'completed')),
+            name='csv_unique_submitted_source'), models.CheckConstraint(
             condition=models.Q(status__in=('preview', 'queued', 'unconfirmed', 'processing', 'completed', 'failed')),
             name='csv_import_status_valid')]
 

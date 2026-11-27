@@ -492,7 +492,7 @@ def _build_pdf(user):
     logbook_rows = []
     for f in flight_objects:
         date_str = display_date(f.date)
-        approach_lines = [escape(f'{approach.approach_type} × {approach.number}')
+        approach_lines = [escape(f'{approach.approach_type or "Unspecified"} × {approach.number}')
                           for approach in f.approach_set.all()]
         appr = Paragraph('<br/>'.join(approach_lines), approach_style) if approach_lines else ''
         hold = 'Yes' if any(h.hold for h in f.holding_set.all()) else '-'

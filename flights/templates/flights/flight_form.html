@@ -1,4 +1,4 @@
-{% load static widget_tweaks %}
+{% load static widget_tweaks flights_filters %}
 <div class="flight-entry-fields">
 {% if not form.instance.pk %}{{ form.flight_defaults_metadata|json_script:'flight-aircraft-defaults-data' }}{% endif %}
 <fieldset class="mb-4"><legend class="visually-hidden">Flight basics</legend>
@@ -110,7 +110,7 @@
 <div class="mb-3 col-12 col-md-6">
   <label class="form-label" for="id_landings_night">Night landings</label>
   {{ form.landings_night.errors }}
-  {{ form.landings_night |attr:"placeholder:#" |add_class:"form-control" }}
+  <div class="d-flex flex-wrap align-items-center gap-2"><div style="flex:1 1 9rem;min-width:5rem">{{ form.landings_night|attr:"placeholder:#"|add_class:"form-control" }}</div><div class="form-check mb-0" style="flex:0 0 auto;white-space:nowrap">{{ form.night_landings_full_stop|add_class:"form-check-input" }}<label class="form-check-label" for="id_night_landings_full_stop">Full Stop</label></div></div>{{ form.night_landings_full_stop.errors }}
 
 </div>
 </div></fieldset>
@@ -172,6 +172,7 @@
   <label class="form-label" for="id_remarks">Remarks</label>
   {{ form.remarks.errors }}
   {{ form.remarks|attr:"placeholder:Optional notes or links"|add_class:"form-control"|attr:"aria-describedby:remarks-help" }}
+  {% if form.remarks.value|remarks_has_separators %}<div class="small text-break mt-1" style="white-space:pre-wrap" aria-label="Remarks character preview">{{ form.remarks.value|visible_remarks_separators }}</div>{% endif %}
   <small id="remarks-help" class="form-text text-muted">500-character limit. Paste a URL to include a clickable link.</small>
 </div>
 </div>
@@ -185,6 +186,6 @@ $(function () {
 
 <script src="{% static 'js/simulator_validation.js' %}?v=staged-1"></script>
 
-<script src="{% static 'js/flight_form_validation.js' %}?v=outline-feedback-3" defer></script>
+<script src="{% static 'js/flight_form_validation.js' %}?v=remarks-export-messages-3" defer></script>
 {% if not form.instance.pk %}<script src="{% static 'js/flight_aircraft_defaults.js' %}" defer></script>{% endif %}
 <script src="{% static 'js/glider_launch.js' %}" defer></script>

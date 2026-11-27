@@ -1,0 +1,29 @@
+{% load date_display %}
+<section class="my-3" aria-labelledby="csv-import-summary-heading">
+  <h6 id="csv-import-summary-heading">Import summary</h6>
+  <div class="row g-2">
+    <div class="col-sm-6 col-lg-3"><div class="border rounded p-2 h-100">
+      <div class="small text-muted">Entries</div><strong>{{ import_summary.entry_count }}</strong>
+      <div class="small">{{ import_summary.flight_count }} flight{{ import_summary.flight_count|pluralize }} · {{ import_summary.device_count }} device session{{ import_summary.device_count|pluralize }}</div>
+    </div></div>
+    <div class="col-sm-6 col-lg-3"><div class="border rounded p-2 h-100">
+      <div class="small text-muted">Date range</div><strong>{{ import_summary.date_start|display_date }}</strong>
+      {% if import_summary.date_start != import_summary.date_end %}<div class="small">to {{ import_summary.date_end|display_date }}</div>{% endif %}
+    </div></div>
+    <div class="col-sm-6 col-lg-3"><div class="border rounded p-2 h-100">
+      <div class="small text-muted">Flight hours</div><strong>{{ import_summary.flight_hours|floatformat:'1g' }}</strong>
+    </div></div>
+    <div class="col-sm-6 col-lg-3"><div class="border rounded p-2 h-100">
+      <div class="small text-muted">Simulator / device hours</div><strong>{{ import_summary.device_hours|floatformat:'1g' }}</strong>
+      <div class="small">Separate from flight hours</div>
+    </div></div>
+  </div>
+  <p class="small my-2">{{ import_summary.edited_count }} row{{ import_summary.edited_count|pluralize }} edited · {{ import_summary.excluded_count }} row{{ import_summary.excluded_count|pluralize }} excluded. No flights added yet.</p>
+  {% if import_summary.overlap_included_count %}<p class="small">{{ import_summary.overlap_included_count }} possible match{{ import_summary.overlap_included_count|pluralize }} explicitly included.</p>{% endif %}
+  {% if import_summary.edited_rows or import_summary.excluded_rows %}<details class="small mb-2"><summary>Review row changes</summary><ul class="mb-0 mt-1 ps-3">
+    {% for row in import_summary.edited_rows %}<li>Row {{ row.line }} edited: {{ row.fields|join:', ' }}</li>{% endfor %}
+    {% if import_summary.excluded_rows %}<li>Excluded rows: {{ import_summary.excluded_rows|join:', ' }}</li>{% endif %}
+  </ul></details>{% endif %}
+  <h6 class="mt-3">Check these conversions</h6>
+  <ul class="small mb-0 ps-3">{% for warning in preview_warnings %}<li>{{ warning }}</li>{% endfor %}</ul>
+</section>

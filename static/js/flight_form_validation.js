@@ -1,7 +1,19 @@
 (function (root) {
   'use strict';
   function flightEntryErrors(values, simulatorErrors) {
+    values = Object.assign({}, values);
     const errors = {};
+    const remarks = String(values.remarks || '');
+    const separators = [];
+    if (remarks.includes(',')) separators.push('Remove commas to prevent export corruption.');
+    if (remarks.includes('\t')) separators.push('Remove tabs to prevent export corruption.');
+    if (separators.length) errors.remarks = separators.join(' ');
+    if (values.night_landings_full_stop) {
+      if (!(Number(values.landings_night) > 0)) errors.night_landings_full_stop = 'Enter Night landings.';
+      if (!(Number(values.night) > 0)) errors.night = 'Night time required for Full Stop.';
+    }
+    if (String(values.duration == null ? '' : values.duration).trim() && Number.isFinite(Number(values.duration)) && Number(values.duration) >= 0 && Number.isFinite(Number(values.night)) && Number(values.night) > Number(values.duration))
+      errors.night = 'Night cannot exceed Duration.';
     ['date', 'aircraft_type', 'duration'].forEach(function (name) {
       if (!String(values[name] == null ? '' : values[name]).trim()) errors[name] = 'Required';
     });
@@ -41,6 +53,15 @@
       field.setAttribute('aria-describedby', described.join(' '));
       feedback.set(field, message);
     });
+    const remarks = fields.find(function (field) { return field.name === 'remarks'; });
+    let remarksPreview = form.querySelector('[aria-label="Remarks character preview"]');
+    if (remarks && !remarksPreview) {
+      remarksPreview = root.document.createElement('div');
+      remarksPreview.className = 'small text-break mt-1';
+      remarksPreview.style.whiteSpace = 'pre-wrap';
+      remarksPreview.setAttribute('aria-label', 'Remarks character preview');
+      remarks.insertAdjacentElement('afterend', remarksPreview);
+    }
     const group = root.document.getElementById('flight-role-fields');
     const groupFeedback = root.document.createElement('div');
     groupFeedback.className = 'invalid-feedback';
@@ -58,6 +79,7 @@
     function update(event) {
       if (event && event.target && event.target.name) {
         serverErrors.delete(event.target.name);
+        if (event.target.name === 'duration') serverErrors.delete('night');
         if (['simulator', 'device_type', 'atd_type'].includes(event.target.name))
           ['device_type', 'device_id', 'atd_type'].forEach(function (name) { serverErrors.delete(name); });
         if (event.target.name === 'aircraft_type' || event.target.name === 'instrument_credit_eligible')
@@ -67,6 +89,18 @@
       }
       const current = values();
       const errors = flightEntryErrors(current, root.simulatorEntryErrors);
+      if (remarksPreview) {
+        remarksPreview.replaceChildren();
+        remarksPreview.hidden = !errors.remarks;
+        if (errors.remarks) String(current.remarks || '').split(/([,\t])/).forEach(function (part) {
+          if (part === ',' || part === '\t') {
+            const badge = root.document.createElement('span');
+            badge.className = 'border border-danger rounded px-1';
+            badge.textContent = part === ',' ? 'comma' : 'tab';
+            remarksPreview.appendChild(badge);
+          } else remarksPreview.appendChild(root.document.createTextNode(part));
+        });
+      }
       fields.forEach(function (field) {
         const message = feedback.get(field);
         const hidden = field.disabled || Boolean(field.closest('[hidden]'));

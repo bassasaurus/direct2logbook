@@ -7,7 +7,7 @@ from signature_pad import SignaturePadWidget
 class StrokeSignatureWidget(SignaturePadWidget):
     class Media:
         extend = False
-        js = ('js/signature_strokes.js',)
+        js = ('js/signature_strokes.js?v=form-validity-1',)
         css = {'all': ('signature_pad/css/signature_pad_widget.css',)}
 
 

@@ -122,8 +122,10 @@ class FlightSerializer(FriendlyValidationSerializer):
         model = Flight
         fields = ['id', 'user', 'date', 'aircraft_type', 'registration', 'route', 'duration', 'landings_day', 'landings_night', 
                     'night', 'instrument', 'cross_country', 'second_in_command', 'pilot_in_command', 'simulated_instrument', 
-                    'instructor', 'simulator', 'device_type', 'device_id', 'atd_type', 'instrument_credit_eligible', 'launch_method', 'dual', 'remarks', 'solo', 'hold', 'app_markers', 'app_polylines','approaches', 'holding', 'revision', 'route_airport_choices', 'validate_airports', 'distance_nm']
+                    'instructor', 'simulator', 'device_type', 'device_id', 'atd_type', 'instrument_credit_eligible', 'launch_method', 'dual', 'remarks', 'solo', 'hold', 'app_markers', 'app_polylines','approaches', 'holding', 'revision', 'route_airport_choices', 'validate_airports', 'distance_nm',
+                    'night_landings_full_stop']
         read_only_fields = ['user']
+        extra_kwargs = {'remarks': {'trim_whitespace': False}}
 
     revision = SerializerMethodField()
 

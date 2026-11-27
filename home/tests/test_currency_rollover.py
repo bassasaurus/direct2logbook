@@ -18,7 +18,7 @@ class CurrencyRolloverTests(TestCase):
 
     def flight(self, day):
         Flight.objects.bulk_create([Flight(user=self.user, aircraft_type=self.aircraft,
-            registration=self.tail, date=day, duration=1, route='KAAA-KBBB', landings_day=3, landings_night=3)])
+            registration=self.tail, date=day, duration=1, route='KAAA-KBBB', landings_day=3, landings_night=3, night='.3', night_landings_full_stop=True)])
 
     def current_at(self, day):
         with patch('home.currency.datetime', wraps=datetime) as clock:

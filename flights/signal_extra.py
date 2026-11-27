@@ -6,6 +6,7 @@ from django.db.models import Q, Sum
 from django.core.exceptions import ObjectDoesNotExist
 from django.dispatch import receiver
 from flights.queryset_helpers import avoid_none
+from flights.summary_batch import defer_flight_summary
 
 
 @receiver(post_save, sender=Flight)
@@ -16,6 +17,8 @@ from flights.queryset_helpers import avoid_none
 @receiver(post_delete, sender=Imported)
 def weight_update(sender, instance, dispatch_uid="weight_update", **kwargs):
     if is_user_deletion(kwargs.get('origin')):
+        return
+    if defer_flight_summary(instance):
         return
 
     flight = Flight.objects.filter(user=instance.user).exclude(simulator=True)
@@ -40,6 +43,8 @@ def weight_update(sender, instance, dispatch_uid="weight_update", **kwargs):
 @receiver(post_delete, sender=Aircraft)
 def regs_update(sender, instance, dispatch_uid="regs_update", **kwargs):
     if is_user_deletion(kwargs.get('origin')):
+        return
+    if defer_flight_summary(instance):
         return
 
     refresh_operating_rule_summaries(instance.user_id, using=kwargs.get('using') or instance._state.db or 'default')
@@ -86,6 +91,8 @@ def refresh_operating_rule_summaries(user_id, *, using='default'):
 def power_update(sender, instance, dispatch_uid="power_update", **kwargs):
     if is_user_deletion(kwargs.get('origin')):
         return
+    if defer_flight_summary(instance):
+        return
 
     from flights.aircraft_characteristics import ENGINE_FIELDS
     # A hidden engine is not tracked as engine time, even if an older direct
@@ -97,7 +104,7 @@ def power_update(sender, instance, dispatch_uid="power_update", **kwargs):
     values = {role: {} for role in ('PIC', 'SIC', 'Total')}
     for engine in ENGINE_FIELDS:
         for label, role in (('PIC', 'pilot_in_command'), ('SIC', 'second_in_command')):
-            values[label][engine] = avoid_none(flight.filter(**{role: True, 'aircraft_type__' + engine: True}), 'duration') + avoid_none(
+            values[label][engine] = avoid_none(flight.filter(**{'aircraft_type__' + engine: True, role: True}), 'duration') + avoid_none(
                 imported.filter(**{'aircraft_type__' + engine: True}), role)
         values['Total'][engine] = values['PIC'][engine] + values['SIC'][engine]
     for role, defaults in values.items():
@@ -112,6 +119,8 @@ def power_update(sender, instance, dispatch_uid="power_update", **kwargs):
 @receiver(post_delete, sender=Imported)
 def endorsement_update(sender, instance, dispatch_uid="endorsement_update", **kwargs):
     if is_user_deletion(kwargs.get('origin')):
+        return
+    if defer_flight_summary(instance):
         return
 
     user = instance.user

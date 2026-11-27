@@ -4,6 +4,7 @@ from django.db.models.signals import pre_save, pre_delete, post_save, post_delet
 from django.dispatch import receiver
 from flights.queryset_helpers import avoid_none, zero_if_none
 from flights.rolling_stats import assign_rolling_values
+from flights.summary_batch import defer_flight_summary
 
 
 @receiver(pre_delete, sender=Aircraft)
@@ -19,6 +20,8 @@ def remove_aircraft_summary(sender, instance, **kwargs):
 @receiver(post_delete, sender=Flight)
 def stat_update(sender, instance, dispatch_uid="stat_update", **kwargs):
     if is_user_deletion(kwargs.get('origin')):
+        return
+    if defer_flight_summary(instance):
         return
 
     all_sessions = Flight.objects.filter(user=instance.user).filter(aircraft_type=instance.aircraft_type)

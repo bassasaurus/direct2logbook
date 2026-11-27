@@ -9,6 +9,7 @@ from django.utils import timezone
 from .csv_import import confirm_csv_import
 from .models import CSVImportBatch
 from .validation import CSVValidationError
+from .records import RecordReviewRequired, reopen_record_review
 
 logger = logging.getLogger('django.csv_app')
 
@@ -27,6 +28,10 @@ def import_csv_batch(self, user_pk, batch_id):
     try:
         user = get_user_model().objects.get(pk=user_pk)
         confirm_csv_import(SimpleNamespace(user=user), batch_id, expected_task_id=task_id)
+    except RecordReviewRequired:
+        # confirm_csv_import has exited its atomic block; all flight writes rolled back.
+        reopen_record_review(user, batch_id, task_id=task_id)
+        return
     except (get_user_model().DoesNotExist, Http404):
         # Account deletion can remove the batch while a task is waiting.
         return
@@ -40,6 +45,6 @@ def import_csv_batch(self, user_pk, batch_id):
             pk=batch_id, task_id=task_id, completed=False,
             status=CSVImportBatch.Status.PROCESSING,
         ).update(status=CSVImportBatch.Status.FAILED, error_message=message,
-                 content='', updated_at=timezone.now())
+                 content='', row_data={}, updated_at=timezone.now())
         logger.exception('Background CSV import failed batch_id=%s', batch_id)
         raise

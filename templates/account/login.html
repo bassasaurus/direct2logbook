@@ -1,5 +1,5 @@
 {% extends "account/base.html" %}
-{% load widget_tweaks %}
+{% load widget_tweaks static %}
 
 {% load i18n %}
 {% load account socialaccount %}
@@ -13,8 +13,9 @@
     {% trans "Or" as google_separator %}
     {% include "account/snippets/social_buttons.html" with separator_text=google_separator %}
 
-    <form class="login" method="POST" action="{% url 'account_login' %}">
+    <form data-session-token-url="{% url 'login_session_token' %}" class="login" method="POST" action="{% url 'account_login' %}">
       {% csrf_token %}
+      <p class="text-danger small" data-login-status role="status" hidden></p>
       {{ form.non_field_errors }}
       <p>{{ form.login |add_class:"form-control" |attr:"placeholder:example@email.com"}}</p>
       {{ form.login.errors }}
@@ -30,4 +31,5 @@
 
     </form>
 
+<script src="{% static 'js/login_session.js' %}" defer></script>
 {% endblock %}

@@ -1,0 +1,32 @@
+{% load static %}
+<section class="card mb-3"><div class="card-body">
+  <h5>Check and correct rows</h5>
+  <p class="mb-2">Fix the highlighted values or exclude a row. Original values are shown beneath each field.</p>
+  <p class="small"><strong>{{ included_count }}</strong> included · <strong>{{ excluded_count }}</strong> excluded · <strong>{{ error_count }}</strong> row{{ error_count|pluralize }} to fix</p>
+  <form method="post" action="{% url 'csv_rows' batch.pk %}">
+    {% csrf_token %}<input type="hidden" name="page" value="{{ row_form.page }}">
+    {{ row_form.non_field_errors }}
+    {% for row in correction_rows %}
+    <section class="border rounded p-3 mb-3{% if row.excluded %} csv-row-excluded{% endif %}">
+      <div class="d-flex justify-content-between align-items-center gap-3 mb-2">
+        <h6 class="mb-0">Row {{ row.line }}{% if row.excluded %} — Excluded{% endif %}</h6>
+        <div class="form-check">{{ row.exclude }}<label class="form-check-label" for="{{ row.exclude.id_for_label }}">Exclude row {{ row.line }}</label></div>
+      </div>
+      {% for field, error in row.errors.items %}<p class="text-danger small mb-1">{{ field|capfirst }}: {{ error }}</p>{% endfor %}
+      <div class="row g-3">{% for cell in row.basic_fields %}{% include 'csv_app/row_field.html' %}{% endfor %}</div>
+      <details class="mt-3"><summary>Hours, landings and additional fields</summary><div class="row g-3 mt-1">{% for cell in row.extra_fields %}{% include 'csv_app/row_field.html' %}{% endfor %}</div></details>
+    </section>
+    {% endfor %}
+    <div class="d-flex flex-wrap align-items-center gap-3">
+      <button class="btn btn-primary" type="submit" data-validation-request>Validate and continue</button>
+      {% if previous_page %}<button class="btn btn-link" type="submit" formnovalidate name="show_page" value="{{ previous_page }}">Previous rows</button>{% endif %}
+      {% if next_page %}<button class="btn btn-link" type="submit" formnovalidate name="show_page" value="{{ next_page }}">Next rows</button>{% endif %}
+      <span class="small">Page {{ row_form.page }} of {{ row_form.page_count }}</span>
+      <a href="{% url 'csv_inspect' %}">Choose another CSV</a>
+    </div>
+    <p class="small text-muted mt-2 mb-0">Changes and exclusions apply only to this import. No flights have been added. Preview expires after 10 minutes.</p>
+  </form>
+</div></section>
+
+{{ row_form.tailnumber_options|json_script:"csv-row-tailnumber-options" }}
+<script src="{% static 'csv_app/js/row_record_choices.js' %}" defer></script>

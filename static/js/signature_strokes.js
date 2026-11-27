@@ -44,6 +44,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
+    function updateValidity() {
+      const form = canvas.closest("form");
+      form.dataset.signatureValid = String(!signaturePads[canvas.id].isEmpty());
+      form.dispatchEvent(new Event('form-validation'));
+    }
+
     // Function to resize the canvas
     function resizeCanvas() {
       // Save current signature as data
@@ -79,10 +85,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (signatureData && signatureData.length > 0) {
         signaturePads[canvas.id].fromData(signatureData);
       }
+      updateValidity();
     }
 
     // Initial resize and setup
     resizeCanvas();
+    signaturePads[canvas.id].addEventListener("endStroke", updateValidity);
 
     // Add resize event listener with debounce
     let resizeTimer;
@@ -118,6 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
       signaturePads[canvas.id].clear();
       input.value = "";
       canvas.closest("form").elements.strokes.value = "";
+      updateValidity();
     });
 
     // Prevent scrolling on mobile when signing

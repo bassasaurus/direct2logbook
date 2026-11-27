@@ -26,13 +26,13 @@ class Command(BaseCommand):
             self.stdout.write(f'Expired CSV preview payloads: {expired.count()}. No changes made.')
             self.stdout.write(f'Stalled background imports: {stalled.count()}. No changes made.')
             return
-        count = expired.update(content='')
+        count = expired.update(content='', row_data={})
         # Active imports hold their batch row lock for the entire transaction.
         # Skip them; a dead worker releases the lock and can be reconciled later.
         with transaction.atomic():
             ids = list(stalled.select_for_update(skip_locked=True).values_list('pk', flat=True)[:100])
             closed = CSVImportBatch.objects.filter(pk__in=ids, completed=False).update(
-                status=CSVImportBatch.Status.FAILED, content='', updated_at=now,
+                status=CSVImportBatch.Status.FAILED, content='', row_data={}, updated_at=now,
                 error_message='The import stopped before completion. No flights were imported. Upload and inspect the file again.',
             )
         self.stdout.write(f'Cleared {count} expired CSV preview payload(s). Confirmation receipts retained.')

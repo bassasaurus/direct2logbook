@@ -1,0 +1,42 @@
+{% load static %}
+{{ record_form.media }}
+<section class="card mb-3"><div class="card-body">
+  {% if record_review_message %}<p class="text-danger" role="alert">{{ record_review_message }}</p>{% endif %}
+  <h5>{% if aircraft_stage %}Complete new aircraft details{% else %}Complete record details{% endif %}</h5>
+  <p class="mb-2">Aircraft and tailnumber pairs come from your file. Existing pairs are matched automatically. Complete missing details for new records; only conflicting pairs need a choice.</p>
+  <p class="small text-muted">{{ remaining }} item{{ remaining|pluralize }} to complete{% if remaining > 25 %}; showing 25 at a time{% endif %}. Existing aircraft, tailnumbers, and operating rules won’t be changed.</p>
+  <form method="post" action="{% url 'csv_records' batch.pk %}" class="csv-record-fields">
+    {% csrf_token %}
+    {{ record_form.non_field_errors }}
+    {% for row in record_rows %}
+    <section class="border rounded p-3 mb-3" data-record-match>
+      <h6 class="mb-1">{% if aircraft_stage %}{{ row.source }}{% else %}{{ row.source_type }} / {{ row.source }}{% endif %}</h6>
+      <p class="small text-muted mb-2">Used in {{ row.count }} flight{{ row.count|pluralize }}.</p>
+      {% if aircraft_stage %}
+        <p class="small mb-2">New aircraft from your file. Add its category, class, and other required details. Historical aircraft are welcome.</p>
+        <a href="{% url 'csv_create_record' batch.pk 'aircraft' row.index %}">Complete Aircraft Details</a>
+      {% elif row.new_tail %}
+        {{ row.aircraft_field.as_hidden }}
+        <p class="small mb-2">New tailnumber for {{ row.aircraft.aircraft_type }}. Registration and aircraft are taken from your file.</p>
+        {{ row.aircraft_field.errors }}{{ row.tailnumber_field.errors }}
+        <fieldset data-required-choice data-new-tail-rules><legend class="form-label fs-6">Operating rules</legend>
+          <div class="d-flex flex-wrap gap-3">
+            {% for radio in row.operating_rules_field %}{% if radio.data.value %}<div class="form-check">{{ radio.tag }}<label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label></div>{% endif %}{% endfor %}
+          </div>
+          {{ row.operating_rules_field.errors }}
+          {% if row.skip_tail_field %}<div class="form-check mt-2">{{ row.skip_tail_field }}<label class="form-check-label" for="{{ row.skip_tail_field.id_for_label }}">{{ row.skip_tail_field.label }}</label></div>{% endif %}
+        </fieldset>
+      {% else %}
+        <p class="text-danger small">{{ row.tailnumber.registration }} belongs to {{ row.tailnumber.aircraft.aircraft_type }}. Choose the correct aircraft/tailnumber pair. Existing records won’t be reassigned.</p>
+        <div class="row g-3">
+          <div class="col-md-6"><label class="form-label" for="{{ row.aircraft_field.id_for_label }}">Aircraft Type</label>{{ row.aircraft_field }}{{ row.aircraft_field.errors }}</div>
+          <div class="col-md-6"><label class="form-label" for="{{ row.tailnumber_field.id_for_label }}">Tailnumber</label>{{ row.tailnumber_field }}{{ row.tailnumber_field.errors }}</div>
+        </div>
+      {% endif %}
+    </section>
+    {% endfor %}
+    <div class="d-flex align-items-center gap-3">{% if not aircraft_stage %}<button class="btn btn-primary" type="submit" data-record-continue disabled>Save Details and Continue</button>{% endif %}<a href="{% url 'csv_inspect' %}">Choose another CSV</a></div>
+    <p class="small text-muted mt-2 mb-0">No flights have been added. New aircraft and tailnumbers are saved to your account when you save their details, even if you leave this import.</p>
+  </form>
+</div></section>
+<script src="{% static 'csv_app/js/record_matches.js' %}?v=2" defer></script>
