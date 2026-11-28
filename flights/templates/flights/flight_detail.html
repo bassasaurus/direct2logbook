@@ -30,13 +30,13 @@
       {% if flight.night %}| Night {{flight.night}}{% endif %}
       {% if flight.instrument %}| IFR {{flight.instrument}}{% endif %}
       {% for approach in flight.approach_set.all %}
-      {{ approach.approach_type }}-{{ approach.number }}
+      {{ approach.approach_type|default:"Unspecified" }}-{{ approach.number }}
       {% endfor %}
 
       {% if flight.hold %}| Hold {% endif %}
 
       {% if flight.landings_day %}| {{flight.landings_day}} D{% endif %}
-      {% if flight.landings_night %}| {{flight.landings_night}} N{% endif %}
+      {% if flight.landings_night %}| {{flight.landings_night}} N{% if flight.night_landings_full_stop %} Full Stop{% endif %}{% endif %}
       {% if flight.simulated_instrument %}Hood |{{flight.simulated_instrument}}{% endif %}
       {% if flight.instructor %}| CFI{% endif %}
       {% if flight.dual %}| Dual{% endif %}

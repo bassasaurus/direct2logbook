@@ -18,7 +18,7 @@ function setup(categoryValue = '', classValue = '', existing = false) {
   const launchInput = {checked: true};
   const launch = {hidden: true, querySelector: () => launchInput};
   const flags = ['requires_type', 'compleks', 'high_performance', 'tailwheel'].map(name => { const input = {name, checked: true, disabled: false}; return {hidden: false, input, querySelector: () => input}; });
-  const form = { querySelectorAll: selector => selector === '[data-aircraft-equipment]' ? flags : [button], querySelector: selector => selector === '[data-aircraft-engine]' ? engine : selector === '[data-glider-capability]' ? launch : null };
+  const form = { dataset: {}, querySelectorAll: selector => selector === '[data-aircraft-equipment]' ? flags : [button], querySelector: selector => selector === '[data-aircraft-engine]' ? engine : selector === '[data-glider-capability]' ? launch : null };
   const root = { dataset: { existing: String(existing), initialCategory: categoryValue, initialClass: classValue },
     closest: () => form, querySelector: selector => ({
       'script[type="application/json"]': { textContent: JSON.stringify(choices) },

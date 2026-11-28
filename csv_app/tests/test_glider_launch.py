@@ -1,3 +1,4 @@
+from csv_app.validation import HEADERS, OPTIONAL_HEADERS
 from datetime import date
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -5,7 +6,7 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from csv_app.csv_import import csv_import
-from csv_app.validation import HEADERS, parse_csv, CSVValidationError
+from csv_app.validation import parse_csv, CSVValidationError
 from csv_app.tests.test_atomic_import import content, row
 from flights.models import Aircraft, Flight, TailNumber
 
@@ -37,7 +38,7 @@ class GliderLaunchCSVTests(TestCase):
         self.assertEqual(self.import_file(response.content.decode()), 3)
         for method in ('AEROTOW', 'GROUND', 'SELF'):
             self.assertEqual(Flight.objects.filter(launch_method=method).count(), 2)
-        self.assertEqual(len(preview[0]), 24)
+        self.assertEqual(len(preview[0]), len(HEADERS + OPTIONAL_HEADERS))
 
     def test_readable_labels_are_accepted_and_unknown_methods_rejected(self):
         for label, method in [('Aerotow', 'AEROTOW'), ('Ground Launch', 'GROUND'), ('Self-launch', 'SELF')]:

@@ -1,6 +1,7 @@
 from allauth.account.adapter import DefaultAccountAdapter
 from django.urls import reverse
 from profile.models import Profile
+from profile.access import has_logbook_access
 
 
 class AccountAdapter(DefaultAccountAdapter):
@@ -20,6 +21,6 @@ class AccountAdapter(DefaultAccountAdapter):
     def post_login(self, request, user, **kwargs):
         # Apply after allauth completes authentication and verification, including social login.
         profile = Profile.objects.filter(user=user).first()
-        has_access = profile and (profile.free_access or profile.trial or (profile.active and not profile.expired))
+        has_access = has_logbook_access(profile)
         kwargs['redirect_url'] = reverse('home' if has_access else 'profile')
         return super().post_login(request, user, **kwargs)

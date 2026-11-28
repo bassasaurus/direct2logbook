@@ -49,3 +49,21 @@ def zero_dash(value):
     except (InvalidOperation, ValueError, TypeError):
         pass
     return value
+
+
+@register.filter
+def remarks_has_separators(value):
+    return bool(value and (',' in str(value) or '\t' in str(value)))
+
+
+@register.filter
+def visible_remarks_separators(value):
+    from django.utils.html import escape
+    parts = []
+    for char in str(value or ''):
+        if char in (',', '\t'):
+            label = 'comma' if char == ',' else 'tab'
+            parts.append('<span class="border border-danger rounded px-1">' + label + '</span>')
+        else:
+            parts.append(str(escape(char)))
+    return mark_safe(''.join(parts))

@@ -16,7 +16,7 @@ $("#sic").change(function() {
 });
 $("#solo").change(function() {
     var checked = $(this).is(':checked');
-    $("#pic").prop('checked',false);
+    if (checked) $("#pic").prop('checked',true);
     if(checked) {
         $(this).prop('checked',true);
     }

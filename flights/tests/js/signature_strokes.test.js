@@ -6,6 +6,7 @@ const script = fs.readFileSync(require('node:path').join(__dirname, '../../../st
 
 function capture() {
   const form = new EventTarget();
+  form.dataset = {};
   form.elements = { strokes: { value: '' }, stroke_aspect_ratio: { value: '' } };
   const clear = new EventTarget();
   const input = { value: '' };
@@ -17,6 +18,7 @@ function capture() {
   let pad;
   class Pad {
     constructor() { pad = this; this.data = []; }
+    addEventListener(type, listener) { this[type] = listener; }
     isEmpty() { return !this.data.length; }
     clear() { this.data = []; }
     toData() { return this.data; }
@@ -24,7 +26,7 @@ function capture() {
     toDataURL() { throw new Error('The capture must not submit a PNG'); }
   }
   const window = new EventTarget(); window.devicePixelRatio = 2;
-  vm.runInNewContext(script, { SignaturePad: Pad, window, console, setTimeout, clearTimeout,
+  vm.runInNewContext(script, { SignaturePad: Pad, window, console, setTimeout, clearTimeout, Event,
     document: { addEventListener: (_, callback) => callback(), querySelectorAll: () => [canvas] } });
   return { form, pad, clear, input, canvas };
 }
@@ -44,4 +46,15 @@ test('clearing the drawing removes previously submitted coordinates', () => {
   form.dispatchEvent(new Event('submit'));
   clear.dispatchEvent(new Event('click'));
   assert.equal(form.elements.strokes.value, '');
+});
+
+
+test('signature validity follows drawing and clearing', () => {
+  const {form,pad,clear} = capture();
+  assert.equal(form.dataset.signatureValid,'false');
+  pad.data = [{points:[{x:1,y:1}]}];
+  pad.endStroke();
+  assert.equal(form.dataset.signatureValid,'true');
+  clear.dispatchEvent(new Event('click'));
+  assert.equal(form.dataset.signatureValid,'false');
 });

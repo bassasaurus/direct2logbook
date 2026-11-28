@@ -10,6 +10,7 @@ from picklefield.fields import PickledObjectField
 from django.core.validators import MinValueValidator, RegexValidator
 from flights.aircraft_classification import CATEGORY_CHOICES, CLASS_CHOICES
 from flights.launch_methods import LAUNCH_CHOICES
+from flights.remarks import validate_remarks
 
 
 BOOL_CHOICES = ((True, 'Yes'), (False, 'No', None, ''))
@@ -342,7 +343,7 @@ class Flight(models.Model):
     instructor = models.BooleanField(
         default=False, blank=True, verbose_name="CFI")
     dual = models.BooleanField(default=False, blank=True)
-    remarks = models.CharField(max_length=500, null=True, blank=True)
+    remarks = models.CharField(max_length=500, null=True, blank=True, validators=[validate_remarks])
     simulator = models.BooleanField(
         null=True, blank=True, verbose_name="Sim")
     class DeviceType(models.TextChoices):
@@ -357,6 +358,7 @@ class Flight(models.Model):
     solo = models.BooleanField(default=False, blank=True)
     hold = models.BooleanField(
         default=False, blank=True, verbose_name="Hold")
+    night_landings_full_stop = models.BooleanField(null=True, blank=True, default=None)
     route_airport_choices = models.JSONField(default=dict, blank=True, editable=False)
     route_data = PickledObjectField(null=True, blank=True)
     map_error = models.CharField(max_length=100, null=True, blank=True)
@@ -397,6 +399,12 @@ class Flight(models.Model):
 
     def save(self, *args, **kwargs):
         from flights.route_normalization import normalize_route
+        if kwargs.get('update_fields') is None or 'remarks' in kwargs['update_fields']:
+            from django.core.exceptions import ValidationError
+            try:
+                validate_remarks(self.remarks)
+            except ValidationError as exc:
+                raise ValidationError({'remarks': exc.messages}) from exc
         if kwargs.get('update_fields') is None or 'route' in kwargs['update_fields']:
             original_route = self.route
             self.route = normalize_route(self.route)

@@ -1,0 +1,21 @@
+<div class="csv-mapping-row" data-mapping-row data-mapping-label="{{ row.label }}" data-unmatched-reason="{{ row.unmatched_reason }}">
+  <label class="form-label mb-0" for="{{ row.column.id_for_label }}">{{ row.label }}<span class="small text-muted d-block" data-required-label{% if not row.required %} hidden{% endif %}>Required</span></label>
+  <div class="csv-mapping-choice">
+  <div class="csv-mapping-control">
+    {{ row.column }}
+    <p class="small text-muted mt-1 mb-0" data-mapping-status>{{ row.status }}</p>
+    <p class="small mt-1 mb-0" data-mapping-conversion{% if not row.conversion %} hidden{% endif %}>{{ row.conversion }}</p>
+    {% for error in row.column.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+    <div class="mt-2" data-mapping-constant{% if row.column.value != 'constant' %} hidden{% endif %}>
+      <label class="visually-hidden" for="{{ row.constant.id_for_label }}">{{ row.constant.label }}</label>
+      {{ row.constant }}
+      {% for error in row.constant.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+    </div>
+  </div>
+  <div class="csv-assigned-column" data-assigned-column draggable="true"{% if not row.source_label %} hidden{% endif %}>
+    <span data-assigned-label>{{ row.source_label }}</span>
+    <button type="button" class="btn btn-link p-0 ms-2" data-unassign-column aria-label="Unassign source column from {{ row.label }}">×</button>
+  </div>
+  {% if row.target == 'route' %}<div class="csv-combined-column" data-combined-column{% if not row.combined_label %} hidden{% endif %}><span class="small" data-combined-label>{{ row.combined_label }}</span><strong class="d-block" data-combined-preview>{{ row.combined_preview }}</strong></div>{% endif %}
+  </div>
+</div>

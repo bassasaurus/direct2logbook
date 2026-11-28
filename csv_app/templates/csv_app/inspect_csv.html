@@ -1,0 +1,272 @@
+{% extends 'base.html' %}
+{% load static widget_tweaks date_display flights_filters %}
+{% block page_container_class %}container-fluid px-3 px-lg-4{% endblock %}
+{% block content %}
+
+
+<link rel="stylesheet" href="{% static 'csv_app/css/import.css' %}?v=capacity-pagination-2">
+<div class="csv-wizard">
+<div class="d-flex align-items-baseline justify-content-between gap-3 mb-3">
+  <h4 class="mb-0">Import logbook</h4>
+  <a href="{% url 'csv_template' %}">Download template</a>
+</div>
+<nav aria-label="Import progress" class="mb-3">
+  <ol class="csv-steps">
+    <li data-csv-step="1"{% if not preview_ready and not date_choice and not mapping_choice and not record_choice and not row_choice and not overlap_choice and not all_excluded %} aria-current="step"{% endif %}><span>1</span> Upload</li>
+    <li data-csv-step="2"{% if mapping_choice %} aria-current="step"{% endif %}><span>2</span> Columns</li>
+    <li data-csv-step="3"{% if row_choice %} aria-current="step"{% endif %}><span>3</span> Rows</li>
+    <li data-csv-step="4"{% if date_choice %} aria-current="step"{% endif %}><span>4</span> Dates</li>
+    <li data-csv-step="5"{% if record_choice %} aria-current="step"{% endif %}><span>5</span> Records</li>
+    <li data-csv-step="6"{% if overlap_choice %} aria-current="step"{% endif %}><span>6</span> Matches</li>
+    <li data-csv-step="7"{% if preview_ready %} aria-current="step"{% endif %}><span>7</span> Review</li>
+    <li data-csv-step="8"><span>8</span> Import</li>
+  </ol>
+</nav>
+{% if duplicate_upload %}<div class="alert alert-info" role="status">{{ duplicate_upload }} <a href="{% url 'flight_list' %}">View logbook</a></div>{% endif %}
+{% if wizard_error %}<div class="alert alert-danger" role="alert">{{ wizard_error }}</div>{% endif %}
+{% if all_excluded %}
+<section class="card"><div class="card-body"><h5>Nothing to import</h5>
+<p>All incoming entries were excluded. Your existing logbook is unchanged.</p>
+<a class="btn btn-primary" href="{% url 'csv_inspect' %}">Choose another file</a>
+<a class="ms-3" href="{% url 'csv_rows' batch.pk %}">Review excluded rows</a>
+</div></section>
+{% elif overlap_choice %}
+{% include "csv_app/overlaps.html" %}
+{% elif row_choice %}
+{% include "csv_app/rows.html" %}
+{% elif mapping_choice %}
+<section class="card mb-3"><div class="card-body">
+  <h5>Match your columns</h5>
+  <p class="mb-1"><span class="csv-desktop-instructions">Check the suggested matches. Drag and Drop a file column onto a field, or choose it from the dropdown.</span><span class="csv-mobile-instructions">Check the suggested matches and use the dropdowns to make changes.</span></p>
+  <p class="small text-muted">Each option shows the original heading and sample values. Departure and destination columns are combined into Route; only Route is saved. Airports are checked against ICAO, IATA and FAA codes.</p>
+  {% for notice in source_notices %}<p class="small text-muted mb-2">{{ notice }}</p>{% endfor %}
+  {{ mapping_dependencies|json_script:"csv-mapping-dependencies" }}
+  {{ mapping_column_formats|json_script:"csv-column-formats" }}
+  {{ mapping_sample_rows|json_script:"csv-sample-rows" }}
+  {{ mapping_route_columns|json_script:"csv-route-columns" }}
+  {{ mapping_hour_fields|json_script:"csv-hour-fields" }}
+  {{ mapping_native_times|json_script:"csv-native-times" }}
+  <form method="post" action="{% url 'csv_mapping' batch.pk %}" id="csv-mapping-form">
+    {% csrf_token %}
+    {% if mapping_form.non_field_errors %}<div class="alert alert-danger" role="alert">{{ mapping_form.non_field_errors }}</div>{% endif %}
+    <div class="csv-mapping-row" data-time-units{% if not show_time_units %} hidden{% endif %}>
+      <label class="form-label" for="{{ mapping_form.time_units.id_for_label }}">Plain numeric times are in{% if needs_time_units %}<span class="small text-muted d-block">Confirm units</span>{% endif %}</label>
+      <div>{{ mapping_form.time_units }}{% for error in mapping_form.time_units.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}<p class="small text-muted mt-1 mb-0">HH:MM converts automatically. Durations over 30 suggest minutes; confirm the units, especially for grouped or device entries. This choice applies to all numeric time values.</p></div>
+    </div>
+    <div class="mb-3" data-year-confirmation{% if not mapping_form.needs_year_confirmation %} hidden{% endif %}>
+      <div class="form-check">{{ mapping_form.confirm_short_years }}<label class="form-check-label" for="{{ mapping_form.confirm_short_years.id_for_label }}">{{ mapping_form.confirm_short_years.label }}</label></div>
+      {% for error in mapping_form.confirm_short_years.errors %}<p class="text-danger small">{{ error }}</p>{% endfor %}
+      <p class="small text-muted mb-0">Verify the expanded years and interpreted dates in the preview.</p>
+    </div>
+    <section class="mt-3" data-block-options{% if not uses_block_times %} hidden{% endif %}>
+      <h6>Block-time calculation</h6>
+      <p class="small mb-2">Block In − Block Out gives Duration, rounded to the nearest tenth. Clock times must use the same time zone; dated timestamps may include UTC offsets. Only Duration is saved. The comparison updates as you change the mappings.</p>
+      <div class="form-check">{{ mapping_form.confirm_overnight }}<label class="form-check-label" for="{{ mapping_form.confirm_overnight.id_for_label }}">{{ mapping_form.confirm_overnight.label }}</label></div>
+      {% for error in mapping_form.confirm_overnight.errors %}<p class="text-danger small">{{ error }}</p>{% endfor %}
+      <div class="table-responsive my-2 csv-block-comparison" data-live-block-checks{% if not block_checks %} hidden{% endif %}><table class="table table-sm mb-0" aria-label="Block-time comparison">
+        <thead><tr><th>Row</th><th>Block Out</th><th>Block In</th><th>Selected Duration</th><th>Calculated Duration</th><th>Review</th></tr></thead>
+        <tbody data-block-check-rows>{% for check in block_checks %}<tr><td>{{ check.line }}</td><td>{{ check.out }}</td><td>{{ check.arrival }}</td><td>{{ check.selected|default_if_none:'—' }}</td><td>{{ check.calculated|default_if_none:'—' }}</td><td>{% if check.error %}{{ check.error }}{% elif check.difference %}Duration differs{% elif check.from_blocks %}Calculated{% else %}Matches{% endif %}</td></tr>{% endfor %}</tbody>
+      </table></div><p class="small text-muted" data-block-check-count{% if not block_checks %} hidden{% endif %}>Showing {{ block_checks|length }} of {{ block_check_count }} block-time checks.</p>
+      <div class="form-check" data-block-difference-option>{{ mapping_form.confirm_block_difference }}<label class="form-check-label" for="{{ mapping_form.confirm_block_difference.id_for_label }}">{{ mapping_form.confirm_block_difference.label }}</label></div>
+      {% for error in mapping_form.confirm_block_difference.errors %}<p class="text-danger small">{{ error }}</p>{% endfor %}
+    </section>
+    <div class="csv-mapping-layout mt-3">
+      <section class="card csv-mapping-fields" aria-labelledby="csv-destination-heading"><div class="card-body p-3">
+        <h5 class="mb-3" id="csv-destination-heading">Direct2Logbook</h5>
+        {% for row in mapping_rows %}{% include 'csv_app/mapping_row.html' %}{% endfor %}
+      </div></section>
+      <aside class="csv-source-panel" aria-labelledby="csv-source-heading" data-unassigned-drop>
+        <h5 id="csv-source-heading">Your File</h5>
+        <p class="small text-muted mb-2">Drag onto a field to assign it. Drag an assigned column back here to unassign it. Dropdowns can reuse a column.</p>
+        <div class="csv-source-list" role="list">
+          {% for column in source_columns %}<div class="csv-source-column" role="listitem" draggable="true" data-drag-column="{{ column.index }}"{% if column.moved %} hidden{% endif %}>
+            <div class="csv-source-details"><strong><span class="small text-muted">{{ column.number }} · </span>{{ column.name }}</strong>
+              <div class="small">{% if column.derived %}<span class="text-muted">Prepared from file · </span>{% endif %}{% if column.samples|length > 1 %}ex. {% endif %}{{ column.samples|join:', ' }}</div>
+            </div>
+            <div class="csv-source-use small text-muted" data-source-use>{% if column.used %}Used → {{ column.usage }}{% else %}Not assigned{% endif %}</div>
+          </div>{% endfor %}
+        </div>
+        <p class="small text-muted mb-0" data-no-source-columns hidden>All columns are assigned.</p>
+      </aside>
+    </div>
+    <p class="small text-muted mt-2" data-mapping-announcement role="status" aria-live="polite"></p>
+    <details class="mt-3" data-conversion-inputs><summary>Import-only conversion inputs</summary>
+      <p class="small text-muted mt-2">Departure and Arrival combine into Route. Block Out and Block In calculate Duration. These columns are not stored as separate Direct2Logbook fields. Used conversion inputs are included, not ignored.</p>
+      {% for row in conversion_mapping_rows %}{% include 'csv_app/mapping_row.html' %}{% endfor %}
+    </details>
+    <section class="mt-3" data-unused-columns{% if not unused_columns %} hidden{% endif %}>
+      <h6>Unselected columns (<span data-unused-count>{{ unused_columns|length }}</span>)</h6>
+      <p class="small mb-2">Only the columns listed here will be left out. Assigned columns are already included.</p>
+      <ul class="list-unstyled small mb-2">
+        {% for column in source_columns %}<li data-source-column="{{ column.index }}"{% if column.used %} hidden{% endif %}><strong>Column {{ column.number }} — {{ column.name }}</strong> · {{ column.samples|join:', ' }}{% if column.unused_reason %}<span class="text-muted d-block">{{ column.unused_reason }}</span>{% elif column.conversion_reason %}<span class="text-muted d-block">{{ column.conversion_reason }} Not used in the current mapping.</span>{% elif column.possible %}<span class="text-muted"> · Possible {{ column.possible }} column</span>{% endif %}</li>{% endfor %}
+      </ul>
+      <div class="form-check">{{ mapping_form.ignore_unused }} <label class="form-check-label" for="{{ mapping_form.ignore_unused.id_for_label }}">{{ mapping_form.ignore_unused.label }}</label></div>
+      {% for error in mapping_form.ignore_unused.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+    </section>
+    <div class="d-flex align-items-center gap-3 mt-3"><button class="btn btn-primary" type="submit" data-mapping-continue disabled>Continue</button><a href="{% url 'csv_inspect' %}">Choose another file</a></div>
+    <p class="small text-muted mt-2 mb-0" data-mapping-validation role="status" aria-live="polite">Checking choices…</p>
+    <p class="small text-muted mt-2 mb-0">No flights have been added. This preview expires after 10 minutes.</p>
+  </form>
+</div></section>
+{% elif record_choice %}
+{% include "csv_app/records.html" %}
+{% elif date_choice %}
+<section class="card mb-3"><div class="card-body">
+  <h5>Choose the date format</h5>
+  <p>These dates could mean two different days. Choose the date order used throughout this file.</p>
+  <div class="table-responsive mb-3">
+    <table class="table table-sm mb-0" aria-label="Date interpretations">
+      <thead><tr><th>In your file</th><th>Month/Day/Year</th><th>Day/Month/Year</th></tr></thead>
+      <tbody>{% for example in date_examples %}<tr><td>{{ example.original }}</td><td>{{ example.mdy }}</td><td>{{ example.dmy }}</td></tr>{% endfor %}</tbody>
+    </table>
+  </div>
+  <form method="post" action="{% url 'csv_date_order' batch.pk %}">
+    {% csrf_token %}
+    {% if date_form.errors %}<div class="alert alert-danger" role="alert">{{ date_form.errors }}</div>{% endif %}
+    <fieldset class="mb-3"><legend class="fs-6">Date format</legend>
+      {% for radio in date_form.date_order %}<div class="form-check mb-2">{{ radio.tag }} <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label></div>{% endfor %}
+    </fieldset>
+    <div class="d-flex align-items-center gap-3"><button class="btn btn-primary" type="submit">Review dates</button><a href="{% url 'csv_inspect' %}">Choose another file</a></div>
+    <p class="small text-muted mt-2 mb-0">No flights have been added. This preview expires after 10 minutes.</p>
+  </form>
+</div></section>
+{% else %}
+<section class="card mb-3"><div class="card-body">
+<form id="csv-preview-form" data-import-url="{% url 'csv_upload' %}" method="post" enctype="multipart/form-data" class="mb-0">
+  {% csrf_token %}
+  <h5>{% if preview_ready %}Review your entries{% else %}Choose your file{% endif %}</h5>
+  {% if preview_ready %}
+    <p class="text-muted mb-2">Review the {{ row_count }} entr{{ row_count|pluralize:"y,ies" }} below, then confirm the import.</p>
+    <a class="d-inline-block mb-2" href="{% url 'csv_rows' batch.pk %}">Edit or exclude rows</a>
+    <p class="small mb-2">{{ date_order_label }}. Check the interpreted dates below.</p>
+    {% if csv_filename %}<p class="small text-muted text-truncate csv-selected-file mb-2">{{ csv_filename }}</p>{% endif %}
+    {% include 'csv_app/import_summary.html' %}
+  {% else %}
+    <p class="text-muted mb-2">Upload your logbook CSV or tab-separated export. We’ll match the columns, dates, aircraft and tailnumbers before adding any flights.</p>
+    <p class="small text-muted mb-3">UTF-8 CSV / TSV · Up to {{ csv_max_mb }} MB · Up to {{ csv_max_rows_label }} flights</p>
+  {% endif %}
+  {% if inspect_form.errors %}<div class="alert alert-danger" role="alert">{{ inspect_form.errors }}</div>{% endif %}
+  <div class="csv-toolbar d-flex flex-wrap align-items-center">
+    {% if preview_ready %}
+      <input type="hidden" id="csv-batch-id" value="{{ batch.pk }}">
+      <a class="btn btn-outline-secondary" id="csv-choose-another" href="{% url 'csv_inspect' %}">Choose another file</a>
+      <div class="csv-actions d-flex flex-wrap align-items-center">
+        <button type="button" class="btn csv-primary-action btn-primary" id="csv_upload">Import {{ row_count }} entr{{ row_count|pluralize:"y,ies" }}</button>
+        <a class="btn btn-outline-primary d-none" id="csv-view-logbook" href="{% url 'flight_list' %}">View logbook</a>
+      </div>
+    {% else %}
+      <div class="csv-file-drop" data-file-drop data-max-bytes="{{ csv_max_bytes }}" data-max-mb="{{ csv_max_mb }}">
+        <p class="mb-2">Drag and Drop a CSV or TSV here, or choose a file.</p>
+      <div class="csv-upload-controls">
+      <div class="csv-file-picker">
+        {{ inspect_form.file|add_class:"form-control"|attr:"accept:.csv,.tsv,.txt,text/csv,text/tab-separated-values,text/plain" }}
+        <label class="visually-hidden" for="{{ inspect_form.file.id_for_label }}">Choose CSV file</label>
+      </div>
+        <button class="btn csv-primary-action btn-primary" id="csv-inspect-submit" type="submit" disabled><span class="spinner-border spinner-border-sm me-2 d-none" data-review-spinner aria-hidden="true"></span><span data-review-label>Review file</span></button>
+      </div>
+        <p class="small mt-2 mb-0" data-file-drop-status role="status" aria-live="polite"></p>
+      </div>
+    {% endif %}
+  </div>
+  {% if not preview_ready %}<p class="small text-muted mt-2 mb-0" data-review-progress role="status" aria-live="polite" hidden>Reading your file and matching columns…</p>{% endif %}
+  {% if preview_ready %}<p class="small text-muted mt-2 mb-0">Preview expires after 10 minutes. Files already submitted cannot be imported again.</p>{% endif %}
+  <p id="csv-import-status" class="small mt-2 mb-0 d-none" role="status" aria-live="polite"{% if latest_import %} data-status-url="{% url 'csv_import_status' latest_import.pk %}"{% endif %}></p>
+</form>
+</div></section>
+
+{% if preview_ready %}
+<section class="card"><div class="card-body p-0">
+{% include "csv_app/preview_pagination.html" %}
+{% else %}
+<section class="card mb-3"><div class="card-body">
+  <h5>Before you upload</h5>
+  <div class="row g-3 small">
+    <div class="col-md-4"><strong>Prepare the file</strong><p class="mb-0 mt-1">Include a header row. Commas, tabs and semicolons are recognized. We’ll recognize common headings and ask you about uncertain matches. If you use the template, replace its sample flight.</p></div>
+    <div class="col-md-4"><strong>Check your hours and dates</strong><p class="mb-0 mt-1">Use decimal hours or HH:MM, such as 1.5 or 01:30. We’ll detect the date order or ask you to choose, then show dates as Nov 30, 2026.</p></div>
+    <div class="col-md-4"><strong>Review, then confirm</strong><p class="mb-0 mt-1">You’ll see a preview first. Files already submitted are recognized, even if renamed.</p></div>
+  </div>
+</div></section>
+<details class="card"><summary class="card-body py-3">Column guide</summary><div class="card-body pt-0">
+{% endif %}
+
+<div class="table-responsive csv-table-container" role="region" aria-label="CSV preview and format guide" tabindex="0">
+    <table class="table table-sm csv-preview-table table-striped table-bordered">
+      <thead>
+        <tr>
+          <th class="text-start">Date</th>
+          <th class="text-start">Type</th>
+          <th class="text-start">Reg</th>
+          <th class="text-start">Route</th>
+          <th class="text-end">Duration</th>
+          <th class="text-end">PIC</th>
+          <th class="text-end">SIC</th>
+          <th class="text-end">X Country</th>
+          <th class="text-end">Night</th>
+          <th class="text-end">Actual Instrument</th>
+          <th class="text-end">Approaches</th>
+          <th class="text-end">Day Ldg</th>
+          <th class="text-end">Night Ldg</th>
+          <th class="text-end">Sim Inst</th>
+          <th class="text-end">CFI</th>
+          <th class="text-end">Dual</th>
+          <th class="text-end">Solo</th>
+          <th class="text-end">Sim</th>
+          <th class="text-center">Remarks</th>
+          <th>Device Type</th><th>Device ID</th><th>ATD Type</th><th>Instrument Credit Eligible</th><th>Launch Method</th><th>Holding</th><th>Approach Types</th><th>Night Full Stop</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if preview_ready %}
+        {% for row in file %}
+        <tr>
+          {% for field in row %}
+          <td>{% if forloop.first %}{{ field|display_date }}{% else %}{{ field|zero_dash }}{% endif %}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+        {% else %}
+        <tr>
+          <td class="text-start">Formats:<br> <!-- date -->
+            &quot;Nov 30, 2026&quot;<br>
+            YYYY-MM-DD<br>
+            MM/DD/YYYY<br>
+            DD/MM/YYYY<br>
+            MM-DD-YYYY
+          </td>
+          <td>C172</td> <!-- type -->
+          <td>N726T</td> <!-- reg -->
+          <td>ICAO or IATA<br> <!-- route -->
+            MMUN-IAH-DFW-CYOW</td>
+          <td class="text-end">##.#</td> <!-- duration -->
+          <td class="text-end">##.#</td> <!-- pic -->
+          <td class="text-end">##.#</td> <!-- sic -->
+          <td class="text-end">##.#</td> <!-- xc -->
+          <td class="text-end">##.#</td> <!-- night -->
+          <td class="text-end">##.#</td> <!-- ifr -->
+          <td class="text-end"># (unspecified if no type is supplied)</td>
+          <td class="text-end">#</td> <!-- day ldg -->
+          <td class="text-end">#</td> <!-- night ldg -->
+          <td class="text-end">##.#</td> <!-- sim inst -->
+          <td class="text-end">##.#</td> <!-- cfi -->
+          <td class="text-end">##.#</td> <!-- dual -->
+          <td class="text-end">##.#</td> <!-- solo -->
+          <td class="text-end">##.#</td> <!-- sim -->
+          <td class="text-end">Text</td> <!-- remarks -->
+          <td>Optional: FFS / FTD / ATD</td><td>Optional device ID</td>
+          <td>BATD / AATD for ATD</td><td>1 or 0</td>
+          <td>Glider: AEROTOW / GROUND / SELF</td>
+          <td>Yes / No, or a holding count</td><td>ILS: 2; LPV: 1</td><td>Optional: Yes / No</td>
+        </tr>
+        {% endif %}
+      </tbody>
+    </table>
+</div>
+
+
+
+{% if preview_ready %}{% include "csv_app/preview_pagination.html" %}</div></section>{% else %}</div></details>{% endif %}
+{% endif %}
+</div>
+<script src="{% static 'csv_app/js/import.js' %}?v=capacity-pagination-2" defer></script>
+<script src="{% static 'csv_app/js/mapping_validation.js' %}?v=3" defer></script>
+{% endblock %}

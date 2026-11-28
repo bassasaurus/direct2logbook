@@ -34,7 +34,7 @@ class CSVSecurityTests(TestCase):
         page = self.client.get(reverse('csv_inspect'))
         token = re.search(r'name="csrfmiddlewaretoken" value="([^"]+)"', page.content.decode()).group(1)
         batch_id = uuid.uuid4()
-        importer.return_value = (SimpleNamespace(pk=batch_id, row_count=1, completed=False, status='queued', error_message=''), False)
+        importer.return_value = (SimpleNamespace(pk=batch_id, row_count=1, completed=False, status='queued', error_message='', is_expired=False, record_resolution={}), False)
         response = self.client.post(reverse('csv_upload'), {'csrfmiddlewaretoken': token, 'batch_id': str(batch_id)})
         self.assertEqual(response.status_code, 202)
         self.assertEqual(importer.call_args.args[0].pk, self.user.pk)

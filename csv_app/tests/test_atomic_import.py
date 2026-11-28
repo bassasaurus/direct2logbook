@@ -10,8 +10,9 @@ from django.test import TestCase, SimpleTestCase, override_settings
 from django.urls import reverse
 
 from csv_app.csv_import import csv_import
-from csv_app.validation import HEADERS, parse_csv, CSVValidationError, MAX_BYTES
+from csv_app.validation import HEADERS, parse_csv, CSVValidationError, MAX_BYTES, MAX_ROWS, OPTIONAL_HEADERS
 from flights.models import Flight, Aircraft, TailNumber, Approach, Total, Stat
+from csv_app.tests.airport_fixtures import seed_airports
 
 
 def row(**changes):
@@ -22,11 +23,21 @@ def row(**changes):
     return values
 
 
+def device_row(**changes):
+    values = row(**{'2': '', '3': '', '7': '0', '17': '1.5', **changes})
+    if not any(values[index] not in ('', '0') for index in (5, 6, 15, 16)):
+        values[15] = values[4]
+    return values + ['FFS', 'CSV test device', '', '0']
+
+
 def content(rows=None, headers=None):
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow(headers or HEADERS)
-    writer.writerows(rows if rows is not None else [row()])
+    records = rows if rows is not None else [row()]
+    extended = headers is None and any(len(record) > len(HEADERS) for record in records)
+    headings = headers or HEADERS + (OPTIONAL_HEADERS[:max(len(record) for record in records) - len(HEADERS)] if extended else [])
+    writer.writerow(headings)
+    writer.writerows(record + [''] * (len(headings) - len(record)) if extended else record for record in records)
     return output.getvalue()
 
 
@@ -55,7 +66,7 @@ class CSVValidationTests(SimpleTestCase):
         self.assertEqual(rows[0]['remarks'], 'Training')
 
     def test_invalid_data_has_row_number(self):
-        for index, value in [(0, 'bad-date'), (1, ''), (1, 'ABCDE'), (2, 'long' * 5), (4, 'NaN'),
+        for index, value in [(0, 'bad-date'), (1, ''), (1, 'ABCDEFGHIJK'), (2, 'long' * 5), (4, 'NaN'),
                              (4, '-1'), (4, '100'), (10, '1.5'), (11, 'bad'), (18, 'x' * 501)]:
             with self.subTest(index=index, value=value):
                 with self.assertRaisesRegex(CSVValidationError, 'Row 2:'):
@@ -70,7 +81,7 @@ class CSVValidationTests(SimpleTestCase):
 
     def test_limits_are_enforced(self):
         with self.assertRaises(CSVValidationError):
-            parse_csv(content([row()] * 1001))
+            parse_csv(content([row()] * (MAX_ROWS + 1)))
         with self.assertRaises(CSVValidationError):
             parse_csv('x' * (MAX_BYTES + 1))
 
@@ -78,6 +89,7 @@ class CSVValidationTests(SimpleTestCase):
 @override_settings(SECURE_SSL_REDIRECT=False)
 class CSVAtomicImportTests(TestCase):
     def setUp(self):
+        seed_airports()
         self.user = get_user_model().objects.create_user(username='csv_atomic', email='atomic@example.com')
         self.request = SimpleNamespace(user=self.user)
         self.client.force_login(self.user)
@@ -155,13 +167,15 @@ class CSVAtomicImportTests(TestCase):
         session = self.client.session
         session['file'] = content()
         session.save()
-        upload = SimpleUploadedFile('bad.csv', b'wrong,headers\n1,2')
+        upload = SimpleUploadedFile('bad.csv', b'wrong,headers\n1')
         response = self.client.post(reverse('csv_inspect'), {'file': upload})
         self.assertTrue(response.context['inspect_form'].errors)
         self.assertNotIn('file', self.client.session)
         self.assertNotContains(response, 'id="csv_upload"')
 
     def test_preview_accepts_valid_utf8_without_saving_flights(self):
+        from csv_app.tests.record_fixtures import seed_records
+        seed_records(self.user)
         upload = SimpleUploadedFile('flights.csv', content().encode())
         response = self.client.post(reverse('csv_inspect'), {'file': upload})
         self.assertTrue(response.context['preview_ready'])
@@ -202,7 +216,7 @@ class CSVAtomicImportTests(TestCase):
         parsed, preview = parse_csv(response.content.decode())
         self.assertEqual(parsed[0]['registration'], '')
         self.assertEqual(parsed[0]['device_id'], 'Trainer 12')
-        self.assertEqual(len(preview[0]), 24)
+        self.assertEqual(len(preview[0]), len(HEADERS + OPTIONAL_HEADERS))
         self.assertEqual(self.import_file(response.content.decode()), 1)
         copy = Flight.objects.exclude(pk=original.pk).get()
         for field in ('aircraft_type_id', 'registration_id', 'route', 'duration', 'simulator',
@@ -213,13 +227,10 @@ class CSVAtomicImportTests(TestCase):
         self.assertEqual(Total.objects.get(user=self.user, total='All').total_time, Decimal('0.0'))
         self.assertEqual(Total.objects.get(user=self.user, total='All').simulator, Decimal('4.0'))
 
-    def test_legacy_simulator_import_still_accepts_missing_device_metadata(self):
-        self.import_file(content([row(**{'2': '', '3': '', '7': '0', '17': '1.5'})]))
-        flight = Flight.objects.get()
-        self.assertTrue(flight.simulator)
-        self.assertIsNone(flight.registration)
-        self.assertEqual(flight.device_type, '')
-        self.assertFalse(TailNumber.objects.exists())
+    def test_simulator_import_requires_device_metadata_like_new_flight_form(self):
+        with self.assertRaisesRegex(CSVValidationError, 'Select device type'):
+            self.import_file(content([row(**{'2': '', '3': '', '7': '0', '17': '1.5'})]))
+        self.assertFalse(Flight.objects.exists())
 
     def test_invalid_device_import_rolls_back_all_rows(self):
         from csv_app.validation import DEVICE_HEADERS
@@ -231,3 +242,23 @@ class CSVAtomicImportTests(TestCase):
                     self.import_file(content([data + list(metadata)], HEADERS + DEVICE_HEADERS))
                 self.assertFalse(Flight.objects.exists())
                 self.assertFalse(Aircraft.objects.exists())
+
+class CSVRequiredValueTests(SimpleTestCase):
+    def test_blank_required_values_never_become_defaults(self):
+        for field in ('0', '1', '2', '3', '4'):
+            with self.subTest(field=field), self.assertRaises(CSVValidationError):
+                parse_csv(content([row(**{field: ''})]))
+
+    def test_optional_numeric_blanks_are_still_allowed(self):
+        rows, _ = parse_csv(content([row(**{'8': '', '9': '', '11': '', '12': '', '13': ''})]))
+        self.assertEqual(rows[0]['duration'], Decimal('1.5'))
+        self.assertEqual(rows[0]['night'], Decimal('0.0'))
+
+    def test_crew_and_solo_landing_requirements_match_flight_form(self):
+        for values, message in [
+            (row(**{'5': '0', '6': '0', '15': '0', '16': '0'}), 'Select PIC, SIC, Solo, or Dual'),
+            (row(**{'16': '1.5', '11': '0', '12': '0'}), 'Enter Day or Night landings for Solo'),
+            (device_row(**{'7': '1.5'}), 'Select either Sim or Cross-country'),
+        ]:
+            with self.subTest(message=message), self.assertRaisesRegex(CSVValidationError, message):
+                parse_csv(content([values]))

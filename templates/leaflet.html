@@ -11,7 +11,7 @@
 ></script>
 <script
   type="text/javascript"
-  src="{% static 'js/leaflet/leaflet_config.js' %}"
+  src="{% static 'js/leaflet/leaflet_config.js' %}?v=local-radius-10mi-1"
 ></script>
 <link rel="stylesheet" href="{% static 'js/leaflet/airport_markers.css' %}?v=dark-map-1" />
 <script src="{% static 'js/leaflet/airport_markers.js' %}"></script>
@@ -81,11 +81,11 @@
         // console.log("single point")
         var filtered = filterSuccessiveDuplicatePositions(latlngs);
         var circle = L.circle(filtered[0], {
-          radius: 3000,
+          radius: localFlightRadiusMeters,
           color: "#496b8a",
         }).addTo(mymap);
         // sets zoom to view entire circle
-        var currentDiameter = L.circle(filtered[0], 3000);
+        var currentDiameter = L.circle(filtered[0], localFlightRadiusMeters);
         currentDiameter.addTo(mymap);
         mymap.fitBounds(currentDiameter.getBounds());
       }
@@ -97,5 +97,5 @@
 {% if flight_map %}
   {% include 'blocks/map_mileage.html' %}
   {{ flight_map|json_script:"flight-map-data" }}
-  <script src="{% static 'js/leaflet/flight_route_highlight.js' %}?v=dark-map-1"></script>
+  <script src="{% static 'js/leaflet/flight_route_highlight.js' %}?v=local-radius-10mi-1"></script>
 {% endif %}

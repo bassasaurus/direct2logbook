@@ -1,0 +1,15 @@
+{% load date_display %}
+<dl class="row small mb-0">
+  <dt class="col-4">Date</dt><dd class="col-8">{{ entry.date|display_date }}</dd>
+  <dt class="col-4">Aircraft</dt><dd class="col-8">{{ entry.aircraft }}{% if entry.registration %} · {{ entry.registration }}{% endif %}</dd>
+  <dt class="col-4">Route</dt><dd class="col-8">{{ entry.route|default:'—' }}</dd>
+  <dt class="col-4">Duration</dt><dd class="col-8">{{ entry.duration|floatformat:1 }}{% if entry.simulator %} · Device session{% endif %}</dd>
+  <dt class="col-4">Roles</dt><dd class="col-8">{{ entry.roles }}</dd>
+  <dt class="col-4">Night / Inst</dt><dd class="col-8">{{ entry.night|floatformat:1 }} / {{ entry.instrument|floatformat:1 }}</dd>
+  <dt class="col-4">Sim Inst</dt><dd class="col-8">{{ entry.simulated_instrument|floatformat:1 }}</dd>
+  <dt class="col-4">Approaches</dt><dd class="col-8">{{ entry.approach_summary|default:entry.approaches }}</dd>
+  <dt class="col-4">Holding</dt><dd class="col-8">{{ entry.hold|yesno:"Yes,No" }}</dd>
+  <dt class="col-4">Landings</dt><dd class="col-8">{{ entry.landings_day }} day / {{ entry.landings_night }} night</dd>
+  {% if entry.device_id %}<dt class="col-4">Device</dt><dd class="col-8">{{ entry.device_type }} {{ entry.device_id }}</dd>{% endif %}
+  {% if entry.remarks %}<dt class="col-4">Remarks</dt><dd class="col-8 text-break">{{ entry.remarks }}</dd>{% endif %}
+</dl>

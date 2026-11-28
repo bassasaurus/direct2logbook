@@ -1,0 +1,8 @@
+{% extends "account/base.html" %}
+{% block head_title %}Please try again{% endblock %}
+{% block account_content %}
+<h1>{% if sign_in_expired %}Sign-in page expired{% else %}This form has expired{% endif %}</h1>
+<p>Your session changed or the page was left open too long. Open a fresh page and try again.</p>
+<p>Your last submission was not saved.</p>
+<a class="btn btn-primary" href="{{ retry_url }}">{% if sign_in_expired %}Return to Sign In{% else %}Return to the form{% endif %}</a>
+{% endblock %}

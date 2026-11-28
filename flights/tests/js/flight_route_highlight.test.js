@@ -66,6 +66,7 @@ function render(routes, groups, mileage, unit = 'nm') {
         : id === 'distance-unit' ? {value: unit} : ({textContent: JSON.stringify({routes: routes, groups: groups, airports: {features: []}, mileage})}),
       querySelectorAll: () => links
     },
+    localFlightRadiusMeters: 10 * 1609.344,
     mymap: map, createAirportMarker: function () {},
     L: {
       latLngBounds: bounds, geoJSON: () => airports,

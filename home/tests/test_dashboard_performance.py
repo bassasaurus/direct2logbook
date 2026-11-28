@@ -35,7 +35,7 @@ class DashboardPerformanceTests(TestCase):
         self.flights = Flight.objects.bulk_create([
             Flight(user=self.user, aircraft_type=self.aircraft, registration=self.tail,
                    date=date.today() - timedelta(days=1), route='KAAA-KBBB', duration=1,
-                   landings_day=1, landings_night=1)
+                   landings_day=1, landings_night=1, night='.3', night_landings_full_stop=True)
             for index in range(3)
         ])
         other_aircraft, other_tail = owned_aircraft_and_tail(self.other, self.aircraft, self.tail)

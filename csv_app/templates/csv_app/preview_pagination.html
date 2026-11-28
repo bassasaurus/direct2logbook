@@ -1,0 +1,16 @@
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 p-3">
+  <span class="small text-muted">Showing {{ preview_page.start_index }}–{{ preview_page.end_index }} of {{ row_count }} entries</span>
+  {% if preview_page.has_other_pages %}
+  <nav aria-label="Preview pages"><ul class="pagination pagination-sm mb-0">
+    {% if preview_page.has_previous %}
+      <li class="page-item"><a class="page-link" href="{% url 'csv_preview' batch.pk %}?page=1">First</a></li>
+      <li class="page-item"><a class="page-link" href="{% url 'csv_preview' batch.pk %}?page={{ preview_page.previous_page_number }}">Previous</a></li>
+    {% endif %}
+    <li class="page-item active" aria-current="page"><span class="page-link">{{ preview_page.number }} of {{ preview_page.paginator.num_pages }}</span></li>
+    {% if preview_page.has_next %}
+      <li class="page-item"><a class="page-link" href="{% url 'csv_preview' batch.pk %}?page={{ preview_page.next_page_number }}">Next</a></li>
+      <li class="page-item"><a class="page-link" href="{% url 'csv_preview' batch.pk %}?page={{ preview_page.paginator.num_pages }}">Last</a></li>
+    {% endif %}
+  </ul></nav>
+  {% endif %}
+</div>

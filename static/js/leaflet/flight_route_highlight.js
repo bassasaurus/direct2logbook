@@ -114,7 +114,7 @@
       layer.on('mouseover', function () { mapHover = id; updateHighlight(); });
       layer.on('mouseout', function () { mapHover = null; updateHighlight(); });
     } else {
-      options.radius = 3000;
+      options.radius = localFlightRadiusMeters;
       layer = L.circle(points[0], options);
     }
     layers[id] = layer.addTo(mymap);

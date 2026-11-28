@@ -49,7 +49,7 @@
                 <td class="pe-4 text-end">{{ flight.instrument|default:"-"|zero_dash }}</td>
                 <td class="text-start">
                   {% for approach in flight.approach_set.all %}
-                    <small>{{ approach.approach_type }}-{{ approach.number|zero_dash }}</small>
+                    <small>{{ approach.approach_type|default:"Unspecified" }}-{{ approach.number|zero_dash }}</small>
                   {% endfor %}
 
                   {% for holding in flight.holding_set.all %}

@@ -1,11 +1,12 @@
 from django.urls import path, re_path
 from .views import (
-    UserUpdateView, EmailView, ConnectionsView, PasswordSetView,
+    UserUpdateView, EmailView, ConnectionsView, PasswordSetView, login_session_token,
     PasswordChangeView, PasswordResetView, PasswordResetDoneView,
     PasswordResetFromKeyView, AllauthPasswordResetFromKeyDoneView
 )
 
 urlpatterns = [
+    path('accounts/session-token/', login_session_token, name='login_session_token'),
     path('accounts/user/update/<int:pk>/',
          UserUpdateView.as_view(), name='user_update'),
 

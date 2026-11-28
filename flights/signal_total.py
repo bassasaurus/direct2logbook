@@ -8,6 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from flights.queryset_helpers import avoid_none
 from flights.rolling_stats import assign_rolling_values, normalize_total_category, CATEGORY_FILTERS
 from django.dispatch import receiver
+from flights.summary_batch import defer_flight_summary
 
 
 @receiver(post_save, sender=Flight)
@@ -16,6 +17,8 @@ from django.dispatch import receiver
 @receiver(post_delete, sender=Imported)
 def total_all_update(sender, instance, dispatch_uid="total_all_update", **kwargs):
     if is_user_deletion(kwargs.get('origin')):
+        return
+    if defer_flight_summary(instance):
         return
 
     all_sessions = Flight.objects.filter(user=instance.user)

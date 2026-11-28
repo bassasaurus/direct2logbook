@@ -107,6 +107,8 @@ class TailNumberAutocomplete(LoginRequiredMixin, autocomplete.Select2QuerySetVie
 
         aircraft_type = self.forwarded.get('aircraft_type', None)
 
+        if self.forwarded.get('require_aircraft') and not aircraft_type:
+            return qs.none()
         if aircraft_type:
             qs = qs.filter(aircraft=aircraft_type)
 

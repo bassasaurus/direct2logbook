@@ -1,0 +1,9 @@
+{% load flights_filters %}
+<div class="col-sm-6 col-lg-4">
+  <label class="form-label" for="{{ cell.field.id_for_label }}">{{ cell.field.label }}</label>
+  {{ cell.field }}{{ cell.field.errors }}
+  {% if cell.custom_field %}<div class="mt-2" data-custom-record-field{% if cell.field.value != '__custom__' %} hidden{% endif %}>{{ cell.custom_field }}{{ cell.custom_field.errors }}</div>{% endif %}
+  {% if cell.error %}<div class="text-danger small">{{ cell.error }}</div>{% endif %}
+  {% if cell.field.label == 'Remarks' and cell.field.value|remarks_has_separators %}<div class="small text-break mt-1" style="white-space:pre-wrap" aria-label="Remarks character preview">{{ cell.field.value|visible_remarks_separators }}</div>{% endif %}
+  <div class="small text-muted text-break">Original: {{ cell.original|default:'(blank)'|visible_remarks_separators }}</div>
+</div>

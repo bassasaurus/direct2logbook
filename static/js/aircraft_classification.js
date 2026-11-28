@@ -61,6 +61,7 @@
       });
       var equipmentGroup = form.querySelector('[data-aircraft-equipment-group]');
       if (equipmentGroup) equipmentGroup.hidden = !['A', 'R', 'PL'].includes(category.value);
+      form.dataset.aircraftValid = String(valid);
       form.querySelectorAll('button[type="submit"], input[type="submit"]').forEach(function (button) {
         button.disabled = !valid;
       });

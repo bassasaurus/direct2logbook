@@ -141,3 +141,17 @@ class PasswordResetFromKeyDoneView(AllauthPasswordResetFromKeyDoneView):
         context['parent_link'] = reverse('profile')
         context['page_title'] = 'Password Changed'
         return context
+
+
+from django.http import JsonResponse
+from django.middleware.csrf import get_token
+from django.views.decorators.cache import never_cache
+from django.views.decorators.http import require_GET
+
+
+@never_cache
+@require_GET
+def login_session_token(request):
+    # Same-origin browser fetch immediately before sign-in; standard CSRF checks
+    # still validate the actual login POST, including Origin and Referer.
+    return JsonResponse({'csrf_token': get_token(request)})

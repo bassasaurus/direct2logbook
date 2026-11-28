@@ -58,7 +58,7 @@ jobs:
           .venv/bin/python manage.py test --noinput
           .venv/bin/python manage.py migrate --noinput
           .venv/bin/python manage.py collectstatic --noinput
-          node --test flights/tests/js/*.test.js
+          node --test flights/tests/js/*.test.js csv_app/tests/test_import_ui.cjs csv_app/tests/test_recovery_ui.cjs
       - name: Check deployment script syntax
         run: |
           bash -n deploy/production.sh

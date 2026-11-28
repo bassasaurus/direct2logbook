@@ -1,0 +1,32 @@
+<section class="card mb-3"><div class="card-body">
+  <h5>Review possible duplicates</h5>
+  <p class="mb-1">These incoming entries match the date, aircraft, tailnumber, route, duration and flight/device status of existing entries. They may still be separate flights.</p>
+  <p class="small text-muted">Choose for each row. Excluding a row leaves your existing record untouched. Import anyway adds another entry. Nothing is merged or deleted.</p>
+  <p class="small">{{ overlap_remaining }} row{{ overlap_remaining|pluralize }} to review.</p>
+  <form method="post" action="{% url 'csv_overlaps' batch.pk %}">
+    {% csrf_token %}
+    {% if overlap_form.non_field_errors %}<div class="text-danger" role="alert">{{ overlap_form.non_field_errors }}</div>{% endif %}
+    {% for issue in overlap_rows %}
+    <section class="border rounded p-3 mb-3" aria-labelledby="overlap-row-{{ issue.line }}">
+      <h6 id="overlap-row-{{ issue.line }}">Incoming row {{ issue.line }}</h6>
+      <div class="row g-3">
+        <div class="col-lg-6"><h6>Your File</h6>{% include 'csv_app/overlap_entry.html' with entry=issue.incoming %}</div>
+        <div class="col-lg-6"><h6>Already in Direct2Logbook</h6>
+          {% for entry in issue.matches %}<div class="{% if not forloop.first %}border-top pt-2 mt-2{% endif %}">
+            <a class="small d-inline-block mb-2" href="{% url 'flight_detail' entry.pk %}" target="_blank" rel="noopener">View entry #{{ entry.pk }}</a>
+            {% include 'csv_app/overlap_entry.html' with entry=entry %}
+          </div>{% endfor %}
+        </div>
+      </div>
+      {{ issue.token_field }}
+      {% for error in issue.token_field.errors %}<p class="text-danger small">Reload this review and choose again.</p>{% endfor %}
+      <fieldset class="mt-3"><legend class="fs-6">What should happen to this incoming row?</legend>
+        {% for radio in issue.decision %}<div class="form-check mb-1">{{ radio.tag }}<label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label></div>{% endfor %}
+      </fieldset>
+      {% for error in issue.decision.errors %}<p class="text-danger small mb-0">{{ error }}</p>{% endfor %}
+    </section>
+    {% endfor %}
+    <div class="d-flex gap-3 align-items-center"><button type="submit" class="btn btn-primary">Save choices and continue</button><a href="{% url 'csv_rows' batch.pk %}">Edit incoming rows</a><a href="{% url 'csv_inspect' %}">Choose another file</a></div>
+    <p class="small text-muted mt-2 mb-0">No entries have been added. This preview expires after 10 minutes.</p>
+  </form>
+</div></section>
