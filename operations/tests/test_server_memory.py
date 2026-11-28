@@ -60,7 +60,7 @@ class ServerMemoryTests(SimpleTestCase):
         for staff, active in ((False, True), (True, False)):
             request = SimpleNamespace(user=SimpleNamespace(is_staff=staff, is_active=active, pk=1))
             html = render_to_string('admin/index.html', {'request': request, 'user': request.user, 'app_list': [], 'log_entries': LogEntry.objects.none()})
-            self.assertNotIn('Server memory', html)
+            self.assertNotIn('SERVER MEMORY', html)
         collect.assert_not_called()
 
     @patch('operations.templatetags.server_memory.memory_snapshot', return_value={'available': False})
@@ -70,6 +70,6 @@ class ServerMemoryTests(SimpleTestCase):
         html = render_to_string('admin/index.html', {
             'request': request, 'user': request.user, 'app_list': [], 'log_entries': LogEntry.objects.none(),
         })
-        self.assertIn('Server memory', html)
+        self.assertIn('SERVER MEMORY', html)
         self.assertIn('Linux /proc access', html)
         collect.assert_called_once_with()
