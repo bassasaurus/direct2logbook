@@ -1,0 +1,7 @@
+{% extends "admin/index.html" %}
+{% load server_memory %}
+
+{% block content %}
+{% server_memory %}
+{{ block.super }}
+{% endblock %}

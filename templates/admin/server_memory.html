@@ -1,0 +1,23 @@
+{% if show_memory %}
+<section class="module" aria-labelledby="server-memory-heading">
+  <h2 id="server-memory-heading">Server memory</h2>
+  {% if memory.available %}
+  <div style="overflow-x:auto">
+    <table style="width:100%">
+      <caption>Server totals (MiB)</caption>
+      <thead><tr><th scope="col">RAM total</th><th scope="col">RAM in use*</th><th scope="col">RAM available</th><th scope="col">Swap used / total</th></tr></thead>
+      <tbody><tr><td>{{ memory.total }}</td><td>{{ memory.used }}</td><td>{{ memory.free }}</td><td>{{ memory.swap_used }} / {{ memory.swap_total }}</td></tr></tbody>
+    </table>
+    <table style="width:100%">
+      <caption>App and service processes (MiB)</caption>
+      <thead><tr><th scope="col">Service</th><th scope="col">Processes</th><th scope="col">Resident RAM</th><th scope="col">Swap</th></tr></thead>
+      <tbody>{% for process in memory.processes %}<tr><th scope="row">{{ process.name }}</th><td>{{ process.count }}</td><td>{{ process.rss }}</td><td>{{ process.swap|default_if_none:"Unavailable" }}</td></tr>{% empty %}<tr><td colspan="4">Process metrics unavailable.</td></tr>{% endfor %}</tbody>
+    </table>
+  </div>
+  <p class="help">*RAM in use is total minus available, allowing for reclaimable cache. Process totals can count shared memory more than once. Only visible processes are included. Swap may contain inactive pages and does not by itself indicate current memory pressure.</p>
+  {% else %}
+  <p>Unavailable. These metrics require Linux /proc access.</p>
+  {% endif %}
+  <p class="help">Checked {{ checked_at|date:"M j, Y H:i:s T" }}. Reload this page to refresh. Figures describe this server, not historical peaks or import capacity.</p>
+</section>
+{% endif %}

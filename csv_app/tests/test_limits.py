@@ -27,10 +27,10 @@ class CSVLimitTests(SimpleTestCase):
         self.assertEqual(len(parsed),10_000)
         self.assertEqual(len(preview),10_000)
 
-    @override_settings(CSV_IMPORT_MAX_ROWS=1000,CSV_IMPORT_MAX_BYTES=2*1024*1024)
+    @override_settings(CSV_IMPORT_MAX_ROWS=5000,CSV_IMPORT_MAX_BYTES=2*1024*1024)
     def test_production_can_keep_lower_ceilings(self):
         from csv_app.validation import configured_import_limits
-        self.assertEqual(configured_import_limits(),(1000,2*1024*1024))
+        self.assertEqual(configured_import_limits(),(5000,2*1024*1024))
 
     @override_settings(CSV_IMPORT_MAX_ROWS=10001)
     def test_configuration_cannot_exceed_tested_row_ceiling(self):
