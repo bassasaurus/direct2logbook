@@ -11,18 +11,10 @@
   <div class="mb-3 row">
   <div class="col col-form-label">FAR</div>
   <div class="col form-check-inline">
-    <div class="m-4">
-      {{ form.is_91 |attr:"" |add_class:"form-control"}} 91
-      <p class="text-danger">{{ form.is_91.errors }}</p>
-    </div>
-    <div class="m-4">
-      {{ form.is_135 |attr:"" |add_class:"form-control"}} 135
-      <p class="text-danger">{{ form.is_135.errors }}</p>
-    </div>
-    <div class="m-4">
-      {{ form.is_121 |attr:"" |add_class:"form-control"}} 121
-      <p class="text-danger">{{ form.is_121.errors }}</p>
-    </div>
+    {% for radio in form.operating_rules %}
+      <div class="form-check mb-2">{{ radio.tag }}<label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label></div>
+    {% endfor %}
+    {{ form.operating_rules.errors }}
   </div>
   </div>
 

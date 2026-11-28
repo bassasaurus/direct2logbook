@@ -19,6 +19,15 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     distance_unit = models.CharField(max_length=2, choices=DistanceUnit.choices, default=DistanceUnit.NM)
     company = models.CharField(max_length=50, default='', blank=True)
+    student_pilot_certificate = models.BooleanField(default=False)
+    sport_pilot_certificate = models.BooleanField(default=False)
+    recreational_pilot_certificate = models.BooleanField(default=False)
+    private_pilot_certificate = models.BooleanField(default=False)
+    commercial_pilot_certificate = models.BooleanField(default=False)
+    atp_certificate = models.BooleanField(default=False)
+    flight_instructor_certificate = models.BooleanField(default=False)
+    instrument_instructor = models.BooleanField(default=False)
+    multi_engine_instructor = models.BooleanField(default=False)
 
     medical_issue_date = models.DateField(default=date.today)
     first_class = models.BooleanField(default=False)
@@ -41,6 +50,12 @@ class Profile(models.Model):
     trial_expiring = models.BooleanField(default=False)
     today = timezone.now()
     end_date = models.DateField(default=None, null=True, blank=True)
+
+    class Meta:
+        constraints = [models.CheckConstraint(
+            condition=models.Q(flight_instructor_certificate=True) | models.Q(instrument_instructor=False, multi_engine_instructor=False),
+            name='profile_instructor_ratings_require_cfi',
+        )]
 
     def __str__(self):
         title = "{} {}".format(self.user, self.pk)

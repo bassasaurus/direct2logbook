@@ -3,6 +3,7 @@
       <table id="logbook" class="custom-table">
         <thead class="custom-table">
             <th class="ps-2 text-start">Date</th>
+            <th scope="col" class="pe-4 text-end text-muted small">Index</th>
             <th class="text-start">Type</th>
             <th class="text-start">Reg</th>
             <th class="text-start">Route</th>
@@ -34,6 +35,7 @@
                     <a href="{% url 'flight_update' flight.pk %}" class="btn btn-sm btn-outline-danger">Update</a>
                   {% endif %}
                 </td>
+                <td class="pe-4 text-end text-muted small" aria-label="Flight ID {{ flight.pk }}">{{ flight.pk }}</td>
                 <td class="pe-4 text-start">{{flight.aircraft_type}}</td>
                 <td class="pe-4 text-start">{% if flight.simulator %}{{ flight.device_id|default:flight.registration|default:"—" }}{% else %}{{ flight.registration }}{% endif %}</td>
                 <td class="pe-4 text-start logbook-route-cell">{{flight.route}}

@@ -1,0 +1,10 @@
+<td class="{% if status.current %}text-success{% else %}text-danger{% endif %}">
+  {% if currency_row %}
+    {% if status.valid_through %}{% if status.current %}Until{% else %}Expired{% endif %} {{ status.valid_through|date:"M j, Y" }}{% else %}Not current{% endif %}
+  {% elif not status.current and status.valid_through %}
+    —
+  {% else %}
+  <div>{{ status.count }}/3{% if status.still_needed %} - Log {{ status.still_needed }} more{% endif %}</div>
+  {% if status.last_dates %}<div class="small">{% for day in status.last_dates reversed %}{{ day|date:"M j" }}{% if not forloop.last %} · {% endif %}{% endfor %}</div>{% endif %}
+  {% endif %}
+</td>

@@ -1,4 +1,4 @@
-        <li class="reminder-banner reminder-banner-{{ reminder.severity }}{% if reminder.banner == False %} reminder-banner-plain{% endif %}{% if reminder.milestone_state == "completed" %} milestone-completed{% endif %}"{% if reminder.medical %} data-medical-reminder{% endif %}>
+        <li class="card reminder-banner reminder-banner-{{ reminder.severity }}{% if reminder.banner == False %} reminder-banner-plain{% endif %}{% if reminder.milestone_state == "completed" %} milestone-completed{% endif %}"{% if reminder.medical %} data-medical-reminder{% endif %}>
             {% if reminder.medical %}
               <div class="d-flex align-items-baseline justify-content-between gap-2">
                 <strong>{{ reminder.title }}</strong>
@@ -19,7 +19,7 @@
             {% if reminder.milestone_state %}
             <form method="post" action="{% url 'dismiss_dashboard_reminder' reminder.id %}" class="d-flex">
               {% csrf_token %}<input type="hidden" name="key" value="{{ reminder.key }}">
-              <button type="submit" class="btn btn-link ms-auto reminder-dismiss">Dismiss</button>
+              <button type="submit" class="btn btn-link ms-auto reminder-dismiss">Hide</button>
             </form>
             {% elif reminder.web_action_token %}
             <form method="post" action="{% url 'web_reminder_action' %}" class="d-flex align-items-center gap-1">

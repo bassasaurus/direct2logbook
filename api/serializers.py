@@ -123,7 +123,7 @@ class FlightSerializer(FriendlyValidationSerializer):
         fields = ['id', 'user', 'date', 'aircraft_type', 'registration', 'route', 'duration', 'landings_day', 'landings_night', 
                     'night', 'instrument', 'cross_country', 'second_in_command', 'pilot_in_command', 'simulated_instrument', 
                     'instructor', 'simulator', 'device_type', 'device_id', 'atd_type', 'instrument_credit_eligible', 'launch_method', 'dual', 'remarks', 'solo', 'hold', 'app_markers', 'app_polylines','approaches', 'holding', 'revision', 'route_airport_choices', 'validate_airports', 'distance_nm',
-                    'night_landings_full_stop']
+                    'night_landings_full_stop', 'intercepting_tracking', 'training_program']
         read_only_fields = ['user']
         extra_kwargs = {'remarks': {'trim_whitespace': False}}
 
@@ -285,6 +285,10 @@ class TailNumberSerializer(FriendlyValidationSerializer):
         import hashlib
         import json
         values = {field.attname: getattr(obj, field.attname) for field in obj._meta.concrete_fields}
+        # False new options must not conflict with edits queued by older clients.
+        for field in ('is_125', 'is_137'):
+            if not values[field]:
+                values.pop(field)
         return hashlib.sha256(json.dumps(values, sort_keys=True).encode()).hexdigest()
 
     # The trusted request owner also feeds per-user uniqueness validation.
@@ -296,7 +300,7 @@ class TailNumberSerializer(FriendlyValidationSerializer):
 
     class Meta:
         model = TailNumber
-        fields = ['id', 'user', 'registration', 'aircraft', 'is_121', 'is_135', 'is_91', 'revision']
+        fields = ['id', 'user', 'registration', 'aircraft', 'is_121', 'is_135', 'is_91', 'is_125', 'is_137', 'revision']
         read_only_fields = ['user']
 
     def validate(self, attrs):

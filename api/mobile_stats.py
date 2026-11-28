@@ -37,10 +37,12 @@ class MobileStatsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
+        from home.training_programs import training_program_totals
         from home.instrument_credit import instrument_airplane_device_credit
         from home.pilot_time import pilot_time_report
         return Response({
             'instrument_device_credit': instrument_airplane_device_credit(request.user),
+            'simulator_program_totals': training_program_totals(request.user),
             'iacra': pilot_time_report(request.user),
             'schema_version': 1,
             'downloaded_at': timezone.now().isoformat(),

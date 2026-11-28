@@ -352,12 +352,15 @@ class Flight(models.Model):
         ATD = 'ATD', 'ATD — Aviation Training Device'
 
     device_type = models.CharField(max_length=3, choices=DeviceType.choices, blank=True, default='')
+    training_program = models.CharField(max_length=3, blank=True, default='',
+        choices=[('', 'Not specified'), ('141', 'Part 141'), ('142', 'Part 142')])
     device_id = models.CharField(max_length=100, blank=True, default='', verbose_name='Device ID')
     atd_type = models.CharField(max_length=4, blank=True, default='', choices=[('BATD', 'BATD'), ('AATD', 'AATD')])
     instrument_credit_eligible = models.BooleanField(default=False)
     solo = models.BooleanField(default=False, blank=True)
     hold = models.BooleanField(
         default=False, blank=True, verbose_name="Hold")
+    intercepting_tracking = models.BooleanField(default=False, blank=True, verbose_name="Intercepting and Tracking")
     night_landings_full_stop = models.BooleanField(null=True, blank=True, default=None)
     route_airport_choices = models.JSONField(default=dict, blank=True, editable=False)
     route_data = PickledObjectField(null=True, blank=True)
@@ -387,6 +390,8 @@ class Flight(models.Model):
         constraints = [
             models.CheckConstraint(condition=models.Q(simulator=True, simulator__isnull=False) | ~models.Q(route__regex=r'^\s*$'), name='flight_route_nonempty'),
             models.CheckConstraint(condition=models.Q(simulator=True, simulator__isnull=False) | models.Q(registration__isnull=False), name='flight_registration_required'),
+            models.CheckConstraint(condition=models.Q(training_program__in=['', '141', '142']), name='flight_training_program_valid'),
+            models.CheckConstraint(condition=models.Q(training_program='') | models.Q(simulator=True, simulator__isnull=False), name='flight_training_program_sim_only'),
             models.CheckConstraint(condition=models.Q(device_type__in=['', 'FFS', 'FTD', 'ATD']), name='flight_device_type_valid'),
             models.CheckConstraint(condition=models.Q(launch_method__in=['', 'AEROTOW', 'GROUND', 'SELF']), name='flight_launch_method_valid'),
             models.CheckConstraint(condition=(
@@ -450,6 +455,8 @@ class TailNumber(models.Model):
     is_121 = models.BooleanField(null=True, blank=True)
     is_135 = models.BooleanField(null=True, blank=True)
     is_91 = models.BooleanField(null=True, blank=True)
+    is_125 = models.BooleanField(default=False, blank=True)
+    is_137 = models.BooleanField(default=False, blank=True)
 
     class Meta:
         verbose_name_plural = "Tailnumbers"
@@ -465,6 +472,11 @@ class TailNumber(models.Model):
     def __str__(self):
         registration = str(self.registration)
         return registration
+
+    @property
+    def operating_rules_display(self):
+        from flights.operating_rules import OPERATING_RULE_CHOICES
+        return ' / '.join(label for field, label in OPERATING_RULE_CHOICES if getattr(self, field))
 
     def get_absolute_url(self):
         return reverse('tailnumber_detail', kwargs={'pk': self.pk})
@@ -526,6 +538,8 @@ class Imported(models.Model):
     is_121 = models.BooleanField(null=True, blank=True)
     is_135 = models.BooleanField(null=True, blank=True)
     is_91 = models.BooleanField(null=True, blank=True)
+    is_125 = models.BooleanField(default=False, blank=True)
+    is_137 = models.BooleanField(default=False, blank=True)
     total_time = models.DecimalField(
         decimal_places=1, max_digits=6, db_index=True, null=True, blank=True, default=0, verbose_name="Time")
     pilot_in_command = models.DecimalField(

@@ -88,7 +88,7 @@ function updateDeviceFields() {
     $('#id_registration').prop('required', !sim).prop('disabled', sim);
     $('#route').prop('required', !sim).attr('placeholder', 'e.g. IAH-LAX');
     $('#aircraft-type-label').text(sim ? 'Aircraft Represented' : 'Aircraft Type');
-    if (!sim) { $('#id_device_type, #id_device_id, #id_atd_type').val(''); $('#id_instrument_credit_eligible').prop('checked', false); }
+    if (!sim) { $('#id_device_type, #id_device_id, #id_atd_type, #id_training_program').val(''); $('#id_instrument_credit_eligible').prop('checked', false); }
     const atd = sim && $('#id_device_type').val() === 'ATD';
     $('#atd-classification').prop('hidden', !atd);
     $('#id_atd_type').prop('required', atd);

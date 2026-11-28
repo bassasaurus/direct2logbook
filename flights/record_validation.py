@@ -9,7 +9,7 @@ AIRCRAFT_SELECTIONS = {
     'engine': ENGINE_FIELDS,
     'weight_category': WAKE_FIELDS,
 }
-OPERATING_RULES = ('is_91', 'is_135', 'is_121')
+from flights.operating_rules import OPERATING_RULE_FIELDS as OPERATING_RULES
 
 
 def effective_values(data, instance, fields):
@@ -47,7 +47,11 @@ def validate_flight(data, instance):
     if aircraft is not None and tail is not None and tail.aircraft_id != aircraft.pk:
         errors['registration'] = f'{tail.registration} is assigned to {tail.aircraft.aircraft_type}. Choose a tailnumber for {aircraft.aircraft_type}.'
     device = effective_values(data, instance, ('simulator', 'device_type', 'device_id', 'atd_type',
-        'instrument_credit_eligible', 'dual', 'simulated_instrument', 'duration'))
+        'instrument_credit_eligible', 'dual', 'simulated_instrument', 'duration', 'training_program'))
+    if device['training_program'] not in (None, '', '141', '142'):
+        errors['training_program'] = 'Choose Part 141 or Part 142.'
+    if not device['simulator'] and device['training_program']:
+        errors['training_program'] = 'Select Sim first.'
     if not device['simulator']:
         if tail is None:
             errors['registration'] = 'Choose a tailnumber.'
@@ -138,7 +142,7 @@ def validate_tailnumber(data, instance, user=None):
         if Flight.objects.filter(registration_id=instance.pk).exclude(aircraft_type_id=aircraft.pk).exists():
             errors['aircraft'] = f'{instance.registration} has flights logged as {instance.aircraft.aircraft_type}. Keep {instance.aircraft.aircraft_type}, or correct those flights first.'
     rules = effective_values(data, instance, OPERATING_RULES)
-    if fields_changed(rules, instance, bool) and sum(map(bool, rules.values())) != 1:
+    if sum(map(bool, rules.values())) != 1:
         errors['operating_rules'] = 'Select one operating rule.'
     return errors
 

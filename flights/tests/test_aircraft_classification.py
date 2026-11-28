@@ -80,7 +80,7 @@ class AircraftClassificationFormTests(TestCase):
         self.client.force_login(user)
         response = self.client.get(reverse('aircraft_detail', args=[aircraft.pk]))
         self.assertEqual(response.status_code, 200)
-        self.assertFalse(response.context['class_error'])
+        self.assertFalse(response.context['detail_has_errors'])
         self.assertContains(response, 'Class: Not applicable')
 
 

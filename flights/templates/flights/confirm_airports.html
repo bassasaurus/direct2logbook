@@ -1,5 +1,5 @@
-{% extends 'base.html' %}
-{% block content %}
+{% extends 'layouts/card_page.html' %}
+{% block card_content %}
 <h1>Confirm airports</h1>
 {% include 'flights/airport_confirmation.html' %}
 {% if not airport_confirmation_form.pending %}{{ airport_confirmation_form.errors }}{% endif %}

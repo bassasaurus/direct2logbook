@@ -96,7 +96,7 @@ class InlineErrorTests(TestCase):
         self.assertLess(response.content.index(b'aria-label="Flight errors"'), response.content.index(b'Previous</a>'))
 
     @patch('flights.views.get_map_data')
-    def test_aircraft_and_tail_errors_are_inline_and_healthy_notices_hidden(self, map_data):
+    def test_aircraft_and_tail_details_do_not_display_audit_warnings(self, map_data):
         aircraft_url = reverse('aircraft_detail', args=[self.aircraft.pk])
         tail_url = reverse('tailnumber_detail', args=[self.tail.pk])
         self.assertNotContains(self.client.get(aircraft_url), 'aria-label="Aircraft errors"')
@@ -105,11 +105,11 @@ class InlineErrorTests(TestCase):
         TailNumber.objects.filter(pk=self.tail.pk).update(is_91=False)
         for url, label in [(aircraft_url, 'Aircraft'), (tail_url, 'Tailnumber')]:
             response = self.client.get(url)
-            self.assertContains(response, f'aria-label="{label} errors"')
-            self.assertContains(response, 'class="detail-update btn btn-outline-danger">Update</a>')
+            self.assertNotContains(response, f'aria-label="{label} errors"')
+            self.assertContains(response, 'class="detail-update text-primary">Update</a>')
             self.assertNotContains(response, 'id="errors"')
-        self.assertContains(self.client.get(aircraft_url), 'Choose Piston, Turbine, or Electric.')
-        self.assertContains(self.client.get(tail_url), 'Please select FAR 91, 135 or 121.')
+        self.assertNotContains(self.client.get(aircraft_url), 'Choose Piston, Turbine, or Electric.')
+        self.assertNotContains(self.client.get(tail_url), 'Please select FAR 91, 135 or 121.')
 
     def test_invalid_codes_survive_valid_later_legs_and_repeat_codes_are_deduplicated(self):
         values = route_warning_values('KAAA-XXXX-YYYY-XXXX-KBBB')
@@ -180,7 +180,8 @@ class InlineErrorTests(TestCase):
         for detail, update, pk in pages:
             response = self.client.get(reverse(detail, args=[pk]))
             self.assertContains(response, 'class="text-danger detail-delete">Delete</a>', count=int(detail == 'flight_detail'))
-            self.assertContains(response, f'href="{reverse(update, args=[pk])}" class="detail-update btn btn-outline-danger">Update</a>', count=1)
+            expected_style = 'btn btn-outline-danger' if detail == 'flight_detail' else 'text-primary'
+            self.assertContains(response, f'href="{reverse(update, args=[pk])}" class="detail-update {expected_style}">Update</a>', count=1)
             self.assertEqual(response.content.count(f'href="{reverse(update, args=[pk])}"'.encode()), 1)
 
     def test_pagination_date_ranges_match_page_boundaries(self):

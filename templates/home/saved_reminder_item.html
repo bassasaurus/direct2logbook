@@ -1,5 +1,5 @@
 {% load date_display %}
-        <li data-reminder-id="{{ card.id }}" class="reminder-banner reminder-banner-{{ card.severity }}{% if card.plain %} reminder-banner-plain{% endif %}{% if card.milestone_state == "completed" %} milestone-completed{% endif %}">
+        <li data-reminder-id="{{ card.id }}" class="card reminder-banner reminder-banner-{{ card.severity }}{% if card.plain %} reminder-banner-plain{% endif %}{% if card.milestone_state == "completed" %} milestone-completed{% endif %}">
           {% if card.medical %}
 <section aria-labelledby="medical-heading" class="mb-0">
   <h2 id="medical-heading" class="h5">Medical Certificate</h2>

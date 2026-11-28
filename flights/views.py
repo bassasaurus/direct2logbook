@@ -652,43 +652,12 @@ class AircraftDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin, 
         context['flight_map'] = flight_map_data(flights)
         context['flights'] = flights
 
-        if TailNumber.objects.filter(user=user).filter(aircraft__aircraft_type=self.object).exists() or Imported.objects.filter(user=user).filter(aircraft_type=self.object).exists():
-            pass
-        else:
-            context['aircraft_needs_tailnumber'] = "Please select a tailnumber for {}".format(
-                self.object.aircraft_type)
-
         if Imported.objects.filter(user=user).filter(aircraft_type=self.object).exists():
             context['is_imported'] = True
         else:
             context['is_imported'] = False
 
-        from flights.aircraft_characteristics import engine_required
-        if engine_required(self.object.aircraft_category, self.object.aircraft_class) and not any((self.object.piston, self.object.turbine, self.object.electric)):
-            context['power_error'] = True
-        else:
-            context['power_error'] = False
-
-        if self.object.aircraft_category == '':
-            context['category_error'] = True
-        else:
-            context['category_error'] = False
-
-        from flights.aircraft_classification import class_required
-        if class_required(self.object.aircraft_category) and self.object.aircraft_class == '':
-            context['class_error'] = True
-        else:
-            context['class_error'] = False
-
-        if not self.object.superr and not self.object.heavy and not self.object.large and not self.object.small:
-            context['weight_error'] = True
-        else:
-            context['weight_error'] = False
-
-        context['detail_has_errors'] = any(context.get(key) for key in (
-            'power_error', 'weight_error', 'category_error',
-            'class_error', 'aircraft_needs_tailnumber',
-        ))
+        context['detail_has_errors'] = False
         context['title'] = "D-> | " + str(self.object)
         context['page_title'] = str(self.object)
         context['home_link'] = reverse('home')
@@ -841,7 +810,7 @@ class TailNumberDetail(LoginRequiredMixin, OwnObjectMixin, ProfileNotActiveMixin
         else:
             context['new_user_flight'] = False
 
-        context['detail_has_errors'] = not (tailnumber.is_91 or tailnumber.is_135 or tailnumber.is_121)
+        context['detail_has_errors'] = False
         context['title'] = "D-> | " + str(self.object)
         context['page_title'] = str(self.object)
         context['home_link'] = reverse('home')

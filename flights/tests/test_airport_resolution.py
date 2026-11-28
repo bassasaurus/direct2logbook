@@ -95,10 +95,10 @@ class AirportResolutionTests(TestCase):
         form = AirportConfirmationForm(flight=flight)
         labels = dict(form.fields['airport_0'].choices)
         self.assertIn('Texas, United States', labels[str(first.pk)])
-        self.assertIn('Small airport', labels[str(first.pk)])
-        self.assertIn('ICAO KTKI | FAA TKI', labels[str(first.pk)])
+        self.assertNotIn('Small airport', labels[str(first.pk)])
+        self.assertIn('ICAO KTKI / FAA TKI', labels[str(first.pk)])
         self.assertIn('Alaska, United States', labels[str(second.pk)])
-        self.assertIn('Seaplane base', labels[str(second.pk)])
+        self.assertNotIn('Seaplane base', labels[str(second.pk)])
         self.assertIn('IATA TKI', labels[str(second.pk)])
         response = self.client.get(reverse('route_airport_check'), {'route': 'TKI'})
         data = response.json()['entries'][0]

@@ -116,7 +116,7 @@ class RecordValidationParityTests(APITestCase):
         self.flight.delete()
         replacement = Aircraft.objects.create(user=self.user, aircraft_type='C182')
         form = TailNumberForm(
-            data={'registration': 'LEGACY123', 'aircraft': replacement.pk},
+            data={'registration': 'LEGACY123', 'aircraft': replacement.pk, 'operating_rules': 'is_91'},
             instance=self.tailnumber, user=self.user,
         )
         self.assertTrue(form.is_valid(), form.errors)

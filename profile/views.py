@@ -6,7 +6,7 @@ from django.views.generic import TemplateView, UpdateView
 from .models import Profile
 from .access import has_logbook_access
 from .billing import cancellation_scheduled, billing_period_expired
-from .forms import MedicalForm, ProfileForm
+from .forms import MedicalForm, ProfileForm, CertificatesForm
 import uuid
 from django.core import signing
 from payments.checkout import SALT
@@ -66,6 +66,17 @@ class ProfileView(LoginRequiredMixin, TemplateView):
     model = Profile
     template_name = 'profile/profile.html'
 
+    def post(self, request, *args, **kwargs):
+        profile = get_object_or_404(Profile, user=request.user)
+        form = CertificatesForm(request.POST, instance=profile)
+        if form.is_valid():
+            # Ownership comes from the session; ignore submitted user/profile IDs.
+            for field in form.fields:
+                setattr(profile, field, form.cleaned_data[field])
+            profile.save(update_fields=list(form.fields))
+            return redirect('profile')
+        return self.render_to_response(self.get_context_data(certificates_form=form), status=400)
+
     def get_context_data(self, **kwargs):
         context = super(ProfileView, self).get_context_data(**kwargs)
         user = self.request.user
@@ -88,6 +99,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
 
         context['signature'] = signature
         context['profile'] = profile
+        context.setdefault('certificates_form', CertificatesForm(instance=profile))
         context['customer_id'] = profile.customer_id
         context['user_email'] = str(user.email)
         context['title'] = "D-> | Profile"

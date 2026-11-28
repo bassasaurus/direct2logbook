@@ -6,7 +6,10 @@
 <div class="mb-3 col-12 col-md-6">
   <label class="form-label" for="id_date">Date</label>
   {{ form.date.errors }}
-<div class="d-flex align-items-start gap-3 flight-date-row"><div class="flex-grow-1">  {{ form.date |attr:"autocomplete:off" |attr:"placeholder:Select date" |add_class:"form-control" }}</div>
+<div class="d-flex align-items-start gap-3 flight-date-row"><div class="position-relative flex-grow-1" style="min-width:0">
+      {{ form.date|attr:"autocomplete:off"|attr:"placeholder:Select Date"|add_class:"form-control pe-5" }}
+      <span class="ion-calendar position-absolute top-50 end-0 translate-middle-y me-3" style="pointer-events:none" aria-hidden="true"></span>
+    </div>
     <div class="form-check flight-sim-toggle flex-shrink-0 mb-0">
       {{ form.simulator|attr:"id:id_simulator"|add_class:"form-check-input" }}
       <label class="form-check-label" for="id_simulator">Sim</label>{{ form.simulator.errors }}
@@ -48,6 +51,9 @@
         {{ form.device_id.errors }}{{ form.device_id|add_class:"form-control"|attr:"placeholder:e.g. FFS-1234" }}
       </div>
     </div>
+    <div class="mb-2"><label for="id_training_program" class="form-label">Training Program (optional)</label>
+      {{ form.training_program.errors }}{{ form.training_program|add_class:"form-select" }}
+    </div>
     <div id="atd-classification" class="mb-2"><label class="form-label" for="id_atd_type">ATD Classification</label>
       {{ form.atd_type.errors }}{{ form.atd_type|add_class:"form-select" }}
     </div>
@@ -70,7 +76,7 @@
   {{ form.route |attr:"id:route" |attr:"autocomplete:off" |attr:"placeholder:e.g. IAH-LAX" |attr:"aria-describedby:route-help" |add_class:"form-control" }}
   {{ form.airport_choices }}{{ form.airport_choices.errors }}
   <div id="route-airport-feedback" class="mt-2" role="status" aria-live="polite" data-check-url="{% url 'route_airport_check' %}"></div>
-  <small id="route-help" class="form-text text-muted">Use FAA, IATA or ICAO airport codes, for example 1G3-IAH or KIAH-KLAX. Spaces are formatted automatically.</small>
+  <small id="route-help" class="form-text text-muted">FAA, IATA, ICAO - ex. 1G3-IAH or KIAH-KLAX<br>Spaces are formatted automatically.</small>
 </div>
 <div class="mb-3 col-12"><fieldset class="border rounded p-3 mb-0"><legend class="float-none w-auto px-1 fs-6">Role</legend><div class="d-flex flex-wrap" role="group" aria-label="Role and flight type" id="flight-role-fields" tabindex="-1">
 <div class="form-check">
@@ -155,7 +161,7 @@
 </table>
 </div>
 </fieldset>
-<div class="approach-holding-option">
+<div class="approach-holding-option d-flex flex-wrap gap-3">
 {{ holding.management_form }}
 {{ holding.non_form_errors }}
 {% for hold_form in holding %}
@@ -165,6 +171,11 @@
     <label class="form-check-label" for="{{ hold_form.hold.id_for_label }}">Holding</label>
   </div>
 {% endfor %}
+  <div class="form-check">
+    {{ form.intercepting_tracking.errors }}
+    {{ form.intercepting_tracking|add_class:"form-check-input" }}
+    <label class="form-check-label" for="{{ form.intercepting_tracking.id_for_label }}">Intercepting and Tracking</label>
+  </div>
 </div>
 </div>
 </fieldset>
@@ -182,7 +193,7 @@ $(function () {
 });
 </script>
 
-<script src="{% static 'js/route_airport_check.js' %}?v=route-submit-page-fade" defer></script>
+<script src="{% static 'js/route_airport_check.js' %}?v=airport-validation-format-1" defer></script>
 
 <script src="{% static 'js/simulator_validation.js' %}?v=staged-1"></script>
 

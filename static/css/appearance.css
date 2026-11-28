@@ -45,9 +45,9 @@
   html[data-bs-theme="dark"] :is(.table,#logbook) thead > tr > * { background-color: #232d3b !important; }
   html[data-bs-theme="dark"] .table tbody > tr > :first-child { background-color: #0f131a !important; }
   html[data-bs-theme="dark"] .table-striped tbody > tr:nth-of-type(odd) > :first-child { background-color: #1c2531 !important; }
-  html[data-bs-theme="dark"] #logbook .logbook-flight-row > td:first-child { background-color: #0f131a !important; }
+  html[data-bs-theme="dark"] #logbook .logbook-flight-row > td:nth-child(-n+2) { background-color: #0f131a !important; }
   html[data-bs-theme="dark"] #logbook .logbook-stripe { background-color: #1c2531; }
-  html[data-bs-theme="dark"] #logbook tbody .logbook-stripe > td:first-child { background-color: #1c2531 !important; }
+  html[data-bs-theme="dark"] #logbook tbody .logbook-stripe > td:nth-child(-n+2) { background-color: #1c2531 !important; }
   html[data-bs-theme="dark"] #logbook tbody .logbook-flight-row:is(:hover,:focus-within) > td,
   html[data-bs-theme="dark"] :is(#total,#stat) > tbody > tr:hover > td { background-color: #283b52 !important; }
   html[data-bs-theme="dark"] #logbook .logbook-remarks-preview > td { background-color: #202d3c; }

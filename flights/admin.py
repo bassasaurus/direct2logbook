@@ -135,11 +135,20 @@ class AircraftAdmin(admin.ModelAdmin):
 class TailnumberAdminForm(forms.ModelForm):
     is_121 = forms.BooleanField(required=False, label='Is 121')
     is_135 = forms.BooleanField(required=False, label='Is 135')
-    is_91 = forms.BooleanField(required=False, label='Is 91')
+    is_91 = forms.BooleanField(required=False, label='Part 91')
+    is_125 = forms.BooleanField(required=False, label='Part 125')
+    is_137 = forms.BooleanField(required=False, label='Part 137')
 
     class Meta:
         model = TailNumber
         fields = '__all__'
+
+    def clean(self):
+        from flights.record_validation import validate_tailnumber
+        cleaned = super().clean()
+        for field, message in validate_tailnumber(cleaned, self.instance, user=cleaned.get('user')).items():
+            self.add_error(field if field in self.fields else None, message)
+        return cleaned
 
 
 class TailnumberAdmin(admin.ModelAdmin):
@@ -148,9 +157,9 @@ class TailnumberAdmin(admin.ModelAdmin):
     def get_changelist_form(self, request, **kwargs):
         return super().get_changelist_form(request, **{'form': self.form, **kwargs})
 
-    list_display = ('registration', 'user', 'pk', 'aircraft', 'is_121', 'is_135', 'is_91')
+    list_display = ('registration', 'user', 'pk', 'aircraft', 'is_121', 'is_135', 'is_91', 'is_125', 'is_137')
     list_display_links = ('pk',)
-    list_editable = ('registration', 'is_121', 'is_135', 'is_91')
+    list_editable = ('registration', 'is_121', 'is_135', 'is_91', 'is_125', 'is_137')
     search_fields = ('registration',)
     empty_value_display = ''
 

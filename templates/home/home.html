@@ -3,7 +3,7 @@
 {% block content %}
 <div class="row home-overview">
   <div class="col-lg-4 home-overview-column">
-    <section aria-label="Recent">
+    <section class="card" aria-label="Recent"><div class="card-body p-3">
       <h5><button class="overview-toggle" type="button" aria-expanded="true" aria-controls="recent-flights-content">Recent <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" aria-hidden="true" focusable="false" viewBox="0 0 512 512"><polyline points="112 184 256 328 400 184" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px"/></svg></button></h5>
       <div id="recent-flights-content" class="overview-content">
         {% for flight in recent %}
@@ -11,13 +11,13 @@
         {% endfor %}
 
       </div>
-    </section>
+    </div></section>
   </div>
   <div class="col-lg-8">
   <div class="row">
   {% for group in reminder_groups %}
   <div class="col-lg-6 home-overview-column home-overview-{{ group.key }}">
-    <section aria-label="{{ group.title }}">
+    <section class="card" aria-label="{{ group.title }}"><div class="card-body p-3">
       <div class="d-flex align-items-baseline gap-3 mb-2 overview-heading-row">
         <h5 class="mb-0"><button class="overview-toggle" type="button" aria-expanded="true" aria-controls="{{ group.key }}-content">{{ group.title }} <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" aria-hidden="true" focusable="false" viewBox="0 0 512 512"><polyline points="112 184 256 328 400 184" style="fill:none;stroke:currentColor;stroke-linecap:round;stroke-linejoin:round;stroke-width:48px"/></svg></button></h5>
         <a href="{% url 'manage_reminders' %}?group={{ group.key }}" class="btn-sm ms-auto">Manage</a>
@@ -49,7 +49,7 @@
           {% endif %}
         </div>
       </div>
-    </section>
+    </div></section>
   </div>
   {% endfor %}
   </div>
@@ -63,7 +63,7 @@
   let wasStacked = false;
   function update() {
     if (stacked.matches && !wasStacked) {
-      toggles.forEach(button => { button.dataset.collapsed = 'true'; });
+      toggles.forEach(button => { button.dataset.collapsed = button.getAttribute('aria-controls') === 'milestones-content' ? 'false' : 'true'; });
     }
     document.querySelectorAll('.home-overview .other-reminders').forEach(details => {
       if (stacked.matches) {
@@ -87,58 +87,8 @@
     button.dataset.collapsed = button.dataset.collapsed === 'true' ? 'false' : 'true';
     update();
   }));
-  const milestoneColumn = document.querySelector('.home-overview-milestones');
-  const referenceSection = document.querySelector('.home-overview-regulatory > section');
-  const preview = milestoneColumn.querySelector('.reminder-banners');
-  const overflow = milestoneColumn.querySelector('.other-reminders');
-  const overflowList = overflow?.querySelector('.reminder-banners');
-  const milestoneRows = [...preview.children, ...(overflowList ? overflowList.children : [])];
-  let scheduled = false;
-  function fitMilestones() {
-    scheduled = false;
-    if (!overflowList) return;
-    // Keep the existing three-item preview in the stacked layout.
-    let count = Math.min(3, milestoneRows.length);
-    if (!stacked.matches) {
-      milestoneRows.forEach(row => preview.appendChild(row));
-      const heading = milestoneColumn.querySelector('.overview-heading-row');
-      const control = overflow.querySelector('summary');
-      const headingHeight = heading.getBoundingClientRect().height + parseFloat(getComputedStyle(heading).marginBottom);
-      const controlHeight = control.getBoundingClientRect().height || 30;
-      const referenceHeading = referenceSection.querySelector('.overview-heading-row');
-      const referenceHeaderHeight = referenceHeading.getBoundingClientRect().height + parseFloat(getComputedStyle(referenceHeading).marginBottom);
-      const referenceNaturalHeight = referenceHeaderHeight
-        + referenceSection.querySelector('.reminder-banners').getBoundingClientRect().height
-        + referenceSection.querySelector('.home-overview-footer').getBoundingClientRect().height;
-      const available = Math.max(0, referenceNaturalHeight - headingHeight - controlHeight);
-      const gap = parseFloat(getComputedStyle(preview).rowGap) || 0;
-      let used = 0;
-      count = 0;
-      for (const row of milestoneRows) {
-        const next = used + row.getBoundingClientRect().height + (count ? gap : 0);
-        if (next > available + 1 && count) break;
-        used = next;
-        count++;
-      }
-      count = Math.min(milestoneRows.length, count + 1);
-    }
-    milestoneRows.forEach((row, index) => (index < count ? preview : overflowList).appendChild(row));
-    overflow.hidden = !stacked.matches && count === milestoneRows.length;
-  }
-  function scheduleFit() {
-    if (!scheduled) {
-      scheduled = true;
-      requestAnimationFrame(fitMilestones);
-    }
-  }
-  const observer = new ResizeObserver(scheduleFit);
-  observer.observe(referenceSection);
-  observer.observe(milestoneColumn);
-  document.fonts.ready.then(scheduleFit);
-  window.addEventListener('resize', scheduleFit);
-  stacked.addEventListener('change', () => { update(); scheduleFit(); });
+  stacked.addEventListener('change', update);
   update();
-  scheduleFit();
 })();
 </script>
 
@@ -169,18 +119,18 @@
 </div>
 
 <!-- Content Panel -->
-<div class="tab-content">
-  <div role="tabpanel" class="tab-pane fade show active" id="totals" aria-labelledby="totals-tab">
+<div class="tab-content card site-summary-card">
+  <div role="tabpanel" class="tab-pane fade show active card-body" id="totals" aria-labelledby="totals-tab">
     <br>
     {% include 'home/table_totals.html' %}
   </div>
 
-  <div role="tabpanel" class="tab-pane fade" id="stats" aria-labelledby="stats-tab">
+  <div role="tabpanel" class="tab-pane fade card-body" id="stats" aria-labelledby="stats-tab">
     <br>
     {% include 'home/table_stats.html' %}
   </div>
 
-  <div role="tabpanel" class="tab-pane fade" id="currency" aria-labelledby="currency-tab" data-table-tracking="off">
+  <div role="tabpanel" class="tab-pane fade card-body" id="currency" aria-labelledby="currency-tab" data-table-tracking="off">
     <br>
     <div class="row">
       <div class="col-md-6" style="">
@@ -188,7 +138,7 @@
       </div>
       {% for instrument in instrument_categories %}
       <div class="col-md-6">
-        {% include 'home/ifr_currency.html' with ifr_current=instrument.ifr_current instrument_category_label=instrument.instrument_category_label instrument_status_message=instrument.instrument_status_message instrument_holding_warning=instrument.instrument_holding_warning appr_quantity=instrument.appr_quantity still_needed=instrument.still_needed appr_current_date=instrument.appr_current_date hold_quantity=instrument.hold_quantity hold_current_date=instrument.hold_current_date ipc_completed_date=instrument.ipc_completed_date instrument_review_date=instrument.instrument_review_date next_instrument_requirement=instrument.next_instrument_requirement %}
+        {% include 'home/ifr_currency.html' with instrument_display=instrument.instrument_display ifr_current=instrument.ifr_current instrument_category_label=instrument.instrument_category_label instrument_status_message=instrument.instrument_status_message instrument_holding_warning=instrument.instrument_holding_warning appr_quantity=instrument.appr_quantity still_needed=instrument.still_needed appr_current_date=instrument.appr_current_date hold_quantity=instrument.hold_quantity hold_current_date=instrument.hold_current_date ipc_completed_date=instrument.ipc_completed_date instrument_review_date=instrument.instrument_review_date next_instrument_requirement=instrument.next_instrument_requirement %}
       </div>
       {% endfor %}
       <div class="col-md-6" style="">
@@ -200,7 +150,7 @@
     </div>
   </div>
 
-  <div role="tabpanel" class="tab-pane fade" id="misc" aria-labelledby="misc-tab" data-table-tracking="off">
+  <div role="tabpanel" class="tab-pane fade card-body" id="misc" aria-labelledby="misc-tab" data-table-tracking="off">
     <br>
     <div class="row">
       <div class="col-sm-6" style="">
@@ -220,7 +170,7 @@
     </div>
   </div>
 
-  <div role="tabpanel" class="tab-pane fade" id="iacra" aria-labelledby="iacra-tab" data-table-tracking="cell">
+  <div role="tabpanel" class="tab-pane fade card-body" id="iacra" aria-labelledby="iacra-tab" data-table-tracking="cell">
     <br>
     {% include 'home/iacra.html' %}
   </div>
