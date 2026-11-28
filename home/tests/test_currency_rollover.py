@@ -27,7 +27,7 @@ class CurrencyRolloverTests(TestCase):
 
     def test_type_currency_changes_after_midnight_without_process_restart(self):
         self.flight(self.as_of - timedelta(days=90))
-        self.assertEqual(self.current_at(self.as_of)['B737'], (3, True, 3, True))
+        self.assertEqual(self.current_at(self.as_of)['B737'], (6, True, 3, True))
         self.assertEqual(self.current_at(self.as_of + timedelta(days=1))['B737'], (0, False, 0, False))
 
     def test_two_year_cutoff_and_future_flights_are_evaluated_on_each_call(self):

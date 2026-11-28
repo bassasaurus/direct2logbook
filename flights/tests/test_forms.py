@@ -36,6 +36,19 @@ class FlightFormTests(TestCase):
             is_91=False
         )
 
+    def test_intercepting_tracking_can_be_selected_and_cleared(self):
+        data = {'route': 'KJFK-KLAX', 'date': '2026-11-01', 'duration': '2.5',
+                'aircraft_type': self.aircraft.pk, 'registration': self.tailnumber.pk,
+                'pilot_in_command': True, 'intercepting_tracking': True}
+        form = FlightForm(data=data, user=self.user)
+        self.assertTrue(form.is_valid(), form.errors)
+        flight = form.save(commit=False)
+        self.assertTrue(flight.intercepting_tracking)
+        data.pop('intercepting_tracking')
+        edited = FlightForm(data=data, instance=flight, user=self.user)
+        self.assertTrue(edited.is_valid(), edited.errors)
+        self.assertFalse(edited.save(commit=False).intercepting_tracking)
+
     def test_flight_form_valid(self):
         data = {
             'route': 'KJFK-KLAX',
@@ -122,7 +135,7 @@ class TailNumberFormTests(TestCase):
         self.assertEqual(form.fields['registration'].widget.attrs['maxlength'],8)
         self.assertTrue(form.fields['operating_rules'].widget.attrs['required'])
 
-    def test_untouched_historical_registration_and_missing_rule_remain_editable(self):
+    def test_historical_registration_is_preserved_but_operating_rule_is_required(self):
         import re
         from flights.models import TailNumber
         existing = TailNumber(pk=100,registration='N1',is_91=False,is_135=False,is_121=False)
@@ -132,7 +145,7 @@ class TailNumberFormTests(TestCase):
         self.assertIsNotNone(re.fullmatch(pattern,'N1'))
         self.assertIsNotNone(re.fullmatch(pattern,'N12345'))
         self.assertIsNone(re.fullmatch(pattern,'X'))
-        self.assertFalse(form.fields['operating_rules'].widget.attrs.get('required',False))
+        self.assertTrue(form.fields['operating_rules'].widget.attrs.get('required',False))
 
     def test_operating_rules_radio_maps_to_saved_booleans(self):
         from flights.models import Aircraft

@@ -16,10 +16,10 @@ class APIRecordOwnershipTests(APITestCase):
         self.aircraft = Aircraft.objects.create(user=self.owner, aircraft_type='C172')
         self.other_aircraft = Aircraft.objects.create(user=self.other, aircraft_type='A320')
         self.tail = TailNumber.objects.create(
-            user=self.owner, aircraft=self.aircraft, registration='NOWN',
+            user=self.owner, aircraft=self.aircraft, registration='NOWN', is_91=True,
         )
         self.other_tail = TailNumber.objects.create(
-            user=self.other, aircraft=self.other_aircraft, registration='NOTHER',
+            user=self.other, aircraft=self.other_aircraft, registration='NOTHER', is_91=True,
         )
         self.flight = self.make_flight(self.owner, self.aircraft, self.tail)
         self.other_flight = self.make_flight(self.other, self.other_aircraft, self.other_tail)

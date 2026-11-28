@@ -75,7 +75,7 @@ class CSVRecordResolutionTests(TestCase):
         self.assertNotContains(response, 'Choose a tailnumber')
         self.assertNotContains(response, 'data-autocomplete-light-url="/flights/aircraft-autocomplete/')
         missing = self.client.post(url, {'aircraft_0': self.aircraft.pk})
-        self.assertContains(missing, 'Choose Part 91, 135, or 121.')
+        self.assertContains(missing, 'Choose one operating rule.')
         self.assertFalse(TailNumber.objects.filter(user=self.user, registration='N77777').exists())
         invalid = self.client.post(url, {'aircraft_0': self.aircraft.pk, 'operating_rules_0': 'is_999'})
         self.assertTrue(invalid.context['record_form'].errors)

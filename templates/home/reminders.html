@@ -7,6 +7,7 @@
 {% include 'home/medical_card.html' %}
 {% endif %}
 
+    <section class="card mb-3"><div class="card-body">
     <h2 id="reminder-form-title" class="h5">{{ form_group_title }}</h2>
     <p class="text-muted" data-reminder-help="flight_review">Record a qualifying Flight Review, check, or completed WINGS phase. Review scheduled at month-end, 24 months later.</p>
     <p class="text-muted" data-reminder-help="ipc">Record your IPC completion. Dates are based on your logged approaches, holding, and IPC entries. Update any missing records.</p>
@@ -24,6 +25,7 @@
       <button class="btn btn-primary" type="submit">Save</button>
       {% if editing %}<a class="btn btn-link" href="{% url 'manage_reminders' %}?group={{ form_group }}">Cancel</a>{% endif %}
     </form>
+    </div></section>
   </div>
   <div class="col-lg-6 mt-4 mt-lg-0">
     {% for group in reminder_groups %}

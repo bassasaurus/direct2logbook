@@ -37,7 +37,7 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
         user = self.request.user
         context = super(HomeView, self).get_context_data(**kwargs)
 
-        context['reminders'] = reminder_rows(user, include_saved=True, respect_dismissal=True)
+        context['reminders'] = reminder_rows(user, include_saved=True, respect_dismissal=True, include_all_milestones=True)
 
         context['flight_review_currency'] = flight_review_currency(user)
 
@@ -104,30 +104,18 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
         from .pilot_time import pilot_time_report, report_context
         pilot_time = pilot_time_report(user)
         context.update(report_context(pilot_time))
+        from home.training_programs import training_program_totals
         from .instrument_credit import instrument_airplane_device_credit
         context['instrument_device_credit'] = instrument_airplane_device_credit(user)
+        context['simulator_program_totals'] = training_program_totals(user)
 
 
         context['aircraft_type_rating'] = Aircraft.objects.filter(user=user).filter(requires_type=True)
-        context['type_currency'] = type_currency(user)
-
-        context['amel_vfr_day'], context['amel_vfr_day_current'] = amel_vfr_day(user)
-        context['amel_vfr_night'], context['amel_vfr_night_current'] = amel_vfr_night(user)
-
-        context['asel_vfr_day'], context['asel_vfr_day_current'] = asel_vfr_day(user)
-        context['asel_vfr_night'], context['asel_vfr_night_current'] = asel_vfr_night(user)
-
-        context['ases_vfr_day'], context['ases_vfr_day_current'] = ases_vfr_day(user)
-        context['ases_vfr_night'], context['ases_vfr_night_current'] = ases_vfr_night(user)
-
-        context['ames_vfr_day'], context['ames_vfr_day_current'] = ames_vfr_day(user)
-        context['ames_vfr_night'], context['ames_vfr_night_current'] = ames_vfr_night(user)
-
-        context['helo_vfr_day'], context['helo_vfr_day_current'] = helo_vfr_day(user)
-        context['helo_vfr_night'], context['helo_vfr_night_current'] = helo_vfr_night(user)
-
-        context['gyro_vfr_day'], context['gyro_vfr_day_current'] = gyro_vfr_day(user)
-        context['gyro_vfr_night'], context['gyro_vfr_night_current'] = gyro_vfr_night(user)
+        from home.passenger_currency import passenger_currency
+        passenger = passenger_currency(user)
+        context['passenger_categories'] = passenger['categories']
+        context['passenger_types'] = passenger['types']
+        context['type_currency'] = {row['label']: (row['day']['count'], row['day']['current'], row['night']['count'], row['night']['current']) for row in passenger['types']}
 
         context['expiry_date'] = medical_expiry_date(user.profile)
         context['medical_alert'] = medical_expiration_alert(
@@ -161,7 +149,7 @@ class HomeView(LoginRequiredMixin, ProfileNotActiveMixin, TemplateView):  # Prof
         for group in context['reminder_groups']:
             group['medical_rows'] = [row for row in group['rows'] if row.get('medical')]
             available = [row for row in group['rows'] if not row.get('medical')]
-            group['preview_rows'] = available[:3]
+            group['preview_rows'] = available if group['key'] == 'milestones' else available[:3]
             preview_ids = {id(row) for row in group['preview_rows']}
             group['extra_rows'] = [row for row in available if id(row) not in preview_ids]
 

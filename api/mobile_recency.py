@@ -16,17 +16,9 @@ class MobileRecencyView(APIView):
 
     def get(self, request):
         user = request.user
-        categories = []
-        flown = set(Total.objects.filter(user=user, total_time__gt=0).values_list('total', flat=True))
-        for label, prefix in [('ASEL', 'asel'), ('AMEL', 'amel'), ('ASES', 'ases'),
-                              ('AMES', 'ames'), ('HELO', 'helo'), ('GYRO', 'gyro')]:
-            if label in flown:
-                categories.append({'label': label,
-                                   'day': landing_status(*getattr(currency, prefix + '_vfr_day')(user)),
-                                   'night': landing_status(*getattr(currency, prefix + '_vfr_night')(user))})
-        types = [{'label': label, 'day': landing_status(values[0], values[1]),
-                  'night': landing_status(values[2], values[3])}
-                 for label, values in sorted(currency.type_currency(user).items())]
+        from home.passenger_currency import passenger_currency
+        passenger = passenger_currency(user)
+        categories, types = passenger['categories'], passenger['types']
         instrument = currency.instrument_recency(user)
         return Response({
             'schema_version': 1, 'downloaded_at': timezone.now().isoformat(),
@@ -45,6 +37,7 @@ def instrument_payload(instrument):
         'ipc_required': instrument['ipc_required'], 'ipc_required_from': instrument['ipc_required_from'],
         'recovery_until': instrument['instrument_recovery_until'],
         'current': instrument['ifr_current'], 'current_until': instrument['ifr_current_until'],
+        'display': instrument['instrument_display'],
         'status_message': instrument['instrument_status_message'], 'holding_warning': instrument['instrument_holding_warning'],
         'next_requirement': instrument['next_instrument_requirement'],
         'ipc_completed_date': instrument['ipc_completed_date'],

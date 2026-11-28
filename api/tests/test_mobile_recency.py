@@ -39,10 +39,13 @@ class MobileRecencyTests(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual([row['label'] for row in response.data['categories']], ['AMEL'])
         row = response.data['categories'][0]
-        self.assertEqual(row['day'], {'count': 3, 'required': 3, 'current': True})
+        self.assertEqual(row['day']['count'], 4)
+        self.assertTrue(row['day']['current'])
+        self.assertEqual(len(row['day']['last_dates']), 3)
         self.assertFalse(row['night']['current'])
+        self.assertEqual(len(response.data['types']), 1)
         self.assertEqual(response.data['types'][0]['label'], 'A320')
-        self.assertEqual(response.data['types'][0]['day']['count'], 3)
+        self.assertEqual(response.data['types'][0]['day']['count'], 4)
         approaches = response.data['instrument']['approaches']
         self.assertEqual(approaches['count'], 6)
         self.assertTrue(approaches['current'])

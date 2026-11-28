@@ -68,6 +68,26 @@ class MilestoneParityTests(TestCase):
         self.assertFalse(edited.data['dismissed'])
         self.assertEqual(self.api.get(reverse('mobile_reminders')).data['reminders'][0]['milestone_state'], 'approaching')
 
+    def test_web_shows_distant_goals_without_changing_mobile_alert_threshold(self):
+        row = Reminder.objects.create(user=self.user, kind='flight_time', target_hours=5000)
+        home = self.client.get(reverse('home'))
+        self.assertIn(row.pk, [item['id'] for item in home.context['reminders']])
+        group = next(item for item in home.context['reminder_groups'] if item['key'] == 'milestones')
+        self.assertEqual(len(group['preview_rows']), 1)
+        self.assertEqual(group['extra_rows'], [])
+        self.assertContains(home, '>Hide</button>')
+        self.assertContains(home, 'class="card reminder-banner')
+        self.assertEqual(self.api.get(reverse('mobile_reminders')).data['reminders'], [])
+        key = next(item['key'] for item in home.context['reminders'] if item['id'] == row.pk)
+        self.client.post(reverse('dismiss_dashboard_reminder', args=[row.pk]), {'key': key})
+        row.refresh_from_db()
+        self.assertTrue(row.dismissed_key)
+        self.assertNotIn(row.pk, [item['id'] for item in self.client.get(reverse('home')).context['reminders']])
+        manage = self.client.get(reverse('manage_reminders'), {'group': 'milestones'})
+        self.assertContains(manage, reverse('restore_dashboard_reminder', args=[row.pk]))
+        self.client.post(reverse('restore_dashboard_reminder', args=[row.pk]))
+        self.assertIn(row.pk, [item['id'] for item in self.client.get(reverse('home')).context['reminders']])
+
     def test_sort_is_completed_then_hours_remaining_not_percentage(self):
         rows = [dict(id=1, severity='success', milestone_state='approaching', hours_remaining='9', completion_percent='99'),
                 dict(id=2, severity='success', milestone_state='completed', hours_remaining='0', completion_percent='100'),

@@ -1,3 +1,4 @@
+from flights.operating_rules import OPERATING_RULE_CHOICES
 from django import forms
 
 from .validation import MAX_BYTES
@@ -390,8 +391,7 @@ class RecordResolutionForm(forms.Form):
                 if not entry['required']:
                     self.fields[f'skip_tail_{index}'] = forms.BooleanField(required=False, label='Use no tailnumber for these simulator sessions', widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}))
                 self.fields[f'operating_rules_{index}'] = forms.ChoiceField(required=False,
-                    label='Operating rules', choices=[('', 'Choose operating rules'), ('is_91', 'Part 91'),
-                    ('is_135', 'Part 135'), ('is_121', 'Part 121')],
+                    label='Operating rules', choices=[('', 'Choose operating rules'), *OPERATING_RULE_CHOICES],
                     widget=forms.RadioSelect(attrs={'class': 'form-check-input'}))
 
     def clean(self):
@@ -415,7 +415,7 @@ class RecordResolutionForm(forms.Form):
                     from flights.forms import TailNumberForm
                     rule = cleaned.get(f'operating_rules_{index}')
                     if not rule:
-                        self.add_error(f'operating_rules_{index}', 'Choose Part 91, 135, or 121.')
+                        self.add_error(f'operating_rules_{index}', 'Choose one operating rule.')
                         continue
                     tail_form = TailNumberForm({'aircraft': aircraft.pk, 'registration': entry['source'],
                                                 'operating_rules': rule}, user=self.user)

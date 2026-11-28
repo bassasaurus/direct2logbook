@@ -53,7 +53,7 @@
         line.className = 'small mb-1';
         if (entry.status === 'recognized') {
           line.classList.add('text-success');
-          line.textContent = entry.code + ' — ' + airportLabel(entry.airport);
+          line.textContent = entry.code + ' - ' + airportLabel(entry.airport);
         } else if (entry.status === 'ambiguous') {
           var label = document.createElement('label');
           label.htmlFor = 'route-airport-choice-' + entry.position;

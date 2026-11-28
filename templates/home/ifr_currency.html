@@ -1,42 +1,21 @@
-{% load flights_filters %}
+{% load date_display %}
 <table class="table table-bordered">
-  <thead class="table-light">
-    <th colspan=2 class="text-center" style="">IFR — {{ instrument_category_label }}<br>
-  </thead>
-
-  <tr><td>Status</td><td class="{% if ifr_current %}text-success{% else %}text-danger{% endif %}">{{ instrument_status_message|linebreaksbr }}</td></tr>
-  {% if instrument_holding_warning %}<tr><td>Holding notice</td><td class="text-danger">{{ instrument_holding_warning }}</td></tr>{% endif %}
-  {% if appr_quantity < 6 %}
-  <tr>
-    <td>Approaches</td>
-    <td class="text-danger text-nowrap">{{ appr_quantity|zero_dash }}/6 - Log {{ still_needed|zero_dash }} more</td>
-  </tr>
-  {% elif appr_quantity >= 6 %}
-  <tr>
-    <td>Approaches</td>
-    <td class="text-success text-nowrap">{{ appr_quantity|zero_dash }}/6 - Logged window through {{ appr_current_date }}</td>
-  </tr>
-  {% else %}
-  <tr>
-    <td>Approaches</td>
-    <td class="text-danger text-nowrap">None in last 6 months</td>
-  </tr>
-  {% endif %}
-  {% if not hold_quantity or hold_quantity == 0 %}
-  <tr>
-    <td>Holding</td>
-    <td class="text-danger text-nowrap">None in last 6 months</td>
-  </tr>
-  {% else %}
-  <tr>
-    <td>Holding</td>
-    <td class="text-success text-nowrap">{{ hold_quantity|zero_dash }}/1 - Last hold on {{ hold_current_date }}</td>
-  </tr>
-  {% endif %}
-{% if ipc_completed_date %}
-  <tr><td>Last IPC</td><td>{{ ipc_completed_date|date:"M j, Y" }}</td></tr>
-  <tr><td>Review instrument currency</td><td>{{ instrument_review_date|date:"M j, Y" }} <a href="{% url 'ipc_reminder' %}">Update</a></td></tr>
-{% endif %}
-  <tr><td>Next requirement</td><td>{{ next_instrument_requirement.message }}</td></tr>
-  <tr><td colspan="2" class="small">Based on logged information. Check your records and applicable requirements before relying on these dates.</td></tr>
+  <thead class="table-light"><tr><th colspan="2" class="text-center">IFR — {{ instrument_category_label }}</th></tr></thead>
+  <tbody>
+    <tr><th scope="row">Status</th><td class="text-{{ instrument_display.tone }} fw-semibold">{{ instrument_display.status }}</td></tr>
+    {% if instrument_display.basis %}<tr><th scope="row">Based on</th><td>{{ instrument_display.basis }}</td></tr>{% endif %}
+    <tr><th scope="row">Approaches</th><td class="text-{{ instrument_display.approach_tone }}">
+      {{ instrument_display.approaches }}
+      {% if instrument_display.approach_dates %}<div class="small">{{ instrument_display.approach_dates|join:' · ' }}</div>{% endif %}
+    </td></tr>
+    <tr><th scope="row">Holding</th><td class="text-{{ instrument_display.holding_tone }}">{{ instrument_display.holding }}</td></tr>
+    {% if ipc_completed_date and not instrument_display.ipc_summary %}<tr><th scope="row">Last IPC</th><td>{{ ipc_completed_date|display_date }} <a href="{% url 'ipc_reminder' %}">Update</a></td></tr>{% endif %}
+    {% if instrument_display.ipc_summary %}
+    <tr><th scope="row">IPC</th><td>Logged {{ instrument_display.ipc_summary.logged_date|display_date }}<br>Expiry {{ instrument_display.ipc_summary.expiry_date|display_date }} <a href="{% url 'ipc_reminder' %}">Update</a></td></tr>
+    {% else %}
+    <tr><th scope="row">Next action</th><td>{{ instrument_display.next_action }}</td></tr>
+    {% endif %}
+    {% if instrument_display.ipc_review_from %}<tr><th scope="row">IPC review from</th><td>{{ instrument_display.ipc_review_from|display_date }}</td></tr>{% endif %}
+  </tbody>
 </table>
+<p class="small text-muted">Based on logged information. Verify your records, including interception and tracking. Counting logged experience since {{ instrument_display.window_start|display_date }}.</p>

@@ -1,7 +1,7 @@
-{% extends 'base.html' %}
+{% extends 'layouts/card_page.html' %}
 {% load static %}
 
-{% block content %}
+{% block card_content %}
 
 <div class="row gx-2 align-items-center mt-3 mb-3">
   <div class="col-12 col-md-6 col-lg-4">
@@ -14,16 +14,7 @@
 </div>
 <p id="aircraft-filter-empty" class="mb-3" role="status" hidden>No matching aircraft or tailnumbers.</p>
 <div id="aircraft-filter-results">
-{% if aircraft_needs_tailnumber %}
-<section id="aircraft-unassigned-alert" class="alert alert-danger" aria-label="Aircraft missing tailnumbers">
-  <h5>Aircraft missing tailnumbers</h5>
-  <ul class="mb-0 ps-3">
-  {% for aircraft in aircraft_needs_tailnumber %}
-    <li data-aircraft-unassigned><a class="alert-link" href="{% url 'aircraft_detail' aircraft.pk %}">{{ aircraft.aircraft_type }}</a> has not been assigned a tailnumber and is excluded from calculations.</li>
-  {% endfor %}
-  </ul>
-</section>
-{% endif %}
+
 <hr>
 
 {% if imported %}
@@ -43,16 +34,7 @@
   {% for aircraft in aircraft_groups %}
       <div class="col-12" data-aircraft-group>
         <div class="d-flex align-items-center gap-3 mb-1">
-        <a
-          {% if aircraft.grouper.engine_type_required and not aircraft.grouper.piston and not aircraft.grouper.turbine and not aircraft.grouper.electric %}
-            class="text-danger"
-          {% elif not aircraft.grouper.aircraft_category or aircraft.grouper.class_required and not aircraft.grouper.aircraft_class %}
-            class="text-danger"
-          {% elif not aircraft.grouper.superr and not aircraft.grouper.heavy and not aircraft.grouper.large and not aircraft.grouper.small %}
-            class="text-danger"
-          {% else %}
-            class="text-dark"
-          {% endif %}
+        <a class="text-dark"
           href="{% url 'aircraft_detail' aircraft.grouper.pk %}">
             <h4 class="mb-0" data-aircraft-type>{{ aircraft.grouper }}</h4>
           </a>
@@ -67,11 +49,6 @@
     <div style="display: inline;">
       {% for tailnumber in aircraft.list %}
         <a data-tailnumber
-        {% if not tailnumber.is_91 and not tailnumber.is_135 and not tailnumber.is_121 %}
-        class="text-danger"
-        {% else %}
-        class=""
-        {% endif %}
         href="{% url 'tailnumber_detail' tailnumber.pk %}">{{ tailnumber.registration }}</a>
       {% endfor %}
     </div>
@@ -83,7 +60,7 @@
 
 </div>
 </div>
-<script src="{% static 'js/aircraft_filter.js' %}?v=all-types" defer></script>
+<script src="{% static 'js/aircraft_filter.js' %}?v=neutral-record-links" defer></script>
 <script src="{% static 'js/aircraft_default.js' %}" defer></script>
 
 {% if new_user_flight or new_user_aircraft or new_user_tailnumber is True %}

@@ -1,7 +1,7 @@
-{% extends 'base.html' %}
+{% extends 'layouts/card_page.html' %}
 {% load flights_filters %}
 {% load static %}
-{% block content %}
+{% block card_content %}
 
 {% if not airport_confirmation_form.has_unresolved %}{% include "flights/error_alert.html" %}{% endif %}
 {% include "flights/airport_confirmation.html" %}
@@ -21,7 +21,7 @@
 <div class="row">
   <div class="col-12">
     <h4>{{ flight.date|date:"M j, Y"}} {{ flight.aircraft_type }} | {% if flight.simulator %}{{ flight.device_type|default:"Sim" }} {{ flight.device_id }}{% else %}{{ flight.registration }}{% endif %} | {{ flight.duration }}</h4>
-    {% if flight.simulator %}<p>Aircraft Represented: {{ flight.aircraft_type }} · Simulator time (excluded from aircraft flight totals)</p>{% endif %}
+    {% if flight.simulator %}<p>Aircraft Represented: {{ flight.aircraft_type }} · Simulator time (excluded from aircraft flight totals){% if flight.training_program %} · {{ flight.get_training_program_display }}{% endif %}</p>{% endif %}
     {% if flight.launch_method %}<p class="mb-1">Launch Method: {{ flight.get_launch_method_display }}</p>{% endif %}
     <h6>{{ flight.route }}
       {% if flight.pilot_in_command %}| PIC{% endif %}

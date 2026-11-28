@@ -19,7 +19,7 @@ class OperatingRuleSummaryTests(TestCase):
         self.tails = {
             rule: TailNumber.objects.create(user=self.user, aircraft=self.aircraft,
                                            registration=f'N{rule}', **{f'is_{rule}': True})
-            for rule in ('91', '121', '135')
+            for rule in ('91', '121', '125', '135', '137')
         }
 
     def flight(self, rule, role, duration):
@@ -32,13 +32,13 @@ class OperatingRuleSummaryTests(TestCase):
         return row.pilot_in_command, row.second_in_command
 
     def test_each_rule_combines_only_its_own_flights_and_imported_balances(self):
-        for index, rule in enumerate(('91', '121', '135'), start=1):
+        for index, rule in enumerate(('91', '121', '125', '135', '137'), start=1):
             self.flight(rule, 'pilot_in_command', Decimal(index))
             self.flight(rule, 'second_in_command', Decimal(index) + Decimal('.5'))
             Imported.objects.create(user=self.user, aircraft_type=self.aircraft,
                                     pilot_in_command=10 * index, second_in_command=20 * index,
                                     **{f'is_{rule}': True})
-        for index, rule in enumerate(('91', '121', '135'), start=1):
+        for index, rule in enumerate(('91', '121', '125', '135', '137'), start=1):
             self.assertEqual(self.values(rule), (Decimal(11 * index), Decimal(21 * index) + Decimal('.5')))
 
     def test_part_91_sic_does_not_require_any_pic_flights(self):
@@ -46,7 +46,7 @@ class OperatingRuleSummaryTests(TestCase):
         self.assertEqual(self.values('91'), (0, Decimal('2.5')))
 
     def test_imported_only_balances_survive_for_all_rules(self):
-        for rule in ('91', '121', '135'):
+        for rule in ('91', '121', '125', '135', '137'):
             Imported.objects.create(user=self.user, aircraft_type=self.aircraft,
                                     pilot_in_command='12.3', second_in_command='45.6',
                                     **{f'is_{rule}': True})

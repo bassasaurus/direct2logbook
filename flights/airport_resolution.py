@@ -33,8 +33,8 @@ def airport_choice_label(airport):
             identifiers.append(title + ' ' + ', '.join(codes))
     if airport.iata and not any(alias.code == airport.iata and alias.kind in ('iata', 'faa') for alias in aliases):
         identifiers.append('Code ' + airport.iata)
-    facility = FACILITY_LABELS.get(airport.airport_type, 'Unclassified facility')
-    return ' — '.join(value for value in (airport.name, location, facility, ' | '.join(identifiers)) if value)
+    facility = 'Closed facility' if airport.airport_type == 'closed' else ''
+    return ' - '.join(value for value in (airport.name, location, ' / '.join(identifiers), facility) if value)
 
 
 def route_segments(route):

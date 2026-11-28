@@ -83,7 +83,7 @@ def milestone_progress_label(reminder):
     return reminder.milestone_progress_label(milestone_hours(reminder, timezone.localdate()))
 
 
-def reminder_notice(reminder, today, hours, *, respect_dismissal=True):
+def reminder_notice(reminder, today, hours, *, respect_dismissal=True, include_all_milestones=False):
     if reminder.kind == Reminder.Kind.IPC:
         from home.currency import instrument_recency
         instrument = instrument_recency(reminder.user_id, ipc=reminder)
@@ -99,6 +99,9 @@ def reminder_notice(reminder, today, hours, *, respect_dismissal=True):
         elif (remaining <= 10 and (reminder.kind in (Reminder.Kind.FLIGHT_TIME, Reminder.Kind.COMPANY_TIME, Reminder.Kind.FLIGHT_CONDITION) or reminder.aircraft_id)):
             message = f'{remaining:.1f} hours to go. {reminder.milestone_label(hours)}.'
             severity = 'success'
+        elif include_all_milestones:
+            message = f'{remaining:.1f} hours to go. {reminder.milestone_label(hours)}.'
+            severity = 'neutral'
         else:
             return None
     else:
@@ -132,7 +135,7 @@ def reminder_notice(reminder, today, hours, *, respect_dismissal=True):
             'progress_label': reminder.milestone_progress_label(hours) if hours is not None else None, **reminder_metrics(reminder, today, hours)}
 
 
-def reminder_rows(user, *, include_saved=False, respect_dismissal=True):
+def reminder_rows(user, *, include_saved=False, respect_dismissal=True, include_all_milestones=False):
     reminders = sorted(
         Reminder.objects.filter(user=user).select_related('aircraft').order_by('pk'),
         key=lambda reminder: reminder.is_dated,
@@ -142,7 +145,7 @@ def reminder_rows(user, *, include_saved=False, respect_dismissal=True):
     rows = []
     for reminder in reminders:
         hours = milestone_hours(reminder, today, all_hours) if not reminder.is_dated else None
-        notice = reminder_notice(reminder, today, hours, respect_dismissal=respect_dismissal if not (include_saved and reminder.is_dated) else False)
+        notice = reminder_notice(reminder, today, hours, respect_dismissal=respect_dismissal if not (include_saved and reminder.is_dated) else False, include_all_milestones=include_all_milestones)
         if include_saved and (reminder.is_dated or not respect_dismissal):
             row = notice or {'id': reminder.pk, 'title': reminder.title, 'kind': reminder.kind,
                              'severity': 'success' if reminder.is_dated else 'neutral'}
@@ -156,11 +159,11 @@ def reminder_rows(user, *, include_saved=False, respect_dismissal=True):
 
 
 @transaction.atomic
-def dismiss_reminder(user, pk, key):
+def dismiss_reminder(user, pk, key, *, include_all_milestones=False):
     reminder = get_object_or_404(Reminder.objects.select_for_update(), user=user, pk=pk)
     today = timezone.localdate()
     hours = milestone_hours(reminder, today) if not reminder.is_dated else None
-    notice = reminder_notice(reminder, today, hours)
+    notice = reminder_notice(reminder, today, hours, include_all_milestones=include_all_milestones)
     if notice and notice['key'] == key:
         reminder.dismissed_key = key
         reminder.save(update_fields=['dismissed_key'])

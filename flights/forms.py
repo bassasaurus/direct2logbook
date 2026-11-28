@@ -1,3 +1,4 @@
+from flights.operating_rules import OPERATING_RULE_CHOICES
 from logbook.date_fields import NamedDateInput
 from django import forms
 from logbook.date_formats import DATE_INPUT_FORMATS
@@ -307,7 +308,7 @@ class AircraftForm(UserOwnedRelationsFormMixin, forms.ModelForm):
 
 class TailNumberForm(UserOwnedRelationsFormMixin, forms.ModelForm):
     operating_rules = forms.ChoiceField(required=False, widget=forms.RadioSelect,
-        choices=[('is_91', 'Part 91'), ('is_135', 'Part 135'), ('is_121', 'Part 121')])
+        choices=OPERATING_RULE_CHOICES)
     rule_fields = OPERATING_RULES
 
     def __init__(self, *args, **kwargs):
@@ -323,8 +324,7 @@ class TailNumberForm(UserOwnedRelationsFormMixin, forms.ModelForm):
             attrs['pattern'] = '(?:' + escaped + r'|[\s\S]{3,8})'
         else:
             attrs.update(minlength=3, maxlength=8)
-        if self.instance._state.adding or sum(bool(getattr(self.instance, name)) for name in self.rule_fields) == 1:
-            self.fields['operating_rules'].widget.attrs['required'] = True
+        self.fields['operating_rules'].widget.attrs['required'] = True
 
     def clean(self):
         cleaned = super().clean()
@@ -354,16 +354,25 @@ class TailNumberForm(UserOwnedRelationsFormMixin, forms.ModelForm):
 
 
 class ImportedForm(UserOwnedRelationsFormMixin, forms.ModelForm):
+    operating_rules = forms.ChoiceField(required=True, widget=forms.RadioSelect, choices=OPERATING_RULE_CHOICES)
     last_flown = forms.DateField(required=False, input_formats=DATE_INPUT_FORMATS, widget=NamedDateInput(format='%b %d, %Y'))
     owned_relation_fields = ('aircraft_type',)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        initialize_radio_groups(self, {'operating_rules': OPERATING_RULES})
         for name, field in self.fields.items():
             if isinstance(field, forms.DecimalField):
                 field.widget.attrs['placeholder'] = '##.#'
             elif name in ('landings_day', 'landings_night'):
                 field.widget.attrs['placeholder'] = '#'
+
+    def clean(self):
+        cleaned = super().clean()
+        clean_radio_group(self, cleaned, 'operating_rules', OPERATING_RULES)
+        if sum(bool(cleaned.get(field)) for field in OPERATING_RULES) != 1 and 'operating_rules' not in self.errors:
+            self.add_error('operating_rules', 'Select one operating rule.')
+        return cleaned
 
     class Meta:
         model = Imported

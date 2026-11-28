@@ -28,6 +28,35 @@ class MobileSyncTests(APITestCase):
         self.assertEqual(response.status_code, 200, response.data)
         return operation, response.data
 
+    def test_training_program_survives_sync_retry_and_edit(self):
+        self.data.update(simulator=True, device_type='FFS', device_id='SIM-1', training_program='141', dual=True)
+        operation, first = self.create()
+        self.assertEqual(first['flight']['training_program'], '141')
+        self.assertEqual(self.send(**operation).data, first)
+        self.data['training_program'] = '142'
+        response = self.send(operation_id=str(uuid.uuid4()), action='update', flight_id=first['flight']['id'],
+                             base_revision=first['flight']['revision'], data=self.data)
+        self.assertEqual(response.status_code, 200, response.data)
+        self.assertEqual(response.data['flight']['training_program'], '142')
+        self.assertNotEqual(first['flight']['revision'], response.data['flight']['revision'])
+
+    def test_tracking_survives_sync_retry_and_can_be_cleared(self):
+        self.data['intercepting_tracking'] = True
+        operation, first = self.create()
+        self.assertTrue(first['flight']['intercepting_tracking'])
+        self.assertEqual(self.send(**operation).data, first)
+        flight = Flight.objects.get(pk=first['flight']['id'])
+        self.assertTrue(flight.intercepting_tracking)
+        initial_revision = flight_revision(flight)
+        self.data['intercepting_tracking'] = False
+        edited = self.send(operation_id=str(uuid.uuid4()), action='update', flight_id=flight.pk,
+                           base_revision=initial_revision, data=self.data)
+        self.assertEqual(edited.status_code, 200, edited.data)
+        self.assertFalse(edited.data['flight']['intercepting_tracking'])
+        flight.refresh_from_db()
+        self.assertFalse(flight.intercepting_tracking)
+        self.assertNotEqual(initial_revision, flight_revision(flight))
+
     def test_lost_response_retry_creates_exactly_one_flight_and_receipt(self):
         operation, first = self.create()
         second = self.send(**operation)

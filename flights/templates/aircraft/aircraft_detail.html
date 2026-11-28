@@ -1,19 +1,8 @@
-{% extends 'base.html' %}
-{% block content%}
+{% extends 'layouts/card_page.html' %}
+{% block card_content %}
 {% load static %}
 
-{% if detail_has_errors %}
-<section class="alert alert-danger" aria-label="Aircraft errors">
-  <h5>Please correct the following errors</h5>
-  <ul class="ps-3">
-    {% if power_error %}<li>Choose Piston, Turbine, or Electric.</li>{% endif %}
-    {% if weight_error %}<li>Please choose a weight category.</li>{% endif %}
-    {% if category_error %}<li>Please choose a category.</li>{% endif %}
-    {% if class_error %}<li>Please choose a class.</li>{% endif %}
-    {% if aircraft_needs_tailnumber %}<li>{{ aircraft_needs_tailnumber }}. <a class="alert-link" href="{% url 'tailnumber_create' %}">Add a tailnumber</a></li>{% endif %}
-  </ul>
-</section>
-{% endif %}
+
 <div class="row">
   <div class="col-12">
     <h4>{{ aircraft.aircraft_type }}</h4>

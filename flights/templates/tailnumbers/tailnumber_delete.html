@@ -1,6 +1,6 @@
-{% extends 'base.html' %}
+{% extends 'layouts/card_page.html' %}
 
-{% block content %}
+{% block card_content %}
 {% if can_delete %}
 <form data-submit-feedback="delete" action="" class="form" id="delete-form" method="post">{% csrf_token %}
   <p>Are you sure you want to delete "{{ object }}"?</p>

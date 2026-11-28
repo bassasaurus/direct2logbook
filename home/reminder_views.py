@@ -100,7 +100,7 @@ def remove_reminder(request, pk):
 @login_required
 @require_POST
 def dismiss_dashboard_reminder(request, pk):
-    dismiss_reminder(request.user, pk, request.POST.get('key'))
+    dismiss_reminder(request.user, pk, request.POST.get('key'), include_all_milestones=True)
     return redirect('home')
 
 

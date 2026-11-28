@@ -1,5 +1,5 @@
-{% extends 'base.html' %}
-{% block content %}
+{% extends 'layouts/card_page.html' %}
+{% block card_content %}
 
 <h3>{{ flight.date|date:"M j, Y" }} | {{ flight.aircraft_type }} | {{ flight.registration }} | {{ flight.route }}</h3>
 <hr>

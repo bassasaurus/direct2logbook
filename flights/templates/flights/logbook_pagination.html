@@ -3,7 +3,10 @@
   {% if errors_only %}<input type="hidden" name="errors" value="1">{% endif %}
   <label for="logbook-jump-month" class="visually-hidden">Jump to flight month</label>
   <div class="input-group">
-    <input type="text" id="logbook-jump-month" placeholder="Nov 30, 2026" autocomplete="off" name="jump_month" class="form-control" value="{{ jump_month }}" required>
+    <div class="position-relative flex-grow-1" style="min-width:0">
+      <input type="text" id="logbook-jump-month" placeholder="Select Date" autocomplete="off" name="jump_month" class="form-control pe-5" value="{{ jump_month }}" required>
+      <span class="ion-calendar position-absolute top-50 end-0 translate-middle-y me-3" style="pointer-events:none" aria-hidden="true"></span>
+    </div>
     <button type="submit" class="btn btn-link">Go</button>
   </div>
 </form>

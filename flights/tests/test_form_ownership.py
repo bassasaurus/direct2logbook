@@ -58,7 +58,7 @@ class FormRelationshipOwnershipTests(TestCase):
              {'registration': 'NNEW', 'aircraft': self.aircraft.pk, 'is_91': True},
              'aircraft', self.other_aircraft.pk),
             (ImportedForm, 'imported_create', 'imported_update', self.imported,
-             {'aircraft_type': self.aircraft.pk, 'total_time': '2.0'},
+             {'aircraft_type': self.aircraft.pk, 'total_time': '2.0', 'operating_rules': 'is_91'},
              'aircraft_type', self.other_aircraft.pk),
         ]
 

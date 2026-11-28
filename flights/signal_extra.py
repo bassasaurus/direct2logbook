@@ -51,8 +51,9 @@ def regs_update(sender, instance, dispatch_uid="regs_update", **kwargs):
 
 
 def refresh_operating_rule_summaries(user_id, *, using='default'):
-    """Aggregate all three rule categories together; never load flight records."""
-    rules = ('91', '121', '135')
+    """Aggregate operating-rule categories together; never load flight records."""
+    from flights.operating_rules import OPERATING_RULE_CODES
+    rules = OPERATING_RULE_CODES
     roles = ('pilot_in_command', 'second_in_command')
     flight_sums = {}
     imported_sums = {}

@@ -7,7 +7,8 @@
 
 {% else %}
 
-<section aria-labelledby="account-heading" class="profile-section">
+<section aria-labelledby="account-heading" class="card record-form-card profile-section mx-auto mb-3">
+  <div class="card-body">
   <h5 id="account-heading">Account</h5>
   <div class="row">
     <div class="col-12">
@@ -31,9 +32,34 @@
     </div>
 
   </div>
+</div>
 </section>
-<hr>
-<section aria-labelledby="signature-heading" class="profile-section">
+<section aria-labelledby="certificates-heading" class="card record-form-card profile-section mx-auto mb-3">
+  <div class="card-body">
+    <h5 id="certificates-heading">Certificates Held</h5>
+    <form method="post" action="{% url 'profile' %}" data-certificates-form>
+      {% csrf_token %}
+      {{ certificates_form.non_field_errors }}
+      <fieldset class="mb-3">
+        <legend class="visually-hidden">Certificates Held</legend>
+        <div class="row g-2">
+          {% for field in certificates_form %}
+          <div class="col-12 col-sm-6 col-lg-4">
+            <div class="form-check mb-0">
+              {{ field }}
+              <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+              {{ field.errors }}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </fieldset>
+      <button class="btn btn-primary" type="submit">Save</button>
+    </form>
+  </div>
+</section>
+<section aria-labelledby="signature-heading" class="card record-form-card profile-section mx-auto mb-3">
+  <div class="card-body">
       <h5 id="signature-heading">Signature</h5>
       {% if signature %}
         <img src="{{ signature.rendered_signature }}" alt="Signature" class="img-fluid profile-signature-image">
@@ -41,24 +67,38 @@
       {% else %}
         <a href="{% url 'signature_create' %}">Create New Signature</a>
       {% endif %}
+</div>
 </section>
-<hr>
 {% include 'profile/subscription.html' %}
-<hr>
-<section aria-labelledby="data-heading" class="profile-section">
+
+<section aria-labelledby="data-heading" class="card record-form-card profile-section mx-auto mb-3">
+  <div class="card-body">
   <h5 id="data-heading" class="mb-2">Data</h5>
   <div class="context-navigation-links">
     <a href="{% url 'csv_inspect' %}">Upload CSV</a>
     <span aria-hidden="true">|</span>
     <a id="csv" href="{% url 'csv_download' %}">Download your data</a>
   </div>
+</div>
 </section>
-<hr>
-<p class="mb-1">Questions or problems? <a href="mailto:support@direct2logbook.com?subject=Support">Contact support</a>.</p>
-<p class="text-muted">Include a screenshot and a description of the issue.</p>
+<section aria-labelledby="support-heading" class="card record-form-card profile-section mx-auto mb-3">
+  <div class="card-body">
+    <h5 id="support-heading">Support</h5>
+    <p class="mb-1">Questions or problems? <a href="mailto:support@direct2logbook.com?subject=Support">Contact support</a>.</p>
+    <p class="text-muted mb-0">Include a screenshot and a description of the issue.</p>
+  </div>
+</section>
 {% endif %}
 
 <script>
+(() => {
+  const form = document.querySelector('[data-certificates-form]');
+  if (!form) return;
+  const instructor = form.elements.namedItem('flight_instructor_certificate');
+  const ratings = ['instrument_instructor', 'multi_engine_instructor'].map(name => form.elements.namedItem(name));
+  ratings.forEach(field => field.addEventListener('change', () => { if (field.checked) instructor.checked = true; }));
+  instructor.addEventListener('change', () => { if (!instructor.checked) ratings.forEach(field => { field.checked = false; }); });
+})();
   $('#csv').click(function(e) {
     swal({
       type: 'info',

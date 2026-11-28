@@ -1,0 +1,8 @@
+{% load flights_filters %}
+<section class="card mt-3"><div class="card-body">
+<h5>Simulator Training Programs</h5>
+<div class="table-responsive"><table class="table table-bordered">
+<thead><tr><th>Program</th><th>FFS</th><th>FTD</th><th>ATD</th><th>Unclassified</th><th>Total</th></tr></thead>
+<tbody>{% for row in simulator_program_totals %}<tr><th scope="row">{{ row.label }}</th><td>{{ row.ffs|floatformat:1|zero_dash }}</td><td>{{ row.ftd|floatformat:1|zero_dash }}</td><td>{{ row.atd|floatformat:1|zero_dash }}</td><td>{{ row.unclassified|floatformat:1|zero_dash }}</td><td>{{ row.total|floatformat:1|zero_dash }}</td></tr>{% endfor %}</tbody>
+</table></div><p class="small text-muted mb-0">Logged hours, separate from aircraft flight totals. Course-specific credit is not calculated.</p>
+</div></section>

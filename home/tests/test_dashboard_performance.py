@@ -1,5 +1,4 @@
 from flights.tests.owned_fixtures import owned_aircraft_and_tail
-from contextlib import ExitStack
 from datetime import date, timedelta
 from unittest.mock import patch
 
@@ -10,11 +9,6 @@ from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 
 from flights.models import Aircraft, Flight, Imported, TailNumber
-from home import views
-
-
-CURRENCY_NAMES = [f'{category}_vfr_{period}' for category in
-                  ('asel', 'amel', 'ases', 'ames', 'helo', 'gyro') for period in ('day', 'night')]
 
 
 @override_settings(SECURE_SSL_REDIRECT=False)
@@ -45,23 +39,18 @@ class DashboardPerformanceTests(TestCase):
         ])
         self.client.force_login(self.user)
 
-    def test_currency_helpers_run_once_and_preserve_results(self):
-        with ExitStack() as stack:
-            helpers = {name: stack.enter_context(patch('home.views.' + name, wraps=getattr(views, name)))
-                       for name in CURRENCY_NAMES + ['medical_expiry_date']}
+    def test_shared_currency_snapshot_runs_once_and_preserves_owned_results(self):
+        from home.passenger_currency import passenger_currency
+        with patch('home.passenger_currency.passenger_currency', wraps=passenger_currency) as helper:
             with CaptureQueriesContext(connection) as queries:
                 response = self.client.get(reverse('home'))
         self.assertEqual(response.status_code, 200)
-        print(f'Home dashboard (3 flights, 1 aircraft): {len(queries)} queries')
-        for name, helper in helpers.items():
-            with self.subTest(helper=name):
-                self.assertEqual(helper.call_count, 1)
-        for name in CURRENCY_NAMES:
-            self.assertEqual(response.context[name], 3 if name.startswith('asel_') else 0)
-            self.assertEqual(response.context[name + '_current'], name.startswith('asel_'))
-        self.assertIsNotNone(response.context['expiry_date'])
-        self.assertEqual(response.context['medical_alert']['severity'], 'success')
-        self.assertFalse(response.context['medical_alert']['banner'])
+        self.assertEqual(helper.call_count, 1)
+        row = response.context['passenger_categories'][0]
+        self.assertEqual(row['label'], 'ASEL')
+        self.assertEqual(row['day']['count'], 6)
+        self.assertEqual(row['night']['count'], 3)
+        self.assertEqual(len(row['day']['last_dates']), 3)
         self.assertNotContains(response, 'PRIVATE-ROUTE')
         self.assertFalse(response.context['new_user_flight'])
         self.assertFalse(response.context['new_user_aircraft'])

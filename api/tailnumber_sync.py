@@ -34,7 +34,7 @@ class MobileTailnumberSyncView(APIView):
                 return Response({'detail': 'Operation ID already used for different data.'}, status=409)
             return Response(previous.response)
         data = {key: value for key, value in values['data'].items()
-                if key in ('registration', 'aircraft', 'is_91', 'is_135', 'is_121')}
+                if key in ('registration', 'aircraft', 'is_91', 'is_135', 'is_121', 'is_125', 'is_137')}
         registration = data.get('registration')
         if not isinstance(registration, str):
             raise serializers.ValidationError({'registration': 'Registration is required.'})

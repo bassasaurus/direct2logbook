@@ -381,9 +381,9 @@ body.app-layout {
   text-decoration: none;
 }
 
-/* The frozen first cell needs an opaque background to avoid doubling row tint. */
-#logbook .logbook-flight-row > td:first-child { background-color: #fff !important; }
-#logbook tbody .logbook-stripe > td:first-child {
+/* Frozen Date and Index cells must cover the scrolling columns. */
+#logbook .logbook-flight-row > td:nth-child(-n+2) { background-color: #fff !important; }
+#logbook tbody .logbook-stripe > td:nth-child(-n+2) {
   background-color: #f2f2f2 !important;
 }
 #logbook tbody .logbook-flight-row:is(:hover, :focus-within) > td,
@@ -469,7 +469,7 @@ body.app-layout {
   .page-action-row .detail-record-actions a { padding-block: .5rem; }
 }
 
-.profile-section { margin: 1.5rem 0; }
+.profile-section { margin-top: 0; }
 .profile-section h5 { margin-bottom: 1rem; }
 .profile-details {
   display: grid;
@@ -873,3 +873,24 @@ form fieldset.required-choice-empty { border-color: var(--bs-danger, #dc3545) !i
     border-color: #ffb1b8 !important;
   }
 }
+
+.reminder-banners > .card { display: block; }
+.card.reminder-banner { border-color: var(--bs-border-color, #dee2e6); }
+.card.reminder-banner-neutral { color: var(--bs-body-color, #212529); background: var(--bs-body-bg, #fff); }
+
+/* Shared website card surfaces; content can stay wide for maps and tables. */
+.app-layout .card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(24, 39, 55, .04);
+  min-width: 0;
+}
+.app-layout .card:not(.reminder-banner) { border: 1px solid var(--bs-border-color, #dee2e6); }
+.app-layout .card > .card-body { padding: 24px; min-width: 0; }
+.home-overview-column > section.card { margin-bottom: 12px; }
+.site-summary-card { margin-bottom: 16px; }
+@media (max-width: 575px) {
+  .app-layout .card > .card-body { padding: 16px; }
+}
+
+#logbook tbody > tr > td:nth-child(-n+2) { z-index: 2; }
+#logbook thead > tr > th:nth-child(-n+2) { z-index: 3 !important; }
