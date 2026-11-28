@@ -894,3 +894,6 @@ form fieldset.required-choice-empty { border-color: var(--bs-danger, #dc3545) !i
 
 #logbook tbody > tr > td:nth-child(-n+2) { z-index: 2; }
 #logbook thead > tr > th:nth-child(-n+2) { z-index: 3 !important; }
+
+/* Calendar popovers must stay above frozen logbook cells. */
+#ui-datepicker-div { z-index: 1060 !important; }
